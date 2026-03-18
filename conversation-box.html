@@ -352,6 +352,7 @@ function saveConversations() {
 
         // Save submitted events
         function saveSubmittedEvents() {
+            console.log('[saveSubmittedEvents] saving to localStorage + Supabase. spiritual:', Array.from(submittedEvents.spiritual), 'discovery:', Array.from(submittedEvents.discovery));
             localStorage.setItem('submittedEvents', JSON.stringify({
                 spiritual: Array.from(submittedEvents.spiritual),
                 discovery: Array.from(submittedEvents.discovery)
@@ -419,6 +420,7 @@ function saveConversations() {
         // No-ops silently if no user is signed in.
         async function saveToSupabase() {
             const user = getCurrentUser();
+            console.log('[saveToSupabase] called. user:', user ? user.id : 'none (not signed in)');
             if (!user) return;
             const userId = user.id;
 
@@ -448,6 +450,7 @@ function saveConversations() {
                         eventRows.push({ user_id: userId, person_name: personName, event_type: type });
                     });
                 });
+                console.log('[saveToSupabase] submitted_events to insert:', eventRows);
                 if (eventRows.length > 0) await window.supabase.from('submitted_events').insert(eventRows);
 
                 // Replace submitted_green_lights rows
@@ -657,6 +660,7 @@ function saveConversations() {
         }
 
         async function sendEventToAPI(userName, personName, eventType, location, latitude, longitude) {
+            console.log(`[sendEventToAPI] called: ${personName} → ${eventType}, location=${location}`);
             const payload = {
                 user_name: userName,
                 person_name: personName,
@@ -664,7 +668,7 @@ function saveConversations() {
                 location: location,
                 timestamp: new Date().toISOString()
             };
-            
+
             if (latitude !== null && longitude !== null) {
                 payload.latitude = latitude;
                 payload.longitude = longitude;
@@ -673,79 +677,76 @@ function saveConversations() {
             try {
                 const response = await fetch(WORDPRESS_API_URL, {
                     method: 'POST',
-                    headers: { 
+                    headers: {
                         'Content-Type': 'application/json',
                         'Accept': 'application/json'
                     },
                     body: JSON.stringify(payload)
                 });
-                
+
                 const result = await response.json();
-                
+
                 if (result.success) {
-                    console.log(`✓ Event submitted: ${personName} → ${eventType}`);
+                    console.log(`[sendEventToAPI] ✓ WordPress accepted: ${personName} → ${eventType}`);
                     showNotification(`${personName} recorded on map!`);
                 } else {
-                    console.error('API error:', result);
+                    console.warn(`[sendEventToAPI] WordPress rejected:`, result);
                 }
             } catch (error) {
-                console.error('Network error:', error);
+                console.warn(`[sendEventToAPI] WordPress unreachable (expected if disabled):`, error.message);
             }
         }
 
         async function submitEvent(personName, eventType) {
+            console.log(`[submitEvent] called: ${personName}, type=${eventType}`);
             const userName = localStorage.getItem('user-name') || 'Anonymous';
             const eventKey = `${personName}-${eventType}`;
-            
+
             if (submittedEvents[eventType].has(eventKey)) {
-                console.log(`Event already submitted: ${eventKey}`);
+                console.log(`[submitEvent] already submitted, skipping: ${eventKey}`);
                 return;
             }
-            
-            console.log(`Submitting new event: ${eventKey}`);
-            
+
+            // ── FIX: write to Supabase immediately, before any geolocation/WordPress work ──
+            console.log(`[submitEvent] adding to submittedEvents: ${eventKey}`);
+            submittedEvents[eventType].add(eventKey);
+            console.log(`[submitEvent] submittedEvents[${eventType}] now:`, Array.from(submittedEvents[eventType]));
+            saveSubmittedEvents();
+            console.log(`[submitEvent] saveSubmittedEvents() called`);
+            // ── END FIX ──
+
+            // Fire-and-forget: send to WordPress map API with best-available location
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     async (position) => {
                         const location = await getCityFromCoords(
-                            position.coords.latitude, 
+                            position.coords.latitude,
                             position.coords.longitude
                         );
-                        
                         await sendEventToAPI(
-                            userName, 
-                            personName, 
-                            eventType, 
+                            userName,
+                            personName,
+                            eventType,
                             location,
                             position.coords.latitude,
                             position.coords.longitude
                         );
-                        
-                        submittedEvents[eventType].add(eventKey);
-                        saveSubmittedEvents();
                     },
                     async (error) => {
-                        console.error('GPS error:', error);
+                        console.warn('[submitEvent] GPS error, falling back to IP location:', error.message);
                         try {
                             const response = await fetch('https://ipapi.co/json/');
                             const data = await response.json();
                             const location = [data.city, data.region].filter(Boolean).join(', ') || 'Unknown';
-                            
                             await sendEventToAPI(userName, personName, eventType, location, null, null);
-                            submittedEvents[eventType].add(eventKey);
-                            saveSubmittedEvents();
                         } catch (e) {
                             await sendEventToAPI(userName, personName, eventType, 'Unknown', null, null);
-                            submittedEvents[eventType].add(eventKey);
-                            saveSubmittedEvents();
                         }
                     },
                     { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
                 );
             } else {
                 await sendEventToAPI(userName, personName, eventType, 'Unknown', null, null);
-                submittedEvents[eventType].add(eventKey);
-                saveSubmittedEvents();
             }
         }
 
