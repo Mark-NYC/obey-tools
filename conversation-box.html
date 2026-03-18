@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conversation Box</title>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif; background: #f2f2f7; min-height: 100vh; color: #000; line-height: 1.4; }
+        .container { max-width: 375px; margin: 0 auto; background: #fff; min-height: 100vh; }
+        .status-bar { height: 44px; background: #fff; display: flex; justify-content: center; align-items: center; font-weight: 600; font-size: 17px; border-bottom: 0.5px solid #c6c6c8; }
+        .header { padding: 20px 16px 16px; background: #fff; }
+        .date-info { color: #8e8e93; font-size: 13px; margin-bottom: 4px; }
+        .users-info { color: #8e8e93; font-size: 13px; }
+        .controls { padding: 0 16px 20px; background: #fff; border-bottom: 0.5px solid #c6c6c8; }
+        .btn-group { display: flex; gap: 8px; }
+        .reset-section { padding: 20px 16px; background: #f2f2f7; display: flex; justify-content: center; }
+        .reset-section .btn { width: auto; padding: 11px 24px; }
+        .btn { flex: 1; padding: 11px 16px; border: none; border-radius: 8px; font-weight: 600; font-size: 15px; cursor: pointer; transition: all 0.2s ease; }
+        .btn-primary { background: #3a3a3c; color: white; }
+        .btn-primary:active { background: #2c2c2e; transform: scale(0.98); }
+        .btn-secondary { background: #f2f2f7; color: #3a3a3c; }
+        .btn-secondary:active { background: #e5e5ea; transform: scale(0.98); }
+        .conversation-grid { padding: 20px 16px; display: flex; flex-direction: column; gap: 16px; }
+        .conversation-box { background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .box-header { padding: 16px; border-bottom: 0.5px solid #c6c6c8; background: #fff; position: relative; }
+        .box-title { font-size: 20px; font-weight: 900; text-align: center; letter-spacing: -0.5px; color: #8e8e93; text-transform: uppercase; }
+        .conversation-list { min-height: 120px; }
+        .conversation-item { display: flex; justify-content: space-between; align-items: center; padding: 16px; border-bottom: 0.5px solid #c6c6c8; background: #fff; transition: background-color 0.2s ease; }
+        .conversation-item:last-child { border-bottom: none; }
+        .conversation-item:active { background: #f2f2f7; }
+        .conversation-name { font-size: 17px; font-weight: 500; color: #000; display: flex; align-items: center; gap: 8px; cursor: pointer; }
+        .color-circle { width: 20px; height: 20px; border-radius: 50%; display: inline-block; }
+        .conversation-actions { display: flex; gap: 12px; }
+        .action-btn { width: 28px; height: 28px; border: none; border-radius: 14px; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; }
+        .action-btn:active { transform: scale(0.9); }
+        .move-btn { background: #ff9500; color: white; }
+        .back-btn { background: #8e8e93; color: white; }
+        .delete-btn { background: #ff3b30; color: white; }
+        .down-btn { background: #ff9500; color: white; }
+        .empty-state { padding: 32px 16px; text-align: center; color: #8e8e93; font-size: 15px; }
+        .add-person-section { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 375px; background: #fff; border-top: 0.5px solid #c6c6c8; padding: 16px; padding-bottom: calc(16px + env(safe-area-inset-bottom)); }
+        .add-person-input { display: flex; gap: 8px; }
+        .add-person-input input { flex: 1; padding: 11px 16px; border: 1px solid #c6c6c8; border-radius: 8px; font-size: 17px; background: #f2f2f7; outline: none; }
+        .add-person-input input:focus { border-color: #3a3a3c; background: #fff; }
+        .share-indicator { position: absolute; top: 16px; right: 16px; width: 8px; height: 8px; background: #ff3b30; border-radius: 4px; }
+        .content-wrapper { padding-bottom: 120px; }
+        .name-prompt, .edit-name-prompt, .box-selection-prompt, .share-popup, .tutorial-popup, .reset-prompt { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); z-index: 1000; display: none; flex-direction: column; gap: 12px; width: 90%; max-width: 300px; }
+        .tutorial-popup { max-width: 400px; text-align: left; }
+        .tutorial-popup h3 { font-size: 18px; font-weight: 600; margin-bottom: 16px; text-align: center; }
+        .tutorial-popup ol { margin-left: 20px; margin-bottom: 16px; }
+        .tutorial-popup li { margin-bottom: 8px; line-height: 1.4; }
+        .name-prompt input, .edit-name-prompt input { padding: 10px; border: 1px solid #c6c6c8; border-radius: 8px; font-size: 16px; outline: none; }
+        .name-prompt input:focus, .edit-name-prompt input:focus { border-color: #3a3a3c; }
+        .name-prompt button, .edit-name-prompt button, .reset-prompt button { padding: 10px; border: none; border-radius: 8px; background: #3a3a3c; color: white; font-weight: 600; cursor: pointer; }
+        .name-prompt button:active, .edit-name-prompt button:active, .reset-prompt button:active { background: #2c2c2e; }
+        .box-selection-prompt .option { display: flex; align-items: center; justify-content: center; padding: 16px; border-bottom: 1px solid #f2f2f7; cursor: pointer; background: #fff; transition: background 0.2s; font-size: 16px; font-weight: 500; text-transform: capitalize; }
+        .box-selection-prompt .option:last-child { border-bottom: none; }
+        .box-selection-prompt .option:active { background: #f2f2f7; }
+        .move-prompt { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff; padding: 0; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); z-index: 1000; display: none; flex-direction: column; width: 90%; max-width: 300px; overflow: hidden; }
+        .option { display: flex; align-items: center; justify-content: space-between; padding: 16px; border-bottom: 1px solid #f2f2f7; cursor: pointer; background: #fff; transition: background 0.2s; }
+        .option:last-child { border-bottom: none; }
+        .option:active { background: #f2f2f7; }
+        .option .color-circle { width: 20px; height: 20px; border-radius: 50%; }
+        .option span:nth-child(2) { flex: 1; margin-left: 12px; font-size: 16px; }
+        .option .plus { font-size: 24px; color: #8e8e93; }
+        .color-circle.red { background-color: #ff0000; }
+        .color-circle.yellow { background-color: #ffd700; }
+        .color-circle.lightgreen { background-color: #90ee90; }
+        .color-circle.darkgreen { background-color: #228b22; }
+        .remove-prompt, .reset-prompt { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); z-index: 1000; display: none; flex-direction: column; gap: 12px; width: 90%; max-width: 300px; text-align: center; }
+        .remove-prompt button, .reset-prompt button { padding: 10px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; width: 100px; margin: 0 auto; }
+        .yes-btn { background: #ff3b30; color: white; }
+        .no-btn { background: #8e8e93; color: white; }
+        .share-popup { text-align: center; }
+        .share-popup h3 { font-size: 18px; font-weight: 600; margin-bottom: 12px; }
+        .share-popup .app-icons { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; }
+        .share-popup .app-icon { width: 48px; height: 48px; border-radius: 12px; cursor: pointer; transition: transform 0.2s ease; position: relative; overflow: hidden; background-color: #f0f0f0; border: 2px solid red; }
+        .share-popup .app-icon:active { transform: scale(0.95); }
+        .share-popup .app-icon::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; background-repeat: no-repeat; }
+        .share-popup .app-icon.messages::before { background-image: url('https://obey.tools/wp-content/uploads/2025/09/Messages.webp'); }
+        .share-popup .app-icon.whatsapp::before { background-image: url('https://obey.tools/wp-content/uploads/2025/09/Whatsapp.webp'); }
+        .share-popup .app-icon.signal::before { background-image: url('https://obey.tools/wp-content/uploads/2025/09/Signal.webp'); }
+        .share-popup .app-label { font-size: 14px; margin-top: 8px; color: #3a3a3c; }
+        .share-popup .close-btn { padding: 10px; border: none; border-radius: 8px; background: #8e8e93; color: white; font-weight: 600; cursor: pointer; margin-top: 12px; }
+        .share-popup .close-btn:active { background: #6b6b70; }
+        @media (min-width: 768px) {
+            .container { max-width: 768px; border-radius: 12px; margin: 20px auto; box-shadow: 0 4px 20px rgba(0,0,0,0.1); overflow: hidden; }
+            .conversation-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 20px; }
+            .conversation-box.casual { order: 1; }
+            .conversation-box.meaningful { order: 2; }
+            .conversation-box.discovery { order: 3; }
+            .conversation-box.spiritual { order: 4; }
+            .add-person-section { position: static; transform: none; width: auto; max-width: none; border-top: 0.5px solid #c6c6c8; border-radius: 0; }
+            .content-wrapper { padding-bottom: 0; }
+        }
+        .notification { position: fixed; top: 60px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: white; padding: 12px 20px; border-radius: 8px; font-size: 15px; font-weight: 500; z-index: 1000; opacity: 0; animation: notificationSlide 3s ease; }
+        @keyframes notificationSlide { 0% { opacity: 0; transform: translateX(-50%) translateY(-20px); } 10% { opacity: 1; transform: translateX(-50%) translateY(0); } 90% { opacity: 1; transform: translateX(-50%) translateY(0); } 100% { opacity: 0; transform: translateX(-50%) translateY(-20px); } }
+        .haptic-feedback { animation: haptic 0.1s ease; }
+        @keyframes haptic { 0% { transform: scale(1); } 50% { transform: scale(0.98); } 100% { transform: scale(1); } }
+        .sync-indicator { position: fixed; top: 10px; left: 10px; background: rgba(52, 199, 89, 0.9); color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; z-index: 9999; display: none; }
+        .sync-indicator.syncing { background: rgba(255, 149, 0, 0.9); display: block; }
+        .sync-indicator.synced { background: rgba(52, 199, 89, 0.9); display: block; }
+    </style>
+</head>
+<body>
+    <div class="sync-indicator" id="sync-indicator">Syncing...</div>
+    <div class="container">
+        <div class="header">
+            <div class="date-info"></div>
+            <div class="users-info"></div>
+        </div>
+        <div class="controls">
+            <div class="btn-group">
+                <button class="btn btn-primary" onclick="startHere()">START HERE</button>
+                <button class="btn btn-secondary" onclick="captureSnapshot()">SHARE</button>
+            </div>
+        </div>
+        <div class="content-wrapper">
+            <div class="conversation-grid">
+                <div class="conversation-box casual">
+                    <div class="box-header"><div class="box-title">Casual</div></div>
+                    <div class="conversation-list" id="casual-list"></div>
+                </div>
+                <div class="conversation-box meaningful">
+                    <div class="box-header"><div class="box-title">Meaningful</div></div>
+                    <div class="conversation-list" id="meaningful-list"></div>
+                </div>
+                <div class="conversation-box spiritual">
+                    <div class="box-header">
+                        <div class="box-title">Spiritual</div>
+                        <div class="share-indicator" title="Share Upstream"></div>
+                    </div>
+                    <div class="conversation-list" id="spiritual-list"></div>
+                </div>
+                <div class="conversation-box discovery">
+                    <div class="box-header"><div class="box-title">Discovery</div></div>
+                    <div class="conversation-list" id="discovery-list"></div>
+                </div>
+            </div>
+            <div class="reset-section">
+                <button class="btn btn-secondary" onclick="showResetPrompt()">RESET</button>
+            </div>
+        </div>
+        <div class="add-person-section">
+            <div class="add-person-input">
+                <input type="text" id="new-person-name" placeholder="Add name..." onkeypress="handleEnterKey(event)">
+                <button class="btn btn-primary" onclick="initiateAddPerson()">Add</button>
+            </div>
+        </div>
+        <div class="name-prompt" id="name-prompt">
+            <input type="text" id="user-name-input" placeholder="Enter your name">
+            <button onclick="saveUserName()">Submit</button>
+        </div>
+        <div class="edit-name-prompt" id="edit-name-prompt">
+            <input type="text" id="edit-name-input" placeholder="Edit name">
+            <button onclick="saveEditedName()">Save</button>
+        </div>
+        <div class="box-selection-prompt" id="box-selection-prompt">
+            <div class="option" onclick="selectBox('casual')">Casual</div>
+            <div class="option" onclick="selectBox('meaningful')">Meaningful</div>
+            <div class="option" onclick="selectBox('spiritual')">Spiritual</div>
+            <div class="option" onclick="selectBox('discovery')">Discovery</div>
+        </div>
+        <div class="move-prompt" id="move-prompt">
+            <div class="option" onclick="selectOption('rejected')">
+                <span class="color-circle red"></span>
+                <span>Rejected Christ</span>
+                <span class="plus">+</span>
+            </div>
+            <div class="option" onclick="selectOption('open')">
+                <span class="color-circle yellow"></span>
+                <span>Open to learning</span>
+                <span class="plus">+</span>
+            </div>
+            <div class="option" onclick="selectOption('trusted')">
+                <span class="color-circle lightgreen"></span>
+                <span>Trusted Christ</span>
+                <span class="plus">+</span>
+            </div>
+            <div class="option" onclick="selectOption('existing')">
+                <span class="color-circle darkgreen"></span>
+                <span>Existing believer</span>
+                <span class="plus">+</span>
+            </div>
+        </div>
+        <div class="remove-prompt" id="remove-prompt">
+            <h3>Remove?</h3>
+            <button class="yes-btn" onclick="confirmRemove(true)">Yes</button>
+            <button class="no-btn" onclick="confirmRemove(false)">No</button>
+        </div>
+        <div class="reset-prompt" id="reset-prompt">
+            <h3>Reset all conversations?</h3>
+            <button class="yes-btn" onclick="confirmReset(true)">Yes</button>
+            <button class="no-btn" onclick="confirmReset(false)">No</button>
+        </div>
+        <div class="reset-prompt" id="start-warning-prompt">
+            <h3>Do you want to reset your progress?</h3>
+            <button class="yes-btn" onclick="confirmStartReset(true)">Yes</button>
+            <button class="no-btn" onclick="confirmStartReset(false)">No</button>
+        </div>
+        <div class="share-popup" id="share-popup">
+            <h3>Your Conversation Box has been downloaded. Share your progress now on any messaging app.</h3>
+            <div class="app-icons">
+                <div><div class="app-icon messages" onclick="guideShare('Messages')"></div><div class="app-label">Messages</div></div>
+                <div><div class="app-icon whatsapp" onclick="guideShare('WhatsApp')"></div><div class="app-label">WhatsApp</div></div>
+                <div><div class="app-icon signal" onclick="guideShare('Signal')"></div><div class="app-label">Signal</div></div>
+            </div>
+            <button class="close-btn" onclick="closeSharePopup()">Close</button>
+        </div>
+        <div class="tutorial-popup" id="tutorial-popup">
+            <h3>Welcome <span id="tutorial-name"></span>. Quick start guide:</h3>
+            <ol>
+                <li><b>Add names</b> at the bottom of the screen and pick the progress box you have reached with each person.</li>
+                <li><b>Move names</b> as conversations progress to the gospel and Bible discovery.</li>
+                <li><b>Click the share button</b> to share progress with other disciples.</li>
+            </ol>
+            <button class="btn btn-primary" onclick="closeTutorial()">Got it!</button>
+        </div>
+    </div>
+    <script>
+        const WORDPRESS_GREEN_LIGHT_API = 'https://obey.tools/wp-json/church/v1/green-light';
+        const WORDPRESS_API_URL = 'https://obey.tools/wp-json/church/v1/conversations';
+        
+        let conversations = {};
+        let currentName = null, currentFromBox = null, currentToBox = null;
+        let editingName = null, editingBox = null, pendingNewName = null;
+        const colorMap = { 'open': '#ffd700', 'trusted': '#90ee90', 'existing': '#228b22' };
+        let submittedGreenLights = [];
+        let submittedEvents = { spiritual: new Set(), discovery: new Set() };
+        let appInitialized = false;
+        let wpAjaxUrl = null;
+        let wpNonce = null;
+        let wpPageId = null;
+
+        // Show sync indicator
+        function showSyncIndicator(status) {
+            const indicator = document.getElementById('sync-indicator');
+            indicator.className = 'sync-indicator ' + status;
+            if (status === 'synced') {
+                setTimeout(() => {
+                    indicator.style.display = 'none';
+                }, 2000);
+            }
+        }
+
+        // Load data from localStorage
+        function loadFromLocalStorage() {
+            conversations = JSON.parse(localStorage.getItem('conversations')) || {
+                casual: [], meaningful: [], discovery: [], spiritual: []
+            };
+            
+            const savedEvents = localStorage.getItem('submittedEvents');
+            if (savedEvents) {
+                const parsed = JSON.parse(savedEvents);
+                submittedEvents.spiritual = new Set(parsed.spiritual || []);
+                submittedEvents.discovery = new Set(parsed.discovery || []);
+            }
+            
+            submittedGreenLights = JSON.parse(localStorage.getItem('submittedGreenLights')) || [];
+        }
+
+// Save conversations with manual WordPress sync
+function saveConversations() { 
+    const data = JSON.stringify(conversations);
+    localStorage.setItem('conversations', data);
+    
+    // Manual sync to WordPress if available
+    if (typeof jQuery !== 'undefined' && wpAjaxUrl && wpNonce && wpPageId) {
+        console.log('🔄 Syncing to WordPress...');
+        showSyncIndicator('syncing');
+        
+        // Send each localStorage item as separate POST parameter
+        var postData = {
+            action: 'tools_save_progress',
+            nonce: wpNonce,
+            page_id: wpPageId
+        };
+        
+        // Add each localStorage item as its own parameter
+        var keys = ['conversations', 'submittedEvents', 'submittedGreenLights', 'user-name'];
+        var dataToSave = {};
+        
+        keys.forEach(function(key) {
+            var value = localStorage.getItem(key);
+            if (value !== null && value !== 'null') {
+                dataToSave[key] = value;
+            }
+        });
+        
+        // Send the data object as a single stringified parameter
+        postData.page_data = JSON.stringify(dataToSave);
+        
+        console.log('📤 Data keys being sent:', Object.keys(dataToSave));
+        console.log('📤 page_data length:', postData.page_data.length);
+        
+        jQuery.ajax({
+            url: wpAjaxUrl,
+            type: 'POST',
+            data: postData,
+            dataType: 'json',
+            success: function(response) {
+                console.log('✅ Sync result:', response);
+                if (response.success) {
+                    showSyncIndicator('synced');
+                } else {
+                    console.error('Server rejected data:', response.data);
+                }
+            },
+            error: function(xhr) {
+                console.error('❌ Sync failed:', xhr.status, xhr.responseText);
+                showSyncIndicator('synced');
+            }
+        });
+    } else {
+        console.log('⚠️ WordPress sync not available - data saved locally only');
+    }
+}
+
+        // Save submitted events
+        function saveSubmittedEvents() {
+            localStorage.setItem('submittedEvents', JSON.stringify({
+                spiritual: Array.from(submittedEvents.spiritual),
+                discovery: Array.from(submittedEvents.discovery)
+            }));
+        }
+
+        // Initialize app - wait for progress system
+        function initializeApp() {
+            if (appInitialized) return;
+            
+            console.log('🎯 Initializing Conversation Box...');
+            loadFromLocalStorage();
+            updateDisplay();
+            preloadImages();
+            appInitialized = true;
+            console.log('✓ Conversation Box initialized with data:', {
+                casual: conversations.casual?.length || 0,
+                meaningful: conversations.meaningful?.length || 0,
+                spiritual: conversations.spiritual?.length || 0,
+                discovery: conversations.discovery?.length || 0
+            });
+        }
+
+        // Wait for WordPress progress system to load
+        if (typeof jQuery !== 'undefined') {
+            jQuery(document).on('progressLoaded', function() {
+                console.log('✓ Progress loaded from server - initializing Conversation Box');
+                
+                // Capture WordPress config
+                if (typeof tools_ajax !== 'undefined') {
+                    wpAjaxUrl = tools_ajax.ajax_url;
+                    wpNonce = tools_ajax.nonce;
+                    wpPageId = tools_ajax.page_id;
+                    console.log('📡 WordPress config:', { wpAjaxUrl, wpNonce, wpPageId });
+                } else {
+                    console.error('❌ tools_ajax not defined - sync will not work');
+                }
+                
+                initializeApp();
+            });
+
+            // Fallback if progressLoaded doesn't fire
+            jQuery(document).ready(function() {
+                setTimeout(function() {
+                    if (!appInitialized) {
+                        console.log('⏱️ Timeout - initializing Conversation Box without server sync');
+                        
+                        // Try to get WordPress config anyway
+                        if (typeof tools_ajax !== 'undefined') {
+                            wpAjaxUrl = tools_ajax.ajax_url;
+                            wpNonce = tools_ajax.nonce;
+                            wpPageId = tools_ajax.page_id;
+                        }
+                        
+                        initializeApp();
+                    }
+                }, 2000);
+            });
+        } else {
+            // No jQuery - initialize immediately
+            document.addEventListener('DOMContentLoaded', initializeApp);
+        }
+
+        // GREEN LIGHT TRACKING
+        async function submitGreenLightEvent(personName) {
+            const userName = localStorage.getItem('user-name') || 'Anonymous';
+            const eventKey = `${userName}-${personName}`;
+            
+            if (submittedGreenLights.includes(eventKey)) {
+                console.log(`Green light already submitted for: ${personName}`);
+                return;
+            }
+            
+            console.log(`🟢 Submitting Green Light event for: ${personName}`);
+            
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    async (position) => {
+                        const location = await getCityFromCoords(
+                            position.coords.latitude, 
+                            position.coords.longitude
+                        );
+                        
+                        await sendGreenLightToAPI(
+                            userName, 
+                            personName, 
+                            location,
+                            position.coords.latitude,
+                            position.coords.longitude
+                        );
+                        
+                        submittedGreenLights.push(eventKey);
+                        localStorage.setItem('submittedGreenLights', JSON.stringify(submittedGreenLights));
+                    },
+                    async (error) => {
+                        console.error('GPS error:', error);
+                        try {
+                            const response = await fetch('https://ipapi.co/json/');
+                            const data = await response.json();
+                            const location = [data.city, data.region].filter(Boolean).join(', ') || 'Unknown';
+                            
+                            await sendGreenLightToAPI(userName, personName, location, null, null);
+                            submittedGreenLights.push(eventKey);
+                            localStorage.setItem('submittedGreenLights', JSON.stringify(submittedGreenLights));
+                        } catch (e) {
+                            await sendGreenLightToAPI(userName, personName, 'Unknown', null, null);
+                            submittedGreenLights.push(eventKey);
+                            localStorage.setItem('submittedGreenLights', JSON.stringify(submittedGreenLights));
+                        }
+                    },
+                    { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+                );
+            } else {
+                await sendGreenLightToAPI(userName, personName, 'Unknown', null, null);
+                submittedGreenLights.push(eventKey);
+                localStorage.setItem('submittedGreenLights', JSON.stringify(submittedGreenLights));
+            }
+        }
+
+        async function sendGreenLightToAPI(userName, personName, location, latitude, longitude) {
+            const payload = {
+                user_name: userName,
+                person_name: personName,
+                location: location,
+                timestamp: new Date().toISOString()
+            };
+            
+            if (latitude !== null && longitude !== null) {
+                payload.latitude = latitude;
+                payload.longitude = longitude;
+            }
+
+            try {
+                const response = await fetch(WORDPRESS_GREEN_LIGHT_API, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    console.log(`✓ Green Light submitted: ${personName}`);
+                } else {
+                    console.error('API error:', result);
+                }
+            } catch (error) {
+                console.error('Network error:', error);
+            }
+        }
+
+        // CONVERSATION EVENT TRACKING
+        async function getCityFromCoords(lat, lon) {
+            try {
+                const response = await fetch(
+                    `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}&addressdetails=1&zoom=18`
+                );
+                const data = await response.json();
+                
+                if (data && data.address) {
+                    const parts = [];
+                    if (data.address.neighbourhood) parts.push(data.address.neighbourhood);
+                    else if (data.address.suburb) parts.push(data.address.suburb);
+                    if (data.address.city) parts.push(data.address.city);
+                    else if (data.address.town) parts.push(data.address.town);
+                    return parts.join(', ') || data.address.county || '';
+                }
+            } catch (error) {
+                console.error('Geocoding error:', error);
+            }
+            return '';
+        }
+
+        async function sendEventToAPI(userName, personName, eventType, location, latitude, longitude) {
+            const payload = {
+                user_name: userName,
+                person_name: personName,
+                event_type: eventType,
+                location: location,
+                timestamp: new Date().toISOString()
+            };
+            
+            if (latitude !== null && longitude !== null) {
+                payload.latitude = latitude;
+                payload.longitude = longitude;
+            }
+
+            try {
+                const response = await fetch(WORDPRESS_API_URL, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    console.log(`✓ Event submitted: ${personName} → ${eventType}`);
+                    showNotification(`${personName} recorded on map!`);
+                } else {
+                    console.error('API error:', result);
+                }
+            } catch (error) {
+                console.error('Network error:', error);
+            }
+        }
+
+        async function submitEvent(personName, eventType) {
+            const userName = localStorage.getItem('user-name') || 'Anonymous';
+            const eventKey = `${personName}-${eventType}`;
+            
+            if (submittedEvents[eventType].has(eventKey)) {
+                console.log(`Event already submitted: ${eventKey}`);
+                return;
+            }
+            
+            console.log(`Submitting new event: ${eventKey}`);
+            
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    async (position) => {
+                        const location = await getCityFromCoords(
+                            position.coords.latitude, 
+                            position.coords.longitude
+                        );
+                        
+                        await sendEventToAPI(
+                            userName, 
+                            personName, 
+                            eventType, 
+                            location,
+                            position.coords.latitude,
+                            position.coords.longitude
+                        );
+                        
+                        submittedEvents[eventType].add(eventKey);
+                        saveSubmittedEvents();
+                    },
+                    async (error) => {
+                        console.error('GPS error:', error);
+                        try {
+                            const response = await fetch('https://ipapi.co/json/');
+                            const data = await response.json();
+                            const location = [data.city, data.region].filter(Boolean).join(', ') || 'Unknown';
+                            
+                            await sendEventToAPI(userName, personName, eventType, location, null, null);
+                            submittedEvents[eventType].add(eventKey);
+                            saveSubmittedEvents();
+                        } catch (e) {
+                            await sendEventToAPI(userName, personName, eventType, 'Unknown', null, null);
+                            submittedEvents[eventType].add(eventKey);
+                            saveSubmittedEvents();
+                        }
+                    },
+                    { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+                );
+            } else {
+                await sendEventToAPI(userName, personName, eventType, 'Unknown', null, null);
+                submittedEvents[eventType].add(eventKey);
+                saveSubmittedEvents();
+            }
+        }
+
+        // UI FUNCTIONS
+        function addHapticFeedback(element) { 
+            element.classList.add('haptic-feedback'); 
+            setTimeout(() => element.classList.remove('haptic-feedback'), 100); 
+        }
+        
+        function formatDate(date) { 
+            return `${String(date.getMonth()+1).padStart(2,'0')}/${String(date.getDate()).padStart(2,'0')}/${date.getFullYear()}`; 
+        }
+        
+        function preloadImages() { 
+            ['Messages','Whatsapp','Signal'].forEach(n => { 
+                const img = new Image(); 
+                img.src = `https://obey.tools/wp-content/uploads/2025/09/${n}.webp`; 
+            }); 
+        }
+
+        function startHere() {
+            const hasProgress = Object.values(conversations).some(arr => arr.length > 0);
+            const userName = localStorage.getItem('user-name');
+            if (hasProgress) {
+                document.getElementById('start-warning-prompt').style.display = 'flex';
+            } else {
+                if (userName) { 
+                    document.getElementById('tutorial-name').textContent = userName; 
+                    document.getElementById('tutorial-popup').style.display = 'flex'; 
+                } else { 
+                    const prompt = document.getElementById('name-prompt'); 
+                    const input = document.getElementById('user-name-input'); 
+                    input.value = ''; 
+                    input.placeholder = 'Enter your name to get started'; 
+                    prompt.style.display = 'flex'; 
+                    input.focus(); 
+                }
+            }
+        }
+
+        function confirmStartReset(confirm) {
+            document.getElementById('start-warning-prompt').style.display = 'none';
+            if (confirm) { 
+                conversations = { casual: [], meaningful: [], discovery: [], spiritual: [] }; 
+                submittedEvents = { spiritual: new Set(), discovery: new Set() };
+                localStorage.removeItem('submittedEvents');
+                saveConversations(); 
+                updateDisplay(); 
+                showNotification('Progress reset'); 
+                const prompt = document.getElementById('name-prompt'); 
+                const input = document.getElementById('user-name-input'); 
+                input.value = localStorage.getItem('user-name') || ''; 
+                prompt.style.display = 'flex'; 
+                input.focus(); 
+            } else { 
+                const userName = localStorage.getItem('user-name') || 'User'; 
+                document.getElementById('tutorial-name').textContent = userName; 
+                document.getElementById('tutorial-popup').style.display = 'flex'; 
+            }
+        }
+
+        function saveUserName() {
+            const input = document.getElementById('user-name-input');
+            const name = input.value.trim();
+            if (name) { 
+                localStorage.setItem('user-name', name); 
+                document.getElementById('name-prompt').style.display = 'none'; 
+                input.value = ''; 
+                conversations = { casual: [], meaningful: [], discovery: [], spiritual: [] }; 
+                submittedEvents = { spiritual: new Set(), discovery: new Set() };
+                localStorage.removeItem('submittedEvents');
+                saveConversations(); 
+                updateDisplay(); 
+                document.getElementById('tutorial-name').textContent = name; 
+                document.getElementById('tutorial-popup').style.display = 'flex'; 
+            } else {
+                showNotification('Please enter a name');
+            }
+        }
+
+        function closeTutorial() { 
+            document.getElementById('tutorial-popup').style.display = 'none'; 
+        }
+        
+        function showEditNamePrompt(name, box) { 
+            editingName = name; 
+            editingBox = box; 
+            const prompt = document.getElementById('edit-name-prompt');
+            const input = document.getElementById('edit-name-input'); 
+            input.value = name; 
+            prompt.style.display = 'flex'; 
+            input.focus(); 
+        }
+
+        function saveEditedName() {
+            const input = document.getElementById('edit-name-input');
+            const newName = input.value.trim();
+            if (newName && newName !== editingName) {
+                if (!Object.values(conversations).flat().some(p => p.name === newName)) {
+                    const person = conversations[editingBox].find(p => p.name === editingName);
+                    if (person) { 
+                        person.name = newName; 
+                        saveConversations(); 
+                        updateDisplay(); 
+                        showNotification(`Name changed to ${newName}`); 
+                    }
+                } else {
+                    showNotification('Name already exists');
+                }
+            } else if (!newName) {
+                showNotification('Please enter a name');
+            }
+            document.getElementById('edit-name-prompt').style.display = 'none'; 
+            input.value = ''; 
+            editingName = null; 
+            editingBox = null;
+        }
+
+        function initiateAddPerson() {
+            const input = document.getElementById('new-person-name');
+            const name = input.value.trim();
+            if (name) {
+                if (!Object.values(conversations).flat().some(p => p.name === name)) { 
+                    pendingNewName = name; 
+                    document.getElementById('box-selection-prompt').style.display = 'flex'; 
+                    input.value = ''; 
+                } else {
+                    showNotification('Person already exists');
+                }
+            } else {
+                showNotification('Please enter a name');
+            }
+        }
+
+        function selectBox(box) {
+            document.getElementById('box-selection-prompt').style.display = 'none';
+            
+            if (pendingNewName) {
+                if (box === 'discovery') { 
+                    currentName = pendingNewName; 
+                    currentFromBox = null; 
+                    currentToBox = 'discovery'; 
+                    document.getElementById('move-prompt').style.display = 'flex'; 
+                } else { 
+                    conversations[box].push({ 
+                        name: pendingNewName, 
+                        date: formatDate(new Date()), 
+                        color: null 
+                    }); 
+                    saveConversations(); 
+                    updateDisplay(); 
+                    showNotification(`${pendingNewName} added to ${box}`); 
+                    
+                    if (box === 'spiritual') {
+                        submitEvent(pendingNewName, 'spiritual');
+                    }
+                    
+                    addHapticFeedback(document.getElementById('new-person-name')); 
+                    pendingNewName = null; 
+                }
+            }
+        }
+
+        function handleEnterKey(event) { 
+            if (event.key === 'Enter') initiateAddPerson(); 
+        }
+
+        function moveConversation(name, fromBox, toBox) {
+            const person = conversations[fromBox].find(p => p.name === name);
+            if (!person) return;
+            
+            conversations[fromBox] = conversations[fromBox].filter(p => p.name !== name);
+            
+            if (!conversations[toBox].some(p => p.name === name)) {
+                conversations[toBox].push({ ...person, color: null });
+            }
+            
+            saveConversations(); 
+            updateDisplay(); 
+            showNotification(`${name} moved to ${toBox}`);
+            
+            if (toBox === 'spiritual' || toBox === 'discovery') {
+                submitEvent(name, toBox);
+            }
+        }
+
+        function moveWithPrompt(name, fromBox, toBox) { 
+            currentName = name; 
+            currentFromBox = fromBox; 
+            currentToBox = toBox; 
+            document.getElementById('move-prompt').style.display = 'flex'; 
+        }
+
+        function selectOption(option) {
+            document.getElementById('move-prompt').style.display = 'none';
+            
+            if (option === 'rejected') {
+                document.getElementById('remove-prompt').style.display = 'flex';
+            } else {
+                const hexColor = colorMap[option];
+                
+                if (currentFromBox === null) {
+                    conversations[currentToBox].push({ 
+                        name: currentName, 
+                        date: formatDate(new Date()), 
+                        color: hexColor 
+                    });
+                    saveConversations();
+                    updateDisplay();
+                    showNotification(`${currentName} added to ${currentToBox}`);
+                    
+                    if (currentToBox === 'discovery') {
+                        submitEvent(currentName, 'discovery');
+                    }
+                    
+                    if (option === 'trusted') {
+                        submitGreenLightEvent(currentName);
+                    }
+                    
+                    addHapticFeedback(document.getElementById('new-person-name')); 
+                    pendingNewName = null;
+                } else {
+                    const person = conversations[currentFromBox].find(p => p.name === currentName);
+                    if (person) {
+                        conversations[currentFromBox] = conversations[currentFromBox].filter(
+                            p => p.name !== currentName
+                        );
+                        conversations[currentToBox].push({ ...person, color: hexColor });
+                        saveConversations();
+                        updateDisplay();
+                        showNotification(`${currentName} moved to ${currentToBox}`);
+                        
+                        if (currentToBox === 'discovery') {
+                            submitEvent(currentName, 'discovery');
+                        }
+                        
+                        if (option === 'trusted') {
+                            submitGreenLightEvent(currentName);
+                        }
+                    }
+                }
+                
+                currentName = null;
+                currentFromBox = null;
+                currentToBox = null;
+            }
+        }
+
+        function confirmRemove(confirm) {
+            document.getElementById('remove-prompt').style.display = 'none';
+            if (confirm) { 
+                conversations[currentFromBox] = conversations[currentFromBox].filter(p => p.name !== currentName); 
+                saveConversations(); 
+                updateDisplay(); 
+                showNotification(`${currentName} removed`); 
+            } else {
+                showNotification(`${currentName} remains in ${currentFromBox}`);
+            }
+            currentName = null; 
+            currentFromBox = null; 
+            currentToBox = null;
+        }
+
+        function showResetPrompt() { 
+            document.getElementById('reset-prompt').style.display = 'flex'; 
+        }
+
+        function confirmReset(confirm) {
+            document.getElementById('reset-prompt').style.display = 'none';
+            if (confirm) { 
+                conversations = { casual: [], meaningful: [], discovery: [], spiritual: [] }; 
+                submittedEvents = { spiritual: new Set(), discovery: new Set() };
+                localStorage.removeItem('submittedEvents');
+                saveConversations(); 
+                updateDisplay(); 
+                showNotification('Reset complete'); 
+                setTimeout(startHere, 0); 
+            } else {
+                showNotification('Reset cancelled');
+            }
+        }
+
+        function deleteConversation(name, fromBox) {
+            if (confirm(`Remove ${name}?`)) { 
+                conversations[fromBox] = conversations[fromBox].filter(p => p.name !== name); 
+                saveConversations(); 
+                updateDisplay(); 
+                showNotification(`${name} removed`); 
+            }
+        }
+
+        function updateDisplay() {
+            ['casual', 'meaningful', 'discovery', 'spiritual'].forEach(box => {
+                const listElement = document.getElementById(`${box}-list`);
+                listElement.innerHTML = '';
+                if (conversations[box].length === 0) {
+                    listElement.innerHTML = '<div class="empty-state">No conversations</div>';
+                } else {
+                    conversations[box].forEach(person => {
+                        listElement.appendChild(createConversationItem(person.name, box, person.color));
+                    });
+                }
+            });
+        }
+
+        function createConversationItem(name, box, color) {
+            const item = document.createElement('div'); 
+            item.className = 'conversation-item';
+            const nameSpan = document.createElement('span'); 
+            nameSpan.className = 'conversation-name';
+            
+            if (color && box === 'discovery') { 
+                const circle = document.createElement('span'); 
+                circle.className = 'color-circle'; 
+                circle.style.backgroundColor = color; 
+                nameSpan.appendChild(circle); 
+            }
+            
+            nameSpan.appendChild(document.createTextNode(name));
+            nameSpan.addEventListener('click', () => { 
+                addHapticFeedback(nameSpan); 
+                showEditNamePrompt(name, box); 
+            });
+            
+            const actions = document.createElement('div'); 
+            actions.className = 'conversation-actions';
+            const isMobile = window.innerWidth < 768;
+            
+            if (box === 'casual') {
+                actions.innerHTML = isMobile ? 
+                    `<button class="action-btn move-btn" onclick="moveConversation('${name}', '${box}', 'meaningful')" title="Move Forward">↓</button><button class="action-btn delete-btn" onclick="deleteConversation('${name}', '${box}')" title="Delete">×</button>` : 
+                    `<button class="action-btn move-btn" onclick="moveConversation('${name}', '${box}', 'meaningful')" title="Move Forward">→</button><button class="action-btn delete-btn" onclick="deleteConversation('${name}', '${box}')" title="Delete">×</button>`;
+            } else if (box === 'meaningful') {
+                actions.innerHTML = isMobile ? 
+                    `<button class="action-btn down-btn" onclick="moveConversation('${name}', '${box}', 'spiritual')" title="Move to Spiritual">↓</button><button class="action-btn back-btn" onclick="moveConversation('${name}', '${box}', 'casual')" title="Move Back">↑</button><button class="action-btn delete-btn" onclick="deleteConversation('${name}', '${box}')" title="Delete">×</button>` : 
+                    `<button class="action-btn down-btn" onclick="moveConversation('${name}', '${box}', 'spiritual')" title="Move to Spiritual">↓</button><button class="action-btn back-btn" onclick="moveConversation('${name}', '${box}', 'casual')" title="Move Back">←</button><button class="action-btn delete-btn" onclick="deleteConversation('${name}', '${box}')" title="Delete">×</button>`;
+            } else if (box === 'discovery') {
+                actions.innerHTML = isMobile ? 
+                    `<button class="action-btn back-btn" onclick="moveConversation('${name}', '${box}', 'spiritual')" title="Move to Spiritual">↑</button><button class="action-btn delete-btn" onclick="deleteConversation('${name}', '${box}')" title="Delete">×</button>` : 
+                    `<button class="action-btn move-btn" onclick="moveConversation('${name}', '${box}', 'spiritual')" title="Move to Spiritual">→</button><button class="action-btn delete-btn" onclick="deleteConversation('${name}', '${box}')" title="Delete">×</button>`;
+            } else if (box === 'spiritual') {
+                actions.innerHTML = isMobile ? 
+                    `<button class="action-btn down-btn" onclick="moveWithPrompt('${name}', 'spiritual', 'discovery')" title="Move to Discovery">↓</button><button class="action-btn back-btn" onclick="moveConversation('${name}', 'spiritual', 'meaningful')" title="Move to Meaningful">↑</button><button class="action-btn delete-btn" onclick="deleteConversation('${name}', '${box}')" title="Delete">×</button>` : 
+                    `<button class="action-btn down-btn" onclick="moveWithPrompt('${name}', 'spiritual', 'discovery')" title="Move to Discovery">←</button><button class="action-btn back-btn" onclick="moveConversation('${name}', 'spiritual', 'meaningful')" title="Move to Meaningful">↑</button><button class="action-btn delete-btn" onclick="deleteConversation('${name}', '${box}')" title="Delete">×</button>`;
+            }
+            
+            actions.querySelectorAll('.action-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => addHapticFeedback(e.target));
+            });
+            
+            item.appendChild(nameSpan); 
+            item.appendChild(actions);
+            return item;
+        }
+
+        function showNotification(message) {
+            const notification = document.createElement('div'); 
+            notification.className = 'notification'; 
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 3000);
+        }
+
+        function showSharePopup() {
+            const isSafari = /^((?!chrome|android|crios|fxios).)*safari/i.test(navigator.userAgent);
+            if (!isSafari) document.getElementById('share-popup').style.display = 'flex';
+        }
+
+        function closeSharePopup() { 
+            document.getElementById('share-popup').style.display = 'none'; 
+        }
+        
+        function guideShare(app) { 
+            closeSharePopup(); 
+        }
+
+        async function captureSnapshot() {
+            let tempElement;
+            const userName = localStorage.getItem('user-name') || 'User';
+            const today = formatDate(new Date());
+            
+            tempElement = document.createElement('div'); 
+            tempElement.className = 'conversation-grid';
+            tempElement.style.cssText = 'position:absolute;left:-9999px;width:768px;display:grid;grid-template-columns:1fr 1fr;gap:20px;padding:20px;background:#fff';
+            
+            ['casual', 'meaningful', 'discovery', 'spiritual'].forEach((boxClass, index) => {
+                const box = document.querySelector(`.conversation-box.${boxClass}`);
+                if (box) { 
+                    const clone = box.cloneNode(true); 
+                    clone.style.order = index + 1; 
+                    clone.querySelectorAll('.conversation-actions').forEach(a => a.style.display = 'none'); 
+                    clone.querySelector('.conversation-list').style.minHeight = '250px'; 
+                    tempElement.appendChild(clone); 
+                }
+            });
+            
+            document.body.appendChild(tempElement);
+            
+            try {
+                const canvas = await html2canvas(tempElement, { scale: 2 });
+                canvas.toBlob(async (blob) => {
+                    const isSafari = /^((?!chrome|android|crios|fxios).)*safari/i.test(navigator.userAgent);
+                    
+                    try {
+                        if (navigator.clipboard && navigator.clipboard.write && !isSafari) {
+                            await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+                            showNotification('Image copied to clipboard!');
+                            return;
+                        }
+                    } catch (e) { 
+                        console.log('Clipboard failed:', e); 
+                    }
+                    
+                    if (isSafari && navigator.canShare) {
+                        const file = new File([blob], 'conversation-quadrant.png', { type: 'image/png' });
+                        try { 
+                            await navigator.share({ 
+                                files: [file], 
+                                title: 'Conversation Quadrant', 
+                                text: `${userName}'s conversation box updated ${today}` 
+                            }); 
+                            showNotification('Shared successfully'); 
+                            return; 
+                        } catch (e) { 
+                            console.error('Share failed:', e); 
+                        }
+                    }
+                    
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url; 
+                    a.download = 'conversation-quadrant.png'; 
+                    document.body.appendChild(a); 
+                    a.click();
+                    document.body.removeChild(a); 
+                    URL.revokeObjectURL(url);
+                    showSharePopup(); 
+                    showNotification('Image downloaded.');
+                }, 'image/png');
+            } catch (error) { 
+                console.error('Error:', error); 
+                showNotification('Error capturing snapshot'); 
+            } finally { 
+                if (tempElement) document.body.removeChild(tempElement); 
+            }
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', () => { 
+            document.querySelectorAll('.btn').forEach(btn => {
+                btn.addEventListener('click', (e) => addHapticFeedback(e.target));
+            }); 
+        });
+        
+        document.getElementById('user-name-input').addEventListener('keypress', (e) => { 
+            if (e.key === 'Enter') saveUserName(); 
+        });
+        
+        document.getElementById('edit-name-input').addEventListener('keypress', (e) => { 
+            if (e.key === 'Enter') saveEditedName(); 
+        });
+        
+        window.addEventListener('resize', updateDisplay);
+    </script>
+</body>
+</html>
