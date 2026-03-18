@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Conversation Box</title>
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script type="module">
+      import { supabase } from './supabase.js';
+      window.supabase = supabase;
+    </script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif; background: #f2f2f7; min-height: 100vh; color: #000; line-height: 1.4; }
@@ -102,11 +106,37 @@
         .sync-indicator { position: fixed; top: 10px; left: 10px; background: rgba(52, 199, 89, 0.9); color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; z-index: 9999; display: none; }
         .sync-indicator.syncing { background: rgba(255, 149, 0, 0.9); display: block; }
         .sync-indicator.synced { background: rgba(52, 199, 89, 0.9); display: block; }
+        /* Auth section */
+        .auth-section { padding: 12px 16px; background: #f2f2f7; border-bottom: 0.5px solid #c6c6c8; }
+        .auth-section input { width: 100%; padding: 10px 14px; border: 1px solid #c6c6c8; border-radius: 8px; font-size: 15px; background: #fff; outline: none; margin-bottom: 8px; font-family: inherit; }
+        .auth-section input:focus { border-color: #3a3a3c; }
+        .auth-buttons { display: flex; gap: 8px; margin-bottom: 0; }
+        .auth-buttons button { flex: 1; padding: 10px; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; }
+        .auth-btn-primary { background: #3a3a3c; color: #fff; }
+        .auth-btn-secondary { background: #e5e5ea; color: #3a3a3c; }
+        .auth-status { display: flex; align-items: center; justify-content: space-between; }
+        .auth-status-text { font-size: 13px; color: #8e8e93; }
+        .auth-logout-btn { padding: 6px 14px; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; background: #e5e5ea; color: #3a3a3c; font-family: inherit; }
     </style>
 </head>
 <body>
     <div class="sync-indicator" id="sync-indicator">Syncing...</div>
     <div class="container">
+        <!-- Auth section: shown at top, collapses to status row when signed in -->
+        <div class="auth-section" id="auth-section">
+            <div id="auth-form">
+                <input type="email" id="auth-email" placeholder="Email">
+                <input type="password" id="auth-password" placeholder="Password">
+                <div class="auth-buttons">
+                    <button class="auth-btn-primary" onclick="authSignUp()">Sign Up</button>
+                    <button class="auth-btn-secondary" onclick="authLogIn()">Log In</button>
+                </div>
+            </div>
+            <div class="auth-status" id="auth-status" style="display:none">
+                <span class="auth-status-text" id="auth-status-text">Not signed in</span>
+                <button class="auth-logout-btn" onclick="authLogOut()">Log Out</button>
+            </div>
+        </div>
         <div class="header">
             <div class="date-info"></div>
             <div class="users-info"></div>
@@ -115,6 +145,7 @@
             <div class="btn-group">
                 <button class="btn btn-primary" onclick="startHere()">START HERE</button>
                 <button class="btn btn-secondary" onclick="captureSnapshot()">SHARE</button>
+                <button class="btn btn-secondary" onclick="testSave()">TEST SAVE</button>
             </div>
         </div>
         <div class="content-wrapper">
@@ -262,12 +293,13 @@
         }
 
 // Save conversations with manual WordPress sync
-function saveConversations() { 
+function saveConversations() {
     const data = JSON.stringify(conversations);
     localStorage.setItem('conversations', data);
-    
-    // Manual sync to WordPress if available
-    if (typeof jQuery !== 'undefined' && wpAjaxUrl && wpNonce && wpPageId) {
+    saveToSupabase(); // sync to cloud if signed in (fire-and-forget)
+
+    // WordPress sync disabled — Supabase is now the cloud backend
+    if (false && typeof jQuery !== 'undefined' && wpAjaxUrl && wpNonce && wpPageId) {
         console.log('🔄 Syncing to WordPress...');
         showSyncIndicator('syncing');
         
@@ -324,18 +356,146 @@ function saveConversations() {
                 spiritual: Array.from(submittedEvents.spiritual),
                 discovery: Array.from(submittedEvents.discovery)
             }));
+            saveToSupabase(); // sync to cloud if signed in (fire-and-forget)
+        }
+
+        // ── Supabase Data Helpers ──────────────────────────────────────────────
+
+        // Returns the currently signed-in user (set by updateAuthUI and initializeApp)
+        function getCurrentUser() {
+            return window._supabaseUser || null;
+        }
+
+        // Load all data for userId from Supabase into the in-memory state.
+        // Returns true if rows were found, false if the user has no data yet.
+        async function loadFromSupabase(userId) {
+            try {
+                const { data: people, error } = await window.supabase
+                    .from('conversation_people')
+                    .select('person_name, box_name, color')
+                    .eq('user_id', userId);
+
+                if (error) throw error;
+                if (!people || people.length === 0) return false;
+
+                conversations = { casual: [], meaningful: [], spiritual: [], discovery: [] };
+                people.forEach(row => {
+                    if (conversations[row.box_name]) {
+                        // schema has no date column; use empty string as placeholder
+                        conversations[row.box_name].push({ name: row.person_name, date: '', color: row.color });
+                    }
+                });
+
+                const { data: events } = await window.supabase
+                    .from('submitted_events')
+                    .select('person_name, event_type')
+                    .eq('user_id', userId);
+
+                submittedEvents = { spiritual: new Set(), discovery: new Set() };
+                (events || []).forEach(row => {
+                    if (submittedEvents[row.event_type]) {
+                        // reconstruct the in-memory key format: "personName-eventType"
+                        submittedEvents[row.event_type].add(row.person_name + '-' + row.event_type);
+                    }
+                });
+
+                const { data: greenLights } = await window.supabase
+                    .from('submitted_green_lights')
+                    .select('person_name')
+                    .eq('user_id', userId);
+
+                // reconstruct in-memory key format: "userName-personName"
+                const userName = localStorage.getItem('user-name') || 'Anonymous';
+                submittedGreenLights = (greenLights || []).map(r => `${userName}-${r.person_name}`);
+
+                return true;
+            } catch (err) {
+                console.error('Supabase load error:', err);
+                return false;
+            }
+        }
+
+        // Persist current in-memory state to Supabase for the signed-in user.
+        // No-ops silently if no user is signed in.
+        async function saveToSupabase() {
+            const user = getCurrentUser();
+            if (!user) return;
+            const userId = user.id;
+
+            try {
+                // Ensure a profile row exists (display_name left null for now)
+                await window.supabase
+                    .from('profiles')
+                    .upsert({ id: userId }, { onConflict: 'id', ignoreDuplicates: true });
+
+                // Replace conversation_people rows
+                await window.supabase.from('conversation_people').delete().eq('user_id', userId);
+                const peopleRows = [];
+                ['casual', 'meaningful', 'spiritual', 'discovery'].forEach(box => {
+                    (conversations[box] || []).forEach(p => {
+                        peopleRows.push({ user_id: userId, person_name: p.name, box_name: box, color: p.color || null });
+                    });
+                });
+                if (peopleRows.length > 0) await window.supabase.from('conversation_people').insert(peopleRows);
+
+                // Replace submitted_events rows
+                await window.supabase.from('submitted_events').delete().eq('user_id', userId);
+                const eventRows = [];
+                ['spiritual', 'discovery'].forEach(type => {
+                    submittedEvents[type].forEach(key => {
+                        // in-memory key is "personName-eventType"; extract person_name
+                        const personName = key.slice(0, -(type.length + 1));
+                        eventRows.push({ user_id: userId, person_name: personName, event_type: type });
+                    });
+                });
+                if (eventRows.length > 0) await window.supabase.from('submitted_events').insert(eventRows);
+
+                // Replace submitted_green_lights rows
+                await window.supabase.from('submitted_green_lights').delete().eq('user_id', userId);
+                const userName = localStorage.getItem('user-name') || 'Anonymous';
+                const glRows = submittedGreenLights.map(key => ({
+                    user_id: userId,
+                    // in-memory key is "userName-personName"; extract person_name
+                    person_name: key.startsWith(userName + '-') ? key.slice(userName.length + 1) : key
+                }));
+                if (glRows.length > 0) await window.supabase.from('submitted_green_lights').insert(glRows);
+
+                showNotification('Saved to cloud');
+            } catch (err) {
+                console.error('Supabase save error:', err);
+            }
         }
 
         // Initialize app - wait for progress system
-        function initializeApp() {
+        async function initializeApp() {
             if (appInitialized) return;
-            
+
             console.log('🎯 Initializing Conversation Box...');
-            loadFromLocalStorage();
+
+            // Check for a signed-in user; load from Supabase if available.
+            // window.supabase is guaranteed set by DOMContentLoaded (module runs first).
+            if (window.supabase) {
+                const { data: { session } } = await window.supabase.auth.getSession();
+                if (session?.user) {
+                    window._supabaseUser = session.user;
+                    const loaded = await loadFromSupabase(session.user.id);
+                    if (loaded) {
+                        showNotification('Loaded saved data');
+                    } else {
+                        loadFromLocalStorage();
+                        showNotification('Using local data');
+                    }
+                } else {
+                    loadFromLocalStorage();
+                }
+            } else {
+                loadFromLocalStorage();
+            }
+
             updateDisplay();
             preloadImages();
             appInitialized = true;
-            console.log('✓ Conversation Box initialized with data:', {
+            console.log('✓ Initialized:', {
                 casual: conversations.casual?.length || 0,
                 meaningful: conversations.meaningful?.length || 0,
                 spiritual: conversations.spiritual?.length || 0,
@@ -587,6 +747,13 @@ function saveConversations() {
                 submittedEvents[eventType].add(eventKey);
                 saveSubmittedEvents();
             }
+        }
+
+        // DEBUG
+        function testSave() {
+            conversations.casual.push({ name: 'Test Person', date: formatDate(new Date()), color: null });
+            saveConversations();
+            updateDisplay();
         }
 
         // UI FUNCTIONS
@@ -1049,6 +1216,75 @@ function saveConversations() {
         });
         
         window.addEventListener('resize', updateDisplay);
+
+        // ── Supabase Auth ──────────────────────────────────────────────────────
+
+        // Update the auth UI and reload data whenever auth state changes.
+        function updateAuthUI(user) {
+            window._supabaseUser = user; // keep getCurrentUser() in sync
+
+            const form   = document.getElementById('auth-form');
+            const status = document.getElementById('auth-status');
+            const text   = document.getElementById('auth-status-text');
+
+            if (user) {
+                form.style.display   = 'none';
+                status.style.display = 'flex';
+                text.textContent     = 'Signed in as ' + user.email;
+
+                // Reload from Supabase whenever a user signs in (or session restores)
+                if (appInitialized) {
+                    loadFromSupabase(user.id).then(loaded => {
+                        updateDisplay();
+                        showNotification(loaded ? 'Loaded saved data' : 'Using local data');
+                    });
+                }
+            } else {
+                form.style.display   = 'block';
+                status.style.display = 'none';
+                text.textContent     = 'Not signed in';
+
+                // Revert to localStorage when signed out
+                if (appInitialized) {
+                    loadFromLocalStorage();
+                    updateDisplay();
+                    showNotification('Using local data');
+                }
+            }
+        }
+
+        async function authSignUp() {
+            const email    = document.getElementById('auth-email').value.trim();
+            const password = document.getElementById('auth-password').value;
+            const { error } = await window.supabase.auth.signUp({ email, password });
+            if (error) { showNotification(error.message); }
+            else        { showNotification('Check your email to confirm sign up.'); }
+        }
+
+        async function authLogIn() {
+            const email    = document.getElementById('auth-email').value.trim();
+            const password = document.getElementById('auth-password').value;
+            const { error } = await window.supabase.auth.signInWithPassword({ email, password });
+            if (error) showNotification(error.message);
+        }
+
+        async function authLogOut() {
+            const { error } = await window.supabase.auth.signOut();
+            if (error) showNotification(error.message);
+        }
+
+        // On page load: restore session and listen for future auth changes.
+        // DOMContentLoaded fires after the supabase module has loaded, so
+        // window.supabase is guaranteed to be available here.
+        document.addEventListener('DOMContentLoaded', () => {
+            window.supabase.auth.getSession().then(({ data: { session } }) => {
+                updateAuthUI(session?.user ?? null);
+            });
+
+            window.supabase.auth.onAuthStateChange((_event, session) => {
+                updateAuthUI(session?.user ?? null);
+            });
+        });
     </script>
 </body>
 </html>
