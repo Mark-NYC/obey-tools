@@ -5,10 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Church Assessment Tool</title>
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-    <script type="module">
-        import { supabase } from './supabase.js';
-        window.supabase = supabase;
-    </script>
+    <script type="module" src="./app.js"></script>
 </head>
 <body>
 
@@ -266,10 +263,6 @@ let baptismCount = 0;
 let tempBaptismCount = 0;
 let userCoordinates = null;
 let appInitialized = false;
-
-function getCurrentUser() {
-    return window._supabaseUser || null;
-}
 
 async function saveToSupabase() {
     const user = getCurrentUser();
@@ -826,39 +819,12 @@ function updateAuthUI(user) {
     }
 }
 
-async function authSignUp() {
-    const email    = document.getElementById('auth-email').value.trim();
-    const password = document.getElementById('auth-password').value;
-    const { error } = await window.supabase.auth.signUp({ email, password });
-    if (error) showNotification(error.message);
-    else        showNotification('Check your email to confirm sign up.');
-}
-
-async function authLogIn() {
-    const email    = document.getElementById('auth-email').value.trim();
-    const password = document.getElementById('auth-password').value;
-    const { error } = await window.supabase.auth.signInWithPassword({ email, password });
-    if (error) showNotification(error.message);
-}
-
-async function authLogOut() {
-    const { error } = await window.supabase.auth.signOut();
-    if (error) showNotification(error.message);
-}
-
 document.addEventListener('DOMContentLoaded', () => {
     preloadImages();
     document.querySelectorAll('.btn').forEach(btn => {
         btn.addEventListener('click', (e) => addHapticFeedback(e.target));
     });
     document.getElementById('user-name-input').addEventListener('keypress', handleNamePromptEnter);
-
-    window.supabase.auth.getSession().then(({ data: { session } }) => {
-        updateAuthUI(session?.user ?? null);
-    });
-    window.supabase.auth.onAuthStateChange((_event, session) => {
-        updateAuthUI(session?.user ?? null);
-    });
 
     initializeApp();
 });
