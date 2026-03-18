@@ -371,7 +371,7 @@ function saveConversations() {
             try {
                 const { data: people, error } = await window.supabase
                     .from('conversation_people')
-                    .select('name, box, date, color')
+                    .select('person_name, box_name, color')
                     .eq('user_id', userId);
 
                 if (error) throw error;
@@ -379,27 +379,33 @@ function saveConversations() {
 
                 conversations = { casual: [], meaningful: [], spiritual: [], discovery: [] };
                 people.forEach(row => {
-                    if (conversations[row.box]) {
-                        conversations[row.box].push({ name: row.name, date: row.date, color: row.color });
+                    if (conversations[row.box_name]) {
+                        // schema has no date column; use empty string as placeholder
+                        conversations[row.box_name].push({ name: row.person_name, date: '', color: row.color });
                     }
                 });
 
                 const { data: events } = await window.supabase
                     .from('submitted_events')
-                    .select('event_key, event_type')
+                    .select('person_name, event_type')
                     .eq('user_id', userId);
 
                 submittedEvents = { spiritual: new Set(), discovery: new Set() };
                 (events || []).forEach(row => {
-                    if (submittedEvents[row.event_type]) submittedEvents[row.event_type].add(row.event_key);
+                    if (submittedEvents[row.event_type]) {
+                        // reconstruct the in-memory key format: "personName-eventType"
+                        submittedEvents[row.event_type].add(row.person_name + '-' + row.event_type);
+                    }
                 });
 
                 const { data: greenLights } = await window.supabase
                     .from('submitted_green_lights')
-                    .select('event_key')
+                    .select('person_name')
                     .eq('user_id', userId);
 
-                submittedGreenLights = (greenLights || []).map(r => r.event_key);
+                // reconstruct in-memory key format: "userName-personName"
+                const userName = localStorage.getItem('user-name') || 'Anonymous';
+                submittedGreenLights = (greenLights || []).map(r => `${userName}-${r.person_name}`);
 
                 return true;
             } catch (err) {
@@ -426,7 +432,7 @@ function saveConversations() {
                 const peopleRows = [];
                 ['casual', 'meaningful', 'spiritual', 'discovery'].forEach(box => {
                     (conversations[box] || []).forEach(p => {
-                        peopleRows.push({ user_id: userId, name: p.name, box, date: p.date, color: p.color || null });
+                        peopleRows.push({ user_id: userId, person_name: p.name, box_name: box, color: p.color || null });
                     });
                 });
                 if (peopleRows.length > 0) await window.supabase.from('conversation_people').insert(peopleRows);
@@ -435,13 +441,22 @@ function saveConversations() {
                 await window.supabase.from('submitted_events').delete().eq('user_id', userId);
                 const eventRows = [];
                 ['spiritual', 'discovery'].forEach(type => {
-                    submittedEvents[type].forEach(key => eventRows.push({ user_id: userId, event_key: key, event_type: type }));
+                    submittedEvents[type].forEach(key => {
+                        // in-memory key is "personName-eventType"; extract person_name
+                        const personName = key.slice(0, -(type.length + 1));
+                        eventRows.push({ user_id: userId, person_name: personName, event_type: type });
+                    });
                 });
                 if (eventRows.length > 0) await window.supabase.from('submitted_events').insert(eventRows);
 
                 // Replace submitted_green_lights rows
                 await window.supabase.from('submitted_green_lights').delete().eq('user_id', userId);
-                const glRows = submittedGreenLights.map(key => ({ user_id: userId, event_key: key }));
+                const userName = localStorage.getItem('user-name') || 'Anonymous';
+                const glRows = submittedGreenLights.map(key => ({
+                    user_id: userId,
+                    // in-memory key is "userName-personName"; extract person_name
+                    person_name: key.startsWith(userName + '-') ? key.slice(userName.length + 1) : key
+                }));
                 if (glRows.length > 0) await window.supabase.from('submitted_green_lights').insert(glRows);
 
                 showNotification('Saved to cloud');
