@@ -1,0 +1,58 @@
+I have an existing static HTML tool in church-assessment.html.
+
+Your job is to add Supabase auth and persistence to this page the same way we already did for Conversation Box, while preserving the current design and behavior as much as possible.
+
+Important:
+- Work from church-assessment.html
+- Keep the current UI, styling, wording, and interaction model
+- Make the smallest viable changes
+- Do not redesign
+- Do not remove existing sharing behavior unless necessary
+- Keep localStorage as a fallback cache
+- Supabase should be the main saved source for logged-in users
+- Use the existing global Supabase client approach already used elsewhere in the project
+
+What this page currently does:
+- lets a user assess 12 practices by clicking icon cells
+- stores each cell state in assessmentState
+- stores:
+  - isChurch
+  - churchGeneration
+  - baptismCount
+  - user-name
+- currently depends on localStorage and some WordPress/jQuery hooks for progress/share saving
+
+What I need:
+1. Add the same auth UI pattern already used on the working Conversation Box page
+2. Add Supabase load/save for this page
+3. Replace WordPress-based persistence with Supabase for saved state
+4. Keep localStorage fallback
+5. Keep share/image generation behavior if possible
+6. Make this page work on GitHub Pages
+
+Use a new table for this page if needed.
+
+Recommended table:
+church_assessments
+- id uuid primary key default gen_random_uuid()
+- user_id uuid not null references auth.users(id) on delete cascade
+- assessment_state jsonb not null default '{}'::jsonb
+- is_church boolean not null default false
+- church_generation text
+- baptism_count integer not null default 0
+- leader_name text
+- updated_at timestamptz not null default now()
+- created_at timestamptz not null default now()
+
+Requirements:
+- implement RLS so users can only access their own row(s)
+- load from Supabase on login/startup
+- save to Supabase whenever the assessment changes
+- keep normal existing UI behavior
+- minimize code churn
+
+Deliverables:
+- exact SQL needed
+- exact HTML/JS changes
+- any new helper functions
+- file-by-file changes
