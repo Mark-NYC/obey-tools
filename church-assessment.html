@@ -5,12 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Church Assessment Tool</title>
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script type="module">
+        import { supabase } from './supabase.js';
+        window.supabase = supabase;
+    </script>
 </head>
 <body>
 
 <div class="container">
     <div class="status-bar"></div>
+
+    <div class="auth-section" id="auth-section">
+        <div id="auth-form">
+            <input type="email" id="auth-email" placeholder="Email">
+            <input type="password" id="auth-password" placeholder="Password">
+            <div class="auth-buttons">
+                <button class="auth-btn-primary" onclick="authSignUp()">Sign Up</button>
+                <button class="auth-btn-secondary" onclick="authLogIn()">Log In</button>
+            </div>
+        </div>
+        <div class="auth-status" id="auth-status" style="display:none">
+            <span class="auth-status-text" id="auth-status-text">Not signed in</span>
+            <button class="auth-logout-btn" onclick="authLogOut()">Log Out</button>
+        </div>
+    </div>
 
     <div class="header">
         <div class="date-info" id="date-info"></div>
@@ -228,16 +246,80 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-se
 #gps-status.success { background: #d4edda; color: #155724; }
 #gps-status.warning { background: #fff3cd; color: #856404; }
 #gps-status.error { background: #f8d7da; color: #721c24; }
+.auth-section { padding: 12px 16px; background: #f2f2f7; border-bottom: 0.5px solid #c6c6c8; }
+.auth-section input { width: 100%; padding: 10px 14px; border: 1px solid #c6c6c8; border-radius: 8px; font-size: 15px; background: #fff; outline: none; margin-bottom: 8px; font-family: inherit; }
+.auth-section input:focus { border-color: #3a3a3c; }
+.auth-buttons { display: flex; gap: 8px; margin-bottom: 0; }
+.auth-buttons button { flex: 1; padding: 10px; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; }
+.auth-btn-primary { background: #3a3a3c; color: #fff; }
+.auth-btn-secondary { background: #e5e5ea; color: #3a3a3c; }
+.auth-status { display: flex; align-items: center; justify-content: space-between; }
+.auth-status-text { font-size: 13px; color: #8e8e93; }
+.auth-logout-btn { padding: 6px 14px; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; background: #e5e5ea; color: #3a3a3c; font-family: inherit; }
 </style>
 
 <script>
-// Initialize state variables (will be loaded from server)
 let assessmentState = {};
 let isChurch = false;
 let churchGeneration = null;
 let baptismCount = 0;
 let tempBaptismCount = 0;
 let userCoordinates = null;
+let appInitialized = false;
+
+function getCurrentUser() {
+    return window._supabaseUser || null;
+}
+
+async function saveToSupabase() {
+    const user = getCurrentUser();
+    if (!user) return;
+    try {
+        await window.supabase.from('church_assessments').upsert({
+            user_id: user.id,
+            assessment_state: assessmentState,
+            is_church: isChurch,
+            church_generation: churchGeneration,
+            baptism_count: baptismCount,
+            leader_name: localStorage.getItem('user-name') || null,
+            updated_at: new Date().toISOString()
+        }, { onConflict: 'user_id' });
+    } catch (err) {
+        console.error('Supabase save error:', err);
+    }
+}
+
+async function loadFromSupabase(userId) {
+    try {
+        const { data, error } = await window.supabase
+            .from('church_assessments')
+            .select('*')
+            .eq('user_id', userId)
+            .maybeSingle();
+        if (error) throw error;
+        if (!data) return false;
+        assessmentState  = data.assessment_state || {};
+        isChurch         = data.is_church || false;
+        churchGeneration = data.church_generation || null;
+        baptismCount     = data.baptism_count || 0;
+        // Mirror to localStorage as fallback cache
+        localStorage.setItem('churchAssessmentState', JSON.stringify(assessmentState));
+        localStorage.setItem('isChurch', JSON.stringify(isChurch));
+        if (churchGeneration) localStorage.setItem('churchGeneration', churchGeneration);
+        localStorage.setItem('baptismCount', baptismCount.toString());
+        return true;
+    } catch (err) {
+        console.error('Supabase load error:', err);
+        return false;
+    }
+}
+
+function loadFromLocalStorage() {
+    assessmentState  = JSON.parse(localStorage.getItem('churchAssessmentState')) || {};
+    isChurch         = JSON.parse(localStorage.getItem('isChurch')) || false;
+    churchGeneration = localStorage.getItem('churchGeneration') || null;
+    baptismCount     = parseInt(localStorage.getItem('baptismCount')) || 0;
+}
 
 function formatDate(date) {
     const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -282,15 +364,18 @@ function setGeneration(isFromAnotherChurch) {
     localStorage.setItem('churchGeneration', churchGeneration);
     document.getElementById('generation-prompt').style.display = 'none';
     updateDateDisplay();
+    saveToSupabase();
     showNotification(`Church marked as ${isFromAnotherChurch ? 'Gen 2+' : 'Gen 1'}`);
 }
 
 function saveAssessmentState() {
     localStorage.setItem('churchAssessmentState', JSON.stringify(assessmentState));
+    saveToSupabase();
 }
 
 function saveChurchStatus() {
     localStorage.setItem('isChurch', JSON.stringify(isChurch));
+    saveToSupabase();
 }
 
 function updateCircleBorder() {
@@ -480,76 +565,21 @@ function closeShareInput() {
 }
 
 function submitShareDetails() {
-    const leaders = document.getElementById('leader-input').value.trim();
+    const leaders   = document.getElementById('leader-input').value.trim();
     const startDate = document.getElementById('date-input').value;
-    const location = document.getElementById('location-input').value.trim();
-    
+    const location  = document.getElementById('location-input').value.trim();
+
     if (!leaders || !startDate || !location) {
         showNotification('Please fill all fields');
         return;
     }
-    
-    // Check if church_ajax exists (WordPress localized script)
-    if (typeof church_ajax === 'undefined') {
-        console.error('church_ajax not found - using fallback');
-        showNotification('Configuration loading...');
-        // Give WordPress time to load the script
-        setTimeout(submitShareDetails, 1000);
-        return;
-    }
-    
+
     baptismCount = tempBaptismCount;
     localStorage.setItem('baptismCount', baptismCount.toString());
-    
-    const shareData = {
-        action: 'save_church_share',
-        nonce: church_ajax.nonce,
-        leaders: leaders,
-        start_date: startDate,
-        location: location,
-        baptisms: baptismCount
-    };
-    
-    if (userCoordinates && userCoordinates.latitude && userCoordinates.longitude) {
-        shareData.latitude = userCoordinates.latitude;
-        shareData.longitude = userCoordinates.longitude;
-        console.log('✓ Submitting with GPS coordinates:', {
-            lat: userCoordinates.latitude,
-            lon: userCoordinates.longitude,
-            accuracy: userCoordinates.accuracy
-        });
-    } else {
-        console.log('⚠ No GPS coordinates available - submitting without coordinates');
-    }
-    
+    saveToSupabase();
+
     closeShareInput();
-    
-    console.log('=== SUBMITTING CHURCH SHARE ===');
-    console.log('Data being sent:', shareData);
-    console.log('AJAX URL:', church_ajax.ajax_url);
-    
-    jQuery.post(church_ajax.ajax_url, shareData)
-        .done(function(response) {
-            console.log('✓ AJAX Success:', response);
-            if (response.success) {
-                const hasGPS = userCoordinates ? ' with GPS location' : '';
-                showNotification('Church share saved' + hasGPS + '!');
-                userCoordinates = null;
-                performCapture(leaders, startDate, location, baptismCount);
-            } else {
-                console.error('Server returned error:', response);
-                showNotification('Save failed: ' + (response.data || 'Unknown error'));
-            }
-        })
-        .fail(function(jqXHR, textStatus, errorThrown) {
-            console.error('✗ AJAX Failed:', {
-                status: jqXHR.status,
-                statusText: jqXHR.statusText,
-                error: errorThrown,
-                response: jqXHR.responseText
-            });
-            showNotification('Network error - share not saved');
-        });
+    performCapture(leaders, startDate, location, baptismCount);
 }
 
 function performCapture(leaders, startDate, location, baptismCount) {
@@ -680,15 +710,16 @@ function confirmReset(confirm) {
             cell.classList.add('bg-none');
         });
         assessmentState = {};
-        saveAssessmentState();
+        localStorage.setItem('churchAssessmentState', JSON.stringify(assessmentState));
         churchGeneration = null;
         localStorage.removeItem('churchGeneration');
         updateDateDisplay();
         baptismCount = 0;
         localStorage.removeItem('baptismCount');
         isChurch = false;
-        saveChurchStatus();
+        localStorage.setItem('isChurch', JSON.stringify(isChurch));
         updateCircleBorder();
+        saveToSupabase();
         showNotification('Assessment reset');
         const userName = localStorage.getItem('user-name');
         if (userName) {
@@ -704,19 +735,8 @@ function confirmReset(confirm) {
     }
 }
 
-// Initialize the church assessment tool with multi-device sync
-function initializeChurchAssessment() {
-    console.log('🔧 Initializing church assessment...');
-    
-    // Load saved state from localStorage (synced from server)
-    assessmentState = JSON.parse(localStorage.getItem('churchAssessmentState')) || {};
-    isChurch = JSON.parse(localStorage.getItem('isChurch')) || false;
-    churchGeneration = localStorage.getItem('churchGeneration') || null;
-    baptismCount = parseInt(localStorage.getItem('baptismCount')) || 0;
-    
-    updateDateDisplay();
-    updateCircleBorder();
-    
+// Update cell visuals from assessmentState (safe to call any time, no event listener side-effects).
+function renderCells() {
     document.querySelectorAll('.icon-cell').forEach((cell, index) => {
         cell.dataset.state = assessmentState[index] || '0';
         const state = parseInt(cell.dataset.state);
@@ -725,7 +745,18 @@ function initializeChurchAssessment() {
         else if (state === 1) cell.classList.add('bg-green');
         else if (state === 2) cell.classList.add('bg-yellow');
         else cell.classList.add('bg-red');
-        
+    });
+}
+
+// Called once on startup: renders cells and attaches click handlers.
+function initializeChurchAssessment() {
+    console.log('🔧 Initializing church assessment...');
+
+    updateDateDisplay();
+    updateCircleBorder();
+    renderCells();
+
+    document.querySelectorAll('.icon-cell').forEach((cell, index) => {
         cell.addEventListener('click', () => {
             let state = parseInt(cell.dataset.state);
             state = (state + 1) % 4;
@@ -741,32 +772,95 @@ function initializeChurchAssessment() {
             checkAssessmentCompletion();
         });
     });
-    
-    console.log('✓ Church assessment initialized with synced data');
+
+    console.log('✓ Church assessment initialized');
+}
+
+async function initializeApp() {
+    if (appInitialized) return;
+    if (window.supabase) {
+        const { data: { session } } = await window.supabase.auth.getSession();
+        if (session?.user) {
+            window._supabaseUser = session.user;
+            const loaded = await loadFromSupabase(session.user.id);
+            if (!loaded) loadFromLocalStorage();
+        } else {
+            loadFromLocalStorage();
+        }
+    } else {
+        loadFromLocalStorage();
+    }
+    initializeChurchAssessment();
+    appInitialized = true;
+    console.log('✓ Church assessment initialized');
+}
+
+function updateAuthUI(user) {
+    window._supabaseUser = user;
+    const form   = document.getElementById('auth-form');
+    const status = document.getElementById('auth-status');
+    const text   = document.getElementById('auth-status-text');
+    if (user) {
+        form.style.display   = 'none';
+        status.style.display = 'flex';
+        text.textContent     = 'Signed in as ' + user.email;
+        if (appInitialized) {
+            loadFromSupabase(user.id).then(loaded => {
+                updateDateDisplay();
+                updateCircleBorder();
+                renderCells();
+                showNotification(loaded ? 'Loaded saved data' : 'Using local data');
+            });
+        }
+    } else {
+        form.style.display   = 'block';
+        status.style.display = 'none';
+        text.textContent     = 'Not signed in';
+        if (appInitialized) {
+            loadFromLocalStorage();
+            updateDateDisplay();
+            updateCircleBorder();
+            renderCells();
+            showNotification('Using local data');
+        }
+    }
+}
+
+async function authSignUp() {
+    const email    = document.getElementById('auth-email').value.trim();
+    const password = document.getElementById('auth-password').value;
+    const { error } = await window.supabase.auth.signUp({ email, password });
+    if (error) showNotification(error.message);
+    else        showNotification('Check your email to confirm sign up.');
+}
+
+async function authLogIn() {
+    const email    = document.getElementById('auth-email').value.trim();
+    const password = document.getElementById('auth-password').value;
+    const { error } = await window.supabase.auth.signInWithPassword({ email, password });
+    if (error) showNotification(error.message);
+}
+
+async function authLogOut() {
+    const { error } = await window.supabase.auth.signOut();
+    if (error) showNotification(error.message);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
     preloadImages();
-    
-    // Wait for progress system to load data from server
-    jQuery(document).on('progressLoaded', function() {
-        console.log('✓ Progress loaded - initializing church assessment');
-        initializeChurchAssessment();
-    });
-    
-    // Fallback: Initialize after timeout if progressLoaded hasn't fired
-    setTimeout(function() {
-        var progressLoaded = jQuery(document).data('progressLoaded');
-        if (!progressLoaded) {
-            console.log('⏱️ Timeout - initializing church assessment without progress');
-            initializeChurchAssessment();
-        }
-    }, 3000);
-    
     document.querySelectorAll('.btn').forEach(btn => {
         btn.addEventListener('click', (e) => addHapticFeedback(e.target));
     });
     document.getElementById('user-name-input').addEventListener('keypress', handleNamePromptEnter);
+
+    window.supabase.auth.getSession().then(({ data: { session } }) => {
+        updateAuthUI(session?.user ?? null);
+    });
+    window.supabase.auth.onAuthStateChange((_event, session) => {
+        updateAuthUI(session?.user ?? null);
+    });
+
+    initializeApp();
 });
 </script>
 
