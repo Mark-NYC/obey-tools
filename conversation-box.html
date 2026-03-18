@@ -292,12 +292,13 @@
         }
 
 // Save conversations with manual WordPress sync
-function saveConversations() { 
+function saveConversations() {
     const data = JSON.stringify(conversations);
     localStorage.setItem('conversations', data);
-    
-    // Manual sync to WordPress if available
-    if (typeof jQuery !== 'undefined' && wpAjaxUrl && wpNonce && wpPageId) {
+    saveToSupabase(); // sync to cloud if signed in (fire-and-forget)
+
+    // WordPress sync disabled — Supabase is now the cloud backend
+    if (false && typeof jQuery !== 'undefined' && wpAjaxUrl && wpNonce && wpPageId) {
         console.log('🔄 Syncing to WordPress...');
         showSyncIndicator('syncing');
         
@@ -354,18 +355,131 @@ function saveConversations() {
                 spiritual: Array.from(submittedEvents.spiritual),
                 discovery: Array.from(submittedEvents.discovery)
             }));
+            saveToSupabase(); // sync to cloud if signed in (fire-and-forget)
+        }
+
+        // ── Supabase Data Helpers ──────────────────────────────────────────────
+
+        // Returns the currently signed-in user (set by updateAuthUI and initializeApp)
+        function getCurrentUser() {
+            return window._supabaseUser || null;
+        }
+
+        // Load all data for userId from Supabase into the in-memory state.
+        // Returns true if rows were found, false if the user has no data yet.
+        async function loadFromSupabase(userId) {
+            try {
+                const { data: people, error } = await window.supabase
+                    .from('conversation_people')
+                    .select('name, box, date, color')
+                    .eq('user_id', userId);
+
+                if (error) throw error;
+                if (!people || people.length === 0) return false;
+
+                conversations = { casual: [], meaningful: [], spiritual: [], discovery: [] };
+                people.forEach(row => {
+                    if (conversations[row.box]) {
+                        conversations[row.box].push({ name: row.name, date: row.date, color: row.color });
+                    }
+                });
+
+                const { data: events } = await window.supabase
+                    .from('submitted_events')
+                    .select('event_key, event_type')
+                    .eq('user_id', userId);
+
+                submittedEvents = { spiritual: new Set(), discovery: new Set() };
+                (events || []).forEach(row => {
+                    if (submittedEvents[row.event_type]) submittedEvents[row.event_type].add(row.event_key);
+                });
+
+                const { data: greenLights } = await window.supabase
+                    .from('submitted_green_lights')
+                    .select('event_key')
+                    .eq('user_id', userId);
+
+                submittedGreenLights = (greenLights || []).map(r => r.event_key);
+
+                return true;
+            } catch (err) {
+                console.error('Supabase load error:', err);
+                return false;
+            }
+        }
+
+        // Persist current in-memory state to Supabase for the signed-in user.
+        // No-ops silently if no user is signed in.
+        async function saveToSupabase() {
+            const user = getCurrentUser();
+            if (!user) return;
+            const userId = user.id;
+
+            try {
+                // Ensure a profile row exists (display_name left null for now)
+                await window.supabase
+                    .from('profiles')
+                    .upsert({ id: userId }, { onConflict: 'id', ignoreDuplicates: true });
+
+                // Replace conversation_people rows
+                await window.supabase.from('conversation_people').delete().eq('user_id', userId);
+                const peopleRows = [];
+                ['casual', 'meaningful', 'spiritual', 'discovery'].forEach(box => {
+                    (conversations[box] || []).forEach(p => {
+                        peopleRows.push({ user_id: userId, name: p.name, box, date: p.date, color: p.color || null });
+                    });
+                });
+                if (peopleRows.length > 0) await window.supabase.from('conversation_people').insert(peopleRows);
+
+                // Replace submitted_events rows
+                await window.supabase.from('submitted_events').delete().eq('user_id', userId);
+                const eventRows = [];
+                ['spiritual', 'discovery'].forEach(type => {
+                    submittedEvents[type].forEach(key => eventRows.push({ user_id: userId, event_key: key, event_type: type }));
+                });
+                if (eventRows.length > 0) await window.supabase.from('submitted_events').insert(eventRows);
+
+                // Replace submitted_green_lights rows
+                await window.supabase.from('submitted_green_lights').delete().eq('user_id', userId);
+                const glRows = submittedGreenLights.map(key => ({ user_id: userId, event_key: key }));
+                if (glRows.length > 0) await window.supabase.from('submitted_green_lights').insert(glRows);
+
+                showNotification('Saved to cloud');
+            } catch (err) {
+                console.error('Supabase save error:', err);
+            }
         }
 
         // Initialize app - wait for progress system
-        function initializeApp() {
+        async function initializeApp() {
             if (appInitialized) return;
-            
+
             console.log('🎯 Initializing Conversation Box...');
-            loadFromLocalStorage();
+
+            // Check for a signed-in user; load from Supabase if available.
+            // window.supabase is guaranteed set by DOMContentLoaded (module runs first).
+            if (window.supabase) {
+                const { data: { session } } = await window.supabase.auth.getSession();
+                if (session?.user) {
+                    window._supabaseUser = session.user;
+                    const loaded = await loadFromSupabase(session.user.id);
+                    if (loaded) {
+                        showNotification('Loaded saved data');
+                    } else {
+                        loadFromLocalStorage();
+                        showNotification('Using local data');
+                    }
+                } else {
+                    loadFromLocalStorage();
+                }
+            } else {
+                loadFromLocalStorage();
+            }
+
             updateDisplay();
             preloadImages();
             appInitialized = true;
-            console.log('✓ Conversation Box initialized with data:', {
+            console.log('✓ Initialized:', {
                 casual: conversations.casual?.length || 0,
                 meaningful: conversations.meaningful?.length || 0,
                 spiritual: conversations.spiritual?.length || 0,
@@ -1082,8 +1196,10 @@ function saveConversations() {
 
         // ── Supabase Auth ──────────────────────────────────────────────────────
 
-        // Update the auth UI based on whether a user is signed in or not.
+        // Update the auth UI and reload data whenever auth state changes.
         function updateAuthUI(user) {
+            window._supabaseUser = user; // keep getCurrentUser() in sync
+
             const form   = document.getElementById('auth-form');
             const status = document.getElementById('auth-status');
             const text   = document.getElementById('auth-status-text');
@@ -1092,10 +1208,25 @@ function saveConversations() {
                 form.style.display   = 'none';
                 status.style.display = 'flex';
                 text.textContent     = 'Signed in as ' + user.email;
+
+                // Reload from Supabase whenever a user signs in (or session restores)
+                if (appInitialized) {
+                    loadFromSupabase(user.id).then(loaded => {
+                        updateDisplay();
+                        showNotification(loaded ? 'Loaded saved data' : 'Using local data');
+                    });
+                }
             } else {
                 form.style.display   = 'block';
                 status.style.display = 'none';
                 text.textContent     = 'Not signed in';
+
+                // Revert to localStorage when signed out
+                if (appInitialized) {
+                    loadFromLocalStorage();
+                    updateDisplay();
+                    showNotification('Using local data');
+                }
             }
         }
 
