@@ -145,6 +145,7 @@
             <div class="btn-group">
                 <button class="btn btn-primary" onclick="startHere()">START HERE</button>
                 <button class="btn btn-secondary" onclick="captureSnapshot()">SHARE</button>
+                <button class="btn btn-secondary" onclick="testSave()">TEST SAVE</button>
             </div>
         </div>
         <div class="content-wrapper">
@@ -746,6 +747,13 @@ function saveConversations() {
                 submittedEvents[eventType].add(eventKey);
                 saveSubmittedEvents();
             }
+        }
+
+        // DEBUG
+        function testSave() {
+            conversations.casual.push({ name: 'Test Person', date: formatDate(new Date()), color: null });
+            saveConversations();
+            updateDisplay();
         }
 
         // UI FUNCTIONS
