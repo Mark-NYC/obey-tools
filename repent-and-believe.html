@@ -548,12 +548,25 @@
         .auth-status { display: flex; align-items: center; justify-content: space-between; }
         .auth-status-text { font-size: 13px; color: #8e8e93; }
         .auth-logout-btn { padding: 6px 14px; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; background: #e5e5ea; color: #3a3a3c; font-family: inherit; }
+        .bible-btn { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 7px 12px; background: #f2f2f7; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; color: #3a3a3c; transition: background 0.2s ease; white-space: nowrap; }
+        .bible-btn:active { background: #e5e5ea; }
+        .card.completed .bible-btn { background: rgba(255,255,255,0.25); color: #fff; }
+        .bible-btn-mobile-wrap { padding: 0 20px 14px; }
+        .bible-btn-mobile { width: 100%; }
+        .bible-btn-icon { font-size: 11px; transition: transform 0.25s ease; }
+        .bible-btn.open .bible-btn-icon { transform: rotate(180deg); }
+        .bible-accordion { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
+        .bible-accordion.open { max-height: 5000px; }
+        .bible-text { padding: 0 20px 18px; border-top: 0.5px solid #e5e5ea; }
+        .bible-translation { font-size: 11px; font-weight: 700; color: #8e8e93; text-transform: uppercase; letter-spacing: 0.8px; margin-top: 14px; margin-bottom: 10px; }
+        .bible-verse { font-size: 14px; line-height: 1.65; color: #3a3a3c; margin-bottom: 6px; }
+        .verse-num { font-size: 11px; font-weight: 700; vertical-align: super; margin-right: 2px; opacity: 0.6; }
     </style>
 </head>
 <body>
     <div style="display:flex; gap:10px; justify-content:center; padding:20px 16px 8px;">
         <a href="index.html" style="display:inline-block; background:#000; color:#fff; font-weight:700; font-size:15px; padding:11px 22px; border-radius:50px; text-decoration:none; white-space:nowrap;">Home</a>
-        <a href="commands-of-christ.html" style="display:inline-block; background:#000; color:#fff; font-weight:700; font-size:15px; padding:11px 22px; border-radius:50px; text-decoration:none; white-space:nowrap;">← Commands of Christ</a>
+        <a href="commands-of-christ.html" style="display:inline-block; background:#00D084; color:#fff; font-weight:700; font-size:15px; padding:11px 22px; border-radius:50px; text-decoration:none; white-space:nowrap;">← Commands of Christ</a>
     </div>
     <div class="container">
         <div class="auth-section" id="auth-section">
@@ -660,6 +673,22 @@
                             <div class="step-dot" data-step="3" onclick="event.stopPropagation(); toggleStep(this, 'teaching')">3</div>
                             <div class="step-label">Retell Story</div>
                         </div>
+                    </div>
+                </div>
+                <div class="bible-btn-mobile-wrap"><button class="bible-btn bible-btn-mobile" onclick="toggleBible(event)"><span>Luke 19:1–10 (CSB)</span><span class="bible-btn-icon">▼</span></button></div>
+                <div class="bible-accordion" id="bible-accordion">
+                    <div class="bible-text">
+                        <div class="bible-translation">Christian Standard Bible</div>
+                        <p class="bible-verse"><span class="verse-num">1</span>He entered Jericho and was passing through.</p>
+                        <p class="bible-verse"><span class="verse-num">2</span>There was a man named Zacchaeus who was a chief tax collector, and he was rich.</p>
+                        <p class="bible-verse"><span class="verse-num">3</span>He was trying to see who Jesus was, but he was not able because of the crowd, since he was a short man.</p>
+                        <p class="bible-verse"><span class="verse-num">4</span>So running ahead, he climbed up a sycamore tree to see Jesus, since he was about to pass that way.</p>
+                        <p class="bible-verse"><span class="verse-num">5</span>When Jesus came to the place, he looked up and said to him, "Zacchaeus, hurry and come down because today it is necessary for me to stay at your house."</p>
+                        <p class="bible-verse"><span class="verse-num">6</span>So he quickly came down and welcomed him joyfully.</p>
+                        <p class="bible-verse"><span class="verse-num">7</span>All who saw it began to complain, "He's gone to stay with a sinful man."</p>
+                        <p class="bible-verse"><span class="verse-num">8</span>But Zacchaeus stood there and said to the Lord, "Look, I'll give half of my possessions to the poor, Lord. And if I have extorted anything from anyone, I'll pay back four times as much."</p>
+                        <p class="bible-verse"><span class="verse-num">9</span>"Today salvation has come to this house," Jesus told him, "because he too is a son of Abraham.</p>
+                        <p class="bible-verse"><span class="verse-num">10</span>For the Son of Man has come to seek and to save the lost."</p>
                     </div>
                 </div>
             </div>
@@ -992,6 +1021,7 @@
                 closeVisionPopup();
             }
         });
+        function toggleBible(e) { e.stopPropagation(); const accordion = document.getElementById('bible-accordion'); const isOpen = accordion.classList.toggle('open'); document.querySelectorAll('.bible-btn').forEach(btn => btn.classList.toggle('open', isOpen)); }
         function updateAuthUI(user) {
             window._supabaseUser = user;
             const form = document.getElementById('auth-form');
