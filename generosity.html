@@ -16,9 +16,32 @@
         .page-title { font-size: 22px; font-weight: 900; letter-spacing: -0.5px; color: #000; }
         .page-ref { font-size: 13px; color: #8e8e93; margin-top: 6px; }
         .accent-bar { width: 48px; height: 5px; background: #00B884; border-radius: 3px; margin: 12px auto 0; }
-        .placeholder-body { padding: 48px 24px; text-align: center; }
-        .placeholder-heading { font-size: 20px; font-weight: 700; color: #1c1c1e; margin-bottom: 10px; }
-        .placeholder-text { font-size: 15px; color: #8e8e93; max-width: 280px; margin: 0 auto; line-height: 1.6; }
+
+        .section { padding: 20px 16px; border-bottom: 0.5px solid #c6c6c8; }
+        .section-label { font-size: 11px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: #00B884; margin-bottom: 10px; }
+        .section-title { font-size: 17px; font-weight: 800; color: #1c1c1e; margin-bottom: 10px; }
+        .scripture-block { background: #f2f2f7; border-left: 4px solid #00B884; border-radius: 0 8px 8px 0; padding: 14px 14px 14px 16px; margin: 10px 0; }
+        .scripture-text { font-size: 16px; line-height: 1.65; color: #1c1c1e; font-style: italic; }
+        .scripture-ref { font-size: 12px; color: #8e8e93; margin-top: 8px; font-weight: 600; font-style: normal; }
+        .body-text { font-size: 15px; line-height: 1.65; color: #3a3a3c; margin-bottom: 10px; }
+
+        .story-section { background: #f9f9fb; }
+        .story-section .section-label { color: #5856D6; }
+        .story-section .scripture-block { border-left-color: #5856D6; }
+
+        .reflect-section .section-label { color: #FF9500; }
+        .question-list { list-style: none; margin-top: 6px; }
+        .question-list li { padding: 12px 0; border-bottom: 0.5px solid #e5e5ea; font-size: 15px; line-height: 1.55; color: #3a3a3c; padding-left: 24px; position: relative; }
+        .question-list li:last-child { border-bottom: none; }
+        .question-list li::before { content: 'Q'; position: absolute; left: 0; top: 12px; font-size: 11px; font-weight: 800; color: #FF9500; }
+
+        .obey-section { background: #1c1c1e; }
+        .obey-section .section-label { color: #00B884; }
+        .obey-section .section-title { color: #fff; }
+        .obey-card { background: #2c2c2e; border-radius: 10px; padding: 16px; margin-top: 10px; }
+        .obey-card p { font-size: 15px; line-height: 1.6; color: #ebebf5; }
+        .obey-card strong { color: #00B884; }
+
         @media (min-width: 768px) {
             .container { max-width: 768px; border-radius: 12px; margin: 20px auto; box-shadow: 0 4px 20px rgba(0,0,0,0.1); overflow: hidden; }
         }
@@ -30,21 +53,61 @@
         <a href="commands-of-christ.html" class="nav-back">← Commands of Christ</a>
     </div>
     <div class="container">
+
         <div class="page-header">
             <div class="page-title">Generosity</div>
-            <div class="page-ref">Matt 6:1-4 / Mark 12:41-44 (The Widow's Coins)</div>
+            <div class="page-ref">Matt 6:1–4 · Command 9 of 12</div>
             <div class="accent-bar"></div>
         </div>
-        <!-- ═══════════════════════════════════════════════════════════════════
-             PLACEHOLDER: "Generosity" content goes here.
-             Command: Matt 6:1-4 / Story: Mark 12:41-44 (The Widow's Coins)
-             Suggested content: command explanation, scripture text,
-             story passage, reflection prompts, response action.
-        ════════════════════════════════════════════════════════════════════ -->
-        <div class="placeholder-body">
-            <div class="placeholder-heading">Coming Soon</div>
-            <div class="placeholder-text">This content is being prepared. Check back soon.</div>
+
+        <!-- THE COMMAND -->
+        <div class="section">
+            <div class="section-label">The Command</div>
+            <div class="section-title">Give in Secret</div>
+            <p class="body-text">Jesus assumes his followers will give — he says "when you give," not "if you give." But he is intensely concerned with the motivation behind the giving. Generosity performed to be seen by others has already received its reward — the admiration of people. God sees what no one else sees, and he rewards what is done in secret.</p>
+            <div class="scripture-block">
+                <p class="scripture-text">"So when you give to the needy, do not announce it with trumpets, as the hypocrites do in the synagogues and on the streets, to be honored by others. Truly I tell you, they have received their reward in full. But when you give to the needy, do not let your left hand know what your right hand is doing, so that your giving may be in secret. Then your Father, who sees what is done in secret, will reward you."</p>
+                <p class="scripture-ref">— Matthew 6:2–4</p>
+            </div>
+            <p class="body-text">Generosity is not just about the amount — it is about the heart. You can give a fortune and be spiritually bankrupt if your giving is about status or self-congratulation. You can also give two small coins and move the heart of God. The widow in the temple did exactly that.</p>
         </div>
+
+        <!-- THE STORY -->
+        <div class="section story-section">
+            <div class="section-label">The Story</div>
+            <div class="section-title">The Widow's Coins — Mark 12:41–44</div>
+            <p class="body-text">Jesus sat near the temple treasury and watched as people put in their offerings. Many wealthy people threw in large amounts — conspicuous, notable gifts. Then a poor widow came and put in two very small copper coins — worth a fraction of a penny.</p>
+            <div class="scripture-block">
+                <p class="scripture-text">Calling his disciples to him, Jesus said, "Truly I tell you, this poor widow has put more into the treasury than all the others. They all gave out of their wealth; but she, out of her poverty, put in everything — all she had to live on."</p>
+                <p class="scripture-ref">— Mark 12:43–44</p>
+            </div>
+            <p class="body-text">Jesus stopped and called his disciples over specifically to point this out. He evaluated generosity differently than everyone around him. The wealthy gave large amounts that cost them little. The widow gave a tiny amount that cost her everything. In God's economy, the measure of generosity is not what you give but what you keep. She gave from her need, not from her surplus. She trusted God with the last of what she had.</p>
+        </div>
+
+        <!-- REFLECT -->
+        <div class="section reflect-section">
+            <div class="section-label">Reflect</div>
+            <div class="section-title">Questions for Discussion</div>
+            <ul class="question-list">
+                <li>Do you give? And if so, are you honest with yourself about why — is it from a generous heart, or does recognition play a role?</li>
+                <li>The widow gave "everything she had to live on." What would it look like for you to give sacrificially — not just conveniently?</li>
+                <li>Jesus says God "rewards" secret giving. What do you think that reward looks like — is it material, or something else?</li>
+                <li>How does your relationship with money reveal your trust in God? Where do you tend to hold back?</li>
+            </ul>
+        </div>
+
+        <!-- OBEY -->
+        <div class="section obey-section">
+            <div class="section-label">Obey</div>
+            <div class="section-title">Take a Step</div>
+            <div class="obey-card">
+                <p>This week, <strong>do one generous act in secret</strong> — give money, food, time, or help to someone in need, and tell no one. Don't post about it. Don't mention it. Let it be between you and God.</p>
+            </div>
+            <div class="obey-card" style="margin-top:10px;">
+                <p>Look at your finances honestly: <strong>does your spending reflect someone who trusts God?</strong> Talk with God about one specific area where fear or greed controls your giving, and take one concrete step toward greater generosity.</p>
+            </div>
+        </div>
+
     </div>
 </body>
 </html>

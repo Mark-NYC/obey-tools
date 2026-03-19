@@ -16,9 +16,33 @@
         .page-title { font-size: 22px; font-weight: 900; letter-spacing: -0.5px; color: #000; }
         .page-ref { font-size: 13px; color: #8e8e93; margin-top: 6px; }
         .accent-bar { width: 48px; height: 5px; background: #00B884; border-radius: 3px; margin: 12px auto 0; }
-        .placeholder-body { padding: 48px 24px; text-align: center; }
-        .placeholder-heading { font-size: 20px; font-weight: 700; color: #1c1c1e; margin-bottom: 10px; }
-        .placeholder-text { font-size: 15px; color: #8e8e93; max-width: 280px; margin: 0 auto; line-height: 1.6; }
+
+        .section { padding: 20px 16px; border-bottom: 0.5px solid #c6c6c8; }
+        .section-label { font-size: 11px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: #00B884; margin-bottom: 10px; }
+        .section-title { font-size: 17px; font-weight: 800; color: #1c1c1e; margin-bottom: 10px; }
+        .scripture-block { background: #f2f2f7; border-left: 4px solid #00B884; border-radius: 0 8px 8px 0; padding: 14px 14px 14px 16px; margin: 10px 0; }
+        .scripture-text { font-size: 16px; line-height: 1.65; color: #1c1c1e; font-style: italic; }
+        .scripture-ref { font-size: 12px; color: #8e8e93; margin-top: 8px; font-weight: 600; font-style: normal; }
+        .body-text { font-size: 15px; line-height: 1.65; color: #3a3a3c; margin-bottom: 10px; }
+
+        .story-section { background: #f9f9fb; }
+        .story-section .section-label { color: #5856D6; }
+        .story-section .scripture-block { border-left-color: #5856D6; }
+
+        .reflect-section .section-label { color: #FF9500; }
+        .question-list { list-style: none; margin-top: 6px; }
+        .question-list li { padding: 12px 0; border-bottom: 0.5px solid #e5e5ea; font-size: 15px; line-height: 1.55; color: #3a3a3c; padding-left: 24px; position: relative; }
+        .question-list li:last-child { border-bottom: none; }
+        .question-list li::before { content: 'Q'; position: absolute; left: 0; top: 12px; font-size: 11px; font-weight: 800; color: #FF9500; }
+
+        .obey-section { background: #1c1c1e; }
+        .obey-section .section-label { color: #00B884; }
+        .obey-section .section-title { color: #fff; }
+        .obey-section .body-text { color: #ebebf5cc; }
+        .obey-card { background: #2c2c2e; border-radius: 10px; padding: 16px; margin-top: 10px; }
+        .obey-card p { font-size: 15px; line-height: 1.6; color: #ebebf5; }
+        .obey-card strong { color: #00B884; }
+
         @media (min-width: 768px) {
             .container { max-width: 768px; border-radius: 12px; margin: 20px auto; box-shadow: 0 4px 20px rgba(0,0,0,0.1); overflow: hidden; }
         }
@@ -30,21 +54,66 @@
         <a href="commands-of-christ.html" class="nav-back">← Commands of Christ</a>
     </div>
     <div class="container">
+
         <div class="page-header">
             <div class="page-title">Repent &amp; Believe</div>
-            <div class="page-ref">Mk 1:15 / Lk 19:1-10 (Zacchaeus)</div>
+            <div class="page-ref">Mk 1:15 · Command 1 of 12</div>
             <div class="accent-bar"></div>
         </div>
-        <!-- ═══════════════════════════════════════════════════════════════════
-             PLACEHOLDER: "Repent & Believe" content goes here.
-             Command: Mk 1:15 / Story: Lk 19:1-10 (Zacchaeus)
-             Suggested content: command explanation, scripture text,
-             story passage, reflection prompts, response action.
-        ════════════════════════════════════════════════════════════════════ -->
-        <div class="placeholder-body">
-            <div class="placeholder-heading">Coming Soon</div>
-            <div class="placeholder-text">This content is being prepared. Check back soon.</div>
+
+        <!-- THE COMMAND -->
+        <div class="section">
+            <div class="section-label">The Command</div>
+            <div class="section-title">Turn and Trust</div>
+            <p class="body-text">Jesus began his public ministry with a single, urgent call: repent and believe. To repent means to turn — to change your mind and direction. To believe means to trust completely, staking your life on Jesus and the good news he brings.</p>
+            <div class="scripture-block">
+                <p class="scripture-text">"The time has come. The kingdom of God has come near. Repent and believe the good news!"</p>
+                <p class="scripture-ref">— Mark 1:15</p>
+            </div>
+            <p class="body-text">This is not a one-time transaction but a lifelong posture — continually turning toward God and continually trusting in Jesus. It is the entry point and the ongoing rhythm of the Christian life.</p>
         </div>
+
+        <!-- THE STORY -->
+        <div class="section story-section">
+            <div class="section-label">The Story</div>
+            <div class="section-title">Zacchaeus — Luke 19:1–10</div>
+            <p class="body-text">Zacchaeus was a chief tax collector in Jericho — wealthy, powerful, and despised. He cheated people and collaborated with the Roman occupiers. When Jesus passed through town, Zacchaeus was so desperate to see him that he climbed a sycamore-fig tree.</p>
+            <div class="scripture-block">
+                <p class="scripture-text">When Jesus reached the spot, he looked up and said to him, "Zacchaeus, come down immediately. I must stay at your house today." So he came down at once and welcomed him gladly.</p>
+                <p class="scripture-ref">— Luke 19:5–6</p>
+            </div>
+            <p class="body-text">The crowd grumbled — Jesus was going to eat with a sinner. But something happened at that meal. Zacchaeus stood up and declared he would give half his possessions to the poor and repay anyone he had cheated four times over.</p>
+            <div class="scripture-block">
+                <p class="scripture-text">Jesus said to him, "Today salvation has come to this house… For the Son of Man came to seek and to save the lost."</p>
+                <p class="scripture-ref">— Luke 19:9–10</p>
+            </div>
+            <p class="body-text">Zacchaeus did not clean himself up before coming to Jesus — Jesus came to him first. The encounter transformed him. Real repentance produces real change: his money, his reputation, his relationships — all of it reoriented toward God and others.</p>
+        </div>
+
+        <!-- REFLECT -->
+        <div class="section reflect-section">
+            <div class="section-label">Reflect</div>
+            <div class="section-title">Questions for Discussion</div>
+            <ul class="question-list">
+                <li>What area of your life have you been holding back from God — something you haven't fully turned over?</li>
+                <li>Zacchaeus made specific, costly restitution. What would genuine repentance look like in your situation?</li>
+                <li>Jesus said he "must" stay at Zacchaeus's house. What does it say about Jesus that he pursued someone so hated by the community?</li>
+                <li>How is believing the good news different from just agreeing it is true intellectually?</li>
+            </ul>
+        </div>
+
+        <!-- OBEY -->
+        <div class="section obey-section">
+            <div class="section-label">Obey</div>
+            <div class="section-title">Take a Step</div>
+            <div class="obey-card">
+                <p>This week, <strong>identify one specific area</strong> where you need to repent — where you have been going your own way. Write it down. Then bring it to Jesus in prayer, confess it to a trusted friend, and take one concrete step to make it right.</p>
+            </div>
+            <div class="obey-card" style="margin-top:10px;">
+                <p>Practice <strong>believing the good news</strong> by memorizing Mark 1:15 and repeating it each morning this week as a declaration over your day.</p>
+            </div>
+        </div>
+
     </div>
 </body>
 </html>
