@@ -246,10 +246,12 @@
             const { error } = await window.supabase.auth.signOut();
             if (error) showNotification(error.message);
         }
-        if (window.supabase) {
-            window.supabase.auth.getSession().then(({ data: { session } }) => { updateAuthUI(session?.user ?? null); });
-            window.supabase.auth.onAuthStateChange((_event, session) => { updateAuthUI(session?.user ?? null); });
-        }
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.supabase) {
+                window.supabase.auth.getSession().then(({ data: { session } }) => { updateAuthUI(session?.user ?? null); });
+                window.supabase.auth.onAuthStateChange((_event, session) => { updateAuthUI(session?.user ?? null); });
+            }
+        });
     </script>
 </body>
 </html>
