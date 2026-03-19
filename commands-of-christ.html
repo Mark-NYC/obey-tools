@@ -31,11 +31,14 @@
         .page-subtitle { font-size: 14px; color: #8e8e93; margin-top: 4px; }
         .accent-bar { width: 48px; height: 5px; background: #00B884; border-radius: 3px; margin: 12px auto 0; }
 
-        /* Placeholder content */
-        .placeholder-body { padding: 48px 24px; text-align: center; }
-        .placeholder-icon { font-size: 48px; margin-bottom: 16px; }
-        .placeholder-heading { font-size: 20px; font-weight: 700; color: #1c1c1e; margin-bottom: 10px; }
-        .placeholder-text { font-size: 15px; color: #8e8e93; max-width: 280px; margin: 0 auto; line-height: 1.6; }
+        /* Command list */
+        .command-item { display: flex; align-items: center; padding: 14px 16px; border-bottom: 0.5px solid #c6c6c8; text-decoration: none; color: #000; background: #fff; transition: background 0.15s; }
+        .command-item:active { background: #f2f2f7; }
+        .command-num { font-size: 15px; font-weight: 700; color: #8e8e93; width: 28px; flex-shrink: 0; }
+        .command-info { flex: 1; }
+        .command-title { font-size: 17px; font-weight: 600; display: block; }
+        .command-ref { font-size: 13px; color: #8e8e93; margin-top: 2px; display: block; }
+        .command-arrow { font-size: 22px; color: #c6c6c8; }
 
         /* Sync indicator */
         .sync-indicator { position: fixed; top: 10px; left: 10px; background: rgba(52,199,89,0.9); color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; z-index: 9999; display: none; }
@@ -83,17 +86,103 @@
             <div class="accent-bar"></div>
         </div>
 
-        <!-- ═══════════════════════════════════════════════════════════════════
-             PLACEHOLDER: Commands of Christ content goes here.
-             Replace this section when the feature is ready.
-             Suggested content: a browsable list of Christ's commands,
-             each with scripture reference, brief explanation, and
-             a way to mark progress or reflect.
-        ════════════════════════════════════════════════════════════════════ -->
-        <div class="placeholder-body">
-            <div class="placeholder-icon">✝️</div>
-            <div class="placeholder-heading">Coming Soon</div>
-            <div class="placeholder-text">Commands of Christ is under development. Check back soon to explore and practice everything Jesus commanded.</div>
+        <div class="command-list">
+            <a href="repent-and-believe.html" class="command-item">
+                <span class="command-num">1</span>
+                <span class="command-info">
+                    <span class="command-title">Repent &amp; Believe</span>
+                    <span class="command-ref">Mk 1:15 / Lk 19:1-10 (Zacchaeus)</span>
+                </span>
+                <span class="command-arrow">›</span>
+            </a>
+            <a href="be-baptized.html" class="command-item">
+                <span class="command-num">2</span>
+                <span class="command-info">
+                    <span class="command-title">Be Baptized</span>
+                    <span class="command-ref">Matt. 28:19 / Acts 8:26-39 (Philip &amp; The Ethiopian)</span>
+                </span>
+                <span class="command-arrow">›</span>
+            </a>
+            <a href="holy-spirit.html" class="command-item">
+                <span class="command-num">3</span>
+                <span class="command-info">
+                    <span class="command-title">Holy Spirit</span>
+                    <span class="command-ref">Acts 4:27-31 (Empowered Church)</span>
+                </span>
+                <span class="command-arrow">›</span>
+            </a>
+            <a href="the-word-of-god.html" class="command-item">
+                <span class="command-num">4</span>
+                <span class="command-info">
+                    <span class="command-title">The Word of God</span>
+                    <span class="command-ref">Jn 8:31-32 / Jn 15:1-17 (I am the Vine)</span>
+                </span>
+                <span class="command-arrow">›</span>
+            </a>
+            <a href="love-one-another.html" class="command-item">
+                <span class="command-num">5</span>
+                <span class="command-info">
+                    <span class="command-title">Love One Another</span>
+                    <span class="command-ref">Jn 15:12 / Lk 10:25-37 (The Good Samaritan)</span>
+                </span>
+                <span class="command-arrow">›</span>
+            </a>
+            <a href="lords-supper.html" class="command-item">
+                <span class="command-num">6</span>
+                <span class="command-info">
+                    <span class="command-title">Lord's Supper</span>
+                    <span class="command-ref">Lk 22:19-20 / Lk 22:7-20 (The Last Supper)</span>
+                </span>
+                <span class="command-arrow">›</span>
+            </a>
+            <a href="pray.html" class="command-item">
+                <span class="command-num">7</span>
+                <span class="command-info">
+                    <span class="command-title">Pray</span>
+                    <span class="command-ref">Matt 6:9 / Matt 6:5-15 (Lord's Prayer)</span>
+                </span>
+                <span class="command-arrow">›</span>
+            </a>
+            <a href="signs-and-wonders.html" class="command-item">
+                <span class="command-num">8</span>
+                <span class="command-info">
+                    <span class="command-title">Signs &amp; Wonders</span>
+                    <span class="command-ref">Jn 14:6-14 / Lk 5:17-39 (Through the Roof)</span>
+                </span>
+                <span class="command-arrow">›</span>
+            </a>
+            <a href="generosity.html" class="command-item">
+                <span class="command-num">9</span>
+                <span class="command-info">
+                    <span class="command-title">Generosity</span>
+                    <span class="command-ref">Matt 6:1-4 / Mark 12:41-44 (The Widow's Coins)</span>
+                </span>
+                <span class="command-arrow">›</span>
+            </a>
+            <a href="worship.html" class="command-item">
+                <span class="command-num">10</span>
+                <span class="command-info">
+                    <span class="command-title">Worship</span>
+                    <span class="command-ref">Mk 12:28-34 / Lk 7:36-50 (The Sinful Woman)</span>
+                </span>
+                <span class="command-arrow">›</span>
+            </a>
+            <a href="go-make-disciples.html" class="command-item">
+                <span class="command-num">11</span>
+                <span class="command-info">
+                    <span class="command-title">Go…Make Disciples</span>
+                    <span class="command-ref">Matt 28:18-20 / Lk 10:1-11 (The 72)</span>
+                </span>
+                <span class="command-arrow">›</span>
+            </a>
+            <a href="gather.html" class="command-item">
+                <span class="command-num">12</span>
+                <span class="command-info">
+                    <span class="command-title">Gather</span>
+                    <span class="command-ref">Heb 10:24-25 / Acts 2:36-47 (The First Church)</span>
+                </span>
+                <span class="command-arrow">›</span>
+            </a>
         </div>
 
     </div>

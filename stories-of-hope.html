@@ -31,11 +31,12 @@
         .page-subtitle { font-size: 14px; color: #8e8e93; margin-top: 4px; }
         .accent-bar { width: 48px; height: 5px; background: #F5A623; border-radius: 3px; margin: 12px auto 0; }
 
-        /* Placeholder content */
-        .placeholder-body { padding: 48px 24px; text-align: center; }
-        .placeholder-icon { font-size: 48px; margin-bottom: 16px; }
-        .placeholder-heading { font-size: 20px; font-weight: 700; color: #1c1c1e; margin-bottom: 10px; }
-        .placeholder-text { font-size: 15px; color: #8e8e93; max-width: 280px; margin: 0 auto; line-height: 1.6; }
+        /* Story list */
+        .story-item { display: flex; align-items: center; padding: 16px; border-bottom: 0.5px solid #c6c6c8; text-decoration: none; color: #000; background: #fff; transition: background 0.15s; }
+        .story-item:active { background: #f2f2f7; }
+        .story-num { font-size: 15px; font-weight: 700; color: #8e8e93; width: 24px; flex-shrink: 0; }
+        .story-title { flex: 1; font-size: 17px; font-weight: 600; }
+        .story-arrow { font-size: 22px; color: #c6c6c8; }
 
         /* Sync indicator — identical to conversation-box */
         .sync-indicator { position: fixed; top: 10px; left: 10px; background: rgba(52,199,89,0.9); color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; z-index: 9999; display: none; }
@@ -83,16 +84,42 @@
             <div class="accent-bar"></div>
         </div>
 
-        <!-- ═══════════════════════════════════════════════════════════════════
-             PLACEHOLDER: Stories of Hope content goes here.
-             Replace this section when the feature is ready.
-             Suggested content: a browsable list of submitted stories,
-             a form to submit a story, or a curated story reader.
-        ════════════════════════════════════════════════════════════════════ -->
-        <div class="placeholder-body">
-            <div class="placeholder-icon">📖</div>
-            <div class="placeholder-heading">Coming Soon</div>
-            <div class="placeholder-text">Stories of Hope is under development. Check back soon to read and share stories of changed lives.</div>
+        <div class="story-list">
+            <a href="hope-for-the-rejected.html" class="story-item">
+                <span class="story-num">1</span>
+                <span class="story-title">Hope For The Rejected</span>
+                <span class="story-arrow">›</span>
+            </a>
+            <a href="hope-for-the-nonreligious.html" class="story-item">
+                <span class="story-num">2</span>
+                <span class="story-title">Hope For The Nonreligious</span>
+                <span class="story-arrow">›</span>
+            </a>
+            <a href="hope-changes-things.html" class="story-item">
+                <span class="story-num">3</span>
+                <span class="story-title">Hope Changes Things</span>
+                <span class="story-arrow">›</span>
+            </a>
+            <a href="hope-forgives.html" class="story-item">
+                <span class="story-num">4</span>
+                <span class="story-title">Hope Forgives</span>
+                <span class="story-arrow">›</span>
+            </a>
+            <a href="hope-through-death.html" class="story-item">
+                <span class="story-num">5</span>
+                <span class="story-title">Hope Through Death</span>
+                <span class="story-arrow">›</span>
+            </a>
+            <a href="hope-rose-from-the-dead.html" class="story-item">
+                <span class="story-num">6</span>
+                <span class="story-title">Hope Rose From The Dead</span>
+                <span class="story-arrow">›</span>
+            </a>
+            <a href="hope-is-waiting-for-you.html" class="story-item">
+                <span class="story-num">7</span>
+                <span class="story-title">Hope is Waiting For You</span>
+                <span class="story-arrow">›</span>
+            </a>
         </div>
 
     </div>
