@@ -16,9 +16,32 @@
         .page-title { font-size: 22px; font-weight: 900; letter-spacing: -0.5px; color: #000; }
         .page-ref { font-size: 13px; color: #8e8e93; margin-top: 6px; }
         .accent-bar { width: 48px; height: 5px; background: #00B884; border-radius: 3px; margin: 12px auto 0; }
-        .placeholder-body { padding: 48px 24px; text-align: center; }
-        .placeholder-heading { font-size: 20px; font-weight: 700; color: #1c1c1e; margin-bottom: 10px; }
-        .placeholder-text { font-size: 15px; color: #8e8e93; max-width: 280px; margin: 0 auto; line-height: 1.6; }
+
+        .section { padding: 20px 16px; border-bottom: 0.5px solid #c6c6c8; }
+        .section-label { font-size: 11px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: #00B884; margin-bottom: 10px; }
+        .section-title { font-size: 17px; font-weight: 800; color: #1c1c1e; margin-bottom: 10px; }
+        .scripture-block { background: #f2f2f7; border-left: 4px solid #00B884; border-radius: 0 8px 8px 0; padding: 14px 14px 14px 16px; margin: 10px 0; }
+        .scripture-text { font-size: 16px; line-height: 1.65; color: #1c1c1e; font-style: italic; }
+        .scripture-ref { font-size: 12px; color: #8e8e93; margin-top: 8px; font-weight: 600; font-style: normal; }
+        .body-text { font-size: 15px; line-height: 1.65; color: #3a3a3c; margin-bottom: 10px; }
+
+        .story-section { background: #f9f9fb; }
+        .story-section .section-label { color: #5856D6; }
+        .story-section .scripture-block { border-left-color: #5856D6; }
+
+        .reflect-section .section-label { color: #FF9500; }
+        .question-list { list-style: none; margin-top: 6px; }
+        .question-list li { padding: 12px 0; border-bottom: 0.5px solid #e5e5ea; font-size: 15px; line-height: 1.55; color: #3a3a3c; padding-left: 24px; position: relative; }
+        .question-list li:last-child { border-bottom: none; }
+        .question-list li::before { content: 'Q'; position: absolute; left: 0; top: 12px; font-size: 11px; font-weight: 800; color: #FF9500; }
+
+        .obey-section { background: #1c1c1e; }
+        .obey-section .section-label { color: #00B884; }
+        .obey-section .section-title { color: #fff; }
+        .obey-card { background: #2c2c2e; border-radius: 10px; padding: 16px; margin-top: 10px; }
+        .obey-card p { font-size: 15px; line-height: 1.6; color: #ebebf5; }
+        .obey-card strong { color: #00B884; }
+
         @media (min-width: 768px) {
             .container { max-width: 768px; border-radius: 12px; margin: 20px auto; box-shadow: 0 4px 20px rgba(0,0,0,0.1); overflow: hidden; }
         }
@@ -30,21 +53,66 @@
         <a href="commands-of-christ.html" class="nav-back">← Commands of Christ</a>
     </div>
     <div class="container">
+
         <div class="page-header">
             <div class="page-title">Lord's Supper</div>
-            <div class="page-ref">Lk 22:19-20 / Lk 22:7-20 (The Last Supper)</div>
+            <div class="page-ref">Lk 22:19–20 · Command 6 of 12</div>
             <div class="accent-bar"></div>
         </div>
-        <!-- ═══════════════════════════════════════════════════════════════════
-             PLACEHOLDER: "Lord's Supper" content goes here.
-             Command: Lk 22:19-20 / Story: Lk 22:7-20 (The Last Supper)
-             Suggested content: command explanation, scripture text,
-             story passage, reflection prompts, response action.
-        ════════════════════════════════════════════════════════════════════ -->
-        <div class="placeholder-body">
-            <div class="placeholder-heading">Coming Soon</div>
-            <div class="placeholder-text">This content is being prepared. Check back soon.</div>
+
+        <!-- THE COMMAND -->
+        <div class="section">
+            <div class="section-label">The Command</div>
+            <div class="section-title">Do This in Remembrance</div>
+            <p class="body-text">On the night of his arrest, Jesus took bread, broke it, and gave it to his disciples. Then he took the cup. With these simple elements — bread and wine — he instituted a practice that his followers have observed ever since. It was not a suggestion. He said "do this."</p>
+            <div class="scripture-block">
+                <p class="scripture-text">And he took bread, gave thanks and broke it, and gave it to them, saying, "This is my body given for you; do this in remembrance of me." In the same way, after the supper he took the cup, saying, "This cup is the new covenant in my blood, which is poured out for you."</p>
+                <p class="scripture-ref">— Luke 22:19–20</p>
+            </div>
+            <p class="body-text">The Lord's Supper is a proclamation. Paul writes that "whenever you eat this bread and drink this cup, you proclaim the Lord's death until he comes" (1 Cor 11:26). It is both a backward look — remembering the cross — and a forward look — anticipating his return. Every time we observe it together, we are declaring the gospel with our bodies.</p>
         </div>
+
+        <!-- THE STORY -->
+        <div class="section story-section">
+            <div class="section-label">The Story</div>
+            <div class="section-title">The Last Supper — Luke 22:7–20</div>
+            <p class="body-text">It was the Passover — the meal where Israel remembered being delivered from slavery in Egypt. Jesus sent Peter and John ahead to prepare it. When the hour came, he reclined at the table with his twelve disciples and said something that must have startled them:</p>
+            <div class="scripture-block">
+                <p class="scripture-text">"I have eagerly desired to eat this Passover with you before I suffer. For I tell you, I will not eat it again until it finds fulfillment in the kingdom of God."</p>
+                <p class="scripture-ref">— Luke 22:15–16</p>
+            </div>
+            <p class="body-text">He knew what was coming. And yet, in the face of his own suffering, his great desire was to share this meal with his friends. He took the cup from the Passover ritual and gave it new meaning. He took the bread — the bread of affliction — and said it was his body, broken for them. The Passover lamb, the unleavened bread, the cup of redemption — all of it pointed to him. He was the fulfillment.</p>
+            <div class="scripture-block">
+                <p class="scripture-text">"This cup is the new covenant in my blood, which is poured out for you."</p>
+                <p class="scripture-ref">— Luke 22:20</p>
+            </div>
+            <p class="body-text">The disciples were eating a meal that looked back at Egypt. Without knowing it, they were also eating the meal that would define all of history. The old covenant required the blood of bulls and goats. This new covenant was sealed with the blood of the Son of God.</p>
+        </div>
+
+        <!-- REFLECT -->
+        <div class="section reflect-section">
+            <div class="section-label">Reflect</div>
+            <div class="section-title">Questions for Discussion</div>
+            <ul class="question-list">
+                <li>How do you currently experience the Lord's Supper — as a meaningful act or more of a ritual? What would make it more real to you?</li>
+                <li>Jesus said he "eagerly desired" to share this meal with his disciples. What does that tell you about how he feels about being with his people?</li>
+                <li>The early church broke bread "every day" and "from house to house" (Acts 2:46). How often does your community observe communion? Could it be more frequent?</li>
+                <li>Paul warns against taking the Lord's Supper "in an unworthy manner." What does it mean to come to the table with genuine self-examination?</li>
+            </ul>
+        </div>
+
+        <!-- OBEY -->
+        <div class="section obey-section">
+            <div class="section-label">Obey</div>
+            <div class="section-title">Take a Step</div>
+            <div class="obey-card">
+                <p>The next time your community observes the Lord's Supper, <strong>come prepared.</strong> Before you participate, spend five minutes in honest self-examination — confessing anything between you and God, and anything between you and another person.</p>
+            </div>
+            <div class="obey-card" style="margin-top:10px;">
+                <p>If your community rarely observes communion, <strong>suggest doing it more regularly.</strong> The early church did it every time they gathered. Even a simple practice of bread and cup in a small group or home can become a powerful act of proclamation.</p>
+            </div>
+        </div>
+
     </div>
 </body>
 </html>
