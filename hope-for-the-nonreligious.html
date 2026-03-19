@@ -3,6 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script type="module">
+        import { supabase } from './supabase.js';
+        window.supabase = supabase;
+    </script>
     <title>Hope for the Nonreligious - Luke 18:9-17</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -61,10 +65,45 @@
         .notification { position: fixed; top: 60px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: white; padding: 12px 20px; border-radius: 8px; font-size: 15px; font-weight: 500; z-index: 1000; opacity: 0; animation: notificationSlide 3s ease; }
         @keyframes notificationSlide { 0% { opacity: 0; transform: translateX(-50%) translateY(-20px); } 10% { opacity: 1; transform: translateX(-50%) translateY(0); } 90% { opacity: 1; transform: translateX(-50%) translateY(0); } 100% { opacity: 0; transform: translateX(-50%) translateY(-20px); } }
         @media (min-width: 768px) { .container { max-width: 768px; border-radius: 12px; margin: 20px auto; box-shadow: 0 4px 20px rgba(0,0,0,0.1); overflow: hidden; } .content { padding: 20px; } .reset-section { position: static; transform: none; width: auto; max-width: none; border-top: 0.5px solid #c6c6c8; border-radius: 0; } }
+        /* Auth section */
+        .auth-section { padding: 12px 16px; background: #f2f2f7; border-bottom: 0.5px solid #c6c6c8; }
+        .auth-section input { width: 100%; padding: 10px 14px; border: 1px solid #c6c6c8; border-radius: 8px; font-size: 15px; background: #fff; outline: none; margin-bottom: 8px; font-family: inherit; }
+        .auth-section input:focus { border-color: #3a3a3c; }
+        .auth-buttons { display: flex; gap: 8px; }
+        .auth-buttons button { flex: 1; padding: 10px; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; }
+        .auth-btn-primary { background: #3a3a3c; color: #fff; }
+        .auth-btn-secondary { background: #e5e5ea; color: #3a3a3c; }
+        .auth-status { display: flex; align-items: center; justify-content: space-between; }
+        .auth-status-text { font-size: 13px; color: #8e8e93; }
+        .auth-logout-btn { padding: 6px 14px; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; background: #e5e5ea; color: #3a3a3c; font-family: inherit; }
+        /* Navigation bar */
+        .page-nav { display: flex; gap: 8px; padding: 12px 16px; background: #000; }
+        .nav-btn { padding: 9px 16px; border-radius: 8px; font-size: 14px; font-weight: 700; text-decoration: none; transition: opacity 0.15s; }
+        .nav-home { background: #fff; color: #000; }
+        .nav-back { background: rgba(255,255,255,0.15); color: #fff; flex: 1; text-align: center; }
+        .nav-back:active, .nav-home:active { opacity: 0.7; }
     </style>
 </head>
 <body>
+    <div class="page-nav">
+        <a href="index.html" class="nav-btn nav-home">Home</a>
+        <a href="stories-of-hope.html" class="nav-btn nav-back">← Stories of Hope</a>
+    </div>
     <div class="container">
+        <div class="auth-section" id="auth-section">
+            <div id="auth-form">
+                <input type="email" id="auth-email" placeholder="Email">
+                <input type="password" id="auth-password" placeholder="Password">
+                <div class="auth-buttons">
+                    <button class="auth-btn-primary" onclick="authSignUp()">Sign Up</button>
+                    <button class="auth-btn-secondary" onclick="authLogIn()">Log In</button>
+                </div>
+            </div>
+            <div class="auth-status" id="auth-status" style="display:none">
+                <span class="auth-status-text" id="auth-status-text">Not signed in</span>
+                <button class="auth-logout-btn" onclick="authLogOut()">Log Out</button>
+            </div>
+        </div>
         <div class="header">
             <h1>Hope for the Nonreligious</h1>
             <div class="scripture">Luke 18:9–17</div>
@@ -174,6 +213,34 @@
         function resetAll() { if (confirm('Reset all progress?')) { completedCards = []; localStorage.removeItem('hope-nonreligious-progress'); document.querySelectorAll('.card').forEach(card => card.classList.remove('completed')); updateProgress(); showNotification('Progress reset'); } }
         function showNotification(message) { const n = document.createElement('div'); n.className = 'notification'; n.textContent = message; document.body.appendChild(n); setTimeout(() => n.remove(), 3000); }
         window.addEventListener('DOMContentLoaded', () => { completedCards.forEach(cardId => { const card = document.querySelector(`[data-card="${cardId}"]`); if (card) card.classList.add('completed'); }); updateProgress(); });
+        function updateAuthUI(user) {
+            window._supabaseUser = user;
+            const form = document.getElementById('auth-form');
+            const status = document.getElementById('auth-status');
+            const text = document.getElementById('auth-status-text');
+            if (user) { form.style.display = 'none'; status.style.display = 'flex'; text.textContent = 'Signed in as ' + user.email; }
+            else { form.style.display = 'block'; status.style.display = 'none'; text.textContent = 'Not signed in'; }
+        }
+        async function authSignUp() {
+            const email = document.getElementById('auth-email').value.trim();
+            const password = document.getElementById('auth-password').value;
+            const { error } = await window.supabase.auth.signUp({ email, password });
+            if (error) showNotification(error.message); else showNotification('Check your email to confirm sign up.');
+        }
+        async function authLogIn() {
+            const email = document.getElementById('auth-email').value.trim();
+            const password = document.getElementById('auth-password').value;
+            const { error } = await window.supabase.auth.signInWithPassword({ email, password });
+            if (error) showNotification(error.message);
+        }
+        async function authLogOut() {
+            const { error } = await window.supabase.auth.signOut();
+            if (error) showNotification(error.message);
+        }
+        if (window.supabase) {
+            window.supabase.auth.getSession().then(({ data: { session } }) => { updateAuthUI(session?.user ?? null); });
+            window.supabase.auth.onAuthStateChange((_event, session) => { updateAuthUI(session?.user ?? null); });
+        }
     </script>
 </body>
 </html>
