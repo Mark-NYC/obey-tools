@@ -113,12 +113,25 @@
         .auth-status { display: flex; align-items: center; justify-content: space-between; }
         .auth-status-text { font-size: 13px; color: #8e8e93; }
         .auth-logout-btn { padding: 6px 14px; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; background: #e5e5ea; color: #3a3a3c; font-family: inherit; }
+        .bible-btn { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 7px 12px; background: #f2f2f7; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; color: #3a3a3c; transition: background 0.2s ease; white-space: nowrap; }
+        .bible-btn:active { background: #e5e5ea; }
+        .card.completed .bible-btn { background: rgba(255,255,255,0.25); color: #fff; }
+        .bible-btn-mobile-wrap { padding: 0 20px 14px; }
+        .bible-btn-mobile { width: 100%; }
+        .bible-btn-icon { font-size: 11px; transition: transform 0.25s ease; }
+        .bible-btn.open .bible-btn-icon { transform: rotate(180deg); }
+        .bible-accordion { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
+        .bible-accordion.open { max-height: 5000px; }
+        .bible-text { padding: 0 20px 18px; border-top: 0.5px solid #e5e5ea; }
+        .bible-translation { font-size: 11px; font-weight: 700; color: #8e8e93; text-transform: uppercase; letter-spacing: 0.8px; margin-top: 14px; margin-bottom: 10px; }
+        .bible-verse { font-size: 14px; line-height: 1.65; color: #3a3a3c; margin-bottom: 6px; }
+        .verse-num { font-size: 11px; font-weight: 700; vertical-align: super; margin-right: 2px; opacity: 0.6; }
     </style>
 </head>
 <body>
     <div style="display:flex; gap:10px; justify-content:center; padding:20px 16px 8px;">
         <a href="index.html" style="display:inline-block; background:#000; color:#fff; font-weight:700; font-size:15px; padding:11px 22px; border-radius:50px; text-decoration:none; white-space:nowrap;">Home</a>
-        <a href="commands-of-christ.html" style="display:inline-block; background:#000; color:#fff; font-weight:700; font-size:15px; padding:11px 22px; border-radius:50px; text-decoration:none; white-space:nowrap;">← Commands of Christ</a>
+        <a href="commands-of-christ.html" style="display:inline-block; background:#00D084; color:#fff; font-weight:700; font-size:15px; padding:11px 22px; border-radius:50px; text-decoration:none; white-space:nowrap;">← Commands of Christ</a>
     </div>
     <div class="container">
         <div class="auth-section" id="auth-section">
@@ -186,6 +199,25 @@
                         <div style="flex: 1;"><div class="step-dot" data-step="1" onclick="event.stopPropagation(); toggleStep(this, 'teaching')">1</div><div class="step-label">Read Command &amp; Tell Story</div></div>
                         <div style="flex: 1;"><div class="step-dot" data-step="2" onclick="event.stopPropagation(); toggleStep(this, 'teaching')">2</div><div class="step-label">Read Story Together</div></div>
                         <div style="flex: 1;"><div class="step-dot" data-step="3" onclick="event.stopPropagation(); toggleStep(this, 'teaching')">3</div><div class="step-label">Retell Story</div></div>
+                    </div>
+                </div>
+                <div class="bible-btn-mobile-wrap"><button class="bible-btn bible-btn-mobile" onclick="toggleBible(event)"><span>Acts 8:26–39 (CSB)</span><span class="bible-btn-icon">▼</span></button></div>
+                <div class="bible-accordion" id="bible-accordion">
+                    <div class="bible-text">
+                        <div class="bible-translation">Christian Standard Bible</div>
+                        <p class="bible-verse"><span class="verse-num">26</span>An angel of the Lord spoke to Philip: "Get up and go south to the road that goes down from Jerusalem to Gaza." (This is the desert road.)</p>
+                        <p class="bible-verse"><span class="verse-num">27</span>So he got up and went. There was an Ethiopian man, a eunuch and high official of Candace, queen of the Ethiopians, who was in charge of her entire treasury. He had come to worship in Jerusalem</p>
+                        <p class="bible-verse"><span class="verse-num">28</span>and was on his way home, sitting in his chariot, and he was reading the prophet Isaiah aloud.</p>
+                        <p class="bible-verse"><span class="verse-num">29</span>The Spirit told Philip, "Go and join that chariot."</p>
+                        <p class="bible-verse"><span class="verse-num">30</span>When Philip ran up to it, he heard him reading the prophet Isaiah, and said, "Do you understand what you're reading?"</p>
+                        <p class="bible-verse"><span class="verse-num">31</span>"How can I," he said, "unless someone guides me?" So he invited Philip to come up and sit with him.</p>
+                        <p class="bible-verse"><span class="verse-num">32</span>Now the Scripture passage he was reading was this: He was led like a sheep to the slaughter, and as a lamb is silent before its shearer, so he does not open his mouth.</p>
+                        <p class="bible-verse"><span class="verse-num">33</span>In his humiliation justice was denied him. Who will describe his generation? For his life is taken from the earth.</p>
+                        <p class="bible-verse"><span class="verse-num">34</span>The eunuch said to Philip, "I ask you, who is the prophet saying this about—himself or someone else?"</p>
+                        <p class="bible-verse"><span class="verse-num">35</span>Philip proceeded to tell him the good news about Jesus, beginning with that Scripture.</p>
+                        <p class="bible-verse"><span class="verse-num">36</span>As they were traveling down the road, they came to some water. The eunuch said, "Look, there's water. What would keep me from being baptized?"</p>
+                        <p class="bible-verse"><span class="verse-num">38</span>So he ordered the chariot to stop, and both Philip and the eunuch went down into the water, and he baptized him.</p>
+                        <p class="bible-verse"><span class="verse-num">39</span>When they came up out of the water, the Spirit of the Lord carried Philip away, and the eunuch did not see him any longer but went on his way rejoicing.</p>
                     </div>
                 </div>
             </div>
@@ -257,6 +289,7 @@
         function closeVisionPopup() { document.getElementById('visionPopup').classList.remove('active'); }
         window.addEventListener('DOMContentLoaded', function() { initializeFromURL(); completedCards.forEach(function(id) { const c = document.querySelector('[data-card="' + id + '"]'); if (c) c.classList.add('completed'); }); Object.keys(stepProgress).forEach(function(id) { stepProgress[id].forEach(function(s) { const d = document.querySelector('[data-card="' + id + '"] [data-step="' + s + '"]'); if (d) d.classList.add('completed'); }); }); updateProgress(); });
         document.addEventListener('click', function(e) { if (e.target.classList.contains('modal-overlay')) closeSettings(); if (e.target.classList.contains('popup-overlay')) closeVisionPopup(); });
+        function toggleBible(e) { e.stopPropagation(); const accordion = document.getElementById('bible-accordion'); const isOpen = accordion.classList.toggle('open'); document.querySelectorAll('.bible-btn').forEach(btn => btn.classList.toggle('open', isOpen)); }
         function updateAuthUI(user) {
             window._supabaseUser = user;
             const form = document.getElementById('auth-form');

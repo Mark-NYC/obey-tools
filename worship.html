@@ -102,12 +102,25 @@
         .auth-status { display: flex; align-items: center; justify-content: space-between; }
         .auth-status-text { font-size: 13px; color: #8e8e93; }
         .auth-logout-btn { padding: 6px 14px; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; background: #e5e5ea; color: #3a3a3c; font-family: inherit; }
+        .bible-btn { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 7px 12px; background: #f2f2f7; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; color: #3a3a3c; transition: background 0.2s ease; white-space: nowrap; }
+        .bible-btn:active { background: #e5e5ea; }
+        .card.completed .bible-btn { background: rgba(255,255,255,0.25); color: #fff; }
+        .bible-btn-mobile-wrap { padding: 0 20px 14px; }
+        .bible-btn-mobile { width: 100%; }
+        .bible-btn-icon { font-size: 11px; transition: transform 0.25s ease; }
+        .bible-btn.open .bible-btn-icon { transform: rotate(180deg); }
+        .bible-accordion { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
+        .bible-accordion.open { max-height: 5000px; }
+        .bible-text { padding: 0 20px 18px; border-top: 0.5px solid #e5e5ea; }
+        .bible-translation { font-size: 11px; font-weight: 700; color: #8e8e93; text-transform: uppercase; letter-spacing: 0.8px; margin-top: 14px; margin-bottom: 10px; }
+        .bible-verse { font-size: 14px; line-height: 1.65; color: #3a3a3c; margin-bottom: 6px; }
+        .verse-num { font-size: 11px; font-weight: 700; vertical-align: super; margin-right: 2px; opacity: 0.6; }
     </style>
 </head>
 <body>
     <div style="display:flex; gap:10px; justify-content:center; padding:20px 16px 8px;">
         <a href="index.html" style="display:inline-block; background:#000; color:#fff; font-weight:700; font-size:15px; padding:11px 22px; border-radius:50px; text-decoration:none; white-space:nowrap;">Home</a>
-        <a href="commands-of-christ.html" style="display:inline-block; background:#000; color:#fff; font-weight:700; font-size:15px; padding:11px 22px; border-radius:50px; text-decoration:none; white-space:nowrap;">← Commands of Christ</a>
+        <a href="commands-of-christ.html" style="display:inline-block; background:#00D084; color:#fff; font-weight:700; font-size:15px; padding:11px 22px; border-radius:50px; text-decoration:none; white-space:nowrap;">← Commands of Christ</a>
     </div>
     <div class="container">
         <div class="auth-section" id="auth-section">
@@ -150,6 +163,27 @@
                         <div style="flex: 1;"><div class="step-dot" data-step="3" onclick="event.stopPropagation(); toggleStep(this, 'teaching')">3</div><div class="step-label">Retell Story</div></div>
                     </div>
                 </div>
+                <div class="bible-btn-mobile-wrap"><button class="bible-btn bible-btn-mobile" onclick="toggleBible(event)"><span>Luke 7:36–50 (CSB)</span><span class="bible-btn-icon">▼</span></button></div>
+                <div class="bible-accordion" id="bible-accordion">
+                    <div class="bible-text">
+                        <div class="bible-translation">Christian Standard Bible</div>
+                        <p class="bible-verse"><span class="verse-num">36</span>Then one of the Pharisees invited him to eat with him. He entered the Pharisee's house and reclined at the table.</p>
+                        <p class="bible-verse"><span class="verse-num">37</span>And a woman in the town who was a sinner found out that Jesus was reclining at the table in the Pharisee's house. She brought an alabaster jar of perfume</p>
+                        <p class="bible-verse"><span class="verse-num">38</span>and stood behind him at his feet, weeping, and began to wash his feet with her tears. She wiped his feet with her hair, kissing them and anointing them with the perfume.</p>
+                        <p class="bible-verse"><span class="verse-num">39</span>When the Pharisee who had invited him saw this, he said to himself, "This man, if he were a prophet, would know who and what kind of woman this is who is touching him—she's a sinner!"</p>
+                        <p class="bible-verse"><span class="verse-num">40</span>Jesus replied to him, "Simon, I have something to say to you." He said, "Say it, teacher."</p>
+                        <p class="bible-verse"><span class="verse-num">41</span>"A creditor had two debtors. One owed five hundred denarii, and the other fifty.</p>
+                        <p class="bible-verse"><span class="verse-num">42</span>Since they could not pay it back, he graciously forgave them both. So, which of them will love him more?"</p>
+                        <p class="bible-verse"><span class="verse-num">43</span>Simon answered, "I suppose the one he forgave more." "You have judged correctly," he told him.</p>
+                        <p class="bible-verse"><span class="verse-num">44</span>Turning to the woman, he said to Simon, "Do you see this woman? I entered your house; you gave me no water for my feet, but she, with her tears, has washed my feet and wiped them with her hair.</p>
+                        <p class="bible-verse"><span class="verse-num">45</span>You gave me no kiss, but she hasn't stopped kissing my feet since I came in.</p>
+                        <p class="bible-verse"><span class="verse-num">46</span>You didn't anoint my head with olive oil, but she has anointed my feet with perfume.</p>
+                        <p class="bible-verse"><span class="verse-num">47</span>Therefore I tell you, her many sins have been forgiven; that's why she loved much. But the one who is forgiven little, loves little."</p>
+                        <p class="bible-verse"><span class="verse-num">48</span>Then he said to her, "Your sins are forgiven."</p>
+                        <p class="bible-verse"><span class="verse-num">49</span>The others who were at the table with him began to say among themselves, "Who is this man who even forgives sins?"</p>
+                        <p class="bible-verse"><span class="verse-num">50</span>And he said to the woman, "Your faith has saved you. Go in peace."</p>
+                    </div>
+                </div>
             </div>
             <div class="card" onclick="toggleCard(this)" data-card="discuss-god" data-assignment-key="lookup" data-section="lookup"><div class="card-content"><div class="card-icon discover-icon"></div><div class="card-text"><div class="card-title">What do we learn about God?</div><div class="assignment-badge-container"></div></div><div class="card-checkbox"></div></div></div>
             <div class="card" onclick="toggleCard(this)" data-card="discuss-people" data-assignment-key="lookup" data-section="lookup"><div class="card-content"><div class="card-icon discover-icon"></div><div class="card-text"><div class="card-title">What do we learn about people?</div><div class="assignment-badge-container"></div></div><div class="card-checkbox"></div></div></div>
@@ -189,6 +223,7 @@
         function closeVisionPopup() { document.getElementById('visionPopup').classList.remove('active'); }
         window.addEventListener('DOMContentLoaded', function() { initializeFromURL(); completedCards.forEach(function(id) { const c = document.querySelector('[data-card="' + id + '"]'); if (c) c.classList.add('completed'); }); Object.keys(stepProgress).forEach(function(id) { stepProgress[id].forEach(function(s) { const d = document.querySelector('[data-card="' + id + '"] [data-step="' + s + '"]'); if (d) d.classList.add('completed'); }); }); updateProgress(); });
         document.addEventListener('click', function(e) { if (e.target.classList.contains('modal-overlay')) closeSettings(); if (e.target.classList.contains('popup-overlay')) closeVisionPopup(); });
+        function toggleBible(e) { e.stopPropagation(); const accordion = document.getElementById('bible-accordion'); const isOpen = accordion.classList.toggle('open'); document.querySelectorAll('.bible-btn').forEach(btn => btn.classList.toggle('open', isOpen)); }
         function updateAuthUI(user) {
             window._supabaseUser = user;
             const form = document.getElementById('auth-form');

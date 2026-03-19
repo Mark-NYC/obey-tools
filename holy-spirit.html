@@ -102,12 +102,25 @@
         .auth-status { display: flex; align-items: center; justify-content: space-between; }
         .auth-status-text { font-size: 13px; color: #8e8e93; }
         .auth-logout-btn { padding: 6px 14px; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; background: #e5e5ea; color: #3a3a3c; font-family: inherit; }
+        .bible-btn { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 7px 12px; background: #f2f2f7; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; color: #3a3a3c; transition: background 0.2s ease; white-space: nowrap; }
+        .bible-btn:active { background: #e5e5ea; }
+        .card.completed .bible-btn { background: rgba(255,255,255,0.25); color: #fff; }
+        .bible-btn-mobile-wrap { padding: 0 20px 14px; }
+        .bible-btn-mobile { width: 100%; }
+        .bible-btn-icon { font-size: 11px; transition: transform 0.25s ease; }
+        .bible-btn.open .bible-btn-icon { transform: rotate(180deg); }
+        .bible-accordion { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
+        .bible-accordion.open { max-height: 5000px; }
+        .bible-text { padding: 0 20px 18px; border-top: 0.5px solid #e5e5ea; }
+        .bible-translation { font-size: 11px; font-weight: 700; color: #8e8e93; text-transform: uppercase; letter-spacing: 0.8px; margin-top: 14px; margin-bottom: 10px; }
+        .bible-verse { font-size: 14px; line-height: 1.65; color: #3a3a3c; margin-bottom: 6px; }
+        .verse-num { font-size: 11px; font-weight: 700; vertical-align: super; margin-right: 2px; opacity: 0.6; }
     </style>
 </head>
 <body>
     <div style="display:flex; gap:10px; justify-content:center; padding:20px 16px 8px;">
         <a href="index.html" style="display:inline-block; background:#000; color:#fff; font-weight:700; font-size:15px; padding:11px 22px; border-radius:50px; text-decoration:none; white-space:nowrap;">Home</a>
-        <a href="commands-of-christ.html" style="display:inline-block; background:#000; color:#fff; font-weight:700; font-size:15px; padding:11px 22px; border-radius:50px; text-decoration:none; white-space:nowrap;">← Commands of Christ</a>
+        <a href="commands-of-christ.html" style="display:inline-block; background:#00D084; color:#fff; font-weight:700; font-size:15px; padding:11px 22px; border-radius:50px; text-decoration:none; white-space:nowrap;">← Commands of Christ</a>
     </div>
     <div class="container">
         <div class="auth-section" id="auth-section">
@@ -150,6 +163,17 @@
                         <div style="flex: 1;"><div class="step-dot" data-step="3" onclick="event.stopPropagation(); toggleStep(this, 'teaching')">3</div><div class="step-label">Retell Story</div></div>
                     </div>
                 </div>
+                <div class="bible-btn-mobile-wrap"><button class="bible-btn bible-btn-mobile" onclick="toggleBible(event)"><span>Acts 4:27–31 (CSB)</span><span class="bible-btn-icon">▼</span></button></div>
+                <div class="bible-accordion" id="bible-accordion">
+                    <div class="bible-text">
+                        <div class="bible-translation">Christian Standard Bible</div>
+                        <p class="bible-verse"><span class="verse-num">27</span>"For, in fact, in this city both Herod and Pontius Pilate, with the Gentiles and the people of Israel, assembled together against your holy servant Jesus, whom you anointed,</p>
+                        <p class="bible-verse"><span class="verse-num">28</span>to do whatever your hand and your will had predestined to take place.</p>
+                        <p class="bible-verse"><span class="verse-num">29</span>And now, Lord, consider their threats, and grant that your servants may speak your word with all boldness,</p>
+                        <p class="bible-verse"><span class="verse-num">30</span>while you stretch out your hand for healing, and signs and wonders are performed through the name of your holy servant Jesus."</p>
+                        <p class="bible-verse"><span class="verse-num">31</span>When they had prayed, the place where they were assembled was shaken, and they were all filled with the Holy Spirit and began to speak the word of God boldly.</p>
+                    </div>
+                </div>
             </div>
             <div class="card" onclick="toggleCard(this)" data-card="discuss-god" data-assignment-key="lookup" data-section="lookup"><div class="card-content"><div class="card-icon discover-icon"></div><div class="card-text"><div class="card-title">What do we learn about God?</div><div class="assignment-badge-container"></div></div><div class="card-checkbox"></div></div></div>
             <div class="card" onclick="toggleCard(this)" data-card="discuss-people" data-assignment-key="lookup" data-section="lookup"><div class="card-content"><div class="card-icon discover-icon"></div><div class="card-text"><div class="card-title">What do we learn about people?</div><div class="assignment-badge-container"></div></div><div class="card-checkbox"></div></div></div>
@@ -189,6 +213,7 @@
         function closeVisionPopup() { document.getElementById('visionPopup').classList.remove('active'); }
         window.addEventListener('DOMContentLoaded', function() { initializeFromURL(); completedCards.forEach(function(id) { const c = document.querySelector('[data-card="' + id + '"]'); if (c) c.classList.add('completed'); }); Object.keys(stepProgress).forEach(function(id) { stepProgress[id].forEach(function(s) { const d = document.querySelector('[data-card="' + id + '"] [data-step="' + s + '"]'); if (d) d.classList.add('completed'); }); }); updateProgress(); });
         document.addEventListener('click', function(e) { if (e.target.classList.contains('modal-overlay')) closeSettings(); if (e.target.classList.contains('popup-overlay')) closeVisionPopup(); });
+        function toggleBible(e) { e.stopPropagation(); const accordion = document.getElementById('bible-accordion'); const isOpen = accordion.classList.toggle('open'); document.querySelectorAll('.bible-btn').forEach(btn => btn.classList.toggle('open', isOpen)); }
         function updateAuthUI(user) {
             window._supabaseUser = user;
             const form = document.getElementById('auth-form');
