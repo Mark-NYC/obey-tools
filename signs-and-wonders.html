@@ -3,6 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script type="module">
+        import { supabase } from './supabase.js';
+        window.supabase = supabase;
+    </script>
     <title>Signs &amp; Wonders</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -90,7 +94,25 @@
     </style>
 </head>
 <body>
+    <div class="page-nav">
+        <a href="index.html" class="nav-btn nav-home">Home</a>
+        <a href="commands-of-christ.html" class="nav-btn nav-back">← Commands of Christ</a>
+    </div>
     <div class="container">
+        <div class="auth-section" id="auth-section">
+            <div id="auth-form">
+                <input type="email" id="auth-email" placeholder="Email">
+                <input type="password" id="auth-password" placeholder="Password">
+                <div class="auth-buttons">
+                    <button class="auth-btn-primary" onclick="authSignUp()">Sign Up</button>
+                    <button class="auth-btn-secondary" onclick="authLogIn()">Log In</button>
+                </div>
+            </div>
+            <div class="auth-status" id="auth-status" style="display:none">
+                <span class="auth-status-text" id="auth-status-text">Not signed in</span>
+                <button class="auth-logout-btn" onclick="authLogOut()">Log Out</button>
+            </div>
+        </div>
         <div class="header">
             <button class="settings-btn" onclick="openSettings()">⚙️</button>
             <img src="https://obey.tools/wp-content/uploads/2024/11/3-1.jpg" alt="Command Icon" class="header-icon">
@@ -156,6 +178,34 @@
         function closeVisionPopup() { document.getElementById('visionPopup').classList.remove('active'); }
         window.addEventListener('DOMContentLoaded', function() { initializeFromURL(); completedCards.forEach(function(id) { const c = document.querySelector('[data-card="' + id + '"]'); if (c) c.classList.add('completed'); }); Object.keys(stepProgress).forEach(function(id) { stepProgress[id].forEach(function(s) { const d = document.querySelector('[data-card="' + id + '"] [data-step="' + s + '"]'); if (d) d.classList.add('completed'); }); }); updateProgress(); });
         document.addEventListener('click', function(e) { if (e.target.classList.contains('modal-overlay')) closeSettings(); if (e.target.classList.contains('popup-overlay')) closeVisionPopup(); });
+        function updateAuthUI(user) {
+            window._supabaseUser = user;
+            const form = document.getElementById('auth-form');
+            const status = document.getElementById('auth-status');
+            const text = document.getElementById('auth-status-text');
+            if (user) { form.style.display = 'none'; status.style.display = 'flex'; text.textContent = 'Signed in as ' + user.email; }
+            else { form.style.display = 'block'; status.style.display = 'none'; text.textContent = 'Not signed in'; }
+        }
+        async function authSignUp() {
+            const email = document.getElementById('auth-email').value.trim();
+            const password = document.getElementById('auth-password').value;
+            const { error } = await window.supabase.auth.signUp({ email, password });
+            if (error) showNotification(error.message); else showNotification('Check your email to confirm sign up.');
+        }
+        async function authLogIn() {
+            const email = document.getElementById('auth-email').value.trim();
+            const password = document.getElementById('auth-password').value;
+            const { error } = await window.supabase.auth.signInWithPassword({ email, password });
+            if (error) showNotification(error.message);
+        }
+        async function authLogOut() {
+            const { error } = await window.supabase.auth.signOut();
+            if (error) showNotification(error.message);
+        }
+        if (window.supabase) {
+            window.supabase.auth.getSession().then(({ data: { session } }) => { updateAuthUI(session?.user ?? null); });
+            window.supabase.auth.onAuthStateChange((_event, session) => { updateAuthUI(session?.user ?? null); });
+        }
     </script>
 </body>
 </html>
