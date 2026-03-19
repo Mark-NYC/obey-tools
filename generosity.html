@@ -3,111 +3,159 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generosity — OBEY.TOOLS</title>
+    <title>Generosity</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif; background: #f2f2f7; min-height: 100vh; color: #000; line-height: 1.4; }
-        .container { max-width: 375px; margin: 0 auto; background: #fff; min-height: 100vh; }
-        .nav { display: flex; justify-content: center; gap: 12px; padding: 20px 16px 8px; flex-wrap: wrap; }
-        .nav a { display: inline-block; font-weight: 700; font-size: 15px; padding: 10px 22px; border-radius: 50px; text-decoration: none; }
-        .nav-home { background: #000; color: #fff; }
-        .nav-back { background: #fff; color: #000; border: 1.5px solid #c6c6c8; }
-        .page-header { padding: 28px 16px 20px; background: #fff; text-align: center; border-bottom: 0.5px solid #c6c6c8; }
-        .page-title { font-size: 22px; font-weight: 900; letter-spacing: -0.5px; color: #000; }
-        .page-ref { font-size: 13px; color: #8e8e93; margin-top: 6px; }
-        .accent-bar { width: 48px; height: 5px; background: #00B884; border-radius: 3px; margin: 12px auto 0; }
-
-        .section { padding: 20px 16px; border-bottom: 0.5px solid #c6c6c8; }
-        .section-label { font-size: 11px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: #00B884; margin-bottom: 10px; }
-        .section-title { font-size: 17px; font-weight: 800; color: #1c1c1e; margin-bottom: 10px; }
-        .scripture-block { background: #f2f2f7; border-left: 4px solid #00B884; border-radius: 0 8px 8px 0; padding: 14px 14px 14px 16px; margin: 10px 0; }
-        .scripture-text { font-size: 16px; line-height: 1.65; color: #1c1c1e; font-style: italic; }
-        .scripture-ref { font-size: 12px; color: #8e8e93; margin-top: 8px; font-weight: 600; font-style: normal; }
-        .body-text { font-size: 15px; line-height: 1.65; color: #3a3a3c; margin-bottom: 10px; }
-
-        .story-section { background: #f9f9fb; }
-        .story-section .section-label { color: #5856D6; }
-        .story-section .scripture-block { border-left-color: #5856D6; }
-
-        .reflect-section .section-label { color: #FF9500; }
-        .question-list { list-style: none; margin-top: 6px; }
-        .question-list li { padding: 12px 0; border-bottom: 0.5px solid #e5e5ea; font-size: 15px; line-height: 1.55; color: #3a3a3c; padding-left: 24px; position: relative; }
-        .question-list li:last-child { border-bottom: none; }
-        .question-list li::before { content: 'Q'; position: absolute; left: 0; top: 12px; font-size: 11px; font-weight: 800; color: #FF9500; }
-
-        .obey-section { background: #1c1c1e; }
-        .obey-section .section-label { color: #00B884; }
-        .obey-section .section-title { color: #fff; }
-        .obey-card { background: #2c2c2e; border-radius: 10px; padding: 16px; margin-top: 10px; }
-        .obey-card p { font-size: 15px; line-height: 1.6; color: #ebebf5; }
-        .obey-card strong { color: #00B884; }
-
-        @media (min-width: 768px) {
-            .container { max-width: 768px; border-radius: 12px; margin: 20px auto; box-shadow: 0 4px 20px rgba(0,0,0,0.1); overflow: hidden; }
-        }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif; background: #ffffff; min-height: 100vh; color: #000; line-height: 1.5; padding-bottom: 100px; }
+        .container { max-width: 375px; margin: 0 auto; background: #ffffff; min-height: 100vh; }
+        .header { padding: 30px 20px 20px; background: #fff; border-bottom: 0.5px solid #c6c6c8; text-align: center; position: relative; }
+        .settings-btn { position: absolute; top: 20px; right: 20px; width: 36px; height: 36px; background: #f2f2f7; border: none; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 20px; transition: all 0.2s ease; }
+        .settings-btn:active { background: #e5e5ea; transform: scale(0.95); }
+        .header-icon { height: 80px; width: auto; margin: 0 auto 16px; display: block; border-radius: 16px; }
+        .header h1 { font-size: 22px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.3px; }
+        .header .scripture { font-size: 15px; color: #8e8e93; font-weight: 500; }
+        .progress-bar-container { padding: 16px 20px; background: #fff; border-bottom: 0.5px solid #c6c6c8; }
+        .progress-bar { height: 8px; background: #e5e5ea; border-radius: 4px; overflow: hidden; }
+        .progress-fill { height: 100%; background: #00D084; width: 0%; transition: width 0.5s ease; }
+        .progress-text { margin-top: 8px; font-size: 13px; color: #8e8e93; text-align: center; font-weight: 500; }
+        .content { padding: 16px; }
+        .section-divider { display: flex; align-items: center; gap: 12px; margin: 24px 0 12px; padding: 0 4px; }
+        .section-divider-line { flex: 1; height: 1px; background: #c6c6c8; }
+        .section-divider-text { font-size: 13px; font-weight: 600; color: #8e8e93; text-transform: uppercase; letter-spacing: 0.5px; }
+        .card { background: #fff; margin-bottom: 12px; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); cursor: pointer; transition: all 0.3s ease; user-select: none; }
+        .card:active { transform: scale(0.98); }
+        .card.completed { background: #00D084; }
+        .card-content { padding: 18px 20px; display: flex; align-items: center; gap: 16px; }
+        .card-icon { width: 48px; height: 48px; border-radius: 10px; background-size: cover; background-position: center; flex-shrink: 0; transition: all 0.3s ease; }
+        .card.completed .card-icon { box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+        .card-icon.care-icon { background-image: url('https://obey.tools/wp-content/uploads/2024/05/Untitled-design-27.jpg'); }
+        .card-icon.worship-icon { background-image: url('https://obey.tools/wp-content/uploads/2024/05/Add-a-heading-3.jpg'); }
+        .card-icon.accountability-icon { background-image: url('https://obey.tools/wp-content/uploads/2024/05/Untitled-design-28.jpg'); }
+        .card-icon.vision-icon { background-image: url('https://obey.tools/wp-content/uploads/2024/05/Add-a-heading-4.jpg'); }
+        .card-icon.discover-icon { background-image: url('https://obey.tools/wp-content/uploads/2024/05/Add-a-heading-5.jpg'); }
+        .card-icon.practice-icon { background-image: url('https://obey.tools/wp-content/uploads/2024/05/Add-a-heading-1.jpg'); }
+        .card-icon.pray-icon { background-image: url('https://obey.tools/wp-content/uploads/2024/05/Add-a-heading-2.jpg'); }
+        .card-text { flex: 1; }
+        .card-title { font-size: 17px; font-weight: 700; color: #3a3a3c; margin-bottom: 4px; letter-spacing: -0.2px; transition: color 0.3s ease; }
+        .card.completed .card-title { color: #fff; }
+        .view-link { color: #007AFF; font-size: 15px; font-weight: 600; cursor: pointer; text-decoration: underline; }
+        .card.completed .view-link { color: #fff; }
+        .card-description { font-size: 14px; color: #8e8e93; line-height: 1.4; transition: color 0.3s ease; }
+        .card.completed .card-description { color: rgba(255,255,255,0.9); }
+        .assignment-badge { display: inline-block; background: #007AFF; color: white; font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 10px; margin-top: 4px; }
+        .card.completed .assignment-badge { background: rgba(255,255,255,0.3); color: #fff; }
+        .card-checkbox { width: 28px; height: 28px; border: 2px solid #c6c6c8; border-radius: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.3s ease; }
+        .card.completed .card-checkbox { background: #fff; border-color: #fff; }
+        .card-checkbox::after { content: '✓'; color: #00D084; font-size: 18px; font-weight: 700; opacity: 0; transform: scale(0); transition: all 0.2s ease; }
+        .card.completed .card-checkbox::after { opacity: 1; transform: scale(1); }
+        .step-card { position: relative; }
+        .step-indicators { display: flex; gap: 8px; margin-top: 12px; }
+        .step-dot { width: 32px; height: 32px; border-radius: 16px; border: 2px solid #c6c6c8; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; color: #8e8e93; background: #fff; cursor: pointer; transition: all 0.3s ease; }
+        .step-dot:active { transform: scale(0.95); }
+        .step-dot.completed { background: #00D084; border-color: #00D084; color: #fff; }
+        .card.completed .step-dot { border-color: rgba(255,255,255,0.5); color: rgba(255,255,255,0.7); }
+        .card.completed .step-dot.completed { background: #fff; border-color: #fff; color: #00D084; }
+        .step-label { font-size: 13px; color: #8e8e93; margin-top: 8px; line-height: 1.3; }
+        .card.completed .step-label { color: rgba(255,255,255,0.8); }
+        .reset-section { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 375px; background: #fff; border-top: 0.5px solid #c6c6c8; padding: 16px; padding-bottom: calc(16px + env(safe-area-inset-bottom)); }
+        .btn { width: 100%; padding: 14px; border: none; border-radius: 8px; font-weight: 600; font-size: 15px; cursor: pointer; background: #f2f2f7; color: #3a3a3c; transition: all 0.2s ease; }
+        .btn:active { background: #e5e5ea; transform: scale(0.98); }
+        .notification { position: fixed; top: 60px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: white; padding: 12px 20px; border-radius: 8px; font-size: 15px; font-weight: 500; z-index: 1000; opacity: 0; animation: notificationSlide 3s ease; }
+        @keyframes notificationSlide { 0% { opacity: 0; transform: translateX(-50%) translateY(-20px); } 10% { opacity: 1; transform: translateX(-50%) translateY(0); } 90% { opacity: 1; transform: translateX(-50%) translateY(0); } 100% { opacity: 0; transform: translateX(-50%) translateY(-20px); } }
+        .popup-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 2000; align-items: center; justify-content: center; }
+        .popup-overlay.active { display: flex; }
+        .popup-content { background: #fff; border-radius: 12px; padding: 24px; max-width: 90%; max-height: 90%; overflow-y: auto; position: relative; text-align: center; }
+        .popup-close { position: absolute; top: 12px; right: 12px; width: 32px; height: 32px; background: #f2f2f7; border: none; border-radius: 16px; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #3a3a3c; }
+        .popup-close:active { background: #e5e5ea; }
+        .popup-image { max-width: 100%; height: auto; border-radius: 8px; margin-bottom: 16px; display: block; }
+        .popup-text { font-size: 15px; color: #3a3a3c; line-height: 1.6; }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 3000; align-items: center; justify-content: center; padding: 20px; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background: #fff; border-radius: 12px; padding: 24px; max-width: 400px; width: 100%; max-height: 90vh; overflow-y: auto; }
+        .modal-header { font-size: 20px; font-weight: 700; margin-bottom: 20px; color: #3a3a3c; }
+        .modal-section { margin-bottom: 20px; }
+        .modal-label { font-size: 14px; font-weight: 600; color: #3a3a3c; margin-bottom: 8px; display: block; }
+        .toggle-group { display: flex; gap: 8px; margin-bottom: 20px; }
+        .toggle-btn { flex: 1; padding: 10px; border: 2px solid #c6c6c8; background: #fff; border-radius: 8px; font-size: 14px; font-weight: 600; color: #3a3a3c; cursor: pointer; transition: all 0.2s ease; }
+        .toggle-btn.active { background: #00D084; border-color: #00D084; color: #fff; }
+        .assignment-input { width: 100%; padding: 10px; border: 1px solid #c6c6c8; border-radius: 8px; font-size: 14px; margin-bottom: 12px; font-family: inherit; }
+        .generate-btn { width: 100%; padding: 14px; background: #00D084; color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 15px; cursor: pointer; margin-top: 20px; }
+        .generate-btn:active { opacity: 0.8; }
+        .link-display { background: #f2f2f7; padding: 12px; border-radius: 8px; font-size: 12px; word-break: break-all; margin-top: 12px; display: none; }
+        .link-display.show { display: block; }
+        .copy-btn { width: 100%; padding: 10px; background: #007AFF; color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; margin-top: 8px; display: none; }
+        .copy-btn.show { display: block; }
+        .copy-btn:active { opacity: 0.8; }
+        @media (min-width: 768px) { .container { max-width: 768px; border-radius: 12px; margin: 20px auto; box-shadow: 0 4px 20px rgba(0,0,0,0.1); overflow: hidden; } .content { padding: 20px; } .reset-section { position: static; transform: none; width: auto; max-width: none; border-top: 0.5px solid #c6c6c8; border-radius: 0; } }
     </style>
 </head>
 <body>
-    <div class="nav">
-        <a href="index.html" class="nav-home">Home</a>
-        <a href="commands-of-christ.html" class="nav-back">← Commands of Christ</a>
-    </div>
     <div class="container">
-
-        <div class="page-header">
-            <div class="page-title">Generosity</div>
-            <div class="page-ref">Matt 6:1–4 · Command 9 of 12</div>
-            <div class="accent-bar"></div>
+        <div class="header">
+            <button class="settings-btn" onclick="openSettings()">⚙️</button>
+            <img src="https://obey.tools/wp-content/uploads/2024/11/3-1.jpg" alt="Command Icon" class="header-icon">
+            <h1>Generosity</h1>
+            <div class="scripture">Command: Matt 6:1–4 | Story: Mark 12:41–44</div>
         </div>
-
-        <!-- THE COMMAND -->
-        <div class="section">
-            <div class="section-label">The Command</div>
-            <div class="section-title">Give in Secret</div>
-            <p class="body-text">Jesus assumes his followers will give — he says "when you give," not "if you give." But he is intensely concerned with the motivation behind the giving. Generosity performed to be seen by others has already received its reward — the admiration of people. God sees what no one else sees, and he rewards what is done in secret.</p>
-            <div class="scripture-block">
-                <p class="scripture-text">"So when you give to the needy, do not announce it with trumpets, as the hypocrites do in the synagogues and on the streets, to be honored by others. Truly I tell you, they have received their reward in full. But when you give to the needy, do not let your left hand know what your right hand is doing, so that your giving may be in secret. Then your Father, who sees what is done in secret, will reward you."</p>
-                <p class="scripture-ref">— Matthew 6:2–4</p>
+        <div class="progress-bar-container">
+            <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+            <div class="progress-text" id="progressText">0 of 9 completed</div>
+        </div>
+        <div class="content">
+            <div class="section-divider"><div class="section-divider-line"></div><div class="section-divider-text">Look Back</div><div class="section-divider-line"></div></div>
+            <div class="card" onclick="toggleCard(this)" data-card="care" data-assignment-key="care" data-section="lookback"><div class="card-content"><div class="card-icon care-icon"></div><div class="card-text"><div class="card-title">Care &amp; Prayer</div><div class="card-description">Everyone shares briefly how they are doing. Pray if appropriate.</div><div class="assignment-badge-container"></div></div><div class="card-checkbox"></div></div></div>
+            <div class="card" onclick="toggleCard(this)" data-card="worship" data-assignment-key="worship" data-section="lookback"><div class="card-content"><div class="card-icon worship-icon"></div><div class="card-text"><div class="card-title">Worship</div><div class="card-description">Praise God • Give to Needs • Lord's Supper</div><div class="assignment-badge-container"></div></div><div class="card-checkbox"></div></div></div>
+            <div class="card" onclick="toggleCard(this)" data-card="accountability" data-assignment-key="accountability" data-section="lookback"><div class="card-content"><div class="card-icon accountability-icon"></div><div class="card-text"><div class="card-title">Loving Accountability</div><div class="card-description">Follow: Share how you obeyed. Fish: Share who you shared with.</div><div class="assignment-badge-container"></div></div><div class="card-checkbox"></div></div></div>
+            <div class="card" onclick="toggleCard(this)" data-card="vision" data-assignment-key="vision" data-section="lookback"><div class="card-content"><div class="card-icon vision-icon"></div><div class="card-text"><div class="card-title">Vision: Acts 2 Church Circle <span class="view-link" onclick="event.stopPropagation(); showVisionPopup()">(View)</span></div><div class="card-description">Acts 2:36-47</div><div class="assignment-badge-container"></div></div><div class="card-checkbox"></div></div></div>
+            <div class="section-divider"><div class="section-divider-line"></div><div class="section-divider-text">Look Up</div><div class="section-divider-line"></div></div>
+            <div class="card step-card" data-card="teaching" data-assignment-key="lookup" data-section="lookup">
+                <div class="card-content" style="flex-direction: column; align-items: stretch;">
+                    <div style="display: flex; align-items: center; gap: 16px;"><div class="card-icon discover-icon"></div><div class="card-text"><div class="card-title">New Teaching From Scripture</div><div class="card-description">Matt 6:1-4 | Mark 12:41-44</div><div class="assignment-badge-container"></div></div></div>
+                    <div class="step-indicators">
+                        <div style="flex: 1;"><div class="step-dot" data-step="1" onclick="event.stopPropagation(); toggleStep(this, 'teaching')">1</div><div class="step-label">Read Command &amp; Tell Story</div></div>
+                        <div style="flex: 1;"><div class="step-dot" data-step="2" onclick="event.stopPropagation(); toggleStep(this, 'teaching')">2</div><div class="step-label">Read Story Together</div></div>
+                        <div style="flex: 1;"><div class="step-dot" data-step="3" onclick="event.stopPropagation(); toggleStep(this, 'teaching')">3</div><div class="step-label">Retell Story</div></div>
+                    </div>
+                </div>
             </div>
-            <p class="body-text">Generosity is not just about the amount — it is about the heart. You can give a fortune and be spiritually bankrupt if your giving is about status or self-congratulation. You can also give two small coins and move the heart of God. The widow in the temple did exactly that.</p>
+            <div class="card" onclick="toggleCard(this)" data-card="discuss-god" data-assignment-key="lookup" data-section="lookup"><div class="card-content"><div class="card-icon discover-icon"></div><div class="card-text"><div class="card-title">What do we learn about God?</div><div class="assignment-badge-container"></div></div><div class="card-checkbox"></div></div></div>
+            <div class="card" onclick="toggleCard(this)" data-card="discuss-people" data-assignment-key="lookup" data-section="lookup"><div class="card-content"><div class="card-icon discover-icon"></div><div class="card-text"><div class="card-title">What do we learn about people?</div><div class="assignment-badge-container"></div></div><div class="card-checkbox"></div></div></div>
+            <div class="card" onclick="toggleCard(this)" data-card="pray-listen" data-assignment-key="lookup" data-section="lookup"><div class="card-content"><div class="card-icon discover-icon"></div><div class="card-text"><div class="card-title">Pause — Pray and Listen</div><div class="assignment-badge-container"></div></div><div class="card-checkbox"></div></div></div>
+            <div class="card" onclick="toggleCard(this)" data-card="discuss-obey" data-assignment-key="lookup" data-section="lookup"><div class="card-content"><div class="card-icon discover-icon"></div><div class="card-text"><div class="card-title">How will you obey the story?</div><div class="card-description">Share how you will obey.</div><div class="assignment-badge-container"></div></div><div class="card-checkbox"></div></div></div>
+            <div class="section-divider"><div class="section-divider-line"></div><div class="section-divider-text">Look Forward</div><div class="section-divider-line"></div></div>
+            <div class="card" onclick="toggleCard(this)" data-card="practice" data-assignment-key="practice" data-section="lookforward"><div class="card-content"><div class="card-icon practice-icon"></div><div class="card-text"><div class="card-title">Practice: 3 Circles</div><div class="card-description">Practice the 3 Circles gospel tool.</div><div class="assignment-badge-container"></div></div><div class="card-checkbox"></div></div></div>
+            <div class="card" onclick="toggleCard(this)" data-card="goals" data-assignment-key="goals" data-section="lookforward"><div class="card-content"><div class="card-icon accountability-icon"></div><div class="card-text"><div class="card-title">Set Goals</div><div class="card-description">Follow: What is Jesus asking you to obey? Fish: Who needs to hear this story?</div><div class="assignment-badge-container"></div></div><div class="card-checkbox"></div></div></div>
+            <div class="card" onclick="toggleCard(this)" data-card="commission" data-assignment-key="commission" data-section="lookforward"><div class="card-content"><div class="card-icon pray-icon"></div><div class="card-text"><div class="card-title">Commission with Prayer</div><div class="card-description">Pray together.</div><div class="assignment-badge-container"></div></div><div class="card-checkbox"></div></div></div>
         </div>
-
-        <!-- THE STORY -->
-        <div class="section story-section">
-            <div class="section-label">The Story</div>
-            <div class="section-title">The Widow's Coins — Mark 12:41–44</div>
-            <p class="body-text">Jesus sat near the temple treasury and watched as people put in their offerings. Many wealthy people threw in large amounts — conspicuous, notable gifts. Then a poor widow came and put in two very small copper coins — worth a fraction of a penny.</p>
-            <div class="scripture-block">
-                <p class="scripture-text">Calling his disciples to him, Jesus said, "Truly I tell you, this poor widow has put more into the treasury than all the others. They all gave out of their wealth; but she, out of her poverty, put in everything — all she had to live on."</p>
-                <p class="scripture-ref">— Mark 12:43–44</p>
-            </div>
-            <p class="body-text">Jesus stopped and called his disciples over specifically to point this out. He evaluated generosity differently than everyone around him. The wealthy gave large amounts that cost them little. The widow gave a tiny amount that cost her everything. In God's economy, the measure of generosity is not what you give but what you keep. She gave from her need, not from her surplus. She trusted God with the last of what she had.</p>
-        </div>
-
-        <!-- REFLECT -->
-        <div class="section reflect-section">
-            <div class="section-label">Reflect</div>
-            <div class="section-title">Questions for Discussion</div>
-            <ul class="question-list">
-                <li>Do you give? And if so, are you honest with yourself about why — is it from a generous heart, or does recognition play a role?</li>
-                <li>The widow gave "everything she had to live on." What would it look like for you to give sacrificially — not just conveniently?</li>
-                <li>Jesus says God "rewards" secret giving. What do you think that reward looks like — is it material, or something else?</li>
-                <li>How does your relationship with money reveal your trust in God? Where do you tend to hold back?</li>
-            </ul>
-        </div>
-
-        <!-- OBEY -->
-        <div class="section obey-section">
-            <div class="section-label">Obey</div>
-            <div class="section-title">Take a Step</div>
-            <div class="obey-card">
-                <p>This week, <strong>do one generous act in secret</strong> — give money, food, time, or help to someone in need, and tell no one. Don't post about it. Don't mention it. Let it be between you and God.</p>
-            </div>
-            <div class="obey-card" style="margin-top:10px;">
-                <p>Look at your finances honestly: <strong>does your spending reflect someone who trusts God?</strong> Talk with God about one specific area where fear or greed controls your giving, and take one concrete step toward greater generosity.</p>
-            </div>
-        </div>
-
+        <div class="reset-section"><button class="btn" onclick="resetAll()">RESET</button></div>
     </div>
+    <div class="popup-overlay" id="visionPopup" onclick="closeVisionPopup()"><div class="popup-content" onclick="event.stopPropagation()"><button class="popup-close" onclick="closeVisionPopup()">×</button><img src="https://obey.tools/wp-content/uploads/2025/10/Untitled-design-2024-06-10T131145.232.jpg" alt="Church Circle" class="popup-image"><div class="popup-text">Read Acts 2:36-47. Be a part of a church and start a church</div></div></div>
+    <div class="modal-overlay" id="settingsModal"><div class="modal-content" onclick="event.stopPropagation()"><div class="modal-header">Assignment Settings</div><div class="modal-section"><label class="modal-label">Assignment Mode</label><div class="toggle-group"><button class="toggle-btn active" id="sectionBtn" onclick="setAssignmentMode('section')">By Section</button><button class="toggle-btn" id="componentBtn" onclick="setAssignmentMode('component')">By Component</button></div></div><div id="assignmentInputs"></div><button class="generate-btn" onclick="generateLink()">Generate Share Link</button><div class="link-display" id="linkDisplay"></div><button class="copy-btn" id="copyBtn" onclick="copyLink()">Copy Link</button><button class="btn" onclick="closeSettings()" style="margin-top: 16px;">Close</button></div></div>
+    <script>
+        let assignmentMode = 'section', assignments = {}, sessionId = '';
+        let storageKey = 'command-generosity-progress';
+        let completedCards = [], stepProgress = {};
+        const sectionAssignments = { 'lookback': 'Look Back', 'lookup': 'Look Up', 'lookforward': 'Look Forward' };
+        const componentAssignments = { 'care': 'Care & Prayer', 'worship': 'Worship', 'accountability': 'Loving Accountability', 'vision': 'Vision', 'lookup': 'Look Up Section', 'practice': 'Practice', 'goals': 'Set Goals', 'commission': 'Commission' };
+        function initializeFromURL() { const hash = window.location.hash.substring(1); if (hash) { try { const data = JSON.parse(atob(hash)); assignmentMode = data.mode || 'section'; assignments = data.assignments || {}; sessionId = data.sessionId || ''; if (sessionId) storageKey = 'command-generosity-progress-' + sessionId; } catch(e) {} } completedCards = JSON.parse(localStorage.getItem(storageKey)) || []; stepProgress = JSON.parse(localStorage.getItem(storageKey + '-steps')) || {}; displayAssignments(); }
+        function displayAssignments() { document.querySelectorAll('[data-assignment-key]').forEach(function(card) { const key = card.dataset.assignmentKey, section = card.dataset.section; let name = assignmentMode === 'section' ? (assignments[section] || '') : (assignments[key] || ''); const c = card.querySelector('.assignment-badge-container'); if (c) c.innerHTML = name ? '<div class="assignment-badge">' + name + '</div>' : ''; }); }
+        function openSettings() { document.getElementById('settingsModal').classList.add('active'); renderAssignmentInputs(); }
+        function closeSettings() { document.getElementById('settingsModal').classList.remove('active'); }
+        function setAssignmentMode(mode) { assignmentMode = mode; document.getElementById('sectionBtn').classList.toggle('active', mode === 'section'); document.getElementById('componentBtn').classList.toggle('active', mode === 'component'); renderAssignmentInputs(); }
+        function renderAssignmentInputs() { const c = document.getElementById('assignmentInputs'); const list = assignmentMode === 'section' ? sectionAssignments : componentAssignments; let html = '<div class="modal-section"><label class="modal-label">Assign Names</label>'; Object.keys(list).forEach(function(k) { html += '<input type="text" class="assignment-input" placeholder="' + list[k] + '" value="' + (assignments[k] || '') + '" onchange="updateAssignment(\'' + k + '\', this.value)">'; }); html += '</div>'; c.innerHTML = html; }
+        function updateAssignment(key, value) { if (value.trim()) assignments[key] = value.trim(); else delete assignments[key]; }
+        function generateLink() { if (!sessionId) sessionId = 'session-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9); const encoded = btoa(JSON.stringify({ mode: assignmentMode, assignments: assignments, sessionId: sessionId })); const url = window.location.origin + window.location.pathname + '#' + encoded; document.getElementById('linkDisplay').textContent = url; document.getElementById('linkDisplay').classList.add('show'); document.getElementById('copyBtn').classList.add('show'); storageKey = 'command-generosity-progress-' + sessionId; displayAssignments(); }
+        function copyLink() { navigator.clipboard.writeText(document.getElementById('linkDisplay').textContent).then(function() { showNotification('Link copied to clipboard!'); }); }
+        function saveProgress() { localStorage.setItem(storageKey, JSON.stringify(completedCards)); localStorage.setItem(storageKey + '-steps', JSON.stringify(stepProgress)); updateProgress(); }
+        function toggleCard(card) { const id = card.dataset.card; if (card.classList.contains('completed')) { card.classList.remove('completed'); completedCards = completedCards.filter(function(i) { return i !== id; }); } else { card.classList.add('completed'); completedCards.push(id); } saveProgress(); }
+        function toggleStep(dot, cardId) { const step = dot.dataset.step, card = dot.closest('.card'); if (!stepProgress[cardId]) stepProgress[cardId] = []; if (stepProgress[cardId].includes(step)) { stepProgress[cardId] = stepProgress[cardId].filter(function(s) { return s !== step; }); dot.classList.remove('completed'); } else { stepProgress[cardId].push(step); dot.classList.add('completed'); } if (stepProgress[cardId].length === 3) { if (!completedCards.includes(cardId)) { completedCards.push(cardId); card.classList.add('completed'); } } else { completedCards = completedCards.filter(function(i) { return i !== cardId; }); card.classList.remove('completed'); } saveProgress(); }
+        function updateProgress() { const total = document.querySelectorAll('.card:not(.step-card)').length + 1, completed = completedCards.length; document.getElementById('progressFill').style.width = (completed / total * 100) + '%'; document.getElementById('progressText').textContent = completed + ' of ' + total + ' completed'; if (completed === total) showNotification('Study complete! 🎉'); }
+        function resetAll() { if (confirm('Reset all progress?')) { completedCards = []; stepProgress = {}; localStorage.removeItem(storageKey); localStorage.removeItem(storageKey + '-steps'); document.querySelectorAll('.card').forEach(function(c) { c.classList.remove('completed'); }); document.querySelectorAll('.step-dot').forEach(function(d) { d.classList.remove('completed'); }); updateProgress(); showNotification('Progress reset'); } }
+        function showNotification(msg) { const n = document.createElement('div'); n.className = 'notification'; n.textContent = msg; document.body.appendChild(n); setTimeout(function() { n.remove(); }, 3000); }
+        function showVisionPopup() { document.getElementById('visionPopup').classList.add('active'); }
+        function closeVisionPopup() { document.getElementById('visionPopup').classList.remove('active'); }
+        window.addEventListener('DOMContentLoaded', function() { initializeFromURL(); completedCards.forEach(function(id) { const c = document.querySelector('[data-card="' + id + '"]'); if (c) c.classList.add('completed'); }); Object.keys(stepProgress).forEach(function(id) { stepProgress[id].forEach(function(s) { const d = document.querySelector('[data-card="' + id + '"] [data-step="' + s + '"]'); if (d) d.classList.add('completed'); }); }); updateProgress(); });
+        document.addEventListener('click', function(e) { if (e.target.classList.contains('modal-overlay')) closeSettings(); if (e.target.classList.contains('popup-overlay')) closeVisionPopup(); });
+    </script>
 </body>
 </html>
