@@ -84,10 +84,92 @@
         </div>
 
         <!-- ═══════════════════════════════════════════════════════════════════
-             PLACEHOLDER: 4 Questions content goes here.
-             Replace this section when the feature is ready.
-             Suggested content: a guided walkthrough of the 4 questions,
-             one question per screen, with navigation between them.
+<!DOCTYPE html>
+<html>
+<head>
+<link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 100%;
+    min-height: 100vh;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 32px 24px;
+    width: 100%;
+    max-width: 460px;
+    margin: 0 auto;
+    opacity: 0;
+    animation: fadeIn 0.5s ease forwards;
+  }
+  @keyframes fadeIn { to { opacity: 1; } }
+  .svg-wrap { width: 100%; max-width: 460px; }
+  .svg-wrap svg { width: 100%; height: auto; display: block; background: #fff; }
+  @media (max-width: 600px) {
+    .container { max-width: 100%; padding: 16px 8px; }
+    .svg-wrap { max-width: 100%; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="svg-wrap">
+    <svg viewBox="0 0 483 410" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <filter id="pen" x="-8%" y="-8%" width="116%" height="116%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" result="noise"/>
+          <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.0" xChannelSelector="R" yChannelSelector="G"/>
+        </filter>
+      </defs>
+
+      <!-- Hand-drawn box — 15% wider: x right edge ~468, center ~241 -->
+      <path d="M16,10 Q90,6 241,7 Q392,6 465,9 Q468,8 469,13 L470,82 Q471,86 466,88 L241,90 Q110,92 18,89 Q13,88 12,84 L13,15 Q13,10 16,10 Z"
+        fill="white" stroke="#111" stroke-width="2.8" stroke-linejoin="round" filter="url(#pen)"/>
+      <path d="M18,11 Q241,5 466,10 Q469,10 470,14 L469,81 Q468,87 464,88 L20,90 Q14,90 13,86 L14,16 Q14,11 18,11 Z"
+        fill="none" stroke="#111" stroke-width="0.9" stroke-linejoin="round" opacity="0.3" filter="url(#pen)"/>
+
+      <!-- Title -->
+      <text x="241" y="40" font-family="'Bebas Neue', sans-serif" font-size="27" fill="#111" text-anchor="middle" letter-spacing="1">READ MATTHEW 28:18-20</text>
+      <!-- Subtitle — two lines -->
+      <text x="241" y="60" font-family="Arial, sans-serif" font-size="18" fill="#333" text-anchor="middle">What is the primary command?</text>
+      <text x="241" y="80" font-family="Arial, sans-serif" font-size="18" fill="#333" text-anchor="middle">="Go... Make Disciples"</text>
+
+      <!-- Body copy — shifted down to make room -->
+      <text x="241" y="128" font-family="Arial, sans-serif" font-size="18" fill="#999" text-anchor="middle">We need answers to the following in order</text>
+      <text x="241" y="150" font-family="Arial, sans-serif" font-size="18" fill="#999" text-anchor="middle">to obey this command:</text>
+
+      <!-- Ovals — shifted down -->
+      <ellipse cx="115" cy="200" rx="26" ry="17" fill="white" stroke="#111" stroke-width="2.2" filter="url(#pen)"/>
+      <ellipse cx="115" cy="248" rx="26" ry="17" fill="white" stroke="#111" stroke-width="2.2" filter="url(#pen)"/>
+      <ellipse cx="115" cy="296" rx="26" ry="17" fill="white" stroke="#111" stroke-width="2.2" filter="url(#pen)"/>
+      <ellipse cx="115" cy="344" rx="26" ry="17" fill="white" stroke="#111" stroke-width="2.2" filter="url(#pen)"/>
+
+      <!-- Numbers -->
+      <text x="115" y="206" font-family="'Amatic SC',cursive" font-weight="700" font-size="19" fill="#111" stroke="#111" stroke-width="0.6" paint-order="stroke" text-anchor="middle">1</text>
+      <text x="115" y="254" font-family="'Amatic SC',cursive" font-weight="700" font-size="19" fill="#111" stroke="#111" stroke-width="0.6" paint-order="stroke" text-anchor="middle">2</text>
+      <text x="115" y="302" font-family="'Amatic SC',cursive" font-weight="700" font-size="19" fill="#111" stroke="#111" stroke-width="0.6" paint-order="stroke" text-anchor="middle">3</text>
+      <text x="115" y="350" font-family="'Amatic SC',cursive" font-weight="700" font-size="19" fill="#111" stroke="#111" stroke-width="0.6" paint-order="stroke" text-anchor="middle">4</text>
+
+      <!-- Labels -->
+      <text x="159" y="208" font-family="'Amatic SC',cursive" font-weight="700" font-size="32" fill="#111" stroke="#111" stroke-width="0.9" paint-order="stroke" text-anchor="start">WHY?</text>
+      <text x="159" y="256" font-family="'Amatic SC',cursive" font-weight="700" font-size="32" fill="#111" stroke="#111" stroke-width="0.9" paint-order="stroke" text-anchor="start">WHO?</text>
+      <text x="159" y="304" font-family="'Amatic SC',cursive" font-weight="700" font-size="32" fill="#111" stroke="#111" stroke-width="0.9" paint-order="stroke" text-anchor="start">HOW?</text>
+      <text x="159" y="352" font-family="'Amatic SC',cursive" font-weight="700" font-size="32" fill="#111" stroke="#111" stroke-width="0.9" paint-order="stroke" text-anchor="start">WHEN?</text>
+
+
+    </svg>
+  </div>
+</div>
+</body>
+</html>
         ════════════════════════════════════════════════════════════════════ -->
         <div class="placeholder-body">
             <div class="placeholder-icon">❓</div>
