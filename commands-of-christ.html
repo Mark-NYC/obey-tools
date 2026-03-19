@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Commands of Christ — OBEY.TOOLS</title>
+    <script type="module">
+        import { supabase } from './supabase.js';
+        window.supabase = supabase;
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif; background: #f2f2f7; min-height: 100vh; color: #000; line-height: 1.4; }
+        .container { max-width: 375px; margin: 0 auto; background: #fff; min-height: 100vh; }
+
+        /* Auth section */
+        .auth-section { padding: 12px 16px; background: #f2f2f7; border-bottom: 0.5px solid #c6c6c8; }
+        .auth-section input { width: 100%; padding: 10px 14px; border: 1px solid #c6c6c8; border-radius: 8px; font-size: 15px; background: #fff; outline: none; margin-bottom: 8px; font-family: inherit; }
+        .auth-section input:focus { border-color: #3a3a3c; }
+        .auth-buttons { display: flex; gap: 8px; }
+        .auth-buttons button { flex: 1; padding: 10px; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; }
+        .auth-btn-primary { background: #3a3a3c; color: #fff; }
+        .auth-btn-secondary { background: #e5e5ea; color: #3a3a3c; }
+        .auth-status { display: flex; align-items: center; justify-content: space-between; }
+        .auth-status-text { font-size: 13px; color: #8e8e93; }
+        .auth-logout-btn { padding: 6px 14px; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; background: #e5e5ea; color: #3a3a3c; font-family: inherit; }
+
+        /* Page header */
+        .page-header { padding: 28px 16px 20px; background: #fff; text-align: center; border-bottom: 0.5px solid #c6c6c8; }
+        .page-title { font-size: 26px; font-weight: 900; letter-spacing: -0.5px; color: #000; }
+        .page-subtitle { font-size: 14px; color: #8e8e93; margin-top: 4px; }
+        .accent-bar { width: 48px; height: 5px; background: #00B884; border-radius: 3px; margin: 12px auto 0; }
+
+        /* Command list */
+        .command-item { display: flex; align-items: center; padding: 14px 16px; border-bottom: 0.5px solid #c6c6c8; text-decoration: none; color: #000; background: #fff; transition: background 0.15s; }
+        .command-item:active { background: #f2f2f7; }
+        .command-num { font-size: 15px; font-weight: 700; color: #8e8e93; width: 28px; flex-shrink: 0; }
+        .command-info { flex: 1; }
+        .command-title { font-size: 17px; font-weight: 600; display: block; }
+        .command-ref { font-size: 13px; color: #8e8e93; margin-top: 2px; display: block; }
+        .command-arrow { font-size: 22px; color: #c6c6c8; }
+
+        /* Sync indicator */
+        .sync-indicator { position: fixed; top: 10px; left: 10px; background: rgba(52,199,89,0.9); color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; z-index: 9999; display: none; }
+        .sync-indicator.syncing { background: rgba(255,149,0,0.9); display: block; }
+        .sync-indicator.synced  { background: rgba(52,199,89,0.9); display: block; }
+
+        /* Notification */
+        .notification { position: fixed; top: 60px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: white; padding: 12px 20px; border-radius: 8px; font-size: 15px; font-weight: 500; z-index: 1000; opacity: 0; animation: notificationSlide 3s ease; }
+        @keyframes notificationSlide { 0% { opacity:0; transform:translateX(-50%) translateY(-20px); } 10% { opacity:1; transform:translateX(-50%) translateY(0); } 90% { opacity:1; transform:translateX(-50%) translateY(0); } 100% { opacity:0; transform:translateX(-50%) translateY(-20px); } }
+
+        @media (min-width: 768px) {
+            .container { max-width: 768px; border-radius: 12px; margin: 20px auto; box-shadow: 0 4px 20px rgba(0,0,0,0.1); overflow: hidden; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sync-indicator" id="sync-indicator"></div>
+
+    <div style="text-align:center; padding:20px 0 8px;">
+        <a href="index.html" style="display:inline-block; background:#000; color:#fff; font-weight:700; font-size:17px; padding:12px 28px; border-radius:50px; text-decoration:none;">Home</a>
+    </div>
+
+    <div class="container">
+
+        <!-- Auth section — wired to Supabase -->
+        <div class="auth-section" id="auth-section">
+            <div id="auth-form">
+                <input type="email" id="auth-email" placeholder="Email">
+                <input type="password" id="auth-password" placeholder="Password">
+                <div class="auth-buttons">
+                    <button class="auth-btn-primary" onclick="authSignUp()">Sign Up</button>
+                    <button class="auth-btn-secondary" onclick="authLogIn()">Log In</button>
+                </div>
+            </div>
+            <div class="auth-status" id="auth-status" style="display:none">
+                <span class="auth-status-text" id="auth-status-text">Not signed in</span>
+                <button class="auth-logout-btn" onclick="authLogOut()">Log Out</button>
+            </div>
+        </div>
+
+        <div class="page-header">
+            <div class="page-title">Commands of Christ</div>
+            <div class="page-subtitle">Obey everything he commanded.</div>
+            <div class="accent-bar"></div>
+        </div>
+
+        <div class="command-list">
+            <a href="repent-and-believe.html" class="command-item">
+                <span class="command-num">1</span>
+                <span class="command-info">
+                    <span class="command-title">Repent &amp; Believe</span>
+                    <span class="command-ref">Mk 1:15 / Lk 19:1-10 (Zacchaeus)</span>
+                </span>
+                <span class="command-arrow">›</span>
+            </a>
+            <a href="be-baptized.html" class="command-item">
+                <span class="command-num">2</span>
+                <span class="command-info">
+                    <span class="command-title">Be Baptized</span>
+                    <span class="command-ref">Matt. 28:19 / Acts 8:26-39 (Philip &amp; The Ethiopian)</span>
+                </span>
+                <span class="command-arrow">›</span>
+            </a>
+            <a href="holy-spirit.html" class="command-item">
+                <span class="command-num">3</span>
+                <span class="command-info">
+                    <span class="command-title">Holy Spirit</span>
+                    <span class="command-ref">Acts 4:27-31 (Empowered Church)</span>
+                </span>
+                <span class="command-arrow">›</span>
+            </a>
+            <a href="the-word-of-god.html" class="command-item">
+                <span class="command-num">4</span>
+                <span class="command-info">
+                    <span class="command-title">The Word of God</span>
+                    <span class="command-ref">Jn 8:31-32 / Jn 15:1-17 (I am the Vine)</span>
+                </span>
+                <span class="command-arrow">›</span>
+            </a>
+            <a href="love-one-another.html" class="command-item">
+                <span class="command-num">5</span>
+                <span class="command-info">
+                    <span class="command-title">Love One Another</span>
+                    <span class="command-ref">Jn 15:12 / Lk 10:25-37 (The Good Samaritan)</span>
+                </span>
+                <span class="command-arrow">›</span>
+            </a>
+            <a href="lords-supper.html" class="command-item">
+                <span class="command-num">6</span>
+                <span class="command-info">
+                    <span class="command-title">Lord's Supper</span>
+                    <span class="command-ref">Lk 22:19-20 / Lk 22:7-20 (The Last Supper)</span>
+                </span>
+                <span class="command-arrow">›</span>
+            </a>
+            <a href="pray.html" class="command-item">
+                <span class="command-num">7</span>
+                <span class="command-info">
+                    <span class="command-title">Pray</span>
+                    <span class="command-ref">Matt 6:9 / Matt 6:5-15 (Lord's Prayer)</span>
+                </span>
+                <span class="command-arrow">›</span>
+            </a>
+            <a href="signs-and-wonders.html" class="command-item">
+                <span class="command-num">8</span>
+                <span class="command-info">
+                    <span class="command-title">Signs &amp; Wonders</span>
+                    <span class="command-ref">Jn 14:6-14 / Lk 5:17-39 (Through the Roof)</span>
+                </span>
+                <span class="command-arrow">›</span>
+            </a>
+            <a href="generosity.html" class="command-item">
+                <span class="command-num">9</span>
+                <span class="command-info">
+                    <span class="command-title">Generosity</span>
+                    <span class="command-ref">Matt 6:1-4 / Mark 12:41-44 (The Widow's Coins)</span>
+                </span>
+                <span class="command-arrow">›</span>
+            </a>
+            <a href="worship.html" class="command-item">
+                <span class="command-num">10</span>
+                <span class="command-info">
+                    <span class="command-title">Worship</span>
+                    <span class="command-ref">Mk 12:28-34 / Lk 7:36-50 (The Sinful Woman)</span>
+                </span>
+                <span class="command-arrow">›</span>
+            </a>
+            <a href="go-make-disciples.html" class="command-item">
+                <span class="command-num">11</span>
+                <span class="command-info">
+                    <span class="command-title">Go…Make Disciples</span>
+                    <span class="command-ref">Matt 28:18-20 / Lk 10:1-11 (The 72)</span>
+                </span>
+                <span class="command-arrow">›</span>
+            </a>
+            <a href="gather.html" class="command-item">
+                <span class="command-num">12</span>
+                <span class="command-info">
+                    <span class="command-title">Gather</span>
+                    <span class="command-ref">Heb 10:24-25 / Acts 2:36-47 (The First Church)</span>
+                </span>
+                <span class="command-arrow">›</span>
+            </a>
+        </div>
+
+    </div>
+
+    <script>
+        function showNotification(message) {
+            const el = document.createElement('div');
+            el.className = 'notification';
+            el.textContent = message;
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 3000);
+        }
+
+        function updateAuthUI(user) {
+            window._supabaseUser = user;
+            const form   = document.getElementById('auth-form');
+            const status = document.getElementById('auth-status');
+            const text   = document.getElementById('auth-status-text');
+            if (user) {
+                form.style.display   = 'none';
+                status.style.display = 'flex';
+                text.textContent     = 'Signed in as ' + user.email;
+            } else {
+                form.style.display   = 'block';
+                status.style.display = 'none';
+                text.textContent     = 'Not signed in';
+            }
+        }
+
+        async function authSignUp() {
+            const email    = document.getElementById('auth-email').value.trim();
+            const password = document.getElementById('auth-password').value;
+            const { error } = await window.supabase.auth.signUp({ email, password });
+            if (error) showNotification(error.message);
+            else        showNotification('Check your email to confirm sign up.');
+        }
+
+        async function authLogIn() {
+            const email    = document.getElementById('auth-email').value.trim();
+            const password = document.getElementById('auth-password').value;
+            const { error } = await window.supabase.auth.signInWithPassword({ email, password });
+            if (error) showNotification(error.message);
+        }
+
+        async function authLogOut() {
+            const { error } = await window.supabase.auth.signOut();
+            if (error) showNotification(error.message);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            window.supabase.auth.getSession().then(({ data: { session } }) => {
+                updateAuthUI(session?.user ?? null);
+            });
+            window.supabase.auth.onAuthStateChange((_event, session) => {
+                updateAuthUI(session?.user ?? null);
+            });
+        });
+    </script>
+
+</body>
+</html>

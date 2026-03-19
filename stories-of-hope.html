@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stories of Hope — OBEY.TOOLS</title>
+    <script type="module">
+        import { supabase } from './supabase.js';
+        window.supabase = supabase;
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif; background: #f2f2f7; min-height: 100vh; color: #000; line-height: 1.4; }
+        .container { max-width: 375px; margin: 0 auto; background: #fff; min-height: 100vh; }
+
+        /* Auth section — identical to conversation-box */
+        .auth-section { padding: 12px 16px; background: #f2f2f7; border-bottom: 0.5px solid #c6c6c8; }
+        .auth-section input { width: 100%; padding: 10px 14px; border: 1px solid #c6c6c8; border-radius: 8px; font-size: 15px; background: #fff; outline: none; margin-bottom: 8px; font-family: inherit; }
+        .auth-section input:focus { border-color: #3a3a3c; }
+        .auth-buttons { display: flex; gap: 8px; }
+        .auth-buttons button { flex: 1; padding: 10px; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; }
+        .auth-btn-primary { background: #3a3a3c; color: #fff; }
+        .auth-btn-secondary { background: #e5e5ea; color: #3a3a3c; }
+        .auth-status { display: flex; align-items: center; justify-content: space-between; }
+        .auth-status-text { font-size: 13px; color: #8e8e93; }
+        .auth-logout-btn { padding: 6px 14px; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; background: #e5e5ea; color: #3a3a3c; font-family: inherit; }
+
+        /* Page header */
+        .page-header { padding: 28px 16px 20px; background: #fff; text-align: center; border-bottom: 0.5px solid #c6c6c8; }
+        .page-title { font-size: 26px; font-weight: 900; letter-spacing: -0.5px; color: #000; }
+        .page-subtitle { font-size: 14px; color: #8e8e93; margin-top: 4px; }
+        .accent-bar { width: 48px; height: 5px; background: #F5A623; border-radius: 3px; margin: 12px auto 0; }
+
+        /* Story list */
+        .story-item { display: flex; align-items: center; padding: 16px; border-bottom: 0.5px solid #c6c6c8; text-decoration: none; color: #000; background: #fff; transition: background 0.15s; }
+        .story-item:active { background: #f2f2f7; }
+        .story-num { font-size: 15px; font-weight: 700; color: #8e8e93; width: 24px; flex-shrink: 0; }
+        .story-title { flex: 1; font-size: 17px; font-weight: 600; }
+        .story-arrow { font-size: 22px; color: #c6c6c8; }
+
+        /* Sync indicator — identical to conversation-box */
+        .sync-indicator { position: fixed; top: 10px; left: 10px; background: rgba(52,199,89,0.9); color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; z-index: 9999; display: none; }
+        .sync-indicator.syncing { background: rgba(255,149,0,0.9); display: block; }
+        .sync-indicator.synced  { background: rgba(52,199,89,0.9); display: block; }
+
+        /* Notification — identical to conversation-box */
+        .notification { position: fixed; top: 60px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: white; padding: 12px 20px; border-radius: 8px; font-size: 15px; font-weight: 500; z-index: 1000; opacity: 0; animation: notificationSlide 3s ease; }
+        @keyframes notificationSlide { 0% { opacity:0; transform:translateX(-50%) translateY(-20px); } 10% { opacity:1; transform:translateX(-50%) translateY(0); } 90% { opacity:1; transform:translateX(-50%) translateY(0); } 100% { opacity:0; transform:translateX(-50%) translateY(-20px); } }
+
+        @media (min-width: 768px) {
+            .container { max-width: 768px; border-radius: 12px; margin: 20px auto; box-shadow: 0 4px 20px rgba(0,0,0,0.1); overflow: hidden; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sync-indicator" id="sync-indicator">Syncing...</div>
+
+    <div style="text-align:center; padding:20px 0 8px;">
+        <a href="index.html" style="display:inline-block; background:#000; color:#fff; font-weight:700; font-size:17px; padding:12px 28px; border-radius:50px; text-decoration:none;">Home</a>
+    </div>
+
+    <div class="container">
+
+        <!-- Auth section — wired to Supabase, identical pattern to conversation-box -->
+        <div class="auth-section" id="auth-section">
+            <div id="auth-form">
+                <input type="email" id="auth-email" placeholder="Email">
+                <input type="password" id="auth-password" placeholder="Password">
+                <div class="auth-buttons">
+                    <button class="auth-btn-primary" onclick="authSignUp()">Sign Up</button>
+                    <button class="auth-btn-secondary" onclick="authLogIn()">Log In</button>
+                </div>
+            </div>
+            <div class="auth-status" id="auth-status" style="display:none">
+                <span class="auth-status-text" id="auth-status-text">Not signed in</span>
+                <button class="auth-logout-btn" onclick="authLogOut()">Log Out</button>
+            </div>
+        </div>
+
+        <div class="page-header">
+            <div class="page-title">Stories of Hope</div>
+            <div class="page-subtitle">Real stories. Real change.</div>
+            <div class="accent-bar"></div>
+        </div>
+
+        <div class="story-list">
+            <a href="hope-for-the-rejected.html" class="story-item">
+                <span class="story-num">1</span>
+                <span class="story-title">Hope For The Rejected</span>
+                <span class="story-arrow">›</span>
+            </a>
+            <a href="hope-for-the-nonreligious.html" class="story-item">
+                <span class="story-num">2</span>
+                <span class="story-title">Hope For The Nonreligious</span>
+                <span class="story-arrow">›</span>
+            </a>
+            <a href="hope-changes-things.html" class="story-item">
+                <span class="story-num">3</span>
+                <span class="story-title">Hope Changes Things</span>
+                <span class="story-arrow">›</span>
+            </a>
+            <a href="hope-forgives.html" class="story-item">
+                <span class="story-num">4</span>
+                <span class="story-title">Hope Forgives</span>
+                <span class="story-arrow">›</span>
+            </a>
+            <a href="hope-through-death.html" class="story-item">
+                <span class="story-num">5</span>
+                <span class="story-title">Hope Through Death</span>
+                <span class="story-arrow">›</span>
+            </a>
+            <a href="hope-rose-from-the-dead.html" class="story-item">
+                <span class="story-num">6</span>
+                <span class="story-title">Hope Rose From The Dead</span>
+                <span class="story-arrow">›</span>
+            </a>
+            <a href="hope-is-waiting-for-you.html" class="story-item">
+                <span class="story-num">7</span>
+                <span class="story-title">Hope is Waiting For You</span>
+                <span class="story-arrow">›</span>
+            </a>
+        </div>
+
+    </div>
+
+    <script>
+        // ── Shared utilities ──────────────────────────────────────────────────
+
+        function showSyncIndicator(status) {
+            const indicator = document.getElementById('sync-indicator');
+            indicator.className = 'sync-indicator ' + status;
+            if (status === 'synced') {
+                setTimeout(() => { indicator.style.display = 'none'; }, 2000);
+            }
+        }
+
+        function showNotification(message) {
+            const el = document.createElement('div');
+            el.className = 'notification';
+            el.textContent = message;
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 3000);
+        }
+
+        // ── Supabase Auth — identical pattern to conversation-box ─────────────
+
+        function updateAuthUI(user) {
+            window._supabaseUser = user;
+
+            const form   = document.getElementById('auth-form');
+            const status = document.getElementById('auth-status');
+            const text   = document.getElementById('auth-status-text');
+
+            if (user) {
+                form.style.display   = 'none';
+                status.style.display = 'flex';
+                text.textContent     = 'Signed in as ' + user.email;
+            } else {
+                form.style.display   = 'block';
+                status.style.display = 'none';
+                text.textContent     = 'Not signed in';
+            }
+        }
+
+        async function authSignUp() {
+            const email    = document.getElementById('auth-email').value.trim();
+            const password = document.getElementById('auth-password').value;
+            const { error } = await window.supabase.auth.signUp({ email, password });
+            if (error) showNotification(error.message);
+            else        showNotification('Check your email to confirm sign up.');
+        }
+
+        async function authLogIn() {
+            const email    = document.getElementById('auth-email').value.trim();
+            const password = document.getElementById('auth-password').value;
+            const { error } = await window.supabase.auth.signInWithPassword({ email, password });
+            if (error) showNotification(error.message);
+        }
+
+        async function authLogOut() {
+            const { error } = await window.supabase.auth.signOut();
+            if (error) showNotification(error.message);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            window.supabase.auth.getSession().then(({ data: { session } }) => {
+                updateAuthUI(session?.user ?? null);
+            });
+
+            window.supabase.auth.onAuthStateChange((_event, session) => {
+                updateAuthUI(session?.user ?? null);
+            });
+        });
+    </script>
+
+</body>
+</html>
