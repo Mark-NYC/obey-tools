@@ -116,6 +116,19 @@
             setTimeout(() => el.remove(), 3000);
         }
 
+        async function fetchRole(userId) {
+            const { data, error } = await window.supabase
+                .from('profiles')
+                .select('role')
+                .eq('id', userId)
+                .single();
+            if (error && error.code === 'PGRST116') {
+                await window.supabase.from('profiles').insert({ id: userId, role: 'user' });
+                return 'user';
+            }
+            return data?.role ?? 'user';
+        }
+
         function updateAuthUI(user) {
             window._supabaseUser = user;
             const form   = document.getElementById('auth-form');
@@ -153,11 +166,17 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            window.supabase.auth.getSession().then(({ data: { session } }) => {
-                updateAuthUI(session?.user ?? null);
+            window.supabase.auth.getSession().then(async ({ data: { session } }) => {
+                if (!session?.user) { window.location.replace('index.html'); return; }
+                const role = await fetchRole(session.user.id);
+                if (role !== 'leader') { window.location.replace('index.html'); return; }
+                updateAuthUI(session.user);
             });
-            window.supabase.auth.onAuthStateChange((_event, session) => {
-                updateAuthUI(session?.user ?? null);
+            window.supabase.auth.onAuthStateChange(async (_event, session) => {
+                if (!session?.user) { window.location.replace('index.html'); return; }
+                const role = await fetchRole(session.user.id);
+                if (role !== 'leader') { window.location.replace('index.html'); return; }
+                updateAuthUI(session.user);
             });
         });
     </script>
