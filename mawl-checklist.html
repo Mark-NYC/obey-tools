@@ -109,6 +109,7 @@
         }
 
         window.submitCreateNetwork = async function () {
+            console.log('[submitCreateNetwork] fired')
             const input = document.getElementById('create-network-input')
             const name  = input.value.trim()
             if (!name) { input.focus(); return }
@@ -156,6 +157,7 @@
         async function loadChecklists(networkId, autoSelectId = null) {
             // Reset progress grid on every reload
             _activeChecklistId = null
+            _activeChecklistCreatedBy = null
             _progress = {}
             const gridSection = document.getElementById('mawl-grid-section')
             gridSection.style.display = 'none'
@@ -340,7 +342,7 @@
                            placeholder="Co-leader's email address" maxlength="200"
                            onkeydown="if(event.key==='Enter') submitAddCollaborator()">
                     <div class="collab-add-actions">
-                        <button class="collab-add-btn" id="collab-add-btn" onclick="submitAddCollaborator()">Add</button>
+                        <button type="button" class="collab-add-btn" id="collab-add-btn" onclick="submitAddCollaborator()">Add Leader</button>
                     </div>`
                 panel.appendChild(form)
             }
@@ -383,12 +385,14 @@
         }
 
         window.submitAddCollaborator = async function () {
+            console.log('[submitAddCollaborator] fired, _activeChecklistId:', _activeChecklistId)
             const input = document.getElementById('collab-email-input')
             const email = (input?.value ?? '').trim().toLowerCase()
             if (!email) { input?.focus(); return }
             if (!_activeChecklistId) return
 
             const btn = document.getElementById('collab-add-btn')
+            if (!btn) { console.warn('[submitAddCollaborator] collab-add-btn not found in DOM'); return }
             btn.disabled = true
             btn.textContent = 'Adding…'
 
@@ -435,6 +439,7 @@
         }
 
         window.showCreateChecklist = function () {
+            console.log('[showCreateChecklist] fired')
             document.getElementById('create-checklist-form').style.display = 'block'
             document.getElementById('create-checklist-input').focus()
         }
@@ -445,6 +450,7 @@
         }
 
         window.submitCreateChecklist = async function () {
+            console.log('[submitCreateChecklist] fired')
             const input = document.getElementById('create-checklist-input')
             const coached_name = input.value.trim()
             if (!coached_name) { input.focus(); return }
