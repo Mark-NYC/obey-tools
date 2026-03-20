@@ -34,6 +34,12 @@
         /* Placeholder body */
         .placeholder { padding: 48px 24px; text-align: center; color: #8e8e93; font-size: 15px; line-height: 1.6; }
 
+        /* Access denied */
+        .access-denied { display: none; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; padding: 40px 24px; text-align: center; }
+        .access-denied-msg { font-size: 17px; font-weight: 600; color: #3a3a3c; margin-bottom: 6px; }
+        .access-denied-sub { font-size: 14px; color: #8e8e93; margin-bottom: 28px; }
+        .access-denied-btn { display: inline-block; background: #000; color: #fff; font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-weight: 700; font-size: 15px; padding: 11px 28px; border-radius: 50px; text-decoration: none; }
+
         /* Notification */
         .notification { position: fixed; top: 60px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: white; padding: 12px 20px; border-radius: 8px; font-size: 15px; font-weight: 500; z-index: 1000; opacity: 0; animation: notificationSlide 3s ease; }
         @keyframes notificationSlide { 0% { opacity:0; transform:translateX(-50%) translateY(-20px); } 10% { opacity:1; transform:translateX(-50%) translateY(0); } 90% { opacity:1; transform:translateX(-50%) translateY(0); } 100% { opacity:0; transform:translateX(-50%) translateY(-20px); } }
@@ -50,7 +56,13 @@
         <a href="leader-tools.html" style="display:inline-block; background:#00D084; color:#fff; font-family:-apple-system,BlinkMacSystemFont,sans-serif; font-weight:700; font-size:15px; padding:11px 22px; border-radius:50px; text-decoration:none; white-space:nowrap;">← Leader Tools</a>
     </div>
 
-    <div class="container">
+    <div id="access-denied" class="access-denied">
+        <div class="access-denied-msg">Access restricted.</div>
+        <div class="access-denied-sub">Leader approval required.</div>
+        <a href="index.html" class="access-denied-btn">Go to Home</a>
+    </div>
+
+    <div class="container" id="main-container">
 
         <div class="auth-section" id="auth-section">
             <div id="auth-form">
@@ -85,6 +97,11 @@
             el.textContent = message;
             document.body.appendChild(el);
             setTimeout(() => el.remove(), 3000);
+        }
+
+        function showAccessDenied() {
+            document.getElementById('access-denied').style.display = 'flex';
+            document.getElementById('main-container').style.display = 'none';
         }
 
         async function fetchRole(userId) {
@@ -138,15 +155,15 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             window.supabase.auth.getSession().then(async ({ data: { session } }) => {
-                if (!session?.user) { window.location.replace('index.html'); return; }
+                if (!session?.user) { showAccessDenied(); return; }
                 const role = await fetchRole(session.user.id);
-                if (role !== 'leader') { window.location.replace('index.html'); return; }
+                if (role !== 'leader') { showAccessDenied(); return; }
                 updateAuthUI(session.user);
             });
             window.supabase.auth.onAuthStateChange(async (_event, session) => {
-                if (!session?.user) { window.location.replace('index.html'); return; }
+                if (!session?.user) { showAccessDenied(); return; }
                 const role = await fetchRole(session.user.id);
-                if (role !== 'leader') { window.location.replace('index.html'); return; }
+                if (role !== 'leader') { showAccessDenied(); return; }
                 updateAuthUI(session.user);
             });
         });
