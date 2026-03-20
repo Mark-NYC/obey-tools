@@ -60,6 +60,26 @@
             }
         }
 
+        window.revokeInvite = async function (btn) {
+            if (!window.confirm('Revoke this invite link? It will no longer be redeemable.')) return
+            btn.disabled = true
+            btn.textContent = 'Revoking…'
+            const token = btn.dataset.token
+            const { error } = await supabase
+                .from('leader_invites')
+                .update({ status: 'revoked' })
+                .eq('token', token)
+                .eq('status', 'pending')
+            if (error) {
+                showNotification('Error: ' + error.message)
+                btn.disabled = false
+                btn.textContent = 'Revoke'
+                return
+            }
+            const { data: { session } } = await supabase.auth.getSession()
+            if (session?.user) loadInviteHistory(session.user.id)
+        }
+
         window.copyHistoryUrl = async function (btn) {
             const url = btn.dataset.url
             try {
@@ -98,13 +118,16 @@
 
             const now = new Date()
             list.innerHTML = data.map(inv => {
+                const isRevoked = inv.status === 'revoked'
                 const isUsed    = inv.status === 'used'
-                const isExpired = !isUsed && new Date(inv.expires_at) < now
-                const badge     = isUsed ? 'used' : isExpired ? 'expired' : 'active'
+                const isExpired = !isRevoked && !isUsed && new Date(inv.expires_at) < now
+                const badge     = isRevoked ? 'revoked' : isUsed ? 'used' : isExpired ? 'expired' : 'active'
                 const label     = badge.charAt(0).toUpperCase() + badge.slice(1)
 
                 let dateInfo
-                if (isUsed) {
+                if (isRevoked) {
+                    dateInfo = 'Revoked'
+                } else if (isUsed) {
                     dateInfo = 'Used ' + (inv.used_at ? fmtDate(inv.used_at) : 'date unknown')
                 } else if (isExpired) {
                     dateInfo = 'Expired ' + fmtDate(inv.expires_at)
@@ -113,8 +136,9 @@
                 }
 
                 const inviteUrl = new URL('invite.html?token=' + inv.token, window.location.href).href
-                const copyBtn = badge === 'active'
-                    ? `<button class="history-copy-btn" data-url="${inviteUrl}" onclick="copyHistoryUrl(this)">Copy</button>`
+                const actionBtns = badge === 'active'
+                    ? `<button class="history-copy-btn" data-url="${inviteUrl}" onclick="copyHistoryUrl(this)">Copy</button>
+                       <button class="history-revoke-btn" data-token="${inv.token}" onclick="revokeInvite(this)">Revoke</button>`
                     : ''
 
                 return `<div class="history-item">
@@ -127,7 +151,7 @@
                     </div>
                     <div class="history-url-row">
                         <div class="history-url-box">${inviteUrl}</div>
-                        ${copyBtn}
+                        ${actionBtns}
                     </div></div>`
             }).join('')
         }
@@ -210,6 +234,7 @@
         .history-badge--active  { background: #d4f5ea; color: #00714d; }
         .history-badge--expired { background: #f2f2f7; color: #8e8e93; }
         .history-badge--used    { background: #3a3a3c; color: #fff; }
+        .history-badge--revoked { background: #ffeaec; color: #c0392b; }
         .history-meta { flex: 1; }
         .history-date-info { font-size: 14px; font-weight: 500; color: #3a3a3c; display: block; }
         .history-created { font-size: 12px; color: #8e8e93; display: block; margin-top: 2px; }
@@ -217,6 +242,9 @@
         .history-url-box { flex: 1; background: #f2f2f7; border-radius: 8px; padding: 8px 10px; font-size: 11px; font-family: monospace; word-break: break-all; color: #3a3a3c; line-height: 1.4; }
         .history-copy-btn { flex-shrink: 0; padding: 7px 14px; background: #e5e5ea; color: #3a3a3c; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; }
         .history-copy-btn:active { background: #d1d1d6; }
+        .history-revoke-btn { flex-shrink: 0; padding: 7px 14px; background: #ffeaec; color: #c0392b; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; }
+        .history-revoke-btn:active { background: #ffd5d8; }
+        .history-revoke-btn:disabled { opacity: 0.5; cursor: default; }
 
         @media (min-width: 768px) {
             .container { max-width: 768px; border-radius: 12px; margin: 20px auto; box-shadow: 0 4px 20px rgba(0,0,0,0.1); overflow: hidden; }
