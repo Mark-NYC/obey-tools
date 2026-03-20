@@ -47,7 +47,8 @@
                 const messages = {
                     invite_not_found:   'This invite link is not valid. Ask your leader for a new one.',
                     invite_unavailable: 'This invite has already been used or has expired.',
-                    not_authenticated:  'You must be logged in to redeem an invite.'
+                    not_authenticated:  'You must be logged in to redeem an invite.',
+                    email_mismatch:     'This invite was created for a different email address. Log in with the correct account to redeem it.'
                 }
                 document.getElementById('error-msg').textContent =
                     messages[data.error] ?? 'This invite could not be redeemed.'

@@ -28,19 +28,23 @@
                 crypto.getRandomValues(bytes)
                 const token = Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('')
 
+                const emailInput = document.getElementById('invite-email').value.trim().toLowerCase() || null
+
                 const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
-                const { error } = await supabase.from('leader_invites').insert({
-                    token,
-                    invited_by: session.user.id,
-                    status: 'pending',
-                    expires_at: expiresAt
-                })
+                const row = { token, invited_by: session.user.id, status: 'pending', expires_at: expiresAt }
+                if (emailInput) row.email = emailInput
+                const { error } = await supabase.from('leader_invites').insert(row)
                 if (error) { showNotification('Error: ' + error.message); return }
 
                 const inviteUrl = new URL('invite.html?token=' + token, window.location.href).href
                 document.getElementById('invite-url').textContent = inviteUrl
+                const label = emailInput
+                    ? `Invite link for ${emailInput} (expires in 7 days):`
+                    : 'Invite link (expires in 7 days):'
+                document.getElementById('invite-url-label').textContent = label
                 document.getElementById('invite-result').style.display = 'block'
                 document.getElementById('copy-btn').textContent = 'Copy Link'
+                document.getElementById('invite-email').value = ''
                 loadInviteHistory(session.user.id)
             } finally {
                 btn.disabled = false
@@ -103,7 +107,7 @@
 
             const { data, error } = await supabase
                 .from('leader_invites')
-                .select('token, status, expires_at, created_at, used_at, redeemed_by_email')
+                .select('token, status, expires_at, created_at, used_at, redeemed_by_email, email')
                 .eq('invited_by', userId)
                 .order('created_at', { ascending: false })
 
@@ -142,11 +146,16 @@
                        <button class="history-revoke-btn" data-token="${inv.token}" onclick="revokeInvite(this)">Revoke</button>`
                     : ''
 
+                const forLine = inv.email
+                    ? `<span class="history-for">For: ${inv.email}</span>`
+                    : ''
+
                 return `<div class="history-item">
                     <div class="history-item-main">
                         <span class="history-badge history-badge--${badge}">${label}</span>
                         <div class="history-meta">
                             <span class="history-date-info">${dateInfo}</span>
+                            ${forLine}
                             <span class="history-created">Created ${fmtDate(inv.created_at)}</span>
                         </div>
                     </div>
@@ -216,6 +225,8 @@
         .invite-section { padding: 20px 16px; border-bottom: 0.5px solid #c6c6c8; }
         .invite-title { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
         .invite-sub { font-size: 13px; color: #8e8e93; line-height: 1.5; margin-bottom: 16px; }
+        .invite-email-input { width: 100%; padding: 11px 14px; border: 1px solid #c6c6c8; border-radius: 10px; font-size: 15px; background: #fff; outline: none; margin-bottom: 10px; font-family: inherit; }
+        .invite-email-input:focus { border-color: #3a3a3c; }
         .invite-generate-btn { width: 100%; padding: 13px; background: #00B884; color: #fff; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; transition: opacity 0.15s; }
         .invite-generate-btn:hover { opacity: 0.9; }
         .invite-generate-btn:disabled { opacity: 0.6; cursor: default; }
@@ -238,6 +249,7 @@
         .history-badge--revoked { background: #ffeaec; color: #c0392b; }
         .history-meta { flex: 1; }
         .history-date-info { font-size: 14px; font-weight: 500; color: #3a3a3c; display: block; }
+        .history-for { font-size: 12px; color: #3a3a3c; display: block; margin-top: 2px; font-style: italic; }
         .history-created { font-size: 12px; color: #8e8e93; display: block; margin-top: 2px; }
         .history-url-row { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
         .history-url-box { flex: 1; background: #f2f2f7; border-radius: 8px; padding: 8px 10px; font-size: 11px; font-family: monospace; word-break: break-all; color: #3a3a3c; line-height: 1.4; }
@@ -315,10 +327,11 @@
         <!-- Invite section -->
         <div class="invite-section">
             <div class="invite-title">Leader Invites</div>
-            <div class="invite-sub">Generate a secure one-time link to invite someone as a leader. Links expire after 7 days.</div>
+            <div class="invite-sub">Generate a secure one-time link to invite someone as a leader. Links expire after 7 days. Optionally restrict the link to a specific email address.</div>
+            <input type="email" id="invite-email" class="invite-email-input" placeholder="Email (optional — leave blank for generic link)" autocomplete="off">
             <button class="invite-generate-btn" id="generate-invite-btn" onclick="generateInvite()">Generate Leader Invite</button>
             <div id="invite-result" style="display:none" class="invite-result">
-                <div class="invite-url-label">Invite link (expires in 7 days):</div>
+                <div class="invite-url-label" id="invite-url-label">Invite link (expires in 7 days):</div>
                 <div class="invite-url-box"><span id="invite-url"></span></div>
                 <button class="invite-copy-btn" id="copy-btn" onclick="copyInvite()">Copy Link</button>
             </div>
