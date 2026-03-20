@@ -5,8 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Leader Tools — OBEY.TOOLS</title>
     <script type="module">
-        import { supabase } from './supabase.js';
-        window.supabase = supabase;
+        import { supabase } from './supabase.js'
+        import { authSignUp, authLogIn, authLogOut, initLeaderPage } from './auth.js'
+        // Expose auth functions for onclick handlers in the HTML
+        window.authSignUp = authSignUp
+        window.authLogIn  = authLogIn
+        window.authLogOut = authLogOut
+        // Run leader access check immediately (DOM is ready when modules execute)
+        initLeaderPage()
     </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
@@ -119,84 +125,6 @@
 
     </div>
 
-    <script>
-        function showNotification(message) {
-            const el = document.createElement('div');
-            el.className  = 'notification';
-            el.textContent = message;
-            document.body.appendChild(el);
-            setTimeout(() => el.remove(), 3000);
-        }
-
-        function showAccessDenied() {
-            document.getElementById('access-denied').style.display = 'flex';
-            document.getElementById('main-container').style.display = 'none';
-        }
-
-        async function fetchRole(userId) {
-            const { data, error } = await window.supabase
-                .from('profiles')
-                .select('role')
-                .eq('id', userId)
-                .single();
-            if (error && error.code === 'PGRST116') {
-                await window.supabase.from('profiles').insert({ id: userId, role: 'user' });
-                return 'user';
-            }
-            return data?.role ?? 'user';
-        }
-
-        function updateAuthUI(user) {
-            window._supabaseUser = user;
-            const form   = document.getElementById('auth-form');
-            const status = document.getElementById('auth-status');
-            const text   = document.getElementById('auth-status-text');
-            if (user) {
-                form.style.display   = 'none';
-                status.style.display = 'flex';
-                text.textContent     = 'Signed in as ' + user.email;
-            } else {
-                form.style.display   = 'block';
-                status.style.display = 'none';
-                text.textContent     = 'Not signed in';
-            }
-        }
-
-        async function authSignUp() {
-            const email    = document.getElementById('auth-email').value.trim();
-            const password = document.getElementById('auth-password').value;
-            const { error } = await window.supabase.auth.signUp({ email, password });
-            if (error) showNotification(error.message);
-            else        showNotification('Check your email to confirm sign up.');
-        }
-
-        async function authLogIn() {
-            const email    = document.getElementById('auth-email').value.trim();
-            const password = document.getElementById('auth-password').value;
-            const { error } = await window.supabase.auth.signInWithPassword({ email, password });
-            if (error) showNotification(error.message);
-        }
-
-        async function authLogOut() {
-            const { error } = await window.supabase.auth.signOut();
-            if (error) showNotification(error.message);
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            window.supabase.auth.getSession().then(async ({ data: { session } }) => {
-                if (!session?.user) { showAccessDenied(); return; }
-                const role = await fetchRole(session.user.id);
-                if (role !== 'leader') { showAccessDenied(); return; }
-                updateAuthUI(session.user);
-            });
-            window.supabase.auth.onAuthStateChange(async (_event, session) => {
-                if (!session?.user) { showAccessDenied(); return; }
-                const role = await fetchRole(session.user.id);
-                if (role !== 'leader') { showAccessDenied(); return; }
-                updateAuthUI(session.user);
-            });
-        });
-    </script>
 
 </body>
 </html>
