@@ -1,854 +1,481 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>4 Questions — OBEY.TOOLS</title>
-    <script type="module">
-        import { supabase } from './supabase.js';
-        window.supabase = supabase;
-    </script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Oswald:wght@700&display=swap" rel="stylesheet">
-
-    <style>
-        /* ─── Reset ─────────────────────────────────────────────────── */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            background: #fff;
-            min-height: 100vh;
-            color: #111;
-            font-family: 'Special Elite', 'Courier New', monospace;
-            line-height: 1.5;
-            padding-bottom: 100px;
-        }
-
-        /* ─── Narrow centered column ─────────────────────────────────── */
-        .page-wrap {
-            max-width: 500px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        /* ─── Home pill ──────────────────────────────────────────────── */
-        .home-btn-wrap {
-            text-align: center;
-            padding: 22px 0 10px;
-        }
-        .home-btn {
-            display: inline-block;
-            background: #111;
-            color: #fff;
-            font-size: 12px;
-            font-weight: 700;
-            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-            padding: 6px 18px;
-            border-radius: 50px;
-            text-decoration: none;
-            letter-spacing: 0.4px;
-        }
-
-        /* ─── Page title ─────────────────────────────────────────────── */
-        .page-title-wrap {
-            text-align: center;
-            padding: 18px 0 6px;
-        }
-        .page-title {
-            font-family: 'Oswald', 'Arial Black', sans-serif;
-            font-size: 52px;
-            font-weight: 700;
-            letter-spacing: 6px;
-            color: #1db954;
-            line-height: 1;
-        }
-        .page-subtitle {
-            font-family: 'Special Elite', monospace;
-            font-size: 12px;
-            color: #555;
-            margin-top: 10px;
-            line-height: 1.6;
-            max-width: 340px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        .page-subtitle .green { color: #1db954; }
-
-        /* ─── Progress bar (exact match to command child pages) ──────── */
-        .progress-bar-container {
-            padding: 20px 0 8px;
-        }
-        .progress-bar {
-            height: 8px;
-            background: #e5e5ea;
-            border-radius: 4px;
-            overflow: hidden;
-        }
-        .progress-fill {
-            height: 100%;
-            background: #00D084;
-            width: 0%;
-            transition: width 0.5s ease;
-        }
-        .progress-text {
-            margin-top: 8px;
-            font-size: 13px;
-            color: #8e8e93;
-            text-align: center;
-            font-weight: 500;
-            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-        }
-
-        /* ─── Rough hand-drawn divider ───────────────────────────────── */
-        .rough-divider {
-            margin: 40px 0;
-            width: 100%;
-            height: 14px;
-        }
-
-        /* ════════════════════════════════════════════════════════
-           CARD — exact markup, classes, and styling from command
-           child pages (pray.html / repent-and-believe.html)
-        ════════════════════════════════════════════════════════ */
-        .card {
-            background: #fff;
-            margin-bottom: 0;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            user-select: none;
-        }
-        .card:active {
-            transform: scale(0.98);
-        }
-        .card.completed {
-            background: #00D084;
-        }
-
-        /* card-content row — used as the header row of each section card */
-        .card-content {
-            padding: 18px 20px;
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-        .card-text {
-            flex: 1;
-        }
-        .card-title {
-            font-size: 17px;
-            font-weight: 700;
-            color: #3a3a3c;
-            margin-bottom: 4px;
-            letter-spacing: -0.2px;
-            transition: color 0.3s ease;
-        }
-        .card.completed .card-title {
-            color: #fff;
-        }
-        .card-description {
-            font-size: 14px;
-            color: #8e8e93;
-            line-height: 1.4;
-            transition: color 0.3s ease;
-        }
-        .card.completed .card-description {
-            color: rgba(255,255,255,0.9);
-        }
-
-        /* Checkbox — exact match to command child pages */
-        .card-checkbox {
-            width: 28px;
-            height: 28px;
-            border: 2px solid #c6c6c8;
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            transition: all 0.3s ease;
-        }
-        .card.completed .card-checkbox {
-            background: #fff;
-            border-color: #fff;
-        }
-        .card-checkbox::after {
-            content: '✓';
-            color: #00D084;
-            font-size: 18px;
-            font-weight: 700;
-            opacity: 0;
-            transform: scale(0);
-            transition: all 0.2s ease;
-        }
-        .card.completed .card-checkbox::after {
-            opacity: 1;
-            transform: scale(1);
-        }
-
-        /* ─── Section body (below the card-content header row) ───────── */
-        .section-body {
-            padding: 8px 20px 32px;
-            text-align: center;
-        }
-
-        /* Section label inside card-title (hand-drawn style small caps) */
-        .section-label-text {
-            font-family: 'Special Elite', monospace;
-            font-size: 10px;
-            letter-spacing: 2.5px;
-            color: #aaa;
-            text-transform: uppercase;
-            font-weight: 400;
-        }
-        .card.completed .section-label-text {
-            color: rgba(255,255,255,0.75);
-        }
-
-        /* ─── Intro section inner elements ───────────────────────────── */
-        .scripture-box {
-            border: 1.5px solid #111;
-            padding: 14px 22px;
-            display: inline-block;
-            text-align: center;
-            margin-bottom: 20px;
-            transition: border-color 0.3s ease;
-        }
-        .card.completed .scripture-box {
-            border-color: rgba(255,255,255,0.55);
-        }
-        .scripture-box .ref {
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            transition: color 0.3s ease;
-        }
-        .card.completed .scripture-box .ref { color: #fff; }
-        .scripture-box .question {
-            font-size: 11px;
-            color: #333;
-            margin-top: 4px;
-            transition: color 0.3s ease;
-        }
-        .card.completed .scripture-box .question { color: rgba(255,255,255,0.9); }
-        .scripture-box .answer {
-            font-size: 11px;
-            font-style: italic;
-            color: #555;
-            margin-top: 2px;
-            transition: color 0.3s ease;
-        }
-        .card.completed .scripture-box .answer { color: rgba(255,255,255,0.85); }
-
-        .intro-note {
-            font-size: 11px;
-            color: #777;
-            margin-bottom: 18px;
-            letter-spacing: 0.3px;
-            line-height: 1.7;
-            transition: color 0.3s ease;
-        }
-        .card.completed .intro-note { color: rgba(255,255,255,0.8); }
-
-        .questions-list {
-            list-style: none;
-            display: inline-block;
-            text-align: left;
-        }
-        .questions-list li {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 12px;
-            letter-spacing: 2px;
-            margin-bottom: 10px;
-            font-family: 'Special Elite', monospace;
-            transition: color 0.3s ease;
-        }
-        .card.completed .questions-list li { color: #fff; }
-        .q-num {
-            width: 22px;
-            height: 22px;
-            border: 1.5px solid #111;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 10px;
-            flex-shrink: 0;
-            font-family: 'Special Elite', monospace;
-            transition: border-color 0.3s ease;
-        }
-        .card.completed .q-num { border-color: rgba(255,255,255,0.65); }
-
-        /* ─── Scripture footnote (John/3John sections) ───────────────── */
-        .scripture-footnote {
-            font-size: 10px;
-            color: #999;
-            margin-top: 18px;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            transition: color 0.3s ease;
-        }
-        .card.completed .scripture-footnote { color: rgba(255,255,255,0.7); }
-
-        /* ─── Reset button (fixed bottom — exact match to command pages) */
-        .reset-section {
-            position: fixed;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 100%;
-            max-width: 500px;
-            background: #fff;
-            border-top: 0.5px solid #c6c6c8;
-            padding: 16px 20px;
-            padding-bottom: calc(16px + env(safe-area-inset-bottom));
-        }
-        .btn {
-            width: 100%;
-            padding: 14px;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 15px;
-            cursor: pointer;
-            background: #f2f2f7;
-            color: #3a3a3c;
-            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-            transition: all 0.2s ease;
-        }
-        .btn:active {
-            background: #e5e5ea;
-            transform: scale(0.98);
-        }
-
-        /* ─── Notification (exact match to command child pages) ──────── */
-        .notification {
-            position: fixed;
-            top: 60px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0,0,0,0.8);
-            color: white;
-            padding: 12px 20px;
-            border-radius: 8px;
-            font-size: 15px;
-            font-weight: 500;
-            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-            z-index: 1000;
-            opacity: 0;
-            animation: notificationSlide 3s ease;
-        }
-        @keyframes notificationSlide {
-            0%   { opacity: 0; transform: translateX(-50%) translateY(-20px); }
-            10%  { opacity: 1; transform: translateX(-50%) translateY(0); }
-            90%  { opacity: 1; transform: translateX(-50%) translateY(0); }
-            100% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
-        }
-
-        /* ─── Auth (hidden, session preserved for Supabase) ─────────── */
-        .auth-section { display: none; }
-
-        /* ─── Mobile responsive ──────────────────────────────────────── */
-        @media (max-width: 480px) {
-            .page-title { font-size: 38px; letter-spacing: 4px; }
-            .page-wrap  { padding: 0 16px; }
-        }
-        @media (min-width: 768px) {
-            .reset-section {
-                position: static;
-                transform: none;
-                width: auto;
-                max-width: none;
-                border-top: 0.5px solid #c6c6c8;
-                margin-top: 32px;
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Discipleship Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 100%;
+    background: #f2f2f7;
+  }
+  body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px 0 0;
+  }
+  /* ── Section wrapper ── */
+  .section {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 48px 24px;
+    opacity: 0;
+    animation: fadeIn 0.5s ease forwards;
+  }
+  .divider {
+    width: calc(100% - 32px);
+    max-width: 520px;
+    display: block;
+    margin: 4px auto;
+  }
+  .section:nth-child(1) { animation-delay: 0.0s; }
+  .section:nth-child(2) { animation-delay: 0.15s; }
+  .section:nth-child(3) { animation-delay: 0.3s; }
+  .section:nth-child(4) { animation-delay: 0.45s; }
+  .section:nth-child(5) { animation-delay: 0.6s; }
+  .section:last-child { border-bottom: none; }
+  @keyframes fadeIn { to { opacity: 1; } }
+  .svg-wrap { width: 100%; max-width: 480px; }
+  .svg-wrap svg { width: 100%; height: auto; display: block; }
+  /* ── Labels ── */
+  .label-top {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(16px, 4vw, 20px);
+    letter-spacing: 0.18em;
+    color: #555;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .section-number {
+    font-family: 'Amatic SC', cursive;
+    font-weight: 700;
+    font-size: clamp(28px, 7vw, 36px);
+    letter-spacing: 0.1em;
+    color: #aaa;
+    margin-bottom: 10px;
+  }
+  .verse {
+    font-family: 'Amatic SC', cursive;
+    font-weight: 700;
+    font-size: clamp(28px, 7vw, 38px);
+    color: #111;
+    margin-top: 10px;
+  }
+  /* ── Section 5 (When / Goals) ── */
+  .when-title {
+    font-family: 'Amatic SC', cursive;
+    font-weight: 700;
+    font-size: clamp(32px, 8vw, 48px);
+    color: #111;
+    letter-spacing: 0.08em;
+    margin-bottom: 6px;
+  }
+  .goals-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(18px, 4vw, 24px);
+    letter-spacing: 0.12em;
+    color: #aaa;
+    margin-bottom: 24px;
+  }
+  .goals-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+  }
+  .goal-item {
+    font-family: 'Amatic SC', cursive;
+    font-weight: 700;
+    font-size: clamp(24px, 6vw, 34px);
+    color: #111;
+    letter-spacing: 0.06em;
+    border-bottom: 2px solid #111;
+    padding-bottom: 2px;
+    min-width: 140px;
+    text-align: center;
+  }
+  @media (max-width: 600px) {
+    .section { padding: 36px 12px; }
+    .svg-wrap { max-width: 100%; }
+  }
+  /* ── Tap-to-complete ── */
+  .section {
+    position: relative;
+    cursor: pointer;
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+    user-select: none;
+    border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.06);
+    margin: 8px 16px;
+    width: calc(100% - 32px);
+    max-width: 520px;
+  }
+  .section:active { transform: scale(0.98); }
+  .section.completed {
+    background: #00D084;
+    box-shadow: 0 4px 16px rgba(0,208,132,0.35), 0 1px 4px rgba(0,0,0,0.08);
+  }
+  .section.completed .label-top,
+  .section.completed .section-number,
+  .section.completed .verse,
+  .section.completed .when-title,
+  .section.completed .goals-label { color: rgba(255,255,255,0.95); }
+  .section.completed .goal-item {
+    color: #fff;
+    border-bottom-color: rgba(255,255,255,0.7);
+  }
+  .section.completed .svg-wrap svg { filter: invert(1) brightness(10); }
+  .section.completed img { filter: brightness(0) invert(1); opacity: 0.9; }
+  /* Checkbox */
+  .section-checkbox {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 32px;
+    height: 32px;
+    border: 2.5px solid #c6c6c8;
+    border-radius: 50%;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    z-index: 10;
+    pointer-events: none;
+  }
+  .section-checkbox::after {
+    content: '✓';
+    color: #00D084;
+    font-size: 20px;
+    font-weight: 700;
+    opacity: 0;
+    transform: scale(0);
+    transition: all 0.2s ease;
+  }
+  .section.completed .section-checkbox {
+    background: #fff;
+    border-color: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+  .section.completed .section-checkbox::after {
+    opacity: 1;
+    transform: scale(1);
+  }
+  /* Progress bar */
+  .progress-bar-container {
+    width: 100%;
+    padding: 12px 24px;
+    background: #f2f2f7;
+    border-bottom: none;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .progress-bar {
+    height: 6px;
+    background: #e5e5ea;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: #00D084;
+    width: 0%;
+    transition: width 0.5s ease;
+  }
+  .progress-text {
+    margin-top: 6px;
+    font-family: 'Amatic SC', cursive;
+    font-weight: 700;
+    font-size: 16px;
+    color: #8e8e93;
+    text-align: center;
+    letter-spacing: 0.05em;
+  }
+  /* Reset button */
+  .reset-bar {
+    width: 100%;
+    padding: 16px 24px 48px;
+    display: flex;
+    justify-content: center;
+  }
+  .reset-btn {
+    font-family: 'Bebas Neue', sans-serif;
+    letter-spacing: 0.12em;
+    font-size: 16px;
+    padding: 12px 40px;
+    border: none;
+    border-radius: 8px;
+    background: #f2f2f7;
+    color: #3a3a3c;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .reset-btn:active { background: #e5e5ea; transform: scale(0.97); }
+</style>
 </head>
 <body>
-
-    <!-- ═══════════════════════════════════════════════════
-         AUTH — hidden UI, Supabase session kept alive
-    ═══════════════════════════════════════════════════ -->
-    <div class="auth-section" id="auth-section">
-        <div id="auth-form">
-            <input type="email"    id="auth-email"    placeholder="Email">
-            <input type="password" id="auth-password" placeholder="Password">
-            <div class="auth-buttons">
-                <button onclick="authSignUp()">Sign Up</button>
-                <button onclick="authLogIn()">Log In</button>
-            </div>
-        </div>
-        <div id="auth-status" style="display:none">
-            <span id="auth-status-text">Not signed in</span>
-            <button onclick="authLogOut()">Log Out</button>
-        </div>
-    </div>
-
-    <!-- ═══════════════════════════════════════════════════
-         HOME BUTTON
-    ═══════════════════════════════════════════════════ -->
-    <div class="home-btn-wrap">
-        <a href="index.html" class="home-btn">Home</a>
-    </div>
-
-    <div class="page-wrap">
-
-        <!-- PAGE TITLE -->
-        <div class="page-title-wrap">
-            <div class="page-title">4 QUESTIONS</div>
-            <div class="page-subtitle">
-                Start here with new believers <span class="green">(green lights)</span> or
-                believers who need to be trained in getting started.
-            </div>
-        </div>
-
-        <!-- PROGRESS BAR — exact match to command child pages -->
-        <div class="progress-bar-container">
-            <div class="progress-bar">
-                <div class="progress-fill" id="progressFill"></div>
-            </div>
-            <div class="progress-text" id="progressText">0 of 4 completed</div>
-        </div>
-
-        <!-- ─── ROUGH DIVIDER 1 ─── -->
-        <div class="rough-divider">
-            <svg width="100%" height="14" viewBox="0 0 440 14" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M0,7 C10,3 20,11 30,7 C40,3 50,11 60,7 C70,3 80,11 90,7 C100,3 110,11 120,7 C130,3 140,11 150,7 C160,3 170,11 180,7 C190,3 200,11 210,7 C220,3 230,11 240,7 C250,3 260,11 270,7 C280,3 290,11 300,7 C310,3 320,11 330,7 C340,3 350,11 360,7 C370,3 380,11 390,7 C400,3 410,11 420,7 C430,3 440,7 440,7" stroke="#111" stroke-width="1.5" fill="none"/>
-            </svg>
-        </div>
-
-        <!-- ═══════════════════════════════════════════════════
-             SECTION 1 — FourQuestionsIntro
-             Progress key: four-questions-intro
-        ═══════════════════════════════════════════════════ -->
-        <div class="card" onclick="toggleCard(this)" data-card="four-questions-intro">
-
-            <!-- Card header row: label left, checkbox right (exact command-page pattern) -->
-            <div class="card-content">
-                <div class="card-text">
-                    <div class="card-title">
-                        <span class="section-label-text">Intro</span>
-                    </div>
-                    <div class="card-description">Matthew 28:18–20 · The Primary Command</div>
-                </div>
-                <div class="card-checkbox"></div>
-            </div>
-
-            <!-- Section body: hand-drawn teaching content -->
-            <div class="section-body">
-
-                <!-- Boxed scripture reference -->
-                <div class="scripture-box">
-                    <div class="ref">Read Matthew 28:18–20</div>
-                    <div class="question">What is the primary command?</div>
-                    <div class="answer">"Go… Make Disciples"</div>
-                </div>
-
-                <div class="intro-note">
-                    We need answers to the following in order<br>to obey this command:
-                </div>
-
-                <!-- Vertical numbered list of 4 questions -->
-                <ul class="questions-list">
-                    <li><span class="q-num">1</span> WHO?</li>
-                    <li><span class="q-num">2</span> WHAT?</li>
-                    <li><span class="q-num">3</span> WHY?</li>
-                    <li><span class="q-num">4</span> WHEN?</li>
-                </ul>
-
-            </div>
-        </div>
-
-        <!-- ─── ROUGH DIVIDER 2 ─── -->
-        <div class="rough-divider">
-            <svg width="100%" height="14" viewBox="0 0 440 14" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M0,7 C8,2 16,12 24,7 C32,2 40,12 48,7 C56,2 64,12 72,7 C80,2 88,12 96,7 C104,2 112,12 120,7 C128,2 136,12 144,7 C152,2 160,12 168,7 C176,2 184,12 192,7 C200,2 208,12 216,7 C224,2 232,12 240,7 C248,2 256,12 264,7 C272,2 280,12 288,7 C296,2 304,12 312,7 C320,2 328,12 336,7 C344,2 352,12 360,7 C368,2 376,12 384,7 C392,2 400,12 408,7 C420,2 432,12 440,7" stroke="#111" stroke-width="1.5" fill="none"/>
-            </svg>
-        </div>
-
-        <!-- ═══════════════════════════════════════════════════
-             SECTION 2 — Mark117Section
-             Progress key: four-questions-mark-117
-        ═══════════════════════════════════════════════════ -->
-        <div class="card" onclick="toggleCard(this)" data-card="four-questions-mark-117">
-
-            <div class="card-content">
-                <div class="card-text">
-                    <div class="card-title">
-                        <span class="section-label-text">1. WHY?</span>
-                    </div>
-                    <div class="card-description">Mark 1:17 · Follow &amp; Fish</div>
-                </div>
-                <div class="card-checkbox"></div>
-            </div>
-
-            <div class="section-body">
-                <!--
-                    Branch diagram: MARK 1:17 box with two lines
-                    going down-left → FOLLOW and down-right → FISH
-                -->
-                <svg width="300" height="196" viewBox="0 0 300 196" xmlns="http://www.w3.org/2000/svg">
-
-                    <!-- MARK 1:17 rectangle -->
-                    <rect x="75" y="18" width="150" height="50" fill="none" stroke="#111" stroke-width="2"/>
-                    <text x="150" y="50"
-                          text-anchor="middle"
-                          font-family="'Special Elite', monospace"
-                          font-size="18"
-                          font-weight="700"
-                          letter-spacing="3"
-                          fill="#111">MARK 1:17</text>
-
-                    <!-- Left branch line (toward FOLLOW) -->
-                    <line x1="108" y1="68" x2="55" y2="148" stroke="#111" stroke-width="1.5"/>
-                    <!-- Left arrowhead -->
-                    <polygon points="55,152 47,138 62,140" fill="#111"/>
-
-                    <!-- Right branch line (toward FISH) -->
-                    <line x1="192" y1="68" x2="245" y2="148" stroke="#111" stroke-width="1.5"/>
-                    <!-- Right arrowhead -->
-                    <polygon points="245,152 238,140 253,138" fill="#111"/>
-
-                    <!-- FOLLOW label -->
-                    <text x="55" y="178"
-                          text-anchor="middle"
-                          font-family="'Special Elite', monospace"
-                          font-size="16"
-                          font-weight="700"
-                          letter-spacing="3"
-                          fill="#111">FOLLOW</text>
-
-                    <!-- FISH label -->
-                    <text x="245" y="178"
-                          text-anchor="middle"
-                          font-family="'Special Elite', monospace"
-                          font-size="16"
-                          font-weight="700"
-                          letter-spacing="3"
-                          fill="#111">FISH</text>
-
-                </svg>
-            </div>
-        </div>
-
-        <!-- ─── ROUGH DIVIDER 3 ─── -->
-        <div class="rough-divider">
-            <svg width="100%" height="14" viewBox="0 0 440 14" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M0,8 C12,4 24,12 36,8 C48,4 60,12 72,8 C84,4 96,12 108,8 C120,4 132,12 144,8 C156,4 168,12 180,8 C192,4 204,12 216,8 C228,4 240,12 252,8 C264,4 276,12 288,8 C300,4 312,12 324,8 C336,4 348,12 360,8 C372,4 384,12 396,8 C408,4 420,12 432,8 C436,6 440,8 440,8" stroke="#111" stroke-width="1.5" fill="none"/>
-            </svg>
-        </div>
-
-        <!-- ═══════════════════════════════════════════════════
-             SECTION 3 — John120Section
-             Progress key: four-questions-john-120
-        ═══════════════════════════════════════════════════ -->
-        <div class="card" onclick="toggleCard(this)" data-card="four-questions-john-120">
-
-            <div class="card-content">
-                <div class="card-text">
-                    <div class="card-title">
-                        <span class="section-label-text">2. WHO?</span>
-                    </div>
-                    <div class="card-description">John 17:20 · Your Relational Network</div>
-                </div>
-                <div class="card-checkbox"></div>
-            </div>
-
-            <div class="section-body">
-                <!--
-                    Radial / spider diagram.
-                    Center node: "Name" — represents the person you're discipling.
-                    Surrounding oval nodes: relationships and identifiers they bring.
-                -->
-                <svg width="310" height="270" viewBox="0 0 310 270" xmlns="http://www.w3.org/2000/svg">
-
-                    <!-- Spoke lines from center (155, 135) to satellite nodes -->
-                    <line x1="155" y1="135" x2="155" y2="46"  stroke="#111" stroke-width="1"/>
-                    <line x1="155" y1="135" x2="228" y2="68"  stroke="#111" stroke-width="1"/>
-                    <line x1="155" y1="135" x2="262" y2="135" stroke="#111" stroke-width="1"/>
-                    <line x1="155" y1="135" x2="228" y2="202" stroke="#111" stroke-width="1"/>
-                    <line x1="155" y1="135" x2="155" y2="220" stroke="#111" stroke-width="1"/>
-                    <line x1="155" y1="135" x2="82"  y2="202" stroke="#111" stroke-width="1"/>
-                    <line x1="155" y1="135" x2="48"  y2="135" stroke="#111" stroke-width="1"/>
-                    <line x1="155" y1="135" x2="82"  y2="68"  stroke="#111" stroke-width="1"/>
-                    <line x1="155" y1="135" x2="106" y2="38"  stroke="#111" stroke-width="1"/>
-                    <line x1="155" y1="135" x2="204" y2="38"  stroke="#111" stroke-width="1"/>
-
-                    <!-- ── CENTER NODE ── -->
-                    <ellipse cx="155" cy="135" rx="32" ry="21" fill="#fff" stroke="#111" stroke-width="1.8"/>
-                    <text x="155" y="139" text-anchor="middle"
-                          font-family="'Special Elite', monospace" font-size="12" fill="#111">Name</text>
-
-                    <!-- ── SATELLITE NODES ── -->
-                    <!-- Top -->
-                    <ellipse cx="155" cy="38"  rx="27" ry="16" fill="#fff" stroke="#111" stroke-width="1"/>
-                    <text x="155" y="42"  text-anchor="middle" font-family="'Special Elite', monospace" font-size="9" fill="#111">Passion</text>
-
-                    <!-- Top-right -->
-                    <ellipse cx="230" cy="60"  rx="21" ry="14" fill="#fff" stroke="#111" stroke-width="1"/>
-                    <text x="230" y="64"  text-anchor="middle" font-family="'Special Elite', monospace" font-size="9" fill="#111">Me</text>
-
-                    <!-- Right -->
-                    <ellipse cx="268" cy="135" rx="26" ry="16" fill="#fff" stroke="#111" stroke-width="1"/>
-                    <text x="268" y="139" text-anchor="middle" font-family="'Special Elite', monospace" font-size="9" fill="#111">Pride</text>
-
-                    <!-- Bottom-right -->
-                    <ellipse cx="230" cy="210" rx="21" ry="14" fill="#fff" stroke="#111" stroke-width="1"/>
-                    <text x="230" y="214" text-anchor="middle" font-family="'Special Elite', monospace" font-size="9" fill="#111">Sin</text>
-
-                    <!-- Bottom -->
-                    <ellipse cx="155" cy="228" rx="25" ry="16" fill="#fff" stroke="#111" stroke-width="1"/>
-                    <text x="155" y="232" text-anchor="middle" font-family="'Special Elite', monospace" font-size="9" fill="#111">Place</text>
-
-                    <!-- Bottom-left -->
-                    <ellipse cx="80"  cy="210" rx="21" ry="14" fill="#fff" stroke="#111" stroke-width="1"/>
-                    <text x="80"  y="214" text-anchor="middle" font-family="'Special Elite', monospace" font-size="9" fill="#111">Mark</text>
-
-                    <!-- Left -->
-                    <ellipse cx="42"  cy="135" rx="26" ry="16" fill="#fff" stroke="#111" stroke-width="1"/>
-                    <text x="42"  y="139" text-anchor="middle" font-family="'Special Elite', monospace" font-size="9" fill="#111">Passion</text>
-
-                    <!-- Top-left -->
-                    <ellipse cx="80"  cy="60"  rx="25" ry="15" fill="#fff" stroke="#111" stroke-width="1"/>
-                    <text x="80"  y="64"  text-anchor="middle" font-family="'Special Elite', monospace" font-size="9" fill="#111">Cause</text>
-
-                    <!-- Upper-left extra -->
-                    <ellipse cx="106" cy="30"  rx="19" ry="13" fill="#fff" stroke="#111" stroke-width="1"/>
-                    <text x="106" y="34"  text-anchor="middle" font-family="'Special Elite', monospace" font-size="9" fill="#111">Sam</text>
-
-                    <!-- Upper-right extra -->
-                    <ellipse cx="204" cy="30"  rx="21" ry="13" fill="#fff" stroke="#111" stroke-width="1"/>
-                    <text x="204" y="34"  text-anchor="middle" font-family="'Special Elite', monospace" font-size="9" fill="#111">Purpose</text>
-
-                </svg>
-
-                <div class="scripture-footnote">*JOHN 17:20</div>
-            </div>
-        </div>
-
-        <!-- ─── ROUGH DIVIDER 4 ─── -->
-        <div class="rough-divider">
-            <svg width="100%" height="14" viewBox="0 0 440 14" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M0,6 C14,2 28,10 42,6 C56,2 70,10 84,6 C98,2 112,10 126,6 C140,2 154,10 168,6 C182,2 196,10 210,6 C224,2 238,10 252,6 C266,2 280,10 294,6 C308,2 322,10 336,6 C350,2 364,10 378,6 C392,2 406,10 420,6 C428,3 440,6 440,6" stroke="#111" stroke-width="1.5" fill="none"/>
-            </svg>
-        </div>
-
-        <!-- ═══════════════════════════════════════════════════
-             SECTION 4 — ThreeJohnSection
-             Progress key: four-questions-3-john
-        ═══════════════════════════════════════════════════ -->
-        <div class="card" onclick="toggleCard(this)" data-card="four-questions-3-john">
-
-            <div class="card-content">
-                <div class="card-text">
-                    <div class="card-title">
-                        <span class="section-label-text">3. HOW?</span>
-                    </div>
-                    <div class="card-description">3 John · The Discipleship Axis</div>
-                </div>
-                <div class="card-checkbox"></div>
-            </div>
-
-            <div class="section-body">
-                <!--
-                    Cross / axis diagram.
-                    Horizontal: Obeying Station ←— Jesus —→ People to Fish
-                    Vertical:   Obey/Follow above, Tradition/Follow below
-                -->
-                <svg width="340" height="250" viewBox="0 0 340 250" xmlns="http://www.w3.org/2000/svg">
-
-                    <!-- Horizontal axis line -->
-                    <line x1="28"  y1="125" x2="312" y2="125" stroke="#111" stroke-width="1.5"/>
-                    <!-- Left arrowhead -->
-                    <polygon points="28,125 40,119 40,131" fill="#111"/>
-                    <!-- Right arrowhead -->
-                    <polygon points="312,125 300,119 300,131" fill="#111"/>
-
-                    <!-- Vertical axis line -->
-                    <line x1="170" y1="20"  x2="170" y2="230" stroke="#111" stroke-width="1.5"/>
-                    <!-- Top arrowhead -->
-                    <polygon points="170,20 164,32 176,32" fill="#111"/>
-                    <!-- Bottom arrowhead -->
-                    <polygon points="170,230 164,218 176,218" fill="#111"/>
-
-                    <!-- CENTER: Jesus -->
-                    <text x="170" y="121"
-                          text-anchor="middle"
-                          font-family="'Special Elite', monospace"
-                          font-size="14"
-                          font-weight="700"
-                          fill="#111">Jesus</text>
-
-                    <!-- LEFT side labels -->
-                    <text x="26" y="96"  text-anchor="start" font-family="'Special Elite', monospace" font-size="8.5" fill="#555">Obeying</text>
-                    <text x="26" y="108" text-anchor="start" font-family="'Special Elite', monospace" font-size="8.5" fill="#555">Station</text>
-                    <text x="26" y="144" text-anchor="start" font-family="'Special Elite', monospace" font-size="8.5" fill="#555">Be trained</text>
-                    <text x="26" y="156" text-anchor="start" font-family="'Special Elite', monospace" font-size="8.5" fill="#555">in the way</text>
-
-                    <!-- RIGHT side labels -->
-                    <text x="314" y="96"  text-anchor="end" font-family="'Special Elite', monospace" font-size="8.5" fill="#555">People</text>
-                    <text x="314" y="108" text-anchor="end" font-family="'Special Elite', monospace" font-size="8.5" fill="#555">to be</text>
-                    <text x="314" y="144" text-anchor="end" font-family="'Special Elite', monospace" font-size="8.5" fill="#555">sent out</text>
-                    <text x="314" y="156" text-anchor="end" font-family="'Special Elite', monospace" font-size="8.5" fill="#555">to fish</text>
-
-                    <!-- TOP labels -->
-                    <text x="170" y="40"  text-anchor="middle" font-family="'Special Elite', monospace" font-size="9" fill="#555">OBEY</text>
-                    <text x="170" y="52"  text-anchor="middle" font-family="'Special Elite', monospace" font-size="9" fill="#555">FOLLOW</text>
-
-                    <!-- BOTTOM labels -->
-                    <text x="170" y="212" text-anchor="middle" font-family="'Special Elite', monospace" font-size="9" fill="#555">TRADITION</text>
-                    <text x="170" y="224" text-anchor="middle" font-family="'Special Elite', monospace" font-size="9" fill="#555">FOLLOW</text>
-
-                </svg>
-
-                <div class="scripture-footnote">3 JOHN</div>
-            </div>
-        </div>
-
-        <!-- ═══════════════════════════════════════════════════
-             RESET — exact match to command child pages
-        ═══════════════════════════════════════════════════ -->
-        <div class="reset-section">
-            <button class="btn" onclick="resetAll()">RESET</button>
-        </div>
-
-    </div><!-- /page-wrap -->
-
-    <script>
-        /*
-         * Progress logic — exact match to command child pages (pray.html etc.)
-         *
-         * Storage key:   'four-questions-progress'
-         * Card data-card values (progress keys):
-         *   four-questions-intro
-         *   four-questions-mark-117
-         *   four-questions-john-120
-         *   four-questions-3-john
-         */
-
-        var storageKey    = 'four-questions-progress';
-        var completedCards = [];
-
-        /* ── On load: restore saved state ──────────────────────────── */
-        window.addEventListener('DOMContentLoaded', function () {
-
-            completedCards = JSON.parse(localStorage.getItem(storageKey)) || [];
-
-            completedCards.forEach(function (id) {
-                var card = document.querySelector('[data-card="' + id + '"]');
-                if (card) card.classList.add('completed');
-            });
-
-            updateProgress();
-
-            /* Supabase auth session (UI hidden, session kept alive) */
-            if (window.supabase) {
-                window.supabase.auth.getSession().then(function (res) {
-                    updateAuthUI(res.data.session ? res.data.session.user : null);
-                });
-                window.supabase.auth.onAuthStateChange(function (_event, session) {
-                    updateAuthUI(session ? session.user : null);
-                });
-            }
-        });
-
-        /* ── toggleCard — exact match to command child pages ─────────── */
-        function toggleCard(card) {
-            var cardId = card.dataset.card;
-            if (card.classList.contains('completed')) {
-                card.classList.remove('completed');
-                completedCards = completedCards.filter(function (id) { return id !== cardId; });
-            } else {
-                card.classList.add('completed');
-                completedCards.push(cardId);
-            }
-            saveProgress();
-        }
-
-        /* ── saveProgress — exact match to command child pages ──────── */
-        function saveProgress() {
-            localStorage.setItem(storageKey, JSON.stringify(completedCards));
-            updateProgress();
-        }
-
-        /* ── updateProgress — exact match to command child pages ─────── */
-        function updateProgress() {
-            var total     = 4;
-            var completed = completedCards.length;
-            document.getElementById('progressFill').style.width =
-                (completed / total * 100) + '%';
-            document.getElementById('progressText').textContent =
-                completed + ' of ' + total + ' completed';
-            if (completed === total) {
-                showNotification('All 4 sections complete! 🎉');
-            }
-        }
-
-        /* ── resetAll — exact match to command child pages ───────────── */
-        function resetAll() {
-            if (confirm('Reset all progress?')) {
-                completedCards = [];
-                localStorage.removeItem(storageKey);
-                document.querySelectorAll('.card').forEach(function (c) {
-                    c.classList.remove('completed');
-                });
-                updateProgress();
-                showNotification('Progress reset');
-            }
-        }
-
-        /* ── showNotification — exact match to command child pages ───── */
-        function showNotification(message) {
-            var n = document.createElement('div');
-            n.className  = 'notification';
-            n.textContent = message;
-            document.body.appendChild(n);
-            setTimeout(function () { n.remove(); }, 3000);
-        }
-
-        /* ── Auth helpers (Supabase) ─────────────────────────────────── */
-        function updateAuthUI(user) {
-            window._supabaseUser = user;
-            var form   = document.getElementById('auth-form');
-            var status = document.getElementById('auth-status');
-            var text   = document.getElementById('auth-status-text');
-            if (user) {
-                form.style.display   = 'none';
-                status.style.display = 'flex';
-                text.textContent     = 'Signed in as ' + user.email;
-            } else {
-                form.style.display   = 'block';
-                status.style.display = 'none';
-            }
-        }
-
-        async function authSignUp() {
-            var email    = document.getElementById('auth-email').value.trim();
-            var password = document.getElementById('auth-password').value;
-            var res = await window.supabase.auth.signUp({ email, password });
-            if (res.error) showNotification(res.error.message);
-            else showNotification('Check your email to confirm sign up.');
-        }
-
-        async function authLogIn() {
-            var email    = document.getElementById('auth-email').value.trim();
-            var password = document.getElementById('auth-password').value;
-            var res = await window.supabase.auth.signInWithPassword({ email, password });
-            if (res.error) showNotification(res.error.message);
-        }
-
-        async function authLogOut() {
-            var res = await window.supabase.auth.signOut();
-            if (res.error) showNotification(res.error.message);
-        }
-    </script>
-
+<!-- Progress bar -->
+<div class="progress-bar-container">
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  <div class="progress-text" id="progressText">0 of 6 completed</div>
+</div>
+<!-- ══════════════════════════════════════ -->
+<!-- SECTION 1 — Matthew 28:18-20 Overview -->
+<!-- ══════════════════════════════════════ -->
+<div class="section" data-id="s1" onclick="toggleSection(this)">
+  <div class="section-checkbox"></div>
+  <div class="svg-wrap" style="max-width:483px;">
+    <svg viewBox="0 0 483 410" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <filter id="pen1" x="-8%" y="-8%" width="116%" height="116%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" result="noise"/>
+          <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.0" xChannelSelector="R" yChannelSelector="G"/>
+        </filter>
+      </defs>
+      <path d="M16,10 Q90,6 241,7 Q392,6 465,9 Q468,8 469,13 L470,82 Q471,86 466,88 L241,90 Q110,92 18,89 Q13,88 12,84 L13,15 Q13,10 16,10 Z"
+        fill="white" stroke="#111" stroke-width="2.8" stroke-linejoin="round" filter="url(#pen1)"/>
+      <path d="M18,11 Q241,5 466,10 Q469,10 470,14 L469,81 Q468,87 464,88 L20,90 Q14,90 13,86 L14,16 Q14,11 18,11 Z"
+        fill="none" stroke="#111" stroke-width="0.9" stroke-linejoin="round" opacity="0.3" filter="url(#pen1)"/>
+      <text x="241" y="40" font-family="'Bebas Neue', sans-serif" font-size="27" fill="#111" text-anchor="middle" letter-spacing="1">READ MATTHEW 28:18-20</text>
+      <text x="241" y="60" font-family="Arial, sans-serif" font-size="18" fill="#333" text-anchor="middle">What is the primary command?</text>
+      <text x="241" y="80" font-family="Arial, sans-serif" font-size="18" fill="#333" text-anchor="middle">="Go... Make Disciples"</text>
+      <text x="241" y="128" font-family="Arial, sans-serif" font-size="18" fill="#999" text-anchor="middle">We need answers to the following in order</text>
+      <text x="241" y="150" font-family="Arial, sans-serif" font-size="18" fill="#999" text-anchor="middle">to obey this command:</text>
+      <ellipse cx="115" cy="200" rx="26" ry="17" fill="white" stroke="#111" stroke-width="2.2" filter="url(#pen1)"/>
+      <ellipse cx="115" cy="248" rx="26" ry="17" fill="white" stroke="#111" stroke-width="2.2" filter="url(#pen1)"/>
+      <ellipse cx="115" cy="296" rx="26" ry="17" fill="white" stroke="#111" stroke-width="2.2" filter="url(#pen1)"/>
+      <ellipse cx="115" cy="344" rx="26" ry="17" fill="white" stroke="#111" stroke-width="2.2" filter="url(#pen1)"/>
+      <text x="115" y="206" font-family="'Amatic SC',cursive" font-weight="700" font-size="19" fill="#111" stroke="#111" stroke-width="0.6" paint-order="stroke" text-anchor="middle">1</text>
+      <text x="115" y="254" font-family="'Amatic SC',cursive" font-weight="700" font-size="19" fill="#111" stroke="#111" stroke-width="0.6" paint-order="stroke" text-anchor="middle">2</text>
+      <text x="115" y="302" font-family="'Amatic SC',cursive" font-weight="700" font-size="19" fill="#111" stroke="#111" stroke-width="0.6" paint-order="stroke" text-anchor="middle">3</text>
+      <text x="115" y="350" font-family="'Amatic SC',cursive" font-weight="700" font-size="19" fill="#111" stroke="#111" stroke-width="0.6" paint-order="stroke" text-anchor="middle">4</text>
+      <text x="159" y="208" font-family="'Amatic SC',cursive" font-weight="700" font-size="32" fill="#111" stroke="#111" stroke-width="0.9" paint-order="stroke" text-anchor="start">WHY?</text>
+      <text x="159" y="256" font-family="'Amatic SC',cursive" font-weight="700" font-size="32" fill="#111" stroke="#111" stroke-width="0.9" paint-order="stroke" text-anchor="start">WHO?</text>
+      <text x="159" y="304" font-family="'Amatic SC',cursive" font-weight="700" font-size="32" fill="#111" stroke="#111" stroke-width="0.9" paint-order="stroke" text-anchor="start">HOW?</text>
+      <text x="159" y="352" font-family="'Amatic SC',cursive" font-weight="700" font-size="32" fill="#111" stroke="#111" stroke-width="0.9" paint-order="stroke" text-anchor="start">WHEN?</text>
+    </svg>
+  </div>
+</div>
+<!-- ══════════════════════════════════════ -->
+<img src="assets/images/divider.svg" alt="" class="divider">
+<!-- SECTION 2 — WHY? / Identity / Mark 1:17 -->
+<!-- ══════════════════════════════════════ -->
+<div class="section" data-id="s2" onclick="toggleSection(this)">
+  <div class="section-checkbox"></div>
+  <div class="label-top">Identity</div>
+  <div class="section-number">1. WHY?</div>
+  <div class="svg-wrap" style="max-width:400px;">
+    <svg viewBox="0 0 400 340" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <filter id="pen2" x="-5%" y="-5%" width="110%" height="110%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" result="noise"/>
+          <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.0" xChannelSelector="R" yChannelSelector="G"/>
+        </filter>
+        <marker id="arrowL" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto">
+          <path d="M0,1 L5,5 L0,9" fill="none" stroke="#111" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+        <marker id="arrowR" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto">
+          <path d="M0,1 L5,5 L0,9" fill="none" stroke="#111" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+      <path d="M30,10 Q100,5 200,6 Q300,5 368,8 Q372,7 373,12 L374,78 Q375,83 370,85 L200,87 Q100,89 32,86 Q27,85 26,80 L27,14 Q27,10 30,10 Z"
+        fill="white" stroke="#111" stroke-width="3.5" stroke-linejoin="round" filter="url(#pen2)"/>
+      <path d="M32,11 Q200,4 369,9 Q373,9 374,13 L373,77 Q372,83 368,84 L34,86 Q28,86 27,82 L28,15 Q28,11 32,11 Z"
+        fill="none" stroke="#111" stroke-width="1.2" stroke-linejoin="round" opacity="0.3" filter="url(#pen2)"/>
+      <text x="200" y="64" font-family="'Amatic SC', cursive" font-weight="700" font-size="68" fill="#111" text-anchor="middle" letter-spacing="2">MARK 1:17</text>
+      <path d="M145,90 C138,110 120,140 104,170 C90,196 78,216 68,238"
+        fill="none" stroke="#111" stroke-width="3.0" stroke-linecap="round" marker-end="url(#arrowL)" filter="url(#pen2)"/>
+      <path d="M250,90 C257,110 272,140 288,170 C302,196 314,216 324,238"
+        fill="none" stroke="#111" stroke-width="3.0" stroke-linecap="round" marker-end="url(#arrowR)" filter="url(#pen2)"/>
+      <text x="68" y="295" font-family="'Amatic SC', cursive" font-weight="700" font-size="56" fill="#111" text-anchor="middle" letter-spacing="2">FOLLOW</text>
+      <text x="324" y="295" font-family="'Amatic SC', cursive" font-weight="700" font-size="56" fill="#111" text-anchor="middle" letter-spacing="2">FISH</text>
+    </svg>
+  </div>
+</div>
+<!-- ══════════════════════════════════════ -->
+<img src="assets/images/divider.svg" alt="" class="divider">
+<!-- SECTION 3 — WHO? / Oikos Map          -->
+<!-- ══════════════════════════════════════ -->
+<div class="section" data-id="s3" onclick="toggleSection(this)">
+  <div class="section-checkbox"></div>
+  <div class="label-top">Oikos Map</div>
+  <div class="section-number">2. WHO?</div>
+  <div class="svg-wrap" style="max-width:420px;">
+    <svg viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <filter id="pen3" x="-15%" y="-15%" width="130%" height="130%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.6" numOctaves="3" stitchTiles="stitch" result="noise"/>
+          <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.0" xChannelSelector="R" yChannelSelector="G"/>
+        </filter>
+      </defs>
+      <line x1="300" y1="262" x2="300" y2="163" stroke="#111" stroke-width="2.8" stroke-linecap="round"/>
+      <line x1="364" y1="300" x2="412" y2="300" stroke="#111" stroke-width="2.8" stroke-linecap="round"/>
+      <line x1="300" y1="338" x2="300" y2="437" stroke="#111" stroke-width="2.8" stroke-linecap="round"/>
+      <line x1="236" y1="300" x2="194" y2="300" stroke="#111" stroke-width="2.8" stroke-linecap="round"/>
+      <line x1="278" y1="114" x2="207" y2="76" stroke="#111" stroke-width="2.2" stroke-linecap="round"/>
+      <line x1="322" y1="114" x2="393" y2="76" stroke="#111" stroke-width="2.2" stroke-linecap="round"/>
+      <line x1="490" y1="282" x2="533" y2="208" stroke="#111" stroke-width="2.2" stroke-linecap="round"/>
+      <line x1="490" y1="318" x2="533" y2="392" stroke="#111" stroke-width="2.2" stroke-linecap="round"/>
+      <line x1="322" y1="486" x2="393" y2="524" stroke="#111" stroke-width="2.2" stroke-linecap="round"/>
+      <line x1="278" y1="486" x2="207" y2="524" stroke="#111" stroke-width="2.2" stroke-linecap="round"/>
+      <line x1="110" y1="282" x2="67" y2="208" stroke="#111" stroke-width="2.2" stroke-linecap="round"/>
+      <line x1="110" y1="318" x2="67" y2="392" stroke="#111" stroke-width="2.2" stroke-linecap="round"/>
+      <ellipse cx="185" cy="58" rx="44" ry="26" fill="white" stroke="#111" stroke-width="2.8" filter="url(#pen3)"/>
+      <text x="185" y="66" font-family="'Amatic SC',cursive" font-weight="700" font-size="26" fill="#111" stroke="#111" stroke-width="1.2" paint-order="stroke" text-anchor="middle">Bob</text>
+      <ellipse cx="415" cy="58" rx="44" ry="26" fill="white" stroke="#111" stroke-width="2.8" filter="url(#pen3)"/>
+      <text x="415" y="66" font-family="'Amatic SC',cursive" font-weight="700" font-size="26" fill="#111" stroke="#111" stroke-width="1.2" paint-order="stroke" text-anchor="middle">Jim</text>
+      <ellipse cx="555" cy="188" rx="44" ry="26" fill="white" stroke="#111" stroke-width="2.8" filter="url(#pen3)"/>
+      <text x="555" y="196" font-family="'Amatic SC',cursive" font-weight="700" font-size="26" fill="#111" stroke="#111" stroke-width="1.2" paint-order="stroke" text-anchor="middle">Steve</text>
+      <ellipse cx="555" cy="412" rx="44" ry="26" fill="white" stroke="#111" stroke-width="2.8" filter="url(#pen3)"/>
+      <text x="555" y="420" font-family="'Amatic SC',cursive" font-weight="700" font-size="26" fill="#111" stroke="#111" stroke-width="1.2" paint-order="stroke" text-anchor="middle">Susie</text>
+      <ellipse cx="415" cy="542" rx="44" ry="26" fill="white" stroke="#111" stroke-width="2.8" filter="url(#pen3)"/>
+      <text x="415" y="550" font-family="'Amatic SC',cursive" font-weight="700" font-size="26" fill="#111" stroke="#111" stroke-width="1.2" paint-order="stroke" text-anchor="middle">Sam</text>
+      <ellipse cx="185" cy="542" rx="44" ry="26" fill="white" stroke="#111" stroke-width="2.8" filter="url(#pen3)"/>
+      <text x="185" y="550" font-family="'Amatic SC',cursive" font-weight="700" font-size="26" fill="#111" stroke="#111" stroke-width="1.2" paint-order="stroke" text-anchor="middle">Mary</text>
+      <ellipse cx="45" cy="188" rx="44" ry="26" fill="white" stroke="#111" stroke-width="2.8" filter="url(#pen3)"/>
+      <text x="45" y="196" font-family="'Amatic SC',cursive" font-weight="700" font-size="26" fill="#111" stroke="#111" stroke-width="1.2" paint-order="stroke" text-anchor="middle">James</text>
+      <ellipse cx="45" cy="412" rx="44" ry="26" fill="white" stroke="#111" stroke-width="2.8" filter="url(#pen3)"/>
+      <text x="45" y="420" font-family="'Amatic SC',cursive" font-weight="700" font-size="26" fill="#111" stroke="#111" stroke-width="1.2" paint-order="stroke" text-anchor="middle">Mark</text>
+      <ellipse cx="300" cy="130" rx="58" ry="33" fill="white" stroke="#111" stroke-width="3.2" filter="url(#pen3)"/>
+      <ellipse cx="300" cy="130" rx="58" ry="33" fill="none" stroke="#111" stroke-width="1.0" opacity="0.25" filter="url(#pen3)"/>
+      <text x="300" y="138" font-family="'Amatic SC',cursive" font-weight="700" font-size="30" fill="#111" stroke="#111" stroke-width="1.4" paint-order="stroke" text-anchor="middle">Passion</text>
+      <ellipse cx="470" cy="300" rx="58" ry="33" fill="white" stroke="#111" stroke-width="3.2" filter="url(#pen3)"/>
+      <ellipse cx="470" cy="300" rx="58" ry="33" fill="none" stroke="#111" stroke-width="1.0" opacity="0.25" filter="url(#pen3)"/>
+      <text x="470" y="308" font-family="'Amatic SC',cursive" font-weight="700" font-size="30" fill="#111" stroke="#111" stroke-width="1.4" paint-order="stroke" text-anchor="middle">People</text>
+      <ellipse cx="300" cy="470" rx="58" ry="33" fill="white" stroke="#111" stroke-width="3.2" filter="url(#pen3)"/>
+      <ellipse cx="300" cy="470" rx="58" ry="33" fill="none" stroke="#111" stroke-width="1.0" opacity="0.25" filter="url(#pen3)"/>
+      <text x="300" y="478" font-family="'Amatic SC',cursive" font-weight="700" font-size="30" fill="#111" stroke="#111" stroke-width="1.4" paint-order="stroke" text-anchor="middle">Place</text>
+      <ellipse cx="130" cy="300" rx="64" ry="33" fill="white" stroke="#111" stroke-width="3.2" filter="url(#pen3)"/>
+      <ellipse cx="130" cy="300" rx="64" ry="33" fill="none" stroke="#111" stroke-width="1.0" opacity="0.25" filter="url(#pen3)"/>
+      <text x="130" y="308" font-family="'Amatic SC',cursive" font-weight="700" font-size="28" fill="#111" stroke="#111" stroke-width="1.4" paint-order="stroke" text-anchor="middle">Profession</text>
+      <ellipse cx="300" cy="300" rx="64" ry="38" fill="white" stroke="#111" stroke-width="4.0" filter="url(#pen3)"/>
+      <ellipse cx="300" cy="300" rx="64" ry="38" fill="none" stroke="#111" stroke-width="1.2" opacity="0.25" filter="url(#pen3)"/>
+      <text x="300" y="308" font-family="'Amatic SC',cursive" font-weight="700" font-size="36" fill="#111" stroke="#111" stroke-width="1.6" paint-order="stroke" text-anchor="middle">Name</text>
+    </svg>
+  </div>
+  <div class="verse">*JOHN 17:20</div>
+</div>
+<!-- ══════════════════════════════════════ -->
+<img src="assets/images/divider.svg" alt="" class="divider">
+<!-- SECTION 4a — HOW? / 15 Second Story -->
+<!-- ══════════════════════════════════════ -->
+<div class="section" data-id="s4a" onclick="toggleSection(this)">
+  <div class="section-checkbox"></div>
+  <div class="label-top">15 Second Story</div>
+  <div class="section-number">3. HOW?</div>
+  <div class="svg-wrap" style="max-width:460px;">
+    <svg viewBox="0 0 460 300" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <filter id="pen4" x="-8%" y="-8%" width="116%" height="116%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" result="noise"/>
+          <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.0" xChannelSelector="R" yChannelSelector="G"/>
+        </filter>
+      </defs>
+      <line x1="230" y1="95" x2="230" y2="195" stroke="#111" stroke-width="2.6" stroke-linecap="round"/>
+      <line x1="208" y1="120" x2="252" y2="120" stroke="#111" stroke-width="2.6" stroke-linecap="round"/>
+      <line x1="188" y1="120" x2="150" y2="120" stroke="#111" stroke-width="2.2" stroke-linecap="round"/>
+      <polyline points="159,113 150,120 159,127" fill="none" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+      <line x1="272" y1="120" x2="310" y2="120" stroke="#111" stroke-width="2.2" stroke-linecap="round"/>
+      <polyline points="301,113 310,120 301,127" fill="none" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+      <line x1="80" y1="145" x2="148" y2="145" stroke="#111" stroke-width="1.6" stroke-linecap="round"/>
+      <line x1="84" y1="167" x2="148" y2="167" stroke="#111" stroke-width="1.6" stroke-linecap="round"/>
+      <line x1="312" y1="145" x2="378" y2="145" stroke="#111" stroke-width="1.6" stroke-linecap="round"/>
+      <line x1="312" y1="167" x2="378" y2="167" stroke="#111" stroke-width="1.6" stroke-linecap="round"/>
+      <line x1="186" y1="242" x2="274" y2="242" stroke="#111" stroke-width="1.6" stroke-linecap="round"/>
+      <line x1="18" y1="94" x2="74" y2="94" stroke="#111" stroke-width="1.4" stroke-linecap="round"/>
+      <line x1="386" y1="94" x2="444" y2="94" stroke="#111" stroke-width="1.4" stroke-linecap="round"/>
+      <text x="230" y="87" font-family="'Amatic SC',cursive" font-weight="700" font-size="26" fill="#111" stroke="#111" stroke-width="0.8" paint-order="stroke" text-anchor="middle">Jesus</text>
+      <text x="114" y="141" font-family="'Amatic SC',cursive" font-weight="700" font-size="21" fill="#111" stroke="#111" stroke-width="0.7" paint-order="stroke" text-anchor="middle">Anxious</text>
+      <text x="114" y="163" font-family="'Amatic SC',cursive" font-weight="700" font-size="21" fill="#111" stroke="#111" stroke-width="0.7" paint-order="stroke" text-anchor="middle">Selfish</text>
+      <text x="345" y="141" font-family="'Amatic SC',cursive" font-weight="700" font-size="21" fill="#111" stroke="#111" stroke-width="0.7" paint-order="stroke" text-anchor="middle">Joy</text>
+      <text x="345" y="163" font-family="'Amatic SC',cursive" font-weight="700" font-size="21" fill="#111" stroke="#111" stroke-width="0.7" paint-order="stroke" text-anchor="middle">Purpose</text>
+      <text x="230" y="238" font-family="'Amatic SC',cursive" font-weight="700" font-size="21" fill="#111" stroke="#111" stroke-width="0.7" paint-order="stroke" text-anchor="middle">Forgiven</text>
+      <text x="230" y="264" font-family="'Amatic SC',cursive" font-weight="700" font-size="21" fill="#111" stroke="#111" stroke-width="0.7" paint-order="stroke" text-anchor="middle">Follow</text>
+      <text x="46" y="88" font-family="'Amatic SC',cursive" font-weight="700" font-size="15" fill="#111" stroke="#111" stroke-width="0.4" paint-order="stroke" text-anchor="middle">INTRO:</text>
+      <text x="46" y="110" font-family="'Amatic SC',cursive" font-weight="700" font-size="15" fill="#111" stroke="#111" stroke-width="0.4" paint-order="stroke" text-anchor="middle">There was</text>
+      <text x="46" y="126" font-family="'Amatic SC',cursive" font-weight="700" font-size="15" fill="#111" stroke="#111" stroke-width="0.4" paint-order="stroke" text-anchor="middle">a time in</text>
+      <text x="46" y="142" font-family="'Amatic SC',cursive" font-weight="700" font-size="15" fill="#111" stroke="#111" stroke-width="0.4" paint-order="stroke" text-anchor="middle">my life...</text>
+      <text x="415" y="88" font-family="'Amatic SC',cursive" font-weight="700" font-size="15" fill="#111" stroke="#111" stroke-width="0.4" paint-order="stroke" text-anchor="middle">QUESTION:</text>
+      <text x="415" y="110" font-family="'Amatic SC',cursive" font-weight="700" font-size="15" fill="#111" stroke="#111" stroke-width="0.4" paint-order="stroke" text-anchor="middle">Do you</text>
+      <text x="415" y="126" font-family="'Amatic SC',cursive" font-weight="700" font-size="15" fill="#111" stroke="#111" stroke-width="0.4" paint-order="stroke" text-anchor="middle">have a story</text>
+      <text x="415" y="142" font-family="'Amatic SC',cursive" font-weight="700" font-size="15" fill="#111" stroke="#111" stroke-width="0.4" paint-order="stroke" text-anchor="middle">like that?</text>
+    </svg>
+  </div>
+</div>
+<!-- SECTION 4b — HOW? / 3 Circles -->
+<div class="section" data-id="s4b" onclick="toggleSection(this)">
+  <div class="section-checkbox"></div>
+  <div class="label-top">3 Circles Gospel Tool</div>
+  <img src="assets/images/3 Circles Gospel Tool.png" alt="3 Circles Gospel Tool"
+    style="width:100%; max-width:460px; height:auto; display:block; border-radius: 8px;">
+</div>
+<!-- ══════════════════════════════════════ -->
+<img src="assets/images/divider.svg" alt="" class="divider">
+<!-- SECTION 5 — WHEN? / Goals             -->
+<!-- ══════════════════════════════════════ -->
+<div class="section" data-id="s5" onclick="toggleSection(this)" style="padding-bottom: 64px;">
+  <div class="section-checkbox"></div>
+  <div class="section-number" style="font-size: clamp(14px,3.5vw,18px); letter-spacing:0.28em;">4.</div>
+  <div class="when-title">WHEN?</div>
+  <div class="goals-label">GOALS</div>
+  <div class="goals-list">
+    <div class="goal-item">Share?</div>
+    <div class="goal-item">Pray?</div>
+    <div class="goal-item">Meet?</div>
+  </div>
+</div>
+<div class="reset-bar">
+  <button class="reset-btn" onclick="resetAll(event)">RESET</button>
+</div>
+<script>
+  const STORAGE_KEY = 'discipleship-guide-progress';
+  const TOTAL = 6;
+  function toggleSection(el) {
+    const id = el.dataset.id;
+    el.classList.toggle('completed');
+    saveProgress();
+    updateProgress();
+  }
+  function saveProgress() {
+    const completed = [];
+    document.querySelectorAll('.section.completed').forEach(function(s) {
+      completed.push(s.dataset.id);
+    });
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(completed));
+  }
+  function loadProgress() {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+    saved.forEach(function(id) {
+      const el = document.querySelector('[data-id="' + id + '"]');
+      if (el) el.classList.add('completed');
+    });
+    updateProgress();
+  }
+  function updateProgress() {
+    const completed = document.querySelectorAll('.section.completed').length;
+    const pct = (completed / TOTAL) * 100;
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('progressText').textContent = completed + ' of ' + TOTAL + ' completed';
+  }
+  function resetAll(e) {
+    e.stopPropagation();
+    if (confirm('Reset all progress?')) {
+      document.querySelectorAll('.section.completed').forEach(function(s) {
+        s.classList.remove('completed');
+      });
+      localStorage.removeItem(STORAGE_KEY);
+      updateProgress();
+    }
+  }
+  window.addEventListener('DOMContentLoaded', loadProgress);
+</script>
 </body>
 </html>
