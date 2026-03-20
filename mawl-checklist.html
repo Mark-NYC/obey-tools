@@ -39,6 +39,7 @@
         const STAGE_LABELS = ['M', 'A', 'W', 'L']
 
         let _activeChecklistId = null
+        let _activeChecklistCreatedBy = null  // tracks creator of selected checklist
         let _progress = {}   // item_key → stage string
 
         async function loadNetworks(autoSelectId = null) {
@@ -176,7 +177,7 @@
 
             const { data, error } = await supabase
                 .from('mawl_checklists')
-                .select('id, coached_name, created_at')
+                .select('id, coached_name, created_at, created_by')
                 .eq('network_id', networkId)
                 .order('created_at', { ascending: false })
 
@@ -192,6 +193,7 @@
                 const btn = document.createElement('button')
                 btn.className = 'checklist-item' + (cl.id === autoSelectId ? ' active' : '')
                 btn.dataset.id = cl.id
+                btn.dataset.createdBy = cl.created_by
                 btn.textContent = cl.coached_name
                 btn.onclick = () => selectChecklist(cl.id)
                 list.appendChild(btn)
@@ -205,6 +207,8 @@
             document.querySelectorAll('.checklist-item').forEach(btn => {
                 btn.classList.toggle('active', btn.dataset.id === id)
             })
+            const activeBtn = document.querySelector(`.checklist-item[data-id="${id}"]`)
+            _activeChecklistCreatedBy = activeBtn?.dataset.createdBy ?? null
             renderGrid(id)
         }
 
@@ -242,6 +246,8 @@
                 items.forEach(({ key, label }) => catEl.appendChild(buildItemRow(key, label)))
                 section.appendChild(catEl)
             })
+
+            await renderCollaboratorPanel(checklistId, section)
         }
 
         function buildItemRow(itemKey, label) {
@@ -307,6 +313,125 @@
             }
             const existing = document.getElementById('mawl-row-' + itemKey)
             if (existing) existing.replaceWith(buildItemRow(itemKey, label))
+        }
+
+        // ── Collaborator panel ────────────────────────────────────────────────
+
+        async function renderCollaboratorPanel(checklistId, container) {
+            const { data: { session } } = await supabase.auth.getSession()
+            const isCreator = !!(_activeChecklistCreatedBy && session?.user?.id === _activeChecklistCreatedBy)
+
+            const panel = document.createElement('div')
+            panel.className = 'collab-panel'
+
+            const headerRow = document.createElement('div')
+            headerRow.className = 'collab-header-row'
+            const headerLabel = document.createElement('div')
+            headerLabel.className = 'collab-label'
+            headerLabel.textContent = 'Collaborators'
+            headerRow.appendChild(headerLabel)
+            panel.appendChild(headerRow)
+
+            if (isCreator) {
+                const form = document.createElement('div')
+                form.className = 'collab-add-form'
+                form.innerHTML = `
+                    <input type="email" id="collab-email-input" class="collab-email-input"
+                           placeholder="Co-leader's email address" maxlength="200"
+                           onkeydown="if(event.key==='Enter') submitAddCollaborator()">
+                    <div class="collab-add-actions">
+                        <button class="collab-add-btn" id="collab-add-btn" onclick="submitAddCollaborator()">Add</button>
+                    </div>`
+                panel.appendChild(form)
+            }
+
+            const list = document.createElement('div')
+            list.className = 'collab-list'
+            list.id = 'collab-list'
+            panel.appendChild(list)
+
+            container.appendChild(panel)
+            await loadCollaborators(checklistId)
+        }
+
+        async function loadCollaborators(checklistId) {
+            const list = document.getElementById('collab-list')
+            if (!list) return
+
+            list.innerHTML = '<div class="collab-loading">Loading…</div>'
+
+            const { data, error } = await supabase
+                .from('checklist_collaborators')
+                .select('user_id, collaborator_email')
+                .eq('checklist_id', checklistId)
+                .order('created_at')
+
+            if (error) { list.innerHTML = ''; console.error('[loadCollaborators]', error); return }
+
+            if (!data || data.length === 0) {
+                list.innerHTML = '<div class="collab-empty">No collaborators yet.</div>'
+                return
+            }
+
+            list.innerHTML = ''
+            data.forEach(c => {
+                const item = document.createElement('div')
+                item.className = 'collab-item'
+                item.textContent = c.collaborator_email
+                list.appendChild(item)
+            })
+        }
+
+        window.submitAddCollaborator = async function () {
+            const input = document.getElementById('collab-email-input')
+            const email = (input?.value ?? '').trim().toLowerCase()
+            if (!email) { input?.focus(); return }
+            if (!_activeChecklistId) return
+
+            const btn = document.getElementById('collab-add-btn')
+            btn.disabled = true
+            btn.textContent = 'Adding…'
+
+            const { data: { session } } = await supabase.auth.getSession()
+
+            // Secure server-side lookup — only finds leaders, never exposes other emails
+            const { data: userId, error: lookupError } = await supabase
+                .rpc('get_leader_id_by_email', { lookup_email: email })
+
+            if (lookupError || !userId) {
+                showNotification('No leader account found with that email.')
+                btn.disabled = false
+                btn.textContent = 'Add'
+                return
+            }
+
+            if (userId === session.user.id) {
+                showNotification('That\'s you — you\'re already the owner.')
+                btn.disabled = false
+                btn.textContent = 'Add'
+                return
+            }
+
+            const { error: insertError } = await supabase
+                .from('checklist_collaborators')
+                .insert({
+                    checklist_id: _activeChecklistId,
+                    user_id: userId,
+                    collaborator_email: email,
+                    added_by: session.user.id,
+                })
+
+            btn.disabled = false
+            btn.textContent = 'Add'
+
+            if (insertError) {
+                if (insertError.code === '23505') showNotification('Already a collaborator.')
+                else { console.error(insertError); showNotification('Could not add collaborator.') }
+                return
+            }
+
+            input.value = ''
+            await loadCollaborators(_activeChecklistId)
         }
 
         window.showCreateChecklist = function () {
@@ -442,6 +567,21 @@
         /* Notification */
         .notification { position: fixed; top: 60px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: white; padding: 12px 20px; border-radius: 8px; font-size: 15px; font-weight: 500; z-index: 1000; opacity: 0; animation: notificationSlide 3s ease; }
         @keyframes notificationSlide { 0% { opacity:0; transform:translateX(-50%) translateY(-20px); } 10% { opacity:1; transform:translateX(-50%) translateY(0); } 90% { opacity:1; transform:translateX(-50%) translateY(0); } 100% { opacity:0; transform:translateX(-50%) translateY(-20px); } }
+
+        /* Collaborator panel */
+        .collab-panel { padding: 0 16px 32px; border-top: 0.5px solid #c6c6c8; margin-top: 8px; }
+        .collab-header-row { display: flex; align-items: center; justify-content: space-between; padding: 20px 0 10px; }
+        .collab-label { font-size: 13px; font-weight: 600; color: #8e8e93; text-transform: uppercase; letter-spacing: 0.5px; }
+        .collab-add-form { margin-bottom: 12px; }
+        .collab-email-input { width: 100%; padding: 11px 14px; border: 1px solid #c6c6c8; border-radius: 10px; font-size: 16px; font-family: inherit; background: #fff; outline: none; margin-bottom: 8px; }
+        .collab-email-input:focus { border-color: #00D084; }
+        .collab-add-actions { display: flex; }
+        .collab-add-btn { padding: 9px 20px; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; background: #00D084; color: #fff; font-family: inherit; }
+        .collab-add-btn:disabled { opacity: 0.6; cursor: default; }
+        .collab-list { display: flex; flex-direction: column; gap: 8px; }
+        .collab-item { padding: 11px 14px; background: #f2f2f7; border-radius: 10px; font-size: 15px; color: #3a3a3c; }
+        .collab-empty { font-size: 14px; color: #8e8e93; padding: 8px 0; }
+        .collab-loading { font-size: 14px; color: #8e8e93; padding: 8px 0; }
 
         @media (min-width: 768px) {
             .container { border-radius: 12px; margin: 20px auto; box-shadow: 0 4px 20px rgba(0,0,0,0.1); overflow: hidden; }
