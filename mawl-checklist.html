@@ -11,6 +11,36 @@
         window.authLogIn  = authLogIn
         window.authLogOut = authLogOut
 
+        // ── MAWL item definitions ─────────────────────────────────────────────
+        // These are the stable coaching items. item_key values are the DB keys.
+        const MAWL_ITEMS = [
+            { category: 'Welcome', items: [
+                { key: 'welcome_icebreaker', label: 'Icebreaker Question' },
+                { key: 'welcome_worship',    label: 'Worship' },
+                { key: 'welcome_look_back',  label: 'Look Back' },
+            ]},
+            { category: 'Word', items: [
+                { key: 'word_discovery',  label: 'Bible Discovery' },
+                { key: 'word_obedience',  label: 'Obedience Question' },
+                { key: 'word_retell',     label: 'Re-tell the Story' },
+            ]},
+            { category: 'Works', items: [
+                { key: 'works_story',        label: 'Share Story of Hope' },
+                { key: 'works_baptism',      label: 'Baptism' },
+                { key: 'works_lords_supper', label: "Lord's Supper" },
+            ]},
+            { category: 'Witness', items: [
+                { key: 'witness_prayer',    label: 'Prayer for Lost' },
+                { key: 'witness_pop',       label: 'Person of Peace' },
+                { key: 'witness_new_group', label: 'Start New Group' },
+            ]},
+        ]
+        const STAGES       = ['model', 'assist', 'watch', 'leave']
+        const STAGE_LABELS = ['M', 'A', 'W', 'L']
+
+        let _activeChecklistId = null
+        let _progress = {}   // item_key → stage string
+
         async function loadNetworks(autoSelectId = null) {
             const { data: { session } } = await supabase.auth.getSession()
             if (!session?.user) return
@@ -80,26 +110,49 @@
             btn.textContent = 'Creating…'
 
             const { data: { session } } = await supabase.auth.getSession()
-            const { data, error } = await supabase
+
+            // Insert without .select() — avoids RLS RETURNING race with the
+            // handle_new_network trigger (trigger adds network_members row, but
+            // PostgREST evaluates the RETURNING clause before that row is visible
+            // to the SELECT policy, so .select('id') always fails here).
+            const { error: insertError } = await supabase
                 .from('networks')
                 .insert({ name, created_by: session.user.id })
-                .select('id')
-                .single()
 
             btn.disabled = false
             btn.textContent = 'Create'
 
-            if (error) {
+            if (insertError) {
+                console.error('Network creation error:', insertError)
                 showNotification('Could not create network.')
                 return
             }
 
             input.value = ''
             document.getElementById('create-network-form').style.display = 'none'
-            await loadNetworks(data.id)
+
+            // Separate follow-up query — by this point the trigger has committed
+            // the network_members row, so the SELECT policy on networks passes.
+            const { data: newest, error: selectError } = await supabase
+                .from('networks')
+                .select('id')
+                .eq('created_by', session.user.id)
+                .order('created_at', { ascending: false })
+                .limit(1)
+                .single()
+
+            if (selectError) console.warn('Could not fetch new network id:', selectError)
+            await loadNetworks(newest?.id ?? null)
         }
 
         async function loadChecklists(networkId, autoSelectId = null) {
+            // Reset progress grid on every reload
+            _activeChecklistId = null
+            _progress = {}
+            const gridSection = document.getElementById('mawl-grid-section')
+            gridSection.style.display = 'none'
+            gridSection.innerHTML = ''
+
             const section = document.getElementById('checklist-section')
             if (!networkId) { section.style.display = 'none'; return }
 
@@ -145,7 +198,108 @@
             document.querySelectorAll('.checklist-item').forEach(btn => {
                 btn.classList.toggle('active', btn.dataset.id === id)
             })
-            // Step 5: checklist content will load here
+            renderGrid(id)
+        }
+
+        async function loadProgress(checklistId) {
+            const { data, error } = await supabase
+                .from('mawl_progress')
+                .select('item_key, stage')
+                .eq('checklist_id', checklistId)
+            if (error || !data) return {}
+            const map = {}
+            data.forEach(({ item_key, stage }) => { map[item_key] = stage })
+            return map
+        }
+
+        async function renderGrid(checklistId) {
+            _activeChecklistId = checklistId
+            const section = document.getElementById('mawl-grid-section')
+            if (!checklistId) { section.style.display = 'none'; section.innerHTML = ''; return }
+
+            section.style.display = 'block'
+            section.innerHTML = '<div class="mawl-grid-loading">Loading progress…</div>'
+
+            _progress = await loadProgress(checklistId)
+
+            section.innerHTML = ''
+            MAWL_ITEMS.forEach(({ category, items }) => {
+                const catEl = document.createElement('div')
+                catEl.className = 'mawl-category'
+
+                const header = document.createElement('div')
+                header.className = 'mawl-category-header'
+                header.textContent = category
+                catEl.appendChild(header)
+
+                items.forEach(({ key, label }) => catEl.appendChild(buildItemRow(key, label)))
+                section.appendChild(catEl)
+            })
+        }
+
+        function buildItemRow(itemKey, label) {
+            const currentIdx = STAGES.indexOf(_progress[itemKey] ?? '')
+
+            const row = document.createElement('div')
+            row.className = 'mawl-item-row'
+            row.id = 'mawl-row-' + itemKey
+
+            const labelEl = document.createElement('div')
+            labelEl.className = 'mawl-item-label'
+            labelEl.textContent = label
+            row.appendChild(labelEl)
+
+            const btns = document.createElement('div')
+            btns.className = 'mawl-stage-btns'
+            STAGES.forEach((stage, idx) => {
+                const btn = document.createElement('button')
+                btn.className = 'mawl-stage-btn' + (idx <= currentIdx ? ' done' : '')
+                btn.textContent = STAGE_LABELS[idx]
+                btn.onclick = () => setStage(itemKey, stage)
+                btns.appendChild(btn)
+            })
+            row.appendChild(btns)
+            return row
+        }
+
+        async function setStage(itemKey, stage) {
+            if (!_activeChecklistId) return
+            const currentStage = _progress[itemKey]
+
+            if (currentStage === stage) {
+                // Tap same stage again → clear
+                const { error } = await supabase
+                    .from('mawl_progress')
+                    .delete()
+                    .eq('checklist_id', _activeChecklistId)
+                    .eq('item_key', itemKey)
+                if (error) { showNotification('Could not clear progress.'); return }
+                delete _progress[itemKey]
+            } else {
+                const { data: { session } } = await supabase.auth.getSession()
+                const { error } = await supabase
+                    .from('mawl_progress')
+                    .upsert({
+                        checklist_id: _activeChecklistId,
+                        item_key: itemKey,
+                        stage,
+                        updated_by: session.user.id,
+                    }, { onConflict: 'checklist_id,item_key' })
+                if (error) { showNotification('Could not save progress.'); return }
+                _progress[itemKey] = stage
+            }
+
+            refreshItemRow(itemKey)
+        }
+
+        function refreshItemRow(itemKey) {
+            let label = itemKey
+            for (const { items } of MAWL_ITEMS) {
+                const found = items.find(i => i.key === itemKey)
+                if (found) { label = found.label; break }
+            }
+            const existing = document.getElementById('mawl-row-' + itemKey)
+            if (existing) existing.replaceWith(buildItemRow(itemKey, label))
         }
 
         window.showCreateChecklist = function () {
@@ -261,6 +415,17 @@
         .create-checklist-submit:disabled { opacity: 0.6; cursor: default; }
         .create-checklist-cancel { flex: 1; padding: 10px; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; background: #e5e5ea; color: #3a3a3c; font-family: inherit; }
 
+        /* MAWL progress grid */
+        .mawl-grid-section { border-top: 0.5px solid #c6c6c8; padding-bottom: 40px; }
+        .mawl-grid-loading { padding: 24px 16px; text-align: center; color: #8e8e93; font-size: 15px; }
+        .mawl-category { padding: 0 16px; }
+        .mawl-category-header { font-size: 13px; font-weight: 600; color: #8e8e93; text-transform: uppercase; letter-spacing: 0.5px; padding: 20px 0 8px; }
+        .mawl-item-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 0.5px solid #f2f2f7; }
+        .mawl-item-label { font-size: 15px; color: #000; flex: 1; padding-right: 12px; }
+        .mawl-stage-btns { display: flex; gap: 6px; flex-shrink: 0; }
+        .mawl-stage-btn { width: 36px; height: 36px; border: none; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; background: #e5e5ea; color: #8e8e93; }
+        .mawl-stage-btn.done { background: #00D084; color: #fff; }
+
         /* Access denied */
         .access-denied { display: none; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; padding: 40px 24px; text-align: center; }
         .access-denied-msg { font-size: 17px; font-weight: 600; color: #3a3a3c; margin-bottom: 6px; }
@@ -354,6 +519,8 @@
             </div>
             <div class="checklist-empty" id="checklist-empty" style="display:none">No checklists yet. Use "+ Add Checklist" to create one.</div>
         </div>
+
+        <div class="mawl-grid-section" id="mawl-grid-section" style="display:none"></div>
 
     </div>
 
