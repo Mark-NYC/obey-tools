@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UCO Checklist Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+            background: #f2f2f7;
+            min-height: 100vh;
+            color: #000;
+            line-height: 1.4;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #fff;
+            min-height: 100vh;
+            padding-bottom: 80px;
+        }
+
+        .header {
+            padding: 20px 16px;
+            background: #fff;
+            border-bottom: 0.5px solid #c6c6c8;
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .admin-toggle {
+            text-align: center;
+            margin-bottom: 12px;
+            padding: 8px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #8e8e93;
+        }
+
+        .admin-toggle button {
+            margin-left: 8px;
+            padding: 4px 12px;
+            border: 1px solid #c6c6c8;
+            border-radius: 6px;
+            background: white;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .admin-toggle button:hover {
+            background: #f2f2f7;
+        }
+
+        .church-section, .leader-section {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        select {
+            flex: 1;
+            padding: 11px 16px;
+            border: 1px solid #c6c6c8;
+            border-radius: 8px;
+            font-size: 16px;
+            background: #f2f2f7;
+            outline: none;
+        }
+
+        select:focus {
+            border-color: #3a3a3c;
+            background: #fff;
+        }
+
+        .btn {
+            padding: 11px 16px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: #3a3a3c;
+            color: white;
+        }
+
+        .btn-primary:active {
+            background: #2c2c2e;
+            transform: scale(0.98);
+        }
+
+        .btn-secondary {
+            background: #f2f2f7;
+            color: #3a3a3c;
+        }
+
+        .btn-secondary:active {
+            background: #e5e5ea;
+            transform: scale(0.98);
+        }
+
+        .btn-danger {
+            background: #ff3b30;
+            color: white;
+        }
+
+        .btn-danger:active {
+            background: #d32f2f;
+            transform: scale(0.98);
+        }
+
+        .btn-disabled {
+            background: #e5e5ea;
+            color: #8e8e93;
+            cursor: not-allowed;
+        }
+
+        .controls {
+            padding: 16px;
+            display: flex;
+            gap: 8px;
+            background: #fff;
+            border-bottom: 0.5px solid #c6c6c8;
+        }
+
+        .checklist-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .checklist-table th {
+            background: #f2f2f7;
+            padding: 12px 8px;
+            font-weight: 600;
+            font-size: 14px;
+            text-align: center;
+            border-bottom: 1px solid #c6c6c8;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .checklist-table td {
+            padding: 12px 8px;
+            border-bottom: 0.5px solid #e5e5ea;
+        }
+
+        .checklist-table td:first-child {
+            font-weight: 500;
+            font-size: 15px;
+            padding-left: 16px;
+        }
+
+        .category-row {
+            background: #f9f9f9;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .category-row td:first-child {
+            padding: 16px 16px 8px 16px;
+            border-bottom: none;
+        }
+
+        .checkbox-cell {
+            text-align: center;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .checkbox {
+            width: 24px;
+            height: 24px;
+            border: 2px solid #c6c6c8;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .checkbox.checked {
+            background: #3a3a3c;
+            border-color: #3a3a3c;
+            color: white;
+        }
+
+        .checkbox:active {
+            transform: scale(0.9);
+        }
+
+        .modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            gap: 12px;
+            width: 90%;
+            max-width: 300px;
+        }
+
+        .modal h3 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .modal input {
+            padding: 10px;
+            border: 1px solid #c6c6c8;
+            border-radius: 8px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .modal input:focus {
+            border-color: #3a3a3c;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .notification {
+            position: fixed;
+            top: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 500;
+            z-index: 1000;
+            opacity: 0;
+            animation: notificationSlide 3s ease;
+        }
+
+        @keyframes notificationSlide {
+            0% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+            10% { opacity: 1; transform: translateX(-50%) translateY(0); }
+            90% { opacity: 1; transform: translateX(-50%) translateY(0); }
+            100% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+        }
+
+        .empty-state {
+            padding: 40px 20px;
+            text-align: center;
+            color: #8e8e93;
+            font-size: 16px;
+        }
+
+        .loading {
+            padding: 40px 20px;
+            text-align: center;
+            color: #8e8e93;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">UCO Checklist</h1>
+            
+            <div class="admin-toggle">
+                <span id="admin-status">Admin Mode: OFF</span>
+                <button onclick="toggleAdminMode()">Toggle Admin</button>
+            </div>
+
+            <div class="church-section">
+                <select id="church-select" onchange="switchChurch()">
+                    <option value="">Select Church</option>
+                </select>
+                <button class="btn btn-primary" id="add-church-btn" onclick="showAddChurchModal()" disabled>+Church</button>
+                <button class="btn btn-danger" id="delete-church-btn" onclick="showDeleteChurchModal()" disabled>X</button>
+            </div>
+
+            <div class="leader-section">
+                <select id="leader-select" onchange="switchLeader()">
+                    <option value="">Select Leader</option>
+                </select>
+                <button class="btn btn-primary" onclick="showAddLeaderModal()">+Leader</button>
+                <button class="btn btn-danger" onclick="showDeleteLeaderModal()">X</button>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-secondary" style="flex: 1" onclick="shareProgress()">Share</button>
+            <button class="btn btn-secondary" style="flex: 1" onclick="resetCurrent()">Reset Current</button>
+            <button class="btn btn-secondary" style="flex: 1" onclick="resetAll()">Reset All</button>
+        </div>
+
+        <div id="checklist-content"><div class="loading">Loading...</div></div>
+    </div>
+
+    <div class="modal" id="admin-password-modal">
+        <h3>Admin Password</h3>
+        <input type="password" id="admin-password-input" placeholder="Enter admin password">
+        <div class="modal-buttons">
+            <button class="btn btn-primary" style="flex: 1" onclick="verifyAdminPassword()">Unlock</button>
+            <button class="btn btn-secondary" style="flex: 1" onclick="closeModal('admin-password-modal')">Cancel</button>
+        </div>
+    </div>
+
+    <div class="modal" id="add-church-modal">
+        <h3>Add New Church</h3>
+        <input type="text" id="church-name-input" placeholder="Enter church name">
+        <div class="modal-buttons">
+            <button class="btn btn-primary" style="flex: 1" onclick="addChurch()">Add</button>
+            <button class="btn btn-secondary" style="flex: 1" onclick="closeModal('add-church-modal')">Cancel</button>
+        </div>
+    </div>
+
+    <div class="modal" id="delete-church-modal">
+        <h3>Delete Church</h3>
+        <p id="delete-church-text" style="color: #8e8e93; font-size: 15px; margin: 8px 0;"></p>
+        <div class="modal-buttons">
+            <button class="btn btn-danger" style="flex: 1" onclick="confirmDeleteChurch()">Delete</button>
+            <button class="btn btn-secondary" style="flex: 1" onclick="closeModal('delete-church-modal')">Cancel</button>
+        </div>
+    </div>
+
+    <div class="modal" id="add-leader-modal">
+        <h3>Add New Leader</h3>
+        <input type="text" id="leader-name-input" placeholder="Enter leader name">
+        <div class="modal-buttons">
+            <button class="btn btn-primary" style="flex: 1" onclick="addLeader()">Add</button>
+            <button class="btn btn-secondary" style="flex: 1" onclick="closeModal('add-leader-modal')">Cancel</button>
+        </div>
+    </div>
+
+    <div class="modal" id="delete-leader-modal">
+        <h3>Delete Leader</h3>
+        <p id="delete-leader-text" style="color: #8e8e93; font-size: 15px; margin: 8px 0;"></p>
+        <div class="modal-buttons">
+            <button class="btn btn-danger" style="flex: 1" onclick="confirmDeleteLeader()">Delete</button>
+            <button class="btn btn-secondary" style="flex: 1" onclick="closeModal('delete-leader-modal')">Cancel</button>
+        </div>
+    </div>
+
+    <script>
+        const checklistItems = [
+            { category: "Self Feeding", items: [
+                "SOS - Read the Word Daily",
+                "Pray Daily",
+                "Prepare for Persecution",
+                "Body Life (One Another's)"
+            ]},
+            { category: "Stories of Hope", items: [
+                "1. Sinful Woman - Lk 7:36-50",
+                "2. Tax Collector - Lk 18:9-17",
+                "3. Zacchaeus - Lk 19:1-10",
+                "4. Unforgiving Serv. - Mt. 18:21-35",
+                "5. Thieves on Cross - Lk 23:26-43",
+                "6. Resurrection - Lk 24:1-20",
+                "7. Prodigal Son - Luke 15:11-32"
+            ]},
+            { category: "Person of Peace/Prayer Walking", items: [] },
+            { category: "4 Responses to the Gospel", items: [] },
+            { category: "4-1-1", items: [
+                "Identity (Follow/Fish)",
+                "Oikos Map + Convo Quadrant",
+                "15 Second Story (Tell your story)",
+                "3 Circles (Tell God's story)"
+            ]},
+            { category: "3/3 Meeting Format", items: [
+                "1. Repent & Believe",
+                "2. Baptism",
+                "3. Holy Spirit",
+                "4. Read the Word",
+                "5. Fellowship",
+                "6. Lord's Supper",
+                "7. Prayer",
+                "8. Signs & Wonders",
+                "9. Giving",
+                "10. Worship",
+                "11. Make Disciples",
+                "12. Gather",
+                "13. Appoint Elders"
+            ]},
+            { category: "Church Circle & The '2 Church Vision Cast'", items: [] },
+            { category: "Handy Guide (Right Hand)", items: [] },
+            { category: "MAWL", items: [] },
+            { category: "1-3-9", items: [] },
+            { category: "FATR (2 Timothy 2)", items: [] },
+            { category: "Four Fields", items: [] }
+        ];
+
+        let churches = {};
+        let currentChurch = '';
+        let currentLeader = '';
+        let isAdminMode = false;
+        let API_URL = '';
+        let isLoading = false;
+        let saveTimeout = null;
+
+        // Initialize API URL from WordPress
+        function initAPI() {
+            if (window.mawlConfig && window.mawlConfig.apiUrl) {
+                API_URL = window.mawlConfig.apiUrl;
+                loadData();
+            } else {
+                setTimeout(initAPI, 100);
+            }
+        }
+
+        // Load data from WordPress
+        async function loadData() {
+            if (isLoading) return;
+            isLoading = true;
+            
+            try {
+                const response = await fetch(API_URL);
+                const data = await response.json();
+                
+                churches = data.churches || {};
+                currentChurch = data.currentChurch || '';
+                currentLeader = data.currentLeader || '';
+                
+                initializeChurchSelect();
+                initializeLeaderSelect();
+                renderChecklist();
+            } catch(e) {
+                console.error('Load failed:', e);
+                showNotification('Failed to load data');
+            } finally {
+                isLoading = false;
+            }
+        }
+
+        // Save data to WordPress (with debounce)
+        function saveData() {
+            if (saveTimeout) {
+                clearTimeout(saveTimeout);
+            }
+            
+            saveTimeout = setTimeout(async () => {
+                try {
+                    await fetch(API_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            churches: churches,
+                            currentChurch: currentChurch,
+                            currentLeader: currentLeader
+                        })
+                    });
+                } catch(e) {
+                    console.error('Save failed:', e);
+                    showNotification('Failed to save changes');
+                }
+            }, 500);
+        }
+
+        function toggleAdminMode() {
+            if (isAdminMode) {
+                isAdminMode = false;
+                updateAdminUI();
+                showNotification('Admin mode disabled');
+            } else {
+                document.getElementById('admin-password-modal').style.display = 'flex';
+                document.getElementById('admin-password-input').focus();
+            }
+        }
+
+        function verifyAdminPassword() {
+            const input = document.getElementById('admin-password-input');
+            const password = input.value;
+            
+            if (password === 'Matthew28!') {
+                isAdminMode = true;
+                updateAdminUI();
+                closeModal('admin-password-modal');
+                showNotification('Admin mode enabled');
+            } else {
+                showNotification('Incorrect password');
+            }
+            input.value = '';
+        }
+
+        function updateAdminUI() {
+            document.getElementById('admin-status').textContent = `Admin Mode: ${isAdminMode ? 'ON' : 'OFF'}`;
+            document.getElementById('add-church-btn').disabled = !isAdminMode;
+            document.getElementById('delete-church-btn').disabled = !isAdminMode;
+            
+            if (isAdminMode) {
+                document.getElementById('add-church-btn').classList.remove('btn-disabled');
+                document.getElementById('delete-church-btn').classList.remove('btn-disabled');
+            } else {
+                document.getElementById('add-church-btn').classList.add('btn-disabled');
+                document.getElementById('delete-church-btn').classList.add('btn-disabled');
+            }
+        }
+
+        function initializeChurchSelect() {
+            const select = document.getElementById('church-select');
+            select.innerHTML = '<option value="">Select Church</option>';
+            
+            Object.keys(churches).forEach(church => {
+                const option = document.createElement('option');
+                option.value = church;
+                option.textContent = church;
+                if (church === currentChurch) {
+                    option.selected = true;
+                }
+                select.appendChild(option);
+            });
+        }
+
+        function initializeLeaderSelect() {
+            const select = document.getElementById('leader-select');
+            select.innerHTML = '<option value="">Select Leader</option>';
+            
+            if (currentChurch && churches[currentChurch] && churches[currentChurch].leaders) {
+                Object.keys(churches[currentChurch].leaders).forEach(leader => {
+                    const option = document.createElement('option');
+                    option.value = leader;
+                    option.textContent = leader;
+                    if (leader === currentLeader) {
+                        option.selected = true;
+                    }
+                    select.appendChild(option);
+                });
+            }
+        }
+
+        function showAddChurchModal() {
+            if (!isAdminMode) {
+                showNotification('Admin mode required');
+                return;
+            }
+            document.getElementById('add-church-modal').style.display = 'flex';
+            document.getElementById('church-name-input').focus();
+        }
+
+        function showDeleteChurchModal() {
+            if (!isAdminMode) {
+                showNotification('Admin mode required');
+                return;
+            }
+            if (!currentChurch) {
+                showNotification('Please select a church first');
+                return;
+            }
+            
+            document.getElementById('delete-church-text').textContent = `Are you sure you want to delete "${currentChurch}" and all its leaders and progress?`;
+            document.getElementById('delete-church-modal').style.display = 'flex';
+        }
+
+        function showAddLeaderModal() {
+            if (!currentChurch) {
+                showNotification('Please select a church first');
+                return;
+            }
+            document.getElementById('add-leader-modal').style.display = 'flex';
+            document.getElementById('leader-name-input').focus();
+        }
+
+        function showDeleteLeaderModal() {
+            if (!currentLeader) {
+                showNotification('Please select a leader first');
+                return;
+            }
+            
+            document.getElementById('delete-leader-text').textContent = `Are you sure you want to delete "${currentLeader}" and all their progress?`;
+            document.getElementById('delete-leader-modal').style.display = 'flex';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+            if (modalId === 'add-church-modal') {
+                document.getElementById('church-name-input').value = '';
+            }
+            if (modalId === 'add-leader-modal') {
+                document.getElementById('leader-name-input').value = '';
+            }
+            if (modalId === 'admin-password-modal') {
+                document.getElementById('admin-password-input').value = '';
+            }
+        }
+
+        function addChurch() {
+            if (!isAdminMode) {
+                showNotification('Admin mode required');
+                return;
+            }
+            
+            const input = document.getElementById('church-name-input');
+            const name = input.value.trim();
+            
+            if (name) {
+                if (!churches[name]) {
+                    churches[name] = { leaders: {} };
+                    currentChurch = name;
+                    currentLeader = '';
+                    saveData();
+                    initializeChurchSelect();
+                    initializeLeaderSelect();
+                    renderChecklist();
+                    closeModal('add-church-modal');
+                    showNotification(`Church "${name}" added`);
+                } else {
+                    showNotification('Church already exists');
+                }
+            }
+        }
+
+        function confirmDeleteChurch() {
+            if (!isAdminMode || !currentChurch) return;
+            
+            const deletedName = currentChurch;
+            delete churches[currentChurch];
+            
+            const remainingChurches = Object.keys(churches);
+            currentChurch = remainingChurches.length > 0 ? remainingChurches[0] : '';
+            currentLeader = '';
+            
+            saveData();
+            initializeChurchSelect();
+            initializeLeaderSelect();
+            renderChecklist();
+            closeModal('delete-church-modal');
+            showNotification(`Church "${deletedName}" deleted`);
+        }
+
+        function addLeader() {
+            if (!currentChurch) {
+                showNotification('Please select a church first');
+                return;
+            }
+            
+            const input = document.getElementById('leader-name-input');
+            const name = input.value.trim();
+            
+            if (name) {
+                if (!churches[currentChurch].leaders[name]) {
+                    churches[currentChurch].leaders[name] = {};
+                    currentLeader = name;
+                    saveData();
+                    initializeLeaderSelect();
+                    renderChecklist();
+                    closeModal('add-leader-modal');
+                    showNotification(`Leader "${name}" added`);
+                } else {
+                    showNotification('Leader already exists');
+                }
+            }
+        }
+
+        function confirmDeleteLeader() {
+            if (!currentLeader || !currentChurch) return;
+            
+            const deletedName = currentLeader;
+            delete churches[currentChurch].leaders[currentLeader];
+            
+            const remainingLeaders = Object.keys(churches[currentChurch].leaders);
+            currentLeader = remainingLeaders.length > 0 ? remainingLeaders[0] : '';
+            
+            saveData();
+            initializeLeaderSelect();
+            renderChecklist();
+            closeModal('delete-leader-modal');
+            showNotification(`Leader "${deletedName}" deleted`);
+        }
+
+        function switchChurch() {
+            const select = document.getElementById('church-select');
+            currentChurch = select.value;
+            currentLeader = '';
+            saveData();
+            initializeLeaderSelect();
+            renderChecklist();
+        }
+
+        function switchLeader() {
+            const select = document.getElementById('leader-select');
+            currentLeader = select.value;
+            saveData();
+            renderChecklist();
+        }
+
+        function toggleCheck(item, column) {
+            if (!currentChurch || !currentLeader) {
+                showNotification('Please select a church and leader first');
+                return;
+            }
+
+            if (!churches[currentChurch].leaders[currentLeader]) {
+                churches[currentChurch].leaders[currentLeader] = {};
+            }
+
+            const columns = ['M', 'A', 'W', 'L'];
+            const columnIndex = columns.indexOf(column);
+            const key = `${item}_${column}`;
+            
+            const newValue = !churches[currentChurch].leaders[currentLeader][key];
+            churches[currentChurch].leaders[currentLeader][key] = newValue;
+            
+            if (newValue) {
+                for (let i = 0; i < columnIndex; i++) {
+                    const prevKey = `${item}_${columns[i]}`;
+                    churches[currentChurch].leaders[currentLeader][prevKey] = true;
+                }
+            } else {
+                for (let i = columnIndex + 1; i < columns.length; i++) {
+                    const nextKey = `${item}_${columns[i]}`;
+                    churches[currentChurch].leaders[currentLeader][nextKey] = false;
+                }
+            }
+            
+            saveData();
+            renderChecklist();
+        }
+
+        function renderChecklist() {
+            const content = document.getElementById('checklist-content');
+            
+            if (!currentChurch) {
+                content.innerHTML = '<div class="empty-state">Please select or add a church to begin</div>';
+                return;
+            }
+
+            if (!currentLeader) {
+                content.innerHTML = '<div class="empty-state">Please select or add a leader to begin tracking</div>';
+                return;
+            }
+
+            let html = '<table class="checklist-table"><thead><tr><th style="text-align: left">Item</th><th>M</th><th>A</th><th>W</th><th>L</th></tr></thead><tbody>';
+
+            checklistItems.forEach(section => {
+                html += `<tr class="category-row"><td>${section.category}</td>`;
+                ['M', 'A', 'W', 'L'].forEach(col => {
+                    const key = `${section.category}_${col}`;
+                    const checked = churches[currentChurch]?.leaders[currentLeader]?.[key];
+                    html += `<td class="checkbox-cell" onclick="toggleCheck('${section.category.replace(/'/g, "\\'")}', '${col}')">
+                        <div class="checkbox ${checked ? 'checked' : ''}">${checked ? '✓' : ''}</div>
+                    </td>`;
+                });
+                html += '</tr>';
+                
+                if (section.items.length > 0) {
+                    section.items.forEach(item => {
+                        html += `<tr><td>${item}</td>`;
+                        ['M', 'A', 'W', 'L'].forEach(col => {
+                            const key = `${item}_${col}`;
+                            const checked = churches[currentChurch]?.leaders[currentLeader]?.[key];
+                            html += `<td class="checkbox-cell" onclick="toggleCheck('${item.replace(/'/g, "\\'")}', '${col}')">
+                                <div class="checkbox ${checked ? 'checked' : ''}">${checked ? '✓' : ''}</div>
+                            </td>`;
+                        });
+                        html += '</tr>';
+                    });
+                }
+            });
+
+            html += '</tbody></table>';
+            content.innerHTML = html;
+        }
+
+        function shareProgress() {
+            if (!currentChurch || !currentLeader) {
+                showNotification('Please select a church and leader first');
+                return;
+            }
+
+            let message = `UCO Checklist Progress\nChurch: ${currentChurch}\nLeader: ${currentLeader}\n\n`;
+            
+            checklistItems.forEach(section => {
+                message += `${section.category}\n`;
+                const catStatuses = ['M', 'A', 'W', 'L'].map(col => {
+                    const key = `${section.category}_${col}`;
+                    return churches[currentChurch]?.leaders[currentLeader]?.[key] ? '✓' : '○';
+                });
+                message += `${catStatuses.join(' ')}\n\n`;
+                
+                if (section.items.length > 0) {
+                    section.items.forEach(item => {
+                        message += `${item}\n`;
+                        const statuses = ['M', 'A', 'W', 'L'].map(col => {
+                            const key = `${item}_${col}`;
+                            return churches[currentChurch]?.leaders[currentLeader]?.[key] ? '✓' : '○';
+                        });
+                        message += `${statuses.join(' ')}\n\n`;
+                    });
+                }
+            });
+
+            const smsUrl = `sms:?body=${encodeURIComponent(message)}`;
+            window.location.href = smsUrl;
+        }
+
+        function resetCurrent() {
+            if (!currentChurch || !currentLeader) {
+                showNotification('Please select a church and leader first');
+                return;
+            }
+
+            if (confirm(`Reset all progress for ${currentLeader}?`)) {
+                churches[currentChurch].leaders[currentLeader] = {};
+                saveData();
+                renderChecklist();
+                showNotification('Progress reset');
+            }
+        }
+
+        function resetAll() {
+            if (confirm('Delete all churches, leaders and reset all progress?')) {
+                churches = {};
+                currentChurch = '';
+                currentLeader = '';
+                saveData();
+                initializeChurchSelect();
+                initializeLeaderSelect();
+                renderChecklist();
+                showNotification('All data cleared');
+            }
+        }
+
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 3000);
+        }
+
+        // Auto-refresh data every 10 seconds
+        setInterval(loadData, 10000);
+
+        // Keyboard shortcuts
+        document.getElementById('church-name-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') addChurch();
+        });
+        document.getElementById('leader-name-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') addLeader();
+        });
+        document.getElementById('admin-password-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') verifyAdminPassword();
+        });
+
+        // Initialize
+        updateAdminUI();
+        initAPI();
+    </script>
+</body>
+</html>
