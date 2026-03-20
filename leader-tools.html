@@ -60,8 +60,8 @@
             }
         }
 
-        window.copyHistoryLink = async function (token) {
-            const url = new URL('invite.html?token=' + token, window.location.href).href
+        window.copyHistoryUrl = async function (btn) {
+            const url = btn.dataset.url
             try {
                 await navigator.clipboard.writeText(url)
                 showNotification('Invite link copied.')
@@ -112,11 +112,9 @@
                     dateInfo = 'Expires ' + fmtDate(inv.expires_at)
                 }
 
-                // token is a hex string (0-9 a-f only) — safe in onclick attribute
+                const inviteUrl = new URL('invite.html?token=' + inv.token, window.location.href).href
                 const copyBtn = badge === 'active'
-                    ? `<div class="history-item-actions">
-                           <button class="history-copy-btn" onclick="copyHistoryLink('${inv.token}')">Copy Link</button>
-                       </div>`
+                    ? `<button class="history-copy-btn" data-url="${inviteUrl}" onclick="copyHistoryUrl(this)">Copy</button>`
                     : ''
 
                 return `<div class="history-item">
@@ -126,7 +124,11 @@
                             <span class="history-date-info">${dateInfo}</span>
                             <span class="history-created">Created ${fmtDate(inv.created_at)}</span>
                         </div>
-                    </div>${copyBtn}</div>`
+                    </div>
+                    <div class="history-url-row">
+                        <div class="history-url-box">${inviteUrl}</div>
+                        ${copyBtn}
+                    </div></div>`
             }).join('')
         }
 
@@ -211,8 +213,9 @@
         .history-meta { flex: 1; }
         .history-date-info { font-size: 14px; font-weight: 500; color: #3a3a3c; display: block; }
         .history-created { font-size: 12px; color: #8e8e93; display: block; margin-top: 2px; }
-        .history-item-actions { margin-top: 10px; }
-        .history-copy-btn { padding: 7px 16px; background: #e5e5ea; color: #3a3a3c; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; }
+        .history-url-row { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+        .history-url-box { flex: 1; background: #f2f2f7; border-radius: 8px; padding: 8px 10px; font-size: 11px; font-family: monospace; word-break: break-all; color: #3a3a3c; line-height: 1.4; }
+        .history-copy-btn { flex-shrink: 0; padding: 7px 14px; background: #e5e5ea; color: #3a3a3c; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; }
         .history-copy-btn:active { background: #d1d1d6; }
 
         @media (min-width: 768px) {
