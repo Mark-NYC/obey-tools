@@ -131,7 +131,13 @@
     color: #fff;
     border-bottom-color: rgba(255,255,255,0.7);
   }
-  .section.completed .svg-wrap svg { filter: invert(1) brightness(10); }
+  /* SVG color overrides for completed state — replaces filter approach (broken on mobile Safari) */
+  .section.completed .svg-wrap svg [fill="#111"],
+  .section.completed .svg-wrap svg [fill="#333"],
+  .section.completed .svg-wrap svg [fill="#999"],
+  .section.completed .svg-wrap svg [fill="#aaa"] { fill: rgba(255,255,255,0.95) !important; }
+  .section.completed .svg-wrap svg [fill="white"] { fill: rgba(0,0,0,0.18) !important; }
+  .section.completed .svg-wrap svg [stroke="#111"] { stroke: rgba(255,255,255,0.85) !important; }
   .section.completed img { filter: brightness(0) invert(1); opacity: 0.9; }
   /* Checkbox */
   .section-checkbox {
