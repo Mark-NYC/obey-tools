@@ -53,41 +53,23 @@
             networkSelect.style.display  = 'none'
             networkEmpty.style.display   = 'none'
 
-            console.log('[loadNetworks] session.user.id:', session.user.id)
+            console.log('[loadNetworks] user:', session.user.id)
 
-            const { data: memberRows, error: memberError } = await supabase
-                .from('network_members')
-                .select('network_id')
-                .eq('user_id', session.user.id)
-
-            console.log('[loadNetworks] memberRows:', memberRows)
-            if (memberError) console.error('[loadNetworks] memberError:', memberError)
-
-            networkLoading.style.display = 'none'
-
-            if (memberError || !memberRows || memberRows.length === 0) {
-                networkEmpty.style.display = 'block'
-                return
-            }
-
-            const networkIds = memberRows.map(r => r.network_id).filter(Boolean)
-            console.log('[loadNetworks] networkIds:', networkIds)
-
-            if (networkIds.length === 0) {
-                networkEmpty.style.display = 'block'
-                return
-            }
-
-            const { data: networks, error: networksError } = await supabase
+            // Query networks directly — RLS on the networks table filters to
+            // only rows this user can see.  Avoids going through network_members
+            // which has a separate RLS SELECT policy that silently blocks direct
+            // client queries even when the underlying rows exist.
+            const { data: networks, error } = await supabase
                 .from('networks')
                 .select('id, name')
-                .in('id', networkIds)
                 .order('name')
 
             console.log('[loadNetworks] networks:', networks)
-            if (networksError) console.error('[loadNetworks] networksError:', networksError)
+            if (error) console.error('[loadNetworks] error:', error)
 
-            if (networksError || !networks || networks.length === 0) {
+            networkLoading.style.display = 'none'
+
+            if (error || !networks || networks.length === 0) {
                 networkEmpty.style.display = 'block'
                 return
             }
