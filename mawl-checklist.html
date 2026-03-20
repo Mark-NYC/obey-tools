@@ -110,23 +110,39 @@
             btn.textContent = 'Creating…'
 
             const { data: { session } } = await supabase.auth.getSession()
-            const { data, error } = await supabase
+
+            // Insert without .select() — avoids RLS RETURNING race with the
+            // handle_new_network trigger (trigger adds network_members row, but
+            // PostgREST evaluates the RETURNING clause before that row is visible
+            // to the SELECT policy, so .select('id') always fails here).
+            const { error: insertError } = await supabase
                 .from('networks')
                 .insert({ name, created_by: session.user.id })
-                .select('id')
-                .single()
 
             btn.disabled = false
             btn.textContent = 'Create'
 
-            if (error) {
+            if (insertError) {
+                console.error('Network creation error:', insertError)
                 showNotification('Could not create network.')
                 return
             }
 
             input.value = ''
             document.getElementById('create-network-form').style.display = 'none'
-            await loadNetworks(data.id)
+
+            // Separate follow-up query — by this point the trigger has committed
+            // the network_members row, so the SELECT policy on networks passes.
+            const { data: newest, error: selectError } = await supabase
+                .from('networks')
+                .select('id')
+                .eq('created_by', session.user.id)
+                .order('created_at', { ascending: false })
+                .limit(1)
+                .single()
+
+            if (selectError) console.warn('Could not fetch new network id:', selectError)
+            await loadNetworks(newest?.id ?? null)
         }
 
         async function loadChecklists(networkId, autoSelectId = null) {
