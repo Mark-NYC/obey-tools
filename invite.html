@@ -23,61 +23,36 @@
             el.style.display = 'block'
         }
 
-        async function redeemInvite(userId) {
+        async function redeemInvite() {
             if (redeemed) return
             redeemed = true
             show('state-redeeming')
 
-            // Validate invite row (requires authenticated session for RLS)
-            const { data: invite, error: invErr } = await supabase
-                .from('leader_invites')
-                .select('id, status, expires_at')
-                .eq('token', token)
-                .single()
+            // Single RPC call — validation, role promotion, and invite claim
+            // all happen atomically inside a SECURITY DEFINER function.
+            // auth.uid() is resolved server-side; no direct DB writes from the client.
+            const { data, error } = await supabase.rpc('redeem_leader_invite', {
+                invite_token: token
+            })
 
-            if (invErr || !invite) {
-                show('state-invalid')
-                return
-            }
-            if (invite.status !== 'pending') {
-                document.getElementById('error-msg').textContent = 'This invite link has already been used.'
-                show('state-error')
-                return
-            }
-            if (new Date(invite.expires_at) < new Date()) {
-                document.getElementById('error-msg').textContent = 'This invite link has expired.'
-                show('state-error')
-                return
-            }
-
-            // Promote user to leader
-            // upsert handles both: new profile (INSERT) and existing profile (UPDATE role)
-            const { error: profileErr } = await supabase
-                .from('profiles')
-                .upsert({ id: userId, role: 'leader' }, { onConflict: 'id' })
-
-            if (profileErr) {
-                document.getElementById('error-msg').textContent = 'Failed to update your profile. Please try again.'
-                console.error('[invite] profile upsert error:', profileErr)
+            if (error) {
+                document.getElementById('error-msg').textContent = 'Redemption failed. Please try again.'
+                console.error('[invite] rpc error:', error)
                 redeemed = false  // allow retry
                 show('state-error')
                 return
             }
 
-            // Mark invite as used
-            const { error: updateErr } = await supabase
-                .from('leader_invites')
-                .update({
-                    used_by: userId,
-                    status: 'used',
-                    used_at: new Date().toISOString()
-                })
-                .eq('token', token)
-
-            if (updateErr) {
-                // Role promotion succeeded — that's the critical part.
-                // Log the failure but do not block the success state.
-                console.warn('[invite] could not mark invite as used:', updateErr)
+            if (!data.success) {
+                const messages = {
+                    invite_not_found:   'This invite link is not valid. Ask your leader for a new one.',
+                    invite_unavailable: 'This invite has already been used or has expired.',
+                    not_authenticated:  'You must be logged in to redeem an invite.'
+                }
+                document.getElementById('error-msg').textContent =
+                    messages[data.error] ?? 'This invite could not be redeemed.'
+                show(data.error === 'invite_not_found' ? 'state-invalid' : 'state-error')
+                return
             }
 
             show('state-success')
@@ -119,7 +94,7 @@
             // getSession: handles the case where the user is already authenticated
             supabase.auth.getSession().then(({ data: { session } }) => {
                 if (session?.user) {
-                    redeemInvite(session.user.id)
+                    redeemInvite()
                 } else {
                     show('state-login')
                 }
@@ -129,7 +104,7 @@
             // and the redirect-back case after email confirmation.
             supabase.auth.onAuthStateChange((_event, session) => {
                 if (_event === 'SIGNED_IN' && session?.user) {
-                    redeemInvite(session.user.id)
+                    redeemInvite()
                 }
             })
         }

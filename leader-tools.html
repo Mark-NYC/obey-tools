@@ -41,6 +41,7 @@
                 document.getElementById('invite-url').textContent = inviteUrl
                 document.getElementById('invite-result').style.display = 'block'
                 document.getElementById('copy-btn').textContent = 'Copy Link'
+                loadInviteHistory(session.user.id)
             } finally {
                 btn.disabled = false
                 btn.textContent = 'Generate Leader Invite'
@@ -58,6 +59,87 @@
                 showNotification('Copy failed — select and copy the link manually.')
             }
         }
+
+        window.copyHistoryUrl = async function (btn) {
+            const url = btn.dataset.url
+            try {
+                await navigator.clipboard.writeText(url)
+                showNotification('Invite link copied.')
+            } catch {
+                showNotification('Copy failed — select and copy the link manually.')
+            }
+        }
+
+        function fmtDate(iso) {
+            return new Date(iso).toLocaleDateString('en-US', {
+                month: 'short', day: 'numeric', year: 'numeric'
+            })
+        }
+
+        async function loadInviteHistory(userId) {
+            const list = document.getElementById('history-list')
+            if (!list) return
+            list.innerHTML = '<div class="history-loading">Loading...</div>'
+
+            const { data, error } = await supabase
+                .from('leader_invites')
+                .select('token, status, expires_at, created_at, used_at')
+                .eq('invited_by', userId)
+                .order('created_at', { ascending: false })
+
+            if (error) {
+                list.innerHTML = '<div class="history-empty">Could not load invite history.</div>'
+                return
+            }
+            if (!data.length) {
+                list.innerHTML = '<div class="history-empty">No invites generated yet.</div>'
+                return
+            }
+
+            const now = new Date()
+            list.innerHTML = data.map(inv => {
+                const isUsed    = inv.status === 'used'
+                const isExpired = !isUsed && new Date(inv.expires_at) < now
+                const badge     = isUsed ? 'used' : isExpired ? 'expired' : 'active'
+                const label     = badge.charAt(0).toUpperCase() + badge.slice(1)
+
+                let dateInfo
+                if (isUsed) {
+                    dateInfo = 'Used ' + (inv.used_at ? fmtDate(inv.used_at) : 'date unknown')
+                } else if (isExpired) {
+                    dateInfo = 'Expired ' + fmtDate(inv.expires_at)
+                } else {
+                    dateInfo = 'Expires ' + fmtDate(inv.expires_at)
+                }
+
+                const inviteUrl = new URL('invite.html?token=' + inv.token, window.location.href).href
+                const copyBtn = badge === 'active'
+                    ? `<button class="history-copy-btn" data-url="${inviteUrl}" onclick="copyHistoryUrl(this)">Copy</button>`
+                    : ''
+
+                return `<div class="history-item">
+                    <div class="history-item-main">
+                        <span class="history-badge history-badge--${badge}">${label}</span>
+                        <div class="history-meta">
+                            <span class="history-date-info">${dateInfo}</span>
+                            <span class="history-created">Created ${fmtDate(inv.created_at)}</span>
+                        </div>
+                    </div>
+                    <div class="history-url-row">
+                        <div class="history-url-box">${inviteUrl}</div>
+                        ${copyBtn}
+                    </div></div>`
+            }).join('')
+        }
+
+        // Load history when session is confirmed — parallel to initLeaderPage(),
+        // so no changes to auth.js are needed.
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            if (session?.user) loadInviteHistory(session.user.id)
+        })
+        supabase.auth.onAuthStateChange((_event, session) => {
+            if (session?.user) loadInviteHistory(session.user.id)
+        })
 
         initLeaderPage()
     </script>
@@ -116,6 +198,25 @@
         .invite-url-label { font-size: 12px; color: #8e8e93; margin-bottom: 6px; }
         .invite-url-box { background: #f2f2f7; border-radius: 8px; padding: 10px 12px; font-size: 12px; word-break: break-all; color: #3a3a3c; margin-bottom: 10px; font-family: monospace; line-height: 1.5; }
         .invite-copy-btn { width: 100%; padding: 11px; background: #3a3a3c; color: #fff; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; }
+
+        /* Invite history */
+        .invite-history-section { padding: 20px 16px; }
+        .history-loading { font-size: 14px; color: #8e8e93; padding: 8px 0; }
+        .history-empty { font-size: 14px; color: #8e8e93; padding: 8px 0; }
+        .history-item { padding: 14px 0; border-bottom: 0.5px solid #c6c6c8; }
+        .history-item:last-child { border-bottom: none; }
+        .history-item-main { display: flex; align-items: flex-start; gap: 12px; }
+        .history-badge { display: inline-block; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.4px; flex-shrink: 0; margin-top: 2px; }
+        .history-badge--active  { background: #d4f5ea; color: #00714d; }
+        .history-badge--expired { background: #f2f2f7; color: #8e8e93; }
+        .history-badge--used    { background: #3a3a3c; color: #fff; }
+        .history-meta { flex: 1; }
+        .history-date-info { font-size: 14px; font-weight: 500; color: #3a3a3c; display: block; }
+        .history-created { font-size: 12px; color: #8e8e93; display: block; margin-top: 2px; }
+        .history-url-row { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+        .history-url-box { flex: 1; background: #f2f2f7; border-radius: 8px; padding: 8px 10px; font-size: 11px; font-family: monospace; word-break: break-all; color: #3a3a3c; line-height: 1.4; }
+        .history-copy-btn { flex-shrink: 0; padding: 7px 14px; background: #e5e5ea; color: #3a3a3c; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; }
+        .history-copy-btn:active { background: #d1d1d6; }
 
         @media (min-width: 768px) {
             .container { max-width: 768px; border-radius: 12px; margin: 20px auto; box-shadow: 0 4px 20px rgba(0,0,0,0.1); overflow: hidden; }
@@ -192,6 +293,12 @@
                 <div class="invite-url-box"><span id="invite-url"></span></div>
                 <button class="invite-copy-btn" id="copy-btn" onclick="copyInvite()">Copy Link</button>
             </div>
+        </div>
+
+        <!-- Invite History -->
+        <div class="invite-history-section">
+            <div class="invite-title">Invite History</div>
+            <div id="history-list"></div>
         </div>
 
     </div>
