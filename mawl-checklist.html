@@ -53,22 +53,58 @@
             networkSelect.style.display  = 'none'
             networkEmpty.style.display   = 'none'
 
-            const { data, error } = await supabase
+            // Step 1 – get the network IDs this user belongs to.
+            // Avoids the PostgREST embedded-join (.select('networks(id,name)'))
+            // which fails when the FK hint is ambiguous or when the networks
+            // RLS policy blocks the joined sub-select, producing a silent error.
+            const { data: memberRows, error: memberError } = await supabase
                 .from('network_members')
-                .select('role, networks(id, name)')
+                .select('network_id')
                 .eq('user_id', session.user.id)
+
+            console.log('[loadNetworks] network_members query →', { memberRows, memberError })
 
             networkLoading.style.display = 'none'
 
-            if (error || !data || data.length === 0) {
+            if (memberError) {
+                console.error('[loadNetworks] network_members error:', memberError)
+                networkEmpty.style.display = 'block'
+                return
+            }
+
+            if (!memberRows || memberRows.length === 0) {
+                console.log('[loadNetworks] no membership rows found for user', session.user.id)
+                networkEmpty.style.display = 'block'
+                return
+            }
+
+            // Step 2 – fetch full network details by those IDs.
+            // By this point the handle_new_network trigger has committed its
+            // network_members row, so the networks SELECT RLS passes cleanly.
+            const networkIds = memberRows.map(r => r.network_id)
+            const { data: networks, error: networksError } = await supabase
+                .from('networks')
+                .select('id, name')
+                .in('id', networkIds)
+                .order('name')
+
+            console.log('[loadNetworks] networks query →', { networks, networksError })
+
+            if (networksError) {
+                console.error('[loadNetworks] networks error:', networksError)
+                networkEmpty.style.display = 'block'
+                return
+            }
+
+            if (!networks || networks.length === 0) {
+                console.log('[loadNetworks] networks rows empty for ids', networkIds)
                 networkEmpty.style.display = 'block'
                 return
             }
 
             // Populate the select
             networkSelect.innerHTML = '<option value="">— Choose a network —</option>'
-            data.forEach(({ networks: net }) => {
-                if (!net) return
+            networks.forEach(net => {
                 const opt = document.createElement('option')
                 opt.value = net.id
                 opt.textContent = net.name
