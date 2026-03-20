@@ -3,7 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Discipleship Guide</title>
+<title>4 Questions</title>
+<script type="module">
+  import { supabase } from './supabase.js';
+  window.supabase = supabase;
+</script>
 <link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@700&family=Bebas+Neue&display=swap" rel="stylesheet">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -225,9 +229,49 @@
     transition: all 0.2s ease;
   }
   .reset-btn:active { background: #e5e5ea; transform: scale(0.97); }
+  /* ── Auth section ── */
+  .auth-section { width: calc(100% - 32px); max-width: 520px; padding: 12px 16px; background: #fff; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); margin: 8px 16px 0; }
+  .auth-section input { width: 100%; padding: 10px 14px; border: 1px solid #c6c6c8; border-radius: 8px; font-size: 15px; background: #fff; outline: none; margin-bottom: 8px; font-family: inherit; }
+  .auth-section input:focus { border-color: #3a3a3c; }
+  .auth-buttons { display: flex; gap: 8px; }
+  .auth-buttons button { flex: 1; padding: 10px; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; }
+  .auth-btn-primary { background: #3a3a3c; color: #fff; }
+  .auth-btn-secondary { background: #e5e5ea; color: #3a3a3c; }
+  .auth-status { display: flex; align-items: center; justify-content: space-between; }
+  .auth-status-text { font-size: 13px; color: #8e8e93; }
+  .auth-logout-btn { padding: 6px 14px; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; background: #e5e5ea; color: #3a3a3c; font-family: inherit; }
+  /* ── Page header ── */
+  .page-header { width: calc(100% - 32px); max-width: 520px; margin: 12px 16px 0; padding: 20px 24px 16px; text-align: center; }
+  .page-header h1 { font-family: 'Bebas Neue', sans-serif; font-size: 52px; font-weight: 400; letter-spacing: 2px; color: #00D084; -webkit-text-stroke: 2px #000; line-height: 1; margin-bottom: 8px; }
+  .page-header .subtitle { font-size: 14px; color: #8e8e93; line-height: 1.6; }
+  .page-header .subtitle .green { color: #00D084; font-weight: 600; }
 </style>
 </head>
 <body>
+<!-- Home button -->
+<div style="width:100%; text-align:center; padding:20px 0 4px;">
+  <a href="index.html" style="display:inline-block; background:#000; color:#fff; font-weight:700; font-size:15px; padding:11px 22px; border-radius:50px; text-decoration:none;">Home</a>
+</div>
+<!-- Auth section -->
+<div class="auth-section" id="auth-section">
+  <div id="auth-form">
+    <input type="email" id="auth-email" placeholder="Email">
+    <input type="password" id="auth-password" placeholder="Password">
+    <div class="auth-buttons">
+      <button class="auth-btn-primary" onclick="authSignUp()">Sign Up</button>
+      <button class="auth-btn-secondary" onclick="authLogIn()">Log In</button>
+    </div>
+  </div>
+  <div class="auth-status" id="auth-status" style="display:none">
+    <span class="auth-status-text" id="auth-status-text">Not signed in</span>
+    <button class="auth-logout-btn" onclick="authLogOut()">Log Out</button>
+  </div>
+</div>
+<!-- Page header -->
+<div class="page-header">
+  <h1>4 Questions</h1>
+  <div class="subtitle">Start here with new believers <span class="green">(green lights)</span> or believers who need to be trained in getting started.</div>
+</div>
 <!-- Progress bar -->
 <div class="progress-bar-container">
   <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
@@ -481,7 +525,47 @@
       updateProgress();
     }
   }
-  window.addEventListener('DOMContentLoaded', loadProgress);
+  function updateAuthUI(user) {
+    var form   = document.getElementById('auth-form');
+    var status = document.getElementById('auth-status');
+    var text   = document.getElementById('auth-status-text');
+    if (user) {
+      form.style.display   = 'none';
+      status.style.display = 'flex';
+      text.textContent     = 'Signed in as ' + user.email;
+    } else {
+      form.style.display   = 'block';
+      status.style.display = 'none';
+    }
+  }
+  async function authSignUp() {
+    var email    = document.getElementById('auth-email').value.trim();
+    var password = document.getElementById('auth-password').value;
+    var res = await window.supabase.auth.signUp({ email, password });
+    if (res.error) alert(res.error.message);
+    else alert('Check your email to confirm sign up.');
+  }
+  async function authLogIn() {
+    var email    = document.getElementById('auth-email').value.trim();
+    var password = document.getElementById('auth-password').value;
+    var res = await window.supabase.auth.signInWithPassword({ email, password });
+    if (res.error) alert(res.error.message);
+  }
+  async function authLogOut() {
+    var res = await window.supabase.auth.signOut();
+    if (res.error) alert(res.error.message);
+  }
+  window.addEventListener('DOMContentLoaded', function() {
+    loadProgress();
+    if (window.supabase) {
+      window.supabase.auth.getSession().then(function(res) {
+        updateAuthUI(res.data.session ? res.data.session.user : null);
+      });
+      window.supabase.auth.onAuthStateChange(function(_event, session) {
+        updateAuthUI(session ? session.user : null);
+      });
+    }
+  });
 </script>
 </body>
 </html>
