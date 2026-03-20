@@ -32,13 +32,13 @@
         .card-content { padding: 18px 20px; display: flex; align-items: center; gap: 16px; }
         .card-icon { width: 48px; height: 48px; border-radius: 10px; background-size: cover; background-position: center; flex-shrink: 0; transition: all 0.3s ease; }
         .card.completed .card-icon { box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
-        .card-icon.care-icon { background-image: url('https://obey.tools/wp-content/uploads/2024/05/Untitled-design-27.jpg'); }
-        .card-icon.worship-icon { background-image: url('https://obey.tools/wp-content/uploads/2024/05/Add-a-heading-3.jpg'); }
-        .card-icon.accountability-icon { background-image: url('https://obey.tools/wp-content/uploads/2024/05/Untitled-design-28.jpg'); }
-        .card-icon.vision-icon { background-image: url('https://obey.tools/wp-content/uploads/2024/05/Add-a-heading-4.jpg'); }
-        .card-icon.discover-icon { background-image: url('https://obey.tools/wp-content/uploads/2024/05/Add-a-heading-5.jpg'); }
-        .card-icon.practice-icon { background-image: url('https://obey.tools/wp-content/uploads/2024/05/Add-a-heading-1.jpg'); }
-        .card-icon.pray-icon { background-image: url('https://obey.tools/wp-content/uploads/2024/05/Add-a-heading-2.jpg'); }
+        .card-icon.care-icon { background-image: url('assets/images/icons/care-icon.jpg'); }
+        .card-icon.worship-icon { background-image: url('assets/images/icons/worship-icon.jpg'); }
+        .card-icon.accountability-icon { background-image: url('assets/images/icons/accountability-icon.jpg'); }
+        .card-icon.vision-icon { background-image: url('assets/images/icons/vision-icon.jpg'); }
+        .card-icon.discover-icon { background-image: url('assets/images/icons/discover-icon.jpg'); }
+        .card-icon.practice-icon { background-image: url('assets/images/icons/practice-icon.jpg'); }
+        .card-icon.pray-icon { background-image: url('assets/images/icons/pray-icon.jpg'); }
         .card-text { flex: 1; }
         .card-title { font-size: 17px; font-weight: 700; color: #3a3a3c; margin-bottom: 4px; letter-spacing: -0.2px; transition: color 0.3s ease; }
         .card.completed .card-title { color: #fff; }
@@ -185,7 +185,7 @@
         </div>
         <div class="reset-section"><button class="btn" onclick="resetAll()">RESET</button></div>
     </div>
-    <div class="popup-overlay" id="visionPopup" onclick="closeVisionPopup()"><div class="popup-content" onclick="event.stopPropagation()"><button class="popup-close" onclick="closeVisionPopup()">×</button><img src="https://obey.tools/wp-content/uploads/2025/10/Untitled-design-2024-06-10T131145.232.jpg" alt="Church Circle" class="popup-image"><div class="popup-text">Read Acts 2:36-47. Be a part of a church and start a church</div></div></div>
+    <div class="popup-overlay" id="visionPopup" onclick="closeVisionPopup()"><div class="popup-content" onclick="event.stopPropagation()"><button class="popup-close" onclick="closeVisionPopup()">×</button><img src="assets/images/popups/vision-popup.jpg" alt="Church Circle" class="popup-image"><div class="popup-text">Read Acts 2:36-47. Be a part of a church and start a church</div></div></div>
     <div class="modal-overlay" id="settingsModal"><div class="modal-content" onclick="event.stopPropagation()"><div class="modal-header">Assignment Settings</div><div class="modal-section"><label class="modal-label">Assignment Mode</label><div class="toggle-group"><button class="toggle-btn active" id="sectionBtn" onclick="setAssignmentMode('section')">By Section</button><button class="toggle-btn" id="componentBtn" onclick="setAssignmentMode('component')">By Component</button></div></div><div id="assignmentInputs"></div><button class="generate-btn" onclick="generateLink()">Generate Share Link</button><div class="link-display" id="linkDisplay"></div><button class="copy-btn" id="copyBtn" onclick="copyLink()">Copy Link</button><button class="btn" onclick="closeSettings()" style="margin-top: 16px;">Close</button></div></div>
     <script>
         let assignmentMode = 'section', assignments = {}, sessionId = '';
