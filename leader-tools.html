@@ -103,7 +103,7 @@
 
             const { data, error } = await supabase
                 .from('leader_invites')
-                .select('token, status, expires_at, created_at, used_at')
+                .select('token, status, expires_at, created_at, used_at, redeemed_by_email')
                 .eq('invited_by', userId)
                 .order('created_at', { ascending: false })
 
@@ -129,6 +129,7 @@
                     dateInfo = 'Revoked'
                 } else if (isUsed) {
                     dateInfo = 'Used ' + (inv.used_at ? fmtDate(inv.used_at) : 'date unknown')
+                    if (inv.redeemed_by_email) dateInfo += ' · ' + inv.redeemed_by_email
                 } else if (isExpired) {
                     dateInfo = 'Expired ' + fmtDate(inv.expires_at)
                 } else {
