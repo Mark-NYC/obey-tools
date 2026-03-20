@@ -46,7 +46,17 @@
             })
             networkSelect.style.display = 'block'
 
-            if (autoSelectId) networkSelect.value = autoSelectId
+            if (autoSelectId) {
+                networkSelect.value = autoSelectId
+                await loadChecklists(autoSelectId)
+            }
+        }
+
+        window.onNetworkChange = function () {
+            const networkId = document.getElementById('network-select').value
+            document.getElementById('create-network-form').style.display = 'none'
+            document.getElementById('create-network-input').value = ''
+            loadChecklists(networkId)
         }
 
         window.showCreateNetwork = function () {
@@ -87,6 +97,97 @@
             input.value = ''
             document.getElementById('create-network-form').style.display = 'none'
             await loadNetworks(data.id)
+        }
+
+        async function loadChecklists(networkId, autoSelectId = null) {
+            const section = document.getElementById('checklist-section')
+            if (!networkId) { section.style.display = 'none'; return }
+
+            section.style.display = 'block'
+            const loading = document.getElementById('checklist-loading')
+            const list    = document.getElementById('checklist-list')
+            const empty   = document.getElementById('checklist-empty')
+
+            loading.style.display = 'block'
+            list.style.display    = 'none'
+            empty.style.display   = 'none'
+            document.getElementById('create-checklist-form').style.display = 'none'
+            document.getElementById('create-checklist-input').value = ''
+
+            const { data, error } = await supabase
+                .from('mawl_checklists')
+                .select('id, coached_name, created_at')
+                .eq('network_id', networkId)
+                .order('created_at', { ascending: false })
+
+            loading.style.display = 'none'
+
+            if (error || !data || data.length === 0) {
+                empty.style.display = 'block'
+                return
+            }
+
+            list.innerHTML = ''
+            data.forEach(cl => {
+                const btn = document.createElement('button')
+                btn.className = 'checklist-item' + (cl.id === autoSelectId ? ' active' : '')
+                btn.dataset.id = cl.id
+                btn.textContent = cl.coached_name
+                btn.onclick = () => selectChecklist(cl.id)
+                list.appendChild(btn)
+            })
+            list.style.display = 'flex'
+
+            if (autoSelectId) selectChecklist(autoSelectId)
+        }
+
+        function selectChecklist(id) {
+            document.querySelectorAll('.checklist-item').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.id === id)
+            })
+            // Step 5: checklist content will load here
+        }
+
+        window.showCreateChecklist = function () {
+            document.getElementById('create-checklist-form').style.display = 'block'
+            document.getElementById('create-checklist-input').focus()
+        }
+
+        window.cancelCreateChecklist = function () {
+            document.getElementById('create-checklist-form').style.display = 'none'
+            document.getElementById('create-checklist-input').value = ''
+        }
+
+        window.submitCreateChecklist = async function () {
+            const input = document.getElementById('create-checklist-input')
+            const coached_name = input.value.trim()
+            if (!coached_name) { input.focus(); return }
+
+            const networkId = document.getElementById('network-select').value
+            if (!networkId) return
+
+            const btn = document.getElementById('create-checklist-submit')
+            btn.disabled = true
+            btn.textContent = 'Adding…'
+
+            const { data: { session } } = await supabase.auth.getSession()
+            const { data, error } = await supabase
+                .from('mawl_checklists')
+                .insert({ network_id: networkId, coached_name, created_by: session.user.id })
+                .select('id')
+                .single()
+
+            btn.disabled = false
+            btn.textContent = 'Add'
+
+            if (error) {
+                showNotification('Could not add checklist.')
+                return
+            }
+
+            input.value = ''
+            document.getElementById('create-checklist-form').style.display = 'none'
+            await loadChecklists(networkId, data.id)
         }
 
         // Load networks whenever auth state settles
@@ -141,6 +242,24 @@
         .network-empty-icon { font-size: 40px; margin-bottom: 12px; }
         .network-empty-title { font-size: 17px; font-weight: 600; color: #3a3a3c; margin-bottom: 6px; }
         .network-empty-sub { font-size: 14px; color: #8e8e93; }
+
+        /* Checklist section */
+        .checklist-section { padding: 0 16px 24px; border-top: 0.5px solid #c6c6c8; }
+        .checklist-row { display: flex; align-items: center; justify-content: space-between; padding: 20px 0 10px; }
+        .checklist-label { font-size: 13px; font-weight: 600; color: #8e8e93; text-transform: uppercase; letter-spacing: 0.5px; }
+        .add-checklist-btn { padding: 6px 14px; border: none; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; background: #00D084; color: #fff; font-family: inherit; }
+        .checklist-loading { padding: 24px 0; text-align: center; color: #8e8e93; font-size: 15px; }
+        .checklist-list { flex-direction: column; gap: 8px; }
+        .checklist-item { width: 100%; padding: 14px 16px; border: 1px solid #c6c6c8; border-radius: 12px; font-size: 16px; font-family: inherit; background: #fff; color: #000; text-align: left; cursor: pointer; font-weight: 500; }
+        .checklist-item.active { border-color: #00D084; background: #f0fff8; color: #009960; font-weight: 600; }
+        .checklist-empty { padding: 28px 0; text-align: center; color: #8e8e93; font-size: 15px; }
+        .create-checklist-form { margin-top: 12px; padding: 14px; background: #f2f2f7; border-radius: 12px; }
+        .create-checklist-input { width: 100%; padding: 11px 14px; border: 1px solid #c6c6c8; border-radius: 10px; font-size: 16px; font-family: inherit; background: #fff; outline: none; margin-bottom: 10px; }
+        .create-checklist-input:focus { border-color: #00D084; }
+        .create-checklist-actions { display: flex; gap: 8px; }
+        .create-checklist-submit { flex: 1; padding: 10px; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; background: #00D084; color: #fff; font-family: inherit; }
+        .create-checklist-submit:disabled { opacity: 0.6; cursor: default; }
+        .create-checklist-cancel { flex: 1; padding: 10px; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; background: #e5e5ea; color: #3a3a3c; font-family: inherit; }
 
         /* Access denied */
         .access-denied { display: none; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; padding: 40px 24px; text-align: center; }
@@ -198,7 +317,7 @@
                 <button class="create-network-btn" onclick="showCreateNetwork()">+ Create Network</button>
             </div>
             <div class="network-loading" id="network-loading">Loading networks…</div>
-            <select class="network-select" id="network-select" style="display:none">
+            <select class="network-select" id="network-select" style="display:none" onchange="onNetworkChange()">
                 <option value="">— Choose a network —</option>
             </select>
             <div class="create-network-form" id="create-network-form" style="display:none">
@@ -215,6 +334,25 @@
                 <div class="network-empty-title">No networks yet</div>
                 <div class="network-empty-sub">Use "+ Create Network" above to get started.</div>
             </div>
+        </div>
+
+        <div class="checklist-section" id="checklist-section" style="display:none">
+            <div class="checklist-row">
+                <div class="checklist-label">Checklists</div>
+                <button class="add-checklist-btn" onclick="showCreateChecklist()">+ Add Checklist</button>
+            </div>
+            <div class="checklist-loading" id="checklist-loading" style="display:none">Loading…</div>
+            <div class="checklist-list" id="checklist-list" style="display:none"></div>
+            <div class="create-checklist-form" id="create-checklist-form" style="display:none">
+                <input type="text" class="create-checklist-input" id="create-checklist-input"
+                       placeholder="Coached leader's name" maxlength="80"
+                       onkeydown="if(event.key==='Enter') submitCreateChecklist(); if(event.key==='Escape') cancelCreateChecklist()">
+                <div class="create-checklist-actions">
+                    <button class="create-checklist-submit" id="create-checklist-submit" onclick="submitCreateChecklist()">Add</button>
+                    <button class="create-checklist-cancel" onclick="cancelCreateChecklist()">Cancel</button>
+                </div>
+            </div>
+            <div class="checklist-empty" id="checklist-empty" style="display:none">No checklists yet. Use "+ Add Checklist" to create one.</div>
         </div>
 
     </div>
