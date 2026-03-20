@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>4 Questions — OBEY.TOOLS</title>
+    <title>4 Questions</title>
     <script type="module">
         import { supabase } from './supabase.js';
         window.supabase = supabase;
@@ -53,102 +53,260 @@
     </style>
 </head>
 <body>
-
-    <div class="sync-indicator" id="sync-indicator">Syncing...</div>
-
-    <div style="text-align:center; padding:20px 0 8px;">
-        <a href="index.html" style="display:inline-block; background:#000; color:#fff; font-weight:700; font-size:17px; padding:12px 28px; border-radius:50px; text-decoration:none;">Home</a>
-    </div>
-
-    <div class="container">
-
-        <!-- Auth section — wired to Supabase -->
-        <div class="auth-section" id="auth-section">
-            <div id="auth-form">
-                <input type="email" id="auth-email" placeholder="Email">
-                <input type="password" id="auth-password" placeholder="Password">
-                <div class="auth-buttons">
-                    <button class="auth-btn-primary" onclick="authSignUp()">Sign Up</button>
-                    <button class="auth-btn-secondary" onclick="authLogIn()">Log In</button>
-                </div>
-            </div>
-            <div class="auth-status" id="auth-status" style="display:none">
-                <span class="auth-status-text" id="auth-status-text">Not signed in</span>
-                <button class="auth-logout-btn" onclick="authLogOut()">Log Out</button>
-            </div>
-        </div>
-
-        <div class="page-header">
-            <div class="page-title">4 Questions</div>
-            <div class="page-subtitle">Start every spiritual conversation.</div>
-            <div class="accent-bar"></div>
-        </div>
-
-        <!-- ═══════════════════════════════════════════════════════════════════
-PLACE 4 QUESTIONS HERE
-        ════════════════════════════════════════════════════════════════════ -->
-        <div class="placeholder-body">
-            <div class="placeholder-icon">❓</div>
-            <div class="placeholder-heading">Coming Soon</div>
-            <div class="placeholder-text">4 Questions is under development. Check back soon for a guided tool to start meaningful spiritual conversations.</div>
-        </div>
-
-    </div>
-
-    <script>
-        function showNotification(message) {
-            const el = document.createElement('div');
-            el.className = 'notification';
-            el.textContent = message;
-            document.body.appendChild(el);
-            setTimeout(() => el.remove(), 3000);
-        }
-
-        function updateAuthUI(user) {
-            window._supabaseUser = user;
-            const form   = document.getElementById('auth-form');
-            const status = document.getElementById('auth-status');
-            const text   = document.getElementById('auth-status-text');
-            if (user) {
-                form.style.display   = 'none';
-                status.style.display = 'flex';
-                text.textContent     = 'Signed in as ' + user.email;
-            } else {
-                form.style.display   = 'block';
-                status.style.display = 'none';
-                text.textContent     = 'Not signed in';
-            }
-        }
-
-        async function authSignUp() {
-            const email    = document.getElementById('auth-email').value.trim();
-            const password = document.getElementById('auth-password').value;
-            const { error } = await window.supabase.auth.signUp({ email, password });
-            if (error) showNotification(error.message);
-            else        showNotification('Check your email to confirm sign up.');
-        }
-
-        async function authLogIn() {
-            const email    = document.getElementById('auth-email').value.trim();
-            const password = document.getElementById('auth-password').value;
-            const { error } = await window.supabase.auth.signInWithPassword({ email, password });
-            if (error) showNotification(error.message);
-        }
-
-        async function authLogOut() {
-            const { error } = await window.supabase.auth.signOut();
-            if (error) showNotification(error.message);
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            window.supabase.auth.getSession().then(({ data: { session } }) => {
-                updateAuthUI(session?.user ?? null);
-            });
-            window.supabase.auth.onAuthStateChange((_event, session) => {
-                updateAuthUI(session?.user ?? null);
-            });
-        });
-    </script>
-
+<!-- Progress bar -->
+<div class="progress-bar-container">
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  <div class="progress-text" id="progressText">0 of 6 completed</div>
+</div>
+<!-- ══════════════════════════════════════ -->
+<!-- SECTION 1 — Matthew 28:18-20 Overview -->
+<!-- ══════════════════════════════════════ -->
+<div class="section" data-id="s1" onclick="toggleSection(this)">
+  <div class="section-checkbox"></div>
+  <div class="svg-wrap" style="max-width:483px;">
+    <svg viewBox="0 0 483 410" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <filter id="pen1" x="-8%" y="-8%" width="116%" height="116%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" result="noise"/>
+          <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.0" xChannelSelector="R" yChannelSelector="G"/>
+        </filter>
+      </defs>
+      <path d="M16,10 Q90,6 241,7 Q392,6 465,9 Q468,8 469,13 L470,82 Q471,86 466,88 L241,90 Q110,92 18,89 Q13,88 12,84 L13,15 Q13,10 16,10 Z"
+        fill="white" stroke="#111" stroke-width="2.8" stroke-linejoin="round" filter="url(#pen1)"/>
+      <path d="M18,11 Q241,5 466,10 Q469,10 470,14 L469,81 Q468,87 464,88 L20,90 Q14,90 13,86 L14,16 Q14,11 18,11 Z"
+        fill="none" stroke="#111" stroke-width="0.9" stroke-linejoin="round" opacity="0.3" filter="url(#pen1)"/>
+      <text x="241" y="40" font-family="'Bebas Neue', sans-serif" font-size="27" fill="#111" text-anchor="middle" letter-spacing="1">READ MATTHEW 28:18-20</text>
+      <text x="241" y="60" font-family="Arial, sans-serif" font-size="18" fill="#333" text-anchor="middle">What is the primary command?</text>
+      <text x="241" y="80" font-family="Arial, sans-serif" font-size="18" fill="#333" text-anchor="middle">="Go... Make Disciples"</text>
+      <text x="241" y="128" font-family="Arial, sans-serif" font-size="18" fill="#999" text-anchor="middle">We need answers to the following in order</text>
+      <text x="241" y="150" font-family="Arial, sans-serif" font-size="18" fill="#999" text-anchor="middle">to obey this command:</text>
+      <ellipse cx="115" cy="200" rx="26" ry="17" fill="white" stroke="#111" stroke-width="2.2" filter="url(#pen1)"/>
+      <ellipse cx="115" cy="248" rx="26" ry="17" fill="white" stroke="#111" stroke-width="2.2" filter="url(#pen1)"/>
+      <ellipse cx="115" cy="296" rx="26" ry="17" fill="white" stroke="#111" stroke-width="2.2" filter="url(#pen1)"/>
+      <ellipse cx="115" cy="344" rx="26" ry="17" fill="white" stroke="#111" stroke-width="2.2" filter="url(#pen1)"/>
+      <text x="115" y="206" font-family="'Amatic SC',cursive" font-weight="700" font-size="19" fill="#111" stroke="#111" stroke-width="0.6" paint-order="stroke" text-anchor="middle">1</text>
+      <text x="115" y="254" font-family="'Amatic SC',cursive" font-weight="700" font-size="19" fill="#111" stroke="#111" stroke-width="0.6" paint-order="stroke" text-anchor="middle">2</text>
+      <text x="115" y="302" font-family="'Amatic SC',cursive" font-weight="700" font-size="19" fill="#111" stroke="#111" stroke-width="0.6" paint-order="stroke" text-anchor="middle">3</text>
+      <text x="115" y="350" font-family="'Amatic SC',cursive" font-weight="700" font-size="19" fill="#111" stroke="#111" stroke-width="0.6" paint-order="stroke" text-anchor="middle">4</text>
+      <text x="159" y="208" font-family="'Amatic SC',cursive" font-weight="700" font-size="32" fill="#111" stroke="#111" stroke-width="0.9" paint-order="stroke" text-anchor="start">WHY?</text>
+      <text x="159" y="256" font-family="'Amatic SC',cursive" font-weight="700" font-size="32" fill="#111" stroke="#111" stroke-width="0.9" paint-order="stroke" text-anchor="start">WHO?</text>
+      <text x="159" y="304" font-family="'Amatic SC',cursive" font-weight="700" font-size="32" fill="#111" stroke="#111" stroke-width="0.9" paint-order="stroke" text-anchor="start">HOW?</text>
+      <text x="159" y="352" font-family="'Amatic SC',cursive" font-weight="700" font-size="32" fill="#111" stroke="#111" stroke-width="0.9" paint-order="stroke" text-anchor="start">WHEN?</text>
+    </svg>
+  </div>
+</div>
+<!-- ══════════════════════════════════════ -->
+<img src="assets/images/divider.svg" alt="" class="divider">
+<!-- SECTION 2 — WHY? / Identity / Mark 1:17 -->
+<!-- ══════════════════════════════════════ -->
+<div class="section" data-id="s2" onclick="toggleSection(this)">
+  <div class="section-checkbox"></div>
+  <div class="label-top">Identity</div>
+  <div class="section-number">1. WHY?</div>
+  <div class="svg-wrap" style="max-width:400px;">
+    <svg viewBox="0 0 400 340" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <filter id="pen2" x="-5%" y="-5%" width="110%" height="110%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" result="noise"/>
+          <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.0" xChannelSelector="R" yChannelSelector="G"/>
+        </filter>
+        <marker id="arrowL" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto">
+          <path d="M0,1 L5,5 L0,9" fill="none" stroke="#111" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+        <marker id="arrowR" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto">
+          <path d="M0,1 L5,5 L0,9" fill="none" stroke="#111" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+      <path d="M30,10 Q100,5 200,6 Q300,5 368,8 Q372,7 373,12 L374,78 Q375,83 370,85 L200,87 Q100,89 32,86 Q27,85 26,80 L27,14 Q27,10 30,10 Z"
+        fill="white" stroke="#111" stroke-width="3.5" stroke-linejoin="round" filter="url(#pen2)"/>
+      <path d="M32,11 Q200,4 369,9 Q373,9 374,13 L373,77 Q372,83 368,84 L34,86 Q28,86 27,82 L28,15 Q28,11 32,11 Z"
+        fill="none" stroke="#111" stroke-width="1.2" stroke-linejoin="round" opacity="0.3" filter="url(#pen2)"/>
+      <text x="200" y="64" font-family="'Amatic SC', cursive" font-weight="700" font-size="68" fill="#111" text-anchor="middle" letter-spacing="2">MARK 1:17</text>
+      <path d="M145,90 C138,110 120,140 104,170 C90,196 78,216 68,238"
+        fill="none" stroke="#111" stroke-width="3.0" stroke-linecap="round" marker-end="url(#arrowL)" filter="url(#pen2)"/>
+      <path d="M250,90 C257,110 272,140 288,170 C302,196 314,216 324,238"
+        fill="none" stroke="#111" stroke-width="3.0" stroke-linecap="round" marker-end="url(#arrowR)" filter="url(#pen2)"/>
+      <text x="68" y="295" font-family="'Amatic SC', cursive" font-weight="700" font-size="56" fill="#111" text-anchor="middle" letter-spacing="2">FOLLOW</text>
+      <text x="324" y="295" font-family="'Amatic SC', cursive" font-weight="700" font-size="56" fill="#111" text-anchor="middle" letter-spacing="2">FISH</text>
+    </svg>
+  </div>
+</div>
+<!-- ══════════════════════════════════════ -->
+<img src="assets/images/divider.svg" alt="" class="divider">
+<!-- SECTION 3 — WHO? / Oikos Map          -->
+<!-- ══════════════════════════════════════ -->
+<div class="section" data-id="s3" onclick="toggleSection(this)">
+  <div class="section-checkbox"></div>
+  <div class="label-top">Oikos Map</div>
+  <div class="section-number">2. WHO?</div>
+  <div class="svg-wrap" style="max-width:420px;">
+    <svg viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <filter id="pen3" x="-15%" y="-15%" width="130%" height="130%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.6" numOctaves="3" stitchTiles="stitch" result="noise"/>
+          <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.0" xChannelSelector="R" yChannelSelector="G"/>
+        </filter>
+      </defs>
+      <line x1="300" y1="262" x2="300" y2="163" stroke="#111" stroke-width="2.8" stroke-linecap="round"/>
+      <line x1="364" y1="300" x2="412" y2="300" stroke="#111" stroke-width="2.8" stroke-linecap="round"/>
+      <line x1="300" y1="338" x2="300" y2="437" stroke="#111" stroke-width="2.8" stroke-linecap="round"/>
+      <line x1="236" y1="300" x2="194" y2="300" stroke="#111" stroke-width="2.8" stroke-linecap="round"/>
+      <line x1="278" y1="114" x2="207" y2="76" stroke="#111" stroke-width="2.2" stroke-linecap="round"/>
+      <line x1="322" y1="114" x2="393" y2="76" stroke="#111" stroke-width="2.2" stroke-linecap="round"/>
+      <line x1="490" y1="282" x2="533" y2="208" stroke="#111" stroke-width="2.2" stroke-linecap="round"/>
+      <line x1="490" y1="318" x2="533" y2="392" stroke="#111" stroke-width="2.2" stroke-linecap="round"/>
+      <line x1="322" y1="486" x2="393" y2="524" stroke="#111" stroke-width="2.2" stroke-linecap="round"/>
+      <line x1="278" y1="486" x2="207" y2="524" stroke="#111" stroke-width="2.2" stroke-linecap="round"/>
+      <line x1="110" y1="282" x2="67" y2="208" stroke="#111" stroke-width="2.2" stroke-linecap="round"/>
+      <line x1="110" y1="318" x2="67" y2="392" stroke="#111" stroke-width="2.2" stroke-linecap="round"/>
+      <ellipse cx="185" cy="58" rx="44" ry="26" fill="white" stroke="#111" stroke-width="2.8" filter="url(#pen3)"/>
+      <text x="185" y="66" font-family="'Amatic SC',cursive" font-weight="700" font-size="26" fill="#111" stroke="#111" stroke-width="1.2" paint-order="stroke" text-anchor="middle">Bob</text>
+      <ellipse cx="415" cy="58" rx="44" ry="26" fill="white" stroke="#111" stroke-width="2.8" filter="url(#pen3)"/>
+      <text x="415" y="66" font-family="'Amatic SC',cursive" font-weight="700" font-size="26" fill="#111" stroke="#111" stroke-width="1.2" paint-order="stroke" text-anchor="middle">Jim</text>
+      <ellipse cx="555" cy="188" rx="44" ry="26" fill="white" stroke="#111" stroke-width="2.8" filter="url(#pen3)"/>
+      <text x="555" y="196" font-family="'Amatic SC',cursive" font-weight="700" font-size="26" fill="#111" stroke="#111" stroke-width="1.2" paint-order="stroke" text-anchor="middle">Steve</text>
+      <ellipse cx="555" cy="412" rx="44" ry="26" fill="white" stroke="#111" stroke-width="2.8" filter="url(#pen3)"/>
+      <text x="555" y="420" font-family="'Amatic SC',cursive" font-weight="700" font-size="26" fill="#111" stroke="#111" stroke-width="1.2" paint-order="stroke" text-anchor="middle">Susie</text>
+      <ellipse cx="415" cy="542" rx="44" ry="26" fill="white" stroke="#111" stroke-width="2.8" filter="url(#pen3)"/>
+      <text x="415" y="550" font-family="'Amatic SC',cursive" font-weight="700" font-size="26" fill="#111" stroke="#111" stroke-width="1.2" paint-order="stroke" text-anchor="middle">Sam</text>
+      <ellipse cx="185" cy="542" rx="44" ry="26" fill="white" stroke="#111" stroke-width="2.8" filter="url(#pen3)"/>
+      <text x="185" y="550" font-family="'Amatic SC',cursive" font-weight="700" font-size="26" fill="#111" stroke="#111" stroke-width="1.2" paint-order="stroke" text-anchor="middle">Mary</text>
+      <ellipse cx="45" cy="188" rx="44" ry="26" fill="white" stroke="#111" stroke-width="2.8" filter="url(#pen3)"/>
+      <text x="45" y="196" font-family="'Amatic SC',cursive" font-weight="700" font-size="26" fill="#111" stroke="#111" stroke-width="1.2" paint-order="stroke" text-anchor="middle">James</text>
+      <ellipse cx="45" cy="412" rx="44" ry="26" fill="white" stroke="#111" stroke-width="2.8" filter="url(#pen3)"/>
+      <text x="45" y="420" font-family="'Amatic SC',cursive" font-weight="700" font-size="26" fill="#111" stroke="#111" stroke-width="1.2" paint-order="stroke" text-anchor="middle">Mark</text>
+      <ellipse cx="300" cy="130" rx="58" ry="33" fill="white" stroke="#111" stroke-width="3.2" filter="url(#pen3)"/>
+      <ellipse cx="300" cy="130" rx="58" ry="33" fill="none" stroke="#111" stroke-width="1.0" opacity="0.25" filter="url(#pen3)"/>
+      <text x="300" y="138" font-family="'Amatic SC',cursive" font-weight="700" font-size="30" fill="#111" stroke="#111" stroke-width="1.4" paint-order="stroke" text-anchor="middle">Passion</text>
+      <ellipse cx="470" cy="300" rx="58" ry="33" fill="white" stroke="#111" stroke-width="3.2" filter="url(#pen3)"/>
+      <ellipse cx="470" cy="300" rx="58" ry="33" fill="none" stroke="#111" stroke-width="1.0" opacity="0.25" filter="url(#pen3)"/>
+      <text x="470" y="308" font-family="'Amatic SC',cursive" font-weight="700" font-size="30" fill="#111" stroke="#111" stroke-width="1.4" paint-order="stroke" text-anchor="middle">People</text>
+      <ellipse cx="300" cy="470" rx="58" ry="33" fill="white" stroke="#111" stroke-width="3.2" filter="url(#pen3)"/>
+      <ellipse cx="300" cy="470" rx="58" ry="33" fill="none" stroke="#111" stroke-width="1.0" opacity="0.25" filter="url(#pen3)"/>
+      <text x="300" y="478" font-family="'Amatic SC',cursive" font-weight="700" font-size="30" fill="#111" stroke="#111" stroke-width="1.4" paint-order="stroke" text-anchor="middle">Place</text>
+      <ellipse cx="130" cy="300" rx="64" ry="33" fill="white" stroke="#111" stroke-width="3.2" filter="url(#pen3)"/>
+      <ellipse cx="130" cy="300" rx="64" ry="33" fill="none" stroke="#111" stroke-width="1.0" opacity="0.25" filter="url(#pen3)"/>
+      <text x="130" y="308" font-family="'Amatic SC',cursive" font-weight="700" font-size="28" fill="#111" stroke="#111" stroke-width="1.4" paint-order="stroke" text-anchor="middle">Profession</text>
+      <ellipse cx="300" cy="300" rx="64" ry="38" fill="white" stroke="#111" stroke-width="4.0" filter="url(#pen3)"/>
+      <ellipse cx="300" cy="300" rx="64" ry="38" fill="none" stroke="#111" stroke-width="1.2" opacity="0.25" filter="url(#pen3)"/>
+      <text x="300" y="308" font-family="'Amatic SC',cursive" font-weight="700" font-size="36" fill="#111" stroke="#111" stroke-width="1.6" paint-order="stroke" text-anchor="middle">Name</text>
+    </svg>
+  </div>
+  <div class="verse">*JOHN 17:20</div>
+</div>
+<!-- ══════════════════════════════════════ -->
+<img src="assets/images/divider.svg" alt="" class="divider">
+<!-- SECTION 4a — HOW? / 15 Second Story -->
+<!-- ══════════════════════════════════════ -->
+<div class="section" data-id="s4a" onclick="toggleSection(this)">
+  <div class="section-checkbox"></div>
+  <div class="label-top">15 Second Story</div>
+  <div class="section-number">3. HOW?</div>
+  <div class="svg-wrap" style="max-width:460px;">
+    <svg viewBox="0 0 460 300" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <filter id="pen4" x="-8%" y="-8%" width="116%" height="116%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" result="noise"/>
+          <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.0" xChannelSelector="R" yChannelSelector="G"/>
+        </filter>
+      </defs>
+      <line x1="230" y1="95" x2="230" y2="195" stroke="#111" stroke-width="2.6" stroke-linecap="round"/>
+      <line x1="208" y1="120" x2="252" y2="120" stroke="#111" stroke-width="2.6" stroke-linecap="round"/>
+      <line x1="188" y1="120" x2="150" y2="120" stroke="#111" stroke-width="2.2" stroke-linecap="round"/>
+      <polyline points="159,113 150,120 159,127" fill="none" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+      <line x1="272" y1="120" x2="310" y2="120" stroke="#111" stroke-width="2.2" stroke-linecap="round"/>
+      <polyline points="301,113 310,120 301,127" fill="none" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+      <line x1="80" y1="145" x2="148" y2="145" stroke="#111" stroke-width="1.6" stroke-linecap="round"/>
+      <line x1="84" y1="167" x2="148" y2="167" stroke="#111" stroke-width="1.6" stroke-linecap="round"/>
+      <line x1="312" y1="145" x2="378" y2="145" stroke="#111" stroke-width="1.6" stroke-linecap="round"/>
+      <line x1="312" y1="167" x2="378" y2="167" stroke="#111" stroke-width="1.6" stroke-linecap="round"/>
+      <line x1="186" y1="242" x2="274" y2="242" stroke="#111" stroke-width="1.6" stroke-linecap="round"/>
+      <line x1="18" y1="94" x2="74" y2="94" stroke="#111" stroke-width="1.4" stroke-linecap="round"/>
+      <line x1="386" y1="94" x2="444" y2="94" stroke="#111" stroke-width="1.4" stroke-linecap="round"/>
+      <text x="230" y="87" font-family="'Amatic SC',cursive" font-weight="700" font-size="26" fill="#111" stroke="#111" stroke-width="0.8" paint-order="stroke" text-anchor="middle">Jesus</text>
+      <text x="114" y="141" font-family="'Amatic SC',cursive" font-weight="700" font-size="21" fill="#111" stroke="#111" stroke-width="0.7" paint-order="stroke" text-anchor="middle">Anxious</text>
+      <text x="114" y="163" font-family="'Amatic SC',cursive" font-weight="700" font-size="21" fill="#111" stroke="#111" stroke-width="0.7" paint-order="stroke" text-anchor="middle">Selfish</text>
+      <text x="345" y="141" font-family="'Amatic SC',cursive" font-weight="700" font-size="21" fill="#111" stroke="#111" stroke-width="0.7" paint-order="stroke" text-anchor="middle">Joy</text>
+      <text x="345" y="163" font-family="'Amatic SC',cursive" font-weight="700" font-size="21" fill="#111" stroke="#111" stroke-width="0.7" paint-order="stroke" text-anchor="middle">Purpose</text>
+      <text x="230" y="238" font-family="'Amatic SC',cursive" font-weight="700" font-size="21" fill="#111" stroke="#111" stroke-width="0.7" paint-order="stroke" text-anchor="middle">Forgiven</text>
+      <text x="230" y="264" font-family="'Amatic SC',cursive" font-weight="700" font-size="21" fill="#111" stroke="#111" stroke-width="0.7" paint-order="stroke" text-anchor="middle">Follow</text>
+      <text x="46" y="88" font-family="'Amatic SC',cursive" font-weight="700" font-size="15" fill="#111" stroke="#111" stroke-width="0.4" paint-order="stroke" text-anchor="middle">INTRO:</text>
+      <text x="46" y="110" font-family="'Amatic SC',cursive" font-weight="700" font-size="15" fill="#111" stroke="#111" stroke-width="0.4" paint-order="stroke" text-anchor="middle">There was</text>
+      <text x="46" y="126" font-family="'Amatic SC',cursive" font-weight="700" font-size="15" fill="#111" stroke="#111" stroke-width="0.4" paint-order="stroke" text-anchor="middle">a time in</text>
+      <text x="46" y="142" font-family="'Amatic SC',cursive" font-weight="700" font-size="15" fill="#111" stroke="#111" stroke-width="0.4" paint-order="stroke" text-anchor="middle">my life...</text>
+      <text x="415" y="88" font-family="'Amatic SC',cursive" font-weight="700" font-size="15" fill="#111" stroke="#111" stroke-width="0.4" paint-order="stroke" text-anchor="middle">QUESTION:</text>
+      <text x="415" y="110" font-family="'Amatic SC',cursive" font-weight="700" font-size="15" fill="#111" stroke="#111" stroke-width="0.4" paint-order="stroke" text-anchor="middle">Do you</text>
+      <text x="415" y="126" font-family="'Amatic SC',cursive" font-weight="700" font-size="15" fill="#111" stroke="#111" stroke-width="0.4" paint-order="stroke" text-anchor="middle">have a story</text>
+      <text x="415" y="142" font-family="'Amatic SC',cursive" font-weight="700" font-size="15" fill="#111" stroke="#111" stroke-width="0.4" paint-order="stroke" text-anchor="middle">like that?</text>
+    </svg>
+  </div>
+</div>
+<!-- SECTION 4b — HOW? / 3 Circles -->
+<div class="section" data-id="s4b" onclick="toggleSection(this)">
+  <div class="section-checkbox"></div>
+  <div class="label-top">3 Circles Gospel Tool</div>
+  <img src="assets/images/3 Circles Gospel Tool updated.webp" alt="3 Circles Gospel Tool"
+    style="width:100%; max-width:460px; height:auto; display:block; border-radius: 8px;">
+</div>
+<!-- ══════════════════════════════════════ -->
+<img src="assets/images/divider.svg" alt="" class="divider">
+<!-- SECTION 5 — WHEN? / Goals             -->
+<!-- ══════════════════════════════════════ -->
+<div class="section" data-id="s5" onclick="toggleSection(this)" style="padding-bottom: 64px;">
+  <div class="section-checkbox"></div>
+  <div class="section-number" style="font-size: clamp(14px,3.5vw,18px); letter-spacing:0.28em;">4.</div>
+  <div class="when-title">WHEN?</div>
+  <div class="goals-label">GOALS</div>
+  <div class="goals-list">
+    <div class="goal-item">Share?</div>
+    <div class="goal-item">Pray?</div>
+    <div class="goal-item">Meet?</div>
+  </div>
+</div>
+<div class="reset-bar">
+  <button class="reset-btn" onclick="resetAll(event)">RESET</button>
+</div>
+<script>
+  const STORAGE_KEY = 'discipleship-guide-progress';
+  const TOTAL = 6;
+  function toggleSection(el) {
+    const id = el.dataset.id;
+    el.classList.toggle('completed');
+    saveProgress();
+    updateProgress();
+  }
+  function saveProgress() {
+    const completed = [];
+    document.querySelectorAll('.section.completed').forEach(function(s) {
+      completed.push(s.dataset.id);
+    });
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(completed));
+  }
+  function loadProgress() {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+    saved.forEach(function(id) {
+      const el = document.querySelector('[data-id="' + id + '"]');
+      if (el) el.classList.add('completed');
+    });
+    updateProgress();
+  }
+  function updateProgress() {
+    const completed = document.querySelectorAll('.section.completed').length;
+    const pct = (completed / TOTAL) * 100;
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('progressText').textContent = completed + ' of ' + TOTAL + ' completed';
+  }
+  function resetAll(e) {
+    e.stopPropagation();
+    if (confirm('Reset all progress?')) {
+      document.querySelectorAll('.section.completed').forEach(function(s) {
+        s.classList.remove('completed');
+      });
+      localStorage.removeItem(STORAGE_KEY);
+      updateProgress();
+    }
+  }
+  window.addEventListener('DOMContentLoaded', loadProgress);
+</script>
 </body>
 </html>
