@@ -8,93 +8,562 @@
         import { supabase } from './supabase.js';
         window.supabase = supabase;
     </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Oswald:wght@700&display=swap" rel="stylesheet">
+
     <style>
+        /* ── Reset & Base ───────────────────────────────────────────── */
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif; background: #f2f2f7; min-height: 100vh; color: #000; line-height: 1.4; }
-        .container { max-width: 375px; margin: 0 auto; background: #fff; min-height: 100vh; }
 
-        /* Auth section */
-        .auth-section { padding: 12px 16px; background: #f2f2f7; border-bottom: 0.5px solid #c6c6c8; }
-        .auth-section input { width: 100%; padding: 10px 14px; border: 1px solid #c6c6c8; border-radius: 8px; font-size: 15px; background: #fff; outline: none; margin-bottom: 8px; font-family: inherit; }
-        .auth-section input:focus { border-color: #3a3a3c; }
-        .auth-buttons { display: flex; gap: 8px; }
-        .auth-buttons button { flex: 1; padding: 10px; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; }
-        .auth-btn-primary { background: #3a3a3c; color: #fff; }
-        .auth-btn-secondary { background: #e5e5ea; color: #3a3a3c; }
-        .auth-status { display: flex; align-items: center; justify-content: space-between; }
-        .auth-status-text { font-size: 13px; color: #8e8e93; }
-        .auth-logout-btn { padding: 6px 14px; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; background: #e5e5ea; color: #3a3a3c; font-family: inherit; }
+        body {
+            background: #fff;
+            min-height: 100vh;
+            color: #111;
+            font-family: 'Special Elite', 'Courier New', monospace;
+            line-height: 1.5;
+        }
 
-        /* Page header */
-        .page-header { padding: 28px 16px 20px; background: #fff; text-align: center; border-bottom: 0.5px solid #c6c6c8; }
-        .page-title { font-size: 26px; font-weight: 900; letter-spacing: -0.5px; color: #000; }
-        .page-subtitle { font-size: 14px; color: #8e8e93; margin-top: 4px; }
-        .accent-bar { width: 48px; height: 5px; background: #2ECC71; border-radius: 3px; margin: 12px auto 0; }
+        /* ── Centered narrow column ─────────────────────────────────── */
+        .page-wrap {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 0 28px 80px;
+        }
 
-        /* Placeholder content */
-        .placeholder-body { padding: 48px 24px; text-align: center; }
-        .placeholder-icon { font-size: 48px; margin-bottom: 16px; }
-        .placeholder-heading { font-size: 20px; font-weight: 700; color: #1c1c1e; margin-bottom: 10px; }
-        .placeholder-text { font-size: 15px; color: #8e8e93; max-width: 280px; margin: 0 auto; line-height: 1.6; }
+        /* ── Home pill ──────────────────────────────────────────────── */
+        .home-btn-wrap {
+            text-align: center;
+            padding: 22px 0 10px;
+        }
+        .home-btn {
+            display: inline-block;
+            background: #111;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 700;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            padding: 6px 18px;
+            border-radius: 50px;
+            text-decoration: none;
+            letter-spacing: 0.4px;
+        }
 
-        /* Sync indicator */
-        .sync-indicator { position: fixed; top: 10px; left: 10px; background: rgba(52,199,89,0.9); color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; z-index: 9999; display: none; }
-        .sync-indicator.syncing { background: rgba(255,149,0,0.9); display: block; }
-        .sync-indicator.synced  { background: rgba(52,199,89,0.9); display: block; }
+        /* ── Page title ─────────────────────────────────────────────── */
+        .page-title-wrap {
+            text-align: center;
+            padding: 18px 0 6px;
+        }
+        .page-title {
+            font-family: 'Oswald', 'Arial Black', sans-serif;
+            font-size: 52px;
+            font-weight: 700;
+            letter-spacing: 6px;
+            color: #1db954;
+            line-height: 1;
+        }
+        .page-subtitle {
+            font-family: 'Special Elite', monospace;
+            font-size: 12px;
+            color: #555;
+            margin-top: 10px;
+            line-height: 1.6;
+            max-width: 340px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .page-subtitle .green { color: #1db954; }
 
-        /* Notification */
-        .notification { position: fixed; top: 60px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: white; padding: 12px 20px; border-radius: 8px; font-size: 15px; font-weight: 500; z-index: 1000; opacity: 0; animation: notificationSlide 3s ease; }
-        @keyframes notificationSlide { 0% { opacity:0; transform:translateX(-50%) translateY(-20px); } 10% { opacity:1; transform:translateX(-50%) translateY(0); } 90% { opacity:1; transform:translateX(-50%) translateY(0); } 100% { opacity:0; transform:translateX(-50%) translateY(-20px); } }
+        /* ── Rough divider ──────────────────────────────────────────── */
+        .rough-divider {
+            margin: 44px 0;
+            width: 100%;
+            height: 14px;
+        }
 
-        @media (min-width: 768px) {
-            .container { max-width: 768px; border-radius: 12px; margin: 20px auto; box-shadow: 0 4px 20px rgba(0,0,0,0.1); overflow: hidden; }
+        /* ── Section shared styles ──────────────────────────────────── */
+        .section {
+            text-align: center;
+            padding: 8px 0 16px;
+        }
+
+        .section-label {
+            font-family: 'Special Elite', monospace;
+            font-size: 10px;
+            letter-spacing: 2.5px;
+            color: #aaa;
+            text-transform: uppercase;
+            margin-bottom: 28px;
+        }
+
+        /* ── Scripture box (intro) ──────────────────────────────────── */
+        .scripture-box {
+            border: 1.5px solid #111;
+            padding: 14px 22px;
+            display: inline-block;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .scripture-box .ref {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+        .scripture-box .question {
+            font-size: 11px;
+            color: #333;
+            margin-top: 4px;
+        }
+        .scripture-box .answer {
+            font-size: 11px;
+            font-style: italic;
+            color: #555;
+            margin-top: 2px;
+        }
+
+        /* ── Intro note ─────────────────────────────────────────────── */
+        .intro-note {
+            font-size: 11px;
+            color: #777;
+            margin-bottom: 18px;
+            letter-spacing: 0.3px;
+            line-height: 1.7;
+        }
+
+        /* ── Numbered question list ─────────────────────────────────── */
+        .questions-list {
+            list-style: none;
+            display: inline-block;
+            text-align: left;
+        }
+        .questions-list li {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 12px;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+            font-family: 'Special Elite', monospace;
+        }
+        .q-num {
+            width: 22px;
+            height: 22px;
+            border: 1.5px solid #111;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            flex-shrink: 0;
+            font-family: 'Special Elite', monospace;
+        }
+
+        /* ── Scripture footnote ─────────────────────────────────────── */
+        .scripture-footnote {
+            font-size: 10px;
+            color: #999;
+            margin-top: 18px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        /* ── SVG diagram wrapper ────────────────────────────────────── */
+        .diagram-wrap {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .diagram-wrap svg {
+            overflow: visible;
+            display: block;
+        }
+
+        /* ── Auth section (hidden, preserved for Supabase) ──────────── */
+        .auth-section { display: none; }
+
+        /* ── Mobile responsive ──────────────────────────────────────── */
+        @media (max-width: 480px) {
+            .page-title { font-size: 38px; letter-spacing: 4px; }
+            .page-wrap { padding: 0 18px 60px; }
         }
     </style>
 </head>
 <body>
 
-    <div class="sync-indicator" id="sync-indicator">Syncing...</div>
-
-    <div style="text-align:center; padding:20px 0 8px;">
-        <a href="index.html" style="display:inline-block; background:#000; color:#fff; font-weight:700; font-size:17px; padding:12px 28px; border-radius:50px; text-decoration:none;">Home</a>
-    </div>
-
-    <div class="container">
-
-        <!-- Auth section — wired to Supabase -->
-        <div class="auth-section" id="auth-section">
-            <div id="auth-form">
-                <input type="email" id="auth-email" placeholder="Email">
-                <input type="password" id="auth-password" placeholder="Password">
-                <div class="auth-buttons">
-                    <button class="auth-btn-primary" onclick="authSignUp()">Sign Up</button>
-                    <button class="auth-btn-secondary" onclick="authLogIn()">Log In</button>
-                </div>
-            </div>
-            <div class="auth-status" id="auth-status" style="display:none">
-                <span class="auth-status-text" id="auth-status-text">Not signed in</span>
-                <button class="auth-logout-btn" onclick="authLogOut()">Log Out</button>
+    <!-- ═══════════════════════════════════════════════════════════
+         AUTH (hidden — Supabase session preserved in background)
+    ═══════════════════════════════════════════════════════════ -->
+    <div class="auth-section" id="auth-section">
+        <div id="auth-form">
+            <input type="email"     id="auth-email"    placeholder="Email">
+            <input type="password"  id="auth-password" placeholder="Password">
+            <div class="auth-buttons">
+                <button onclick="authSignUp()">Sign Up</button>
+                <button onclick="authLogIn()">Log In</button>
             </div>
         </div>
-
-        <div class="page-header">
-            <div class="page-title">4 Questions</div>
-            <div class="page-subtitle">Start every spiritual conversation.</div>
-            <div class="accent-bar"></div>
+        <div id="auth-status" style="display:none">
+            <span id="auth-status-text">Not signed in</span>
+            <button onclick="authLogOut()">Log Out</button>
         </div>
-
-        <!-- ═══════════════════════════════════════════════════════════════════
-PLACE 4 QUESTIONS HERE
-        ════════════════════════════════════════════════════════════════════ -->
-        <div class="placeholder-body">
-            <div class="placeholder-icon">❓</div>
-            <div class="placeholder-heading">Coming Soon</div>
-            <div class="placeholder-text">4 Questions is under development. Check back soon for a guided tool to start meaningful spiritual conversations.</div>
-        </div>
-
     </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         HOME BUTTON
+    ═══════════════════════════════════════════════════════════ -->
+    <div class="home-btn-wrap">
+        <a href="index.html" class="home-btn">Home</a>
+    </div>
+
+    <div class="page-wrap">
+
+        <!-- PAGE TITLE -->
+        <div class="page-title-wrap">
+            <div class="page-title">4 QUESTIONS</div>
+            <div class="page-subtitle">
+                Start here with new believers <span class="green">(green lights)</span> or believers who need to be trained in getting started.
+            </div>
+        </div>
+
+        <!-- ─── ROUGH DIVIDER ─── -->
+        <div class="rough-divider">
+            <svg width="100%" height="14" viewBox="0 0 440 14" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M0,7 C10,3 20,11 30,7 C40,3 50,11 60,7 C70,3 80,11 90,7 C100,3 110,11 120,7 C130,3 140,11 150,7 C160,3 170,11 180,7 C190,3 200,11 210,7 C220,3 230,11 240,7 C250,3 260,11 270,7 C280,3 290,11 300,7 C310,3 320,11 330,7 C340,3 350,11 360,7 C370,3 380,11 390,7 C400,3 410,11 420,7 C430,3 440,7 440,7" stroke="#111" stroke-width="1.5" fill="none"/>
+            </svg>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════
+             SECTION 1 — FourQuestionsIntro
+        ═══════════════════════════════════════════════════════════ -->
+        <div id="four-questions-intro" class="section">
+
+            <!-- Scripture reference box -->
+            <div class="scripture-box">
+                <div class="ref">Read Matthew 28:18–20</div>
+                <div class="question">What is the primary command?</div>
+                <div class="answer">"Go… Make Disciples"</div>
+            </div>
+
+            <div class="intro-note">
+                We need answers to the following in order<br>to obey this command:
+            </div>
+
+            <!-- Numbered list -->
+            <ul class="questions-list">
+                <li><span class="q-num">1</span> WHY?</li>
+                <li><span class="q-num">2</span> WHO?</li>
+                <li><span class="q-num">3</span> HOW?</li>
+                <li><span class="q-num">4</span> WHEN?</li>
+            </ul>
+
+        </div>
+
+        <!-- ─── ROUGH DIVIDER ─── -->
+        <div class="rough-divider">
+            <svg width="100%" height="14" viewBox="0 0 440 14" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M0,7 C8,2 16,12 24,7 C32,2 40,12 48,7 C56,2 64,12 72,7 C80,2 88,12 96,7 C104,2 112,12 120,7 C128,2 136,12 144,7 C152,2 160,12 168,7 C176,2 184,12 192,7 C200,2 208,12 216,7 C224,2 232,12 240,7 C248,2 256,12 264,7 C272,2 280,12 288,7 C296,2 304,12 312,7 C320,2 328,12 336,7 C344,2 352,12 360,7 C368,2 376,12 384,7 C392,2 400,12 408,7 C416,2 424,12 432,7 C436,4 440,7 440,7" stroke="#111" stroke-width="1.5" fill="none"/>
+            </svg>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════
+             SECTION 2 — Mark117Section
+        ═══════════════════════════════════════════════════════════ -->
+        <div id="mark-117-section" class="section">
+
+            <div class="section-label">1. WHY?</div>
+
+            <div class="diagram-wrap">
+                <!-- Branch diagram: MARK 1:17 → FOLLOW | FISH -->
+                <svg width="320" height="210" viewBox="0 0 320 210" xmlns="http://www.w3.org/2000/svg">
+
+                    <!-- MARK 1:17 rectangle -->
+                    <rect x="80" y="20" width="160" height="52" fill="none" stroke="#111" stroke-width="2"/>
+                    <text x="160" y="53"
+                          text-anchor="middle"
+                          font-family="'Special Elite', monospace"
+                          font-size="19"
+                          font-weight="700"
+                          letter-spacing="3"
+                          fill="#111">MARK 1:17</text>
+
+                    <!-- Left branch line (to FOLLOW) -->
+                    <line x1="110" y1="72" x2="55"  y2="158" stroke="#111" stroke-width="1.5"/>
+                    <!-- Left arrowhead -->
+                    <polygon points="55,160 48,145 63,147" fill="#111"/>
+
+                    <!-- Right branch line (to FISH) -->
+                    <line x1="210" y1="72" x2="265" y2="158" stroke="#111" stroke-width="1.5"/>
+                    <!-- Right arrowhead -->
+                    <polygon points="265,160 257,147 271,145" fill="#111"/>
+
+                    <!-- FOLLOW label -->
+                    <text x="55" y="188"
+                          text-anchor="middle"
+                          font-family="'Special Elite', monospace"
+                          font-size="17"
+                          font-weight="700"
+                          letter-spacing="3"
+                          fill="#111">FOLLOW</text>
+
+                    <!-- FISH label -->
+                    <text x="265" y="188"
+                          text-anchor="middle"
+                          font-family="'Special Elite', monospace"
+                          font-size="17"
+                          font-weight="700"
+                          letter-spacing="3"
+                          fill="#111">FISH</text>
+
+                </svg>
+            </div>
+
+        </div>
+
+        <!-- ─── ROUGH DIVIDER ─── -->
+        <div class="rough-divider">
+            <svg width="100%" height="14" viewBox="0 0 440 14" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M0,8 C12,4 24,12 36,8 C48,4 60,12 72,8 C84,4 96,12 108,8 C120,4 132,12 144,8 C156,4 168,12 180,8 C192,4 204,12 216,8 C228,4 240,12 252,8 C264,4 276,12 288,8 C300,4 312,12 324,8 C336,4 348,12 360,8 C372,4 384,12 396,8 C408,4 420,12 432,8 C436,6 440,8 440,8" stroke="#111" stroke-width="1.5" fill="none"/>
+            </svg>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════
+             SECTION 3 — John120Section
+        ═══════════════════════════════════════════════════════════ -->
+        <div id="john-120-section" class="section">
+
+            <div class="section-label">2. WHO?</div>
+
+            <div class="diagram-wrap">
+                <!-- Radial / spider-web diagram centered on "Name" -->
+                <svg width="340" height="300" viewBox="0 0 340 300" xmlns="http://www.w3.org/2000/svg">
+
+                    <!-- Spoke lines from center (170, 150) to each satellite node -->
+                    <!-- Top-center: Passion -->
+                    <line x1="170" y1="150" x2="170" y2="54"  stroke="#111" stroke-width="1"/>
+                    <!-- Top-right: Me -->
+                    <line x1="170" y1="150" x2="252" y2="72"  stroke="#111" stroke-width="1"/>
+                    <!-- Right: Pride -->
+                    <line x1="170" y1="150" x2="286" y2="150" stroke="#111" stroke-width="1"/>
+                    <!-- Bottom-right: Sin -->
+                    <line x1="170" y1="150" x2="248" y2="224" stroke="#111" stroke-width="1"/>
+                    <!-- Bottom-center: Place -->
+                    <line x1="170" y1="150" x2="170" y2="246" stroke="#111" stroke-width="1"/>
+                    <!-- Bottom-left: Mark -->
+                    <line x1="170" y1="150" x2="92"  y2="224" stroke="#111" stroke-width="1"/>
+                    <!-- Left: Passion -->
+                    <line x1="170" y1="150" x2="54"  y2="150" stroke="#111" stroke-width="1"/>
+                    <!-- Top-left: Cause -->
+                    <line x1="170" y1="150" x2="88"  y2="72"  stroke="#111" stroke-width="1"/>
+                    <!-- Extra spoke: Sam (upper-left area) -->
+                    <line x1="170" y1="150" x2="116" y2="48"  stroke="#111" stroke-width="1"/>
+                    <!-- Extra spoke: Purpose (upper-right area) -->
+                    <line x1="170" y1="150" x2="224" y2="48"  stroke="#111" stroke-width="1"/>
+
+                    <!-- ── CENTER NODE ── -->
+                    <ellipse cx="170" cy="150" rx="33" ry="22" fill="#fff" stroke="#111" stroke-width="1.8"/>
+                    <text x="170" y="154"
+                          text-anchor="middle"
+                          font-family="'Special Elite', monospace"
+                          font-size="12"
+                          fill="#111">Name</text>
+
+                    <!-- ── SATELLITE NODES ── -->
+                    <!-- Passion (top) -->
+                    <ellipse cx="170" cy="45"  rx="28" ry="17" fill="#fff" stroke="#111" stroke-width="1"/>
+                    <text x="170" y="49"  text-anchor="middle" font-family="'Special Elite', monospace" font-size="9" fill="#111">Passion</text>
+
+                    <!-- Me (top-right) -->
+                    <ellipse cx="254" cy="64"  rx="22" ry="15" fill="#fff" stroke="#111" stroke-width="1"/>
+                    <text x="254" y="68"  text-anchor="middle" font-family="'Special Elite', monospace" font-size="9" fill="#111">Me</text>
+
+                    <!-- Pride (right) -->
+                    <ellipse cx="292" cy="150" rx="28" ry="17" fill="#fff" stroke="#111" stroke-width="1"/>
+                    <text x="292" y="154" text-anchor="middle" font-family="'Special Elite', monospace" font-size="9" fill="#111">Pride</text>
+
+                    <!-- Sin (bottom-right) -->
+                    <ellipse cx="250" cy="230" rx="22" ry="15" fill="#fff" stroke="#111" stroke-width="1"/>
+                    <text x="250" y="234" text-anchor="middle" font-family="'Special Elite', monospace" font-size="9" fill="#111">Sin</text>
+
+                    <!-- Place (bottom) -->
+                    <ellipse cx="170" cy="254" rx="27" ry="17" fill="#fff" stroke="#111" stroke-width="1"/>
+                    <text x="170" y="258" text-anchor="middle" font-family="'Special Elite', monospace" font-size="9" fill="#111">Place</text>
+
+                    <!-- Mark (bottom-left) -->
+                    <ellipse cx="90"  cy="230" rx="22" ry="15" fill="#fff" stroke="#111" stroke-width="1"/>
+                    <text x="90"  y="234" text-anchor="middle" font-family="'Special Elite', monospace" font-size="9" fill="#111">Mark</text>
+
+                    <!-- Passion (left) -->
+                    <ellipse cx="48"  cy="150" rx="28" ry="17" fill="#fff" stroke="#111" stroke-width="1"/>
+                    <text x="48"  y="154" text-anchor="middle" font-family="'Special Elite', monospace" font-size="9" fill="#111">Passion</text>
+
+                    <!-- Cause (top-left) -->
+                    <ellipse cx="86"  cy="64"  rx="26" ry="16" fill="#fff" stroke="#111" stroke-width="1"/>
+                    <text x="86"  y="68"  text-anchor="middle" font-family="'Special Elite', monospace" font-size="9" fill="#111">Cause</text>
+
+                    <!-- Sam (upper-left) -->
+                    <ellipse cx="116" cy="40"  rx="20" ry="14" fill="#fff" stroke="#111" stroke-width="1"/>
+                    <text x="116" y="44"  text-anchor="middle" font-family="'Special Elite', monospace" font-size="9" fill="#111">Sam</text>
+
+                    <!-- Purpose (upper-right) -->
+                    <ellipse cx="224" cy="40"  rx="24" ry="14" fill="#fff" stroke="#111" stroke-width="1"/>
+                    <text x="224" y="44"  text-anchor="middle" font-family="'Special Elite', monospace" font-size="9" fill="#111">Purpose</text>
+
+                </svg>
+            </div>
+
+            <div class="scripture-footnote">*JOHN 17:20</div>
+
+        </div>
+
+        <!-- ─── ROUGH DIVIDER ─── -->
+        <div class="rough-divider">
+            <svg width="100%" height="14" viewBox="0 0 440 14" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M0,6 C14,2 28,10 42,6 C56,2 70,10 84,6 C98,2 112,10 126,6 C140,2 154,10 168,6 C182,2 196,10 210,6 C224,2 238,10 252,6 C266,2 280,10 294,6 C308,2 322,10 336,6 C350,2 364,10 378,6 C392,2 406,10 420,6 C428,3 440,6 440,6" stroke="#111" stroke-width="1.5" fill="none"/>
+            </svg>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════
+             SECTION 4 — ThreeJohnSection
+        ═══════════════════════════════════════════════════════════ -->
+        <div id="three-john-section" class="section">
+
+            <div class="section-label">3. HOW?</div>
+
+            <div class="diagram-wrap">
+                <!--
+                    Cross / axis diagram.
+                    Horizontal axis: Obeying Station ←—— Jesus ——→ People
+                    Vertical axis: above (Be Trained / Follow) and below (Tradition / Follow)
+                -->
+                <svg width="380" height="280" viewBox="0 0 380 280" xmlns="http://www.w3.org/2000/svg">
+
+                    <!-- Horizontal axis line -->
+                    <line x1="30"  y1="140" x2="350" y2="140" stroke="#111" stroke-width="1.5"/>
+                    <!-- Left arrowhead -->
+                    <polygon points="30,140 42,134 42,146" fill="#111"/>
+                    <!-- Right arrowhead -->
+                    <polygon points="350,140 338,134 338,146" fill="#111"/>
+
+                    <!-- Vertical axis line -->
+                    <line x1="190" y1="24"  x2="190" y2="256" stroke="#111" stroke-width="1.5"/>
+                    <!-- Top arrowhead -->
+                    <polygon points="190,24 184,36 196,36" fill="#111"/>
+                    <!-- Bottom arrowhead -->
+                    <polygon points="190,256 184,244 196,244" fill="#111"/>
+
+                    <!-- CENTER: Jesus -->
+                    <text x="190" y="136"
+                          text-anchor="middle"
+                          font-family="'Special Elite', monospace"
+                          font-size="14"
+                          font-weight="700"
+                          fill="#111">Jesus</text>
+
+                    <!-- LEFT SIDE: Obeying Station label block -->
+                    <text x="28" y="108"
+                          text-anchor="start"
+                          font-family="'Special Elite', monospace"
+                          font-size="8.5"
+                          fill="#555">Obeying</text>
+                    <text x="28" y="120"
+                          text-anchor="start"
+                          font-family="'Special Elite', monospace"
+                          font-size="8.5"
+                          fill="#555">Station</text>
+                    <text x="28" y="160"
+                          text-anchor="start"
+                          font-family="'Special Elite', monospace"
+                          font-size="8.5"
+                          fill="#555">Be trained</text>
+                    <text x="28" y="172"
+                          text-anchor="start"
+                          font-family="'Special Elite', monospace"
+                          font-size="8.5"
+                          fill="#555">in the way</text>
+
+                    <!-- RIGHT SIDE: People / Purpose label block -->
+                    <text x="352" y="108"
+                          text-anchor="end"
+                          font-family="'Special Elite', monospace"
+                          font-size="8.5"
+                          fill="#555">People</text>
+                    <text x="352" y="120"
+                          text-anchor="end"
+                          font-family="'Special Elite', monospace"
+                          font-size="8.5"
+                          fill="#555">to be</text>
+                    <text x="352" y="160"
+                          text-anchor="end"
+                          font-family="'Special Elite', monospace"
+                          font-size="8.5"
+                          fill="#555">sent out</text>
+                    <text x="352" y="172"
+                          text-anchor="end"
+                          font-family="'Special Elite', monospace"
+                          font-size="8.5"
+                          fill="#555">to fish</text>
+
+                    <!-- TOP: Follow / Obey -->
+                    <text x="190" y="44"
+                          text-anchor="middle"
+                          font-family="'Special Elite', monospace"
+                          font-size="9"
+                          fill="#555">OBEY</text>
+                    <text x="190" y="56"
+                          text-anchor="middle"
+                          font-family="'Special Elite', monospace"
+                          font-size="9"
+                          fill="#555">FOLLOW</text>
+
+                    <!-- BOTTOM: Tradition / Follow -->
+                    <text x="190" y="238"
+                          text-anchor="middle"
+                          font-family="'Special Elite', monospace"
+                          font-size="9"
+                          fill="#555">TRADITION</text>
+                    <text x="190" y="250"
+                          text-anchor="middle"
+                          font-family="'Special Elite', monospace"
+                          font-size="9"
+                          fill="#555">FOLLOW</text>
+
+                </svg>
+            </div>
+
+            <div class="scripture-footnote">3 JOHN</div>
+
+        </div>
+
+    </div><!-- /page-wrap -->
+
+    <!-- ─── Notification toast ─── -->
+    <style>
+        .notification {
+            position: fixed;
+            top: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.82);
+            color: #fff;
+            padding: 11px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: -apple-system, sans-serif;
+            z-index: 1000;
+            opacity: 0;
+            animation: notifSlide 3s ease;
+        }
+        @keyframes notifSlide {
+            0%   { opacity:0; transform:translateX(-50%) translateY(-16px); }
+            10%  { opacity:1; transform:translateX(-50%) translateY(0); }
+            90%  { opacity:1; transform:translateX(-50%) translateY(0); }
+            100% { opacity:0; transform:translateX(-50%) translateY(-16px); }
+        }
+    </style>
 
     <script>
+        /* ── Notification helper ── */
         function showNotification(message) {
             const el = document.createElement('div');
             el.className = 'notification';
@@ -103,6 +572,7 @@ PLACE 4 QUESTIONS HERE
             setTimeout(() => el.remove(), 3000);
         }
 
+        /* ── Auth helpers (Supabase — UI hidden but session active) ── */
         function updateAuthUI(user) {
             window._supabaseUser = user;
             const form   = document.getElementById('auth-form');
@@ -115,7 +585,6 @@ PLACE 4 QUESTIONS HERE
             } else {
                 form.style.display   = 'block';
                 status.style.display = 'none';
-                text.textContent     = 'Not signed in';
             }
         }
 
@@ -140,6 +609,7 @@ PLACE 4 QUESTIONS HERE
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+            if (!window.supabase) return;
             window.supabase.auth.getSession().then(({ data: { session } }) => {
                 updateAuthUI(session?.user ?? null);
             });
