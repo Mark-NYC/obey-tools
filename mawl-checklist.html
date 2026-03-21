@@ -628,12 +628,14 @@
             await renderCollaboratorPanel(checklistId, section)
         }
 
+        const MAWL_STAGES = ['M', 'A', 'W', 'L']
+
         function buildPlaybookItemRow(item) {
             const prog = _playbookProgress[item.id] ?? {}
-            const activeStage = prog.mawl_stage ?? null
+            const highestIdx = MAWL_STAGES.indexOf(prog.mawl_stage ?? '')
 
             const row = document.createElement('div')
-            row.className = 'mawl-item-row' + (activeStage === 'L' ? ' pb-completed' : '')
+            row.className = 'mawl-item-row' + (highestIdx === 3 ? ' pb-completed' : '')
             row.id = 'mawl-row-' + item.id
 
             const labelEl = document.createElement('div')
@@ -643,11 +645,12 @@
 
             const stageBtns = document.createElement('div')
             stageBtns.className = 'mawl-stage-btns'
-            ;['M', 'A', 'W', 'L'].forEach(stage => {
+            MAWL_STAGES.forEach((stage, idx) => {
+                const filled = idx <= highestIdx
                 const btn = document.createElement('button')
-                btn.className = 'mawl-stage-btn' + (activeStage === stage ? ' done' : '')
+                btn.className = 'mawl-stage-btn' + (filled ? ' done' : '')
                 btn.textContent = stage
-                btn.setAttribute('aria-label', stage + (activeStage === stage ? ' (active)' : ''))
+                btn.setAttribute('aria-label', stage + (filled ? ' (reached)' : ''))
                 btn.onclick = () => setMawlStage(item.id, stage)
                 stageBtns.appendChild(btn)
             })
@@ -659,7 +662,12 @@
         async function setMawlStage(itemId, stage) {
             if (!_activeChecklistId) return
             const current = _playbookProgress[itemId] ?? {}
-            const newStage = current.mawl_stage === stage ? null : stage
+            const curIdx     = MAWL_STAGES.indexOf(current.mawl_stage ?? '')
+            const clickedIdx = MAWL_STAGES.indexOf(stage)
+            // clicking the current highest steps back one level; M clears to null
+            const newStage = clickedIdx === curIdx
+                ? (curIdx > 0 ? MAWL_STAGES[curIdx - 1] : null)
+                : MAWL_STAGES[clickedIdx]
             const { error } = await supabase
                 .from('checklist_item_progress')
                 .upsert({ checklist_id: _activeChecklistId, item_id: itemId, mawl_stage: newStage },
