@@ -11,64 +11,12 @@
         window.authLogIn  = authLogIn
         window.authLogOut = authLogOut
 
-        // ── MAWL item definitions ─────────────────────────────────────────────
-        // These are the stable coaching items. item_key values are the DB keys.
-        const MAWL_ITEMS = [
-            { category: 'Personal Habits', items: [
-                { key: 'habits_self_feeding',         label: 'Self Feeding' },
-                { key: 'habits_sos_read_word',        label: 'SOS \u2013 Read the Word Daily' },
-                { key: 'habits_pray_daily',           label: 'Pray Daily' },
-                { key: 'habits_prepare_persecution',  label: 'Prepare for Persecution' },
-                { key: 'habits_body_life',            label: "Body Life (One Another's)" },
-            ]},
-            { category: 'Stories of Hope', items: [
-                { key: 'stories_sinful_woman',        label: '1. Sinful Woman \u2013 Lk 7:36-50' },
-                { key: 'stories_tax_collector',       label: '2. Tax Collector \u2013 Lk 18:9-17' },
-                { key: 'stories_zacchaeus',           label: '3. Zacchaeus \u2013 Lk 19:1-10' },
-                { key: 'stories_unforgiving_servant', label: '4. Unforgiving Serv. \u2013 Mt. 18:21-35' },
-                { key: 'stories_thieves_on_cross',    label: '5. Thieves on Cross \u2013 Lk 23:26-43' },
-                { key: 'stories_resurrection',        label: '6. Resurrection \u2013 Lk 24:1-20' },
-                { key: 'stories_prodigal_son',        label: '7. Prodigal Son \u2013 Luke 15:11-32' },
-            ]},
-            { category: 'Gospel Tools', items: [
-                { key: 'gospel_pop_prayer_walk', label: 'Person of Peace/Prayer Walking' },
-                { key: 'gospel_4_responses',     label: '4 Responses to the Gospel' },
-                { key: 'gospel_4_1_1',           label: '4-1-1' },
-                { key: 'gospel_identity',        label: 'Identity (Follow/Fish)' },
-                { key: 'gospel_oikos_map',       label: 'Oikos Map + Camp Quadrant' },
-                { key: 'gospel_15_sec_story',    label: '15 Second Story (Tell your story)' },
-                { key: 'gospel_3_circles',       label: "3 Circles (Tell God's story)" },
-            ]},
-            { category: '3/3 Meeting Format', items: [
-                { key: 'meeting_repent_believe',  label: '1. Repent & Believe' },
-                { key: 'meeting_baptism',         label: '2. Baptism' },
-                { key: 'meeting_holy_spirit',     label: '3. Holy Spirit' },
-                { key: 'meeting_read_word',       label: '4. Read the Word' },
-                { key: 'meeting_fellowship',      label: '5. Fellowship' },
-                { key: 'meeting_lords_supper',    label: "6. Lord's Supper" },
-                { key: 'meeting_prayer',          label: '7. Prayer' },
-                { key: 'meeting_signs_wonders',   label: '8. Signs & Wonders' },
-                { key: 'meeting_giving',          label: '9. Giving' },
-                { key: 'meeting_worship',         label: '10. Worship' },
-                { key: 'meeting_make_disciples',  label: '11. Make Disciples' },
-                { key: 'meeting_gather',          label: '12. Gather' },
-                { key: 'meeting_appoint_elders',  label: '13. Appoint Elders' },
-            ]},
-            { category: 'Training Tools', items: [
-                { key: 'tools_church_circle', label: "Church Circle & The '2 Church Vision Cast'" },
-                { key: 'tools_handy_guide',   label: 'Handy Guide (Right Hand)' },
-                { key: 'tools_mawl',          label: 'MAWL' },
-                { key: 'tools_1_3_9',         label: '1-3-9' },
-                { key: 'tools_fatr',          label: 'FATR (2 Timothy 2)' },
-                { key: 'tools_four_fields',   label: 'Four Fields' },
-            ]},
-        ]
-        const STAGES       = ['model', 'assist', 'watch', 'leave']
-        const STAGE_LABELS = ['M', 'A', 'W', 'L']
-
         let _activeChecklistId = null
         let _activeChecklistCreatedBy = null  // tracks creator of selected checklist
-        let _progress = {}   // item_key → stage string
+        let _networkRole = null      // 'owner' | 'leader' | 'member' | null
+        let _playbookItems = []      // network_checklist_items rows
+        let _playbookProgress = {}   // item_id → { completed, completed_at, completed_by }
+
 
         // ── localStorage persistence ──────────────────────────────────────────
         const LS_NETWORK   = 'mawl_last_network'
@@ -230,13 +178,16 @@
                 _mcRows, _mcErr ? JSON.stringify(_mcErr) : null)
             // ── end diagnostic probes ────────────────────────────────────────
 
-            // Reset progress grid on every reload
+            // Reset all state on every network change
             _activeChecklistId = null
             _activeChecklistCreatedBy = null
-            _progress = {}
+            _playbookProgress = {}
+            _networkRole = null
+            _playbookItems = []
             const gridSection = document.getElementById('mawl-grid-section')
             gridSection.style.display = 'none'
             gridSection.innerHTML = ''
+            document.getElementById('manage-playbook-section').style.display = 'none'
 
             const section = document.getElementById('checklist-section')
             if (!networkId) { section.style.display = 'none'; return }
@@ -252,11 +203,15 @@
             document.getElementById('create-checklist-form').style.display = 'none'
             document.getElementById('create-checklist-input').value = ''
 
-            const { data, error } = await supabase
-                .from('mawl_checklists')
-                .select('id, coached_name, created_at, created_by')
-                .eq('network_id', networkId)
-                .order('created_at', { ascending: false })
+            const [{ data, error }] = await Promise.all([
+                supabase
+                    .from('mawl_checklists')
+                    .select('id, coached_name, created_at, created_by')
+                    .eq('network_id', networkId)
+                    .order('created_at', { ascending: false }),
+                loadNetworkRole(networkId),
+                loadPlaybook(networkId),
+            ])
 
             console.log('[loadChecklists] query data :', data)
             console.log('[loadChecklists] query error:', error ? JSON.stringify(error) : null)
@@ -266,12 +221,14 @@
             if (error) {
                 console.error('[loadChecklists] SELECT failed (full):', error)
                 empty.style.display = 'block'
+                updateManagePlaybook(networkId)
                 return
             }
 
             if (!data || data.length === 0) {
                 console.warn('[loadChecklists] query returned 0 rows for networkId:', networkId)
                 empty.style.display = 'block'
+                updateManagePlaybook(networkId)
                 return
             }
 
@@ -288,6 +245,7 @@
                 list.appendChild(btn)
             })
             list.style.display = 'flex'
+            updateManagePlaybook(networkId)
 
             console.log('[loadChecklists] list rendered, autoSelectId:', autoSelectId)
             if (autoSelectId) {
@@ -308,131 +266,239 @@
             })
             const activeBtn = document.querySelector(`.checklist-item[data-id="${id}"]`)
             _activeChecklistCreatedBy = activeBtn?.dataset.createdBy ?? null
-            console.log('[selectChecklist] _activeChecklistCreatedBy:', _activeChecklistCreatedBy, '→ calling renderGrid')
-            renderGrid(id)
+            console.log('[selectChecklist] _activeChecklistCreatedBy:', _activeChecklistCreatedBy, '→ calling renderPlaybookGrid')
+            renderPlaybookGrid(id)
         }
 
-        async function loadProgress(checklistId) {
+        // ── Network role + playbook loading ──────────────────────────────────
+        async function loadNetworkRole(networkId) {
+            const { data: { session } } = await supabase.auth.getSession()
+            if (!session?.user) { _networkRole = null; return }
+            const { data } = await supabase
+                .from('network_members')
+                .select('role')
+                .eq('network_id', networkId)
+                .eq('user_id', session.user.id)
+                .single()
+            _networkRole = data?.role ?? null
+            console.log('[loadNetworkRole] role:', _networkRole)
+        }
+
+        async function loadPlaybook(networkId) {
             const { data, error } = await supabase
-                .from('mawl_progress')
-                .select('item_key, stage')
-                .eq('checklist_id', checklistId)
-            if (error || !data) return {}
-            const map = {}
-            data.forEach(({ item_key, stage }) => { map[item_key] = stage })
-            return map
+                .from('network_checklist_items')
+                .select('id, title, description, sort_order')
+                .eq('network_id', networkId)
+                .eq('is_archived', false)
+                .order('sort_order', { ascending: true })
+            if (error) { console.error('[loadPlaybook] error:', error); _playbookItems = []; return }
+            _playbookItems = data ?? []
+            console.log('[loadPlaybook] items:', _playbookItems.length)
         }
 
-        async function renderGrid(checklistId) {
-            console.log('[renderGrid] checklistId:', checklistId)
+        // ── Manage Playbook ───────────────────────────────────────────────────
+        function updateManagePlaybook(networkId) {
+            const section = document.getElementById('manage-playbook-section')
+            if (!networkId || (_networkRole !== 'owner' && _networkRole !== 'leader')) {
+                section.style.display = 'none'
+                return
+            }
+            section.style.display = 'block'
+            renderManagePlaybookList()
+        }
+
+        function renderManagePlaybookList() {
+            const list = document.getElementById('manage-playbook-list')
+            if (!list) return
+            list.innerHTML = ''
+            if (_playbookItems.length === 0) {
+                const empty = document.createElement('div')
+                empty.className = 'manage-playbook-empty'
+                empty.textContent = 'No items yet. Use "+ Add Item" to build the playbook.'
+                list.appendChild(empty)
+                return
+            }
+            _playbookItems.forEach((item, idx) => {
+                const row = document.createElement('div')
+                row.className = 'manage-playbook-item-row'
+                const titleEl = document.createElement('div')
+                titleEl.className = 'manage-playbook-item-title'
+                titleEl.textContent = item.title
+                row.appendChild(titleEl)
+                const actions = document.createElement('div')
+                actions.className = 'manage-playbook-item-actions'
+                if (idx > 0) {
+                    const upBtn = document.createElement('button')
+                    upBtn.className = 'manage-playbook-action-btn'
+                    upBtn.textContent = '↑'
+                    upBtn.onclick = () => movePlaybookItem(item.id, 'up')
+                    actions.appendChild(upBtn)
+                }
+                if (idx < _playbookItems.length - 1) {
+                    const downBtn = document.createElement('button')
+                    downBtn.className = 'manage-playbook-action-btn'
+                    downBtn.textContent = '↓'
+                    downBtn.onclick = () => movePlaybookItem(item.id, 'down')
+                    actions.appendChild(downBtn)
+                }
+                const archiveBtn = document.createElement('button')
+                archiveBtn.className = 'manage-playbook-action-btn manage-playbook-archive-btn'
+                archiveBtn.textContent = 'Archive'
+                archiveBtn.onclick = () => archivePlaybookItem(item.id)
+                actions.appendChild(archiveBtn)
+                row.appendChild(actions)
+                list.appendChild(row)
+            })
+        }
+
+        window.showAddPlaybookItem = function () {
+            document.getElementById('add-playbook-item-form').style.display = 'block'
+            document.getElementById('playbook-item-title-input').focus()
+        }
+
+        window.cancelAddPlaybookItem = function () {
+            document.getElementById('add-playbook-item-form').style.display = 'none'
+            document.getElementById('playbook-item-title-input').value = ''
+        }
+
+        window.submitAddPlaybookItem = async function () {
+            const input = document.getElementById('playbook-item-title-input')
+            const title = input.value.trim()
+            if (!title) { input.focus(); return }
+            const networkId = document.getElementById('network-select').value
+            if (!networkId) return
+            const { data: { session } } = await supabase.auth.getSession()
+            const maxSort = _playbookItems.length > 0
+                ? Math.max(..._playbookItems.map(i => i.sort_order)) + 1
+                : 0
+            const { error } = await supabase
+                .from('network_checklist_items')
+                .insert({ network_id: networkId, title, sort_order: maxSort, created_by: session.user.id })
+            if (error) { showNotification('Could not add item.'); return }
+            input.value = ''
+            document.getElementById('add-playbook-item-form').style.display = 'none'
+            await loadPlaybook(networkId)
+            renderManagePlaybookList()
+        }
+
+        async function movePlaybookItem(itemId, dir) {
+            const networkId = document.getElementById('network-select').value
+            const idx = _playbookItems.findIndex(i => i.id === itemId)
+            if (idx < 0) return
+            const swapIdx = dir === 'up' ? idx - 1 : idx + 1
+            if (swapIdx < 0 || swapIdx >= _playbookItems.length) return
+            const a = _playbookItems[idx]
+            const b = _playbookItems[swapIdx]
+            const [errA, errB] = await Promise.all([
+                supabase.from('network_checklist_items').update({ sort_order: b.sort_order }).eq('id', a.id).then(r => r.error),
+                supabase.from('network_checklist_items').update({ sort_order: a.sort_order }).eq('id', b.id).then(r => r.error),
+            ])
+            if (errA || errB) { showNotification('Could not reorder.'); return }
+            await loadPlaybook(networkId)
+            renderManagePlaybookList()
+        }
+
+        async function archivePlaybookItem(itemId) {
+            const networkId = document.getElementById('network-select').value
+            const { error } = await supabase
+                .from('network_checklist_items')
+                .update({ is_archived: true })
+                .eq('id', itemId)
+            if (error) { showNotification('Could not archive item.'); return }
+            await loadPlaybook(networkId)
+            renderManagePlaybookList()
+        }
+
+        // ── Checklist progress grid (playbook-based) ──────────────────────────
+        async function renderPlaybookGrid(checklistId) {
+            console.log('[renderPlaybookGrid] checklistId:', checklistId)
             _activeChecklistId = checklistId
             const section = document.getElementById('mawl-grid-section')
             if (!checklistId) { section.style.display = 'none'; section.innerHTML = ''; return }
-
             section.style.display = 'block'
             section.innerHTML = '<div class="mawl-grid-loading">Loading progress…</div>'
 
-            _progress = await loadProgress(checklistId)
+            const { data, error } = await supabase
+                .from('checklist_item_progress')
+                .select('item_id, completed, completed_at, completed_by')
+                .eq('checklist_id', checklistId)
+            _playbookProgress = {}
+            if (!error && data) {
+                data.forEach(r => {
+                    _playbookProgress[r.item_id] = {
+                        completed: r.completed,
+                        completed_at: r.completed_at,
+                        completed_by: r.completed_by,
+                    }
+                })
+            }
 
             section.innerHTML = ''
 
-            // Column header row — "Item | M  A  W  L"
-            const colHeader = document.createElement('div')
-            colHeader.className = 'mawl-col-header'
-            const colItemLabel = document.createElement('div')
-            colItemLabel.className = 'mawl-col-item-label'
-            colItemLabel.textContent = 'Item'
-            colHeader.appendChild(colItemLabel)
-            const colBtns = document.createElement('div')
-            colBtns.className = 'mawl-col-btns'
-            STAGE_LABELS.forEach(lbl => {
-                const span = document.createElement('span')
-                span.className = 'mawl-col-btn-label'
-                span.textContent = lbl
-                colBtns.appendChild(span)
-            })
-            colHeader.appendChild(colBtns)
-            section.appendChild(colHeader)
-
-            MAWL_ITEMS.forEach(({ category, items }) => {
-                const catEl = document.createElement('div')
-                catEl.className = 'mawl-category'
-
-                const header = document.createElement('div')
-                header.className = 'mawl-category-header'
-                header.textContent = category
-                catEl.appendChild(header)
-
-                items.forEach(({ key, label }) => catEl.appendChild(buildItemRow(key, label)))
-                section.appendChild(catEl)
-            })
+            if (_playbookItems.length === 0) {
+                const emptyEl = document.createElement('div')
+                emptyEl.className = 'mawl-grid-loading'
+                emptyEl.textContent = (_networkRole === 'owner' || _networkRole === 'leader')
+                    ? 'No items in playbook yet. Use "Manage Playbook" above to add items.'
+                    : 'No checklist items yet.'
+                section.appendChild(emptyEl)
+            } else {
+                _playbookItems.forEach(item => section.appendChild(buildPlaybookItemRow(item)))
+            }
 
             await renderCollaboratorPanel(checklistId, section)
         }
 
-        function buildItemRow(itemKey, label) {
-            const currentIdx = STAGES.indexOf(_progress[itemKey] ?? '')
+        function buildPlaybookItemRow(item) {
+            const prog = _playbookProgress[item.id]
+            const completed = prog?.completed ?? false
 
             const row = document.createElement('div')
-            row.className = 'mawl-item-row'
-            row.id = 'mawl-row-' + itemKey
+            row.className = 'mawl-item-row' + (completed ? ' pb-completed' : '')
+            row.id = 'mawl-row-' + item.id
+
+            const checkBtn = document.createElement('button')
+            checkBtn.className = 'playbook-check-btn' + (completed ? ' done' : '')
+            checkBtn.setAttribute('aria-label', completed ? 'Mark incomplete' : 'Mark complete')
+            checkBtn.onclick = () => toggleProgress(item.id)
+            row.appendChild(checkBtn)
 
             const labelEl = document.createElement('div')
             labelEl.className = 'mawl-item-label'
-            labelEl.textContent = label
+            labelEl.textContent = item.title
             row.appendChild(labelEl)
 
-            const btns = document.createElement('div')
-            btns.className = 'mawl-stage-btns'
-            STAGES.forEach((stage, idx) => {
-                const btn = document.createElement('button')
-                btn.className = 'mawl-stage-btn' + (idx <= currentIdx ? ' done' : '')
-                btn.textContent = STAGE_LABELS[idx]
-                btn.onclick = () => setStage(itemKey, stage)
-                btns.appendChild(btn)
-            })
-            row.appendChild(btns)
             return row
         }
 
-        async function setStage(itemKey, stage) {
+        async function toggleProgress(itemId) {
             if (!_activeChecklistId) return
-            const currentStage = _progress[itemKey]
-
-            if (currentStage === stage) {
-                // Tap same stage again → clear
-                const { error } = await supabase
-                    .from('mawl_progress')
-                    .delete()
-                    .eq('checklist_id', _activeChecklistId)
-                    .eq('item_key', itemKey)
-                if (error) { showNotification('Could not clear progress.'); return }
-                delete _progress[itemKey]
-            } else {
-                const { data: { session } } = await supabase.auth.getSession()
-                const { error } = await supabase
-                    .from('mawl_progress')
-                    .upsert({
-                        checklist_id: _activeChecklistId,
-                        item_key: itemKey,
-                        stage,
-                        updated_by: session.user.id,
-                    }, { onConflict: 'checklist_id,item_key' })
-                if (error) { showNotification('Could not save progress.'); return }
-                _progress[itemKey] = stage
+            const current = _playbookProgress[itemId]
+            const nowCompleted = !(current?.completed ?? false)
+            const { data: { session } } = await supabase.auth.getSession()
+            const { error } = await supabase
+                .from('checklist_item_progress')
+                .upsert({
+                    checklist_id: _activeChecklistId,
+                    item_id: itemId,
+                    completed: nowCompleted,
+                    completed_at: nowCompleted ? new Date().toISOString() : null,
+                    completed_by: nowCompleted ? session.user.id : null,
+                }, { onConflict: 'checklist_id,item_id' })
+            if (error) { showNotification('Could not save progress.'); return }
+            _playbookProgress[itemId] = {
+                completed: nowCompleted,
+                completed_at: nowCompleted ? new Date().toISOString() : null,
+                completed_by: nowCompleted ? session.user.id : null,
             }
-
-            refreshItemRow(itemKey)
+            refreshPlaybookItemRow(itemId)
         }
 
-        function refreshItemRow(itemKey) {
-            let label = itemKey
-            for (const { items } of MAWL_ITEMS) {
-                const found = items.find(i => i.key === itemKey)
-                if (found) { label = found.label; break }
-            }
-            const existing = document.getElementById('mawl-row-' + itemKey)
-            if (existing) existing.replaceWith(buildItemRow(itemKey, label))
+        function refreshPlaybookItemRow(itemId) {
+            const item = _playbookItems.find(i => i.id === itemId)
+            if (!item) return
+            const existing = document.getElementById('mawl-row-' + item.id)
+            if (existing) existing.replaceWith(buildPlaybookItemRow(item))
         }
 
         // ── Collaborator panel ────────────────────────────────────────────────
@@ -828,6 +894,29 @@
         .collab-empty { font-size: 14px; color: #8e8e93; padding: 8px 0; }
         .collab-loading { font-size: 14px; color: #8e8e93; padding: 8px 0; }
 
+
+        /* Playbook progress (checkbox style) */
+        .playbook-check-btn { width: 28px; height: 28px; border: 2px solid #c6c6c8; border-radius: 6px; background: #fff; cursor: pointer; flex-shrink: 0; margin-right: 12px; font-size: 16px; font-weight: 700; color: #fff; display: flex; align-items: center; justify-content: center; }
+        .playbook-check-btn.done { background: #00D084; border-color: #00D084; }
+        .playbook-check-btn.done::after { content: '✓'; }
+        .pb-completed .mawl-item-label { text-decoration: line-through; color: #8e8e93; }
+
+        /* Manage Playbook section */
+        .manage-playbook-section { padding: 0 16px 24px; border-top: 0.5px solid #c6c6c8; }
+        .manage-playbook-header-row { display: flex; align-items: center; justify-content: space-between; padding: 20px 0 10px; }
+        .manage-playbook-label { font-size: 13px; font-weight: 600; color: #8e8e93; text-transform: uppercase; letter-spacing: 0.5px; }
+        .add-playbook-item-btn { padding: 6px 14px; border: none; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; background: #3a3a3c; color: #fff; font-family: inherit; }
+        .add-playbook-form { margin-bottom: 12px; padding: 14px; background: #f2f2f7; border-radius: 12px; }
+        .playbook-item-input { width: 100%; padding: 11px 14px; border: 1px solid #c6c6c8; border-radius: 10px; font-size: 16px; font-family: inherit; background: #fff; outline: none; margin-bottom: 10px; }
+        .playbook-item-input:focus { border-color: #00D084; }
+        .playbook-item-form-actions { display: flex; gap: 8px; }
+        .manage-playbook-item-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 0.5px solid #f2f2f7; }
+        .manage-playbook-item-title { font-size: 15px; color: #000; flex: 1; padding-right: 8px; }
+        .manage-playbook-item-actions { display: flex; gap: 6px; flex-shrink: 0; }
+        .manage-playbook-action-btn { padding: 5px 10px; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; background: #e5e5ea; color: #3a3a3c; font-family: inherit; }
+        .manage-playbook-archive-btn { background: #ffeaea; color: #c00; }
+        .manage-playbook-empty { font-size: 14px; color: #8e8e93; padding: 8px 0; }
+
         @media (min-width: 768px) {
             .container { border-radius: 12px; margin: 20px auto; box-shadow: 0 4px 20px rgba(0,0,0,0.1); overflow: hidden; }
         }
@@ -910,6 +999,23 @@
                 </div>
             </div>
             <div class="checklist-empty" id="checklist-empty" style="display:none">No checklists yet. Use "+ Add Checklist" to create one.</div>
+        </div>
+
+        <div id="manage-playbook-section" class="manage-playbook-section" style="display:none">
+            <div class="manage-playbook-header-row">
+                <div class="manage-playbook-label">Manage Playbook</div>
+                <button class="add-playbook-item-btn" onclick="showAddPlaybookItem()">+ Add Item</button>
+            </div>
+            <div id="add-playbook-item-form" class="add-playbook-form" style="display:none">
+                <input type="text" id="playbook-item-title-input" class="playbook-item-input"
+                       placeholder="Item title" maxlength="200"
+                       onkeydown="if(event.key==='Enter') submitAddPlaybookItem(); if(event.key==='Escape') cancelAddPlaybookItem()">
+                <div class="playbook-item-form-actions">
+                    <button class="create-network-submit" onclick="submitAddPlaybookItem()">Add</button>
+                    <button class="create-network-cancel" onclick="cancelAddPlaybookItem()">Cancel</button>
+                </div>
+            </div>
+            <div id="manage-playbook-list"></div>
         </div>
 
         <div class="mawl-grid-section" id="mawl-grid-section" style="display:none"></div>
