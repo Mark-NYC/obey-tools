@@ -70,6 +70,12 @@
         let _activeChecklistCreatedBy = null  // tracks creator of selected checklist
         let _progress = {}   // item_key → stage string
 
+        // ── localStorage persistence ──────────────────────────────────────────
+        const LS_NETWORK   = 'mawl_last_network'
+        const LS_CHECKLIST = 'mawl_last_checklist'
+        function saveLastNetwork(id)   { id ? localStorage.setItem(LS_NETWORK, id)   : localStorage.removeItem(LS_NETWORK) }
+        function saveLastChecklist(id) { id ? localStorage.setItem(LS_CHECKLIST, id) : localStorage.removeItem(LS_CHECKLIST) }
+
         async function loadNetworks(autoSelectId = null) {
             const { data: { session } } = await supabase.auth.getSession()
             if (!session?.user) return
@@ -112,14 +118,29 @@
             })
             networkSelect.style.display = 'block'
 
-            if (autoSelectId) {
-                networkSelect.value = autoSelectId
-                await loadChecklists(autoSelectId)
+            // Explicit autoSelectId (after creating a new network) takes priority;
+            // otherwise try to restore the last network from localStorage.
+            const networkToSelect    = autoSelectId || localStorage.getItem(LS_NETWORK)
+            const checklistToRestore = autoSelectId ? null : localStorage.getItem(LS_CHECKLIST)
+
+            if (networkToSelect) {
+                const exists = [...networkSelect.options].some(o => o.value === networkToSelect)
+                if (exists) {
+                    networkSelect.value = networkToSelect
+                    saveLastNetwork(networkToSelect)
+                    await loadChecklists(networkToSelect, checklistToRestore)
+                } else {
+                    // Previously saved network is no longer accessible — clear both.
+                    saveLastNetwork(null)
+                    saveLastChecklist(null)
+                }
             }
         }
 
         window.onNetworkChange = function () {
             const networkId = document.getElementById('network-select').value
+            saveLastNetwork(networkId || null)
+            saveLastChecklist(null)   // previous checklist belongs to old network — forget it
             document.getElementById('create-network-form').style.display = 'none'
             document.getElementById('create-network-input').value = ''
             loadChecklists(networkId)
@@ -245,11 +266,19 @@
             list.style.display = 'flex'
 
             console.log('[loadChecklists] list rendered, autoSelectId:', autoSelectId)
-            if (autoSelectId) selectChecklist(autoSelectId)
+            if (autoSelectId) {
+                if (data.some(cl => cl.id === autoSelectId)) {
+                    selectChecklist(autoSelectId)
+                } else {
+                    // Saved checklist no longer belongs to this network — clear it.
+                    saveLastChecklist(null)
+                }
+            }
         }
 
         function selectChecklist(id) {
             console.log('[selectChecklist] id:', id)
+            saveLastChecklist(id)
             document.querySelectorAll('.checklist-item').forEach(btn => {
                 btn.classList.toggle('active', btn.dataset.id === id)
             })
