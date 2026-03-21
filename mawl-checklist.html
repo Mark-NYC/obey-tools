@@ -16,7 +16,7 @@
         let _networkRole = null      // 'owner' | 'leader' | 'member' | null
         let _playbookSections = []   // network_checklist_sections rows
         let _playbookItems = []      // network_checklist_items rows
-        let _playbookProgress = {}   // item_id → { stage_model, stage_assist, stage_watch, stage_launch }
+        let _playbookProgress = {}   // item_id → { mawl_stage: 'M'|'A'|'W'|'L'|null }
 
 
         // ── localStorage persistence ──────────────────────────────────────────
@@ -586,17 +586,12 @@
 
             const { data, error } = await supabase
                 .from('checklist_item_progress')
-                .select('item_id, stage_model, stage_assist, stage_watch, stage_launch')
+                .select('item_id, mawl_stage')
                 .eq('checklist_id', checklistId)
             _playbookProgress = {}
             if (!error && data) {
                 data.forEach(r => {
-                    _playbookProgress[r.item_id] = {
-                        stage_model:  r.stage_model,
-                        stage_assist: r.stage_assist,
-                        stage_watch:  r.stage_watch,
-                        stage_launch: r.stage_launch,
-                    }
+                    _playbookProgress[r.item_id] = { mawl_stage: r.mawl_stage }
                 })
             }
 
@@ -635,10 +630,10 @@
 
         function buildPlaybookItemRow(item) {
             const prog = _playbookProgress[item.id] ?? {}
-            const launched = !!prog.stage_launch
+            const activeStage = prog.mawl_stage ?? null
 
             const row = document.createElement('div')
-            row.className = 'mawl-item-row' + (launched ? ' pb-completed' : '')
+            row.className = 'mawl-item-row' + (activeStage === 'L' ? ' pb-completed' : '')
             row.id = 'mawl-row-' + item.id
 
             const labelEl = document.createElement('div')
@@ -648,12 +643,12 @@
 
             const stageBtns = document.createElement('div')
             stageBtns.className = 'mawl-stage-btns'
-            ;[['M', 'stage_model'], ['A', 'stage_assist'], ['W', 'stage_watch'], ['L', 'stage_launch']].forEach(([label, key]) => {
+            ;['M', 'A', 'W', 'L'].forEach(stage => {
                 const btn = document.createElement('button')
-                btn.className = 'mawl-stage-btn' + (prog[key] ? ' done' : '')
-                btn.textContent = label
-                btn.setAttribute('aria-label', label + (prog[key] ? ' (done)' : ''))
-                btn.onclick = () => setMawlStage(item.id, key)
+                btn.className = 'mawl-stage-btn' + (activeStage === stage ? ' done' : '')
+                btn.textContent = stage
+                btn.setAttribute('aria-label', stage + (activeStage === stage ? ' (active)' : ''))
+                btn.onclick = () => setMawlStage(item.id, stage)
                 stageBtns.appendChild(btn)
             })
             row.appendChild(stageBtns)
@@ -664,25 +659,13 @@
         async function setMawlStage(itemId, stage) {
             if (!_activeChecklistId) return
             const current = _playbookProgress[itemId] ?? {}
-            const nowDone = !current[stage]
-            const update = {
-                checklist_id:  _activeChecklistId,
-                item_id:       itemId,
-                stage_model:   stage === 'stage_model'  ? nowDone : (current.stage_model  ?? false),
-                stage_assist:  stage === 'stage_assist' ? nowDone : (current.stage_assist ?? false),
-                stage_watch:   stage === 'stage_watch'  ? nowDone : (current.stage_watch  ?? false),
-                stage_launch:  stage === 'stage_launch' ? nowDone : (current.stage_launch ?? false),
-            }
+            const newStage = current.mawl_stage === stage ? null : stage
             const { error } = await supabase
                 .from('checklist_item_progress')
-                .upsert(update, { onConflict: 'checklist_id,item_id' })
-            if (error) { showNotification('Could not save progress.'); return }
-            _playbookProgress[itemId] = {
-                stage_model:  update.stage_model,
-                stage_assist: update.stage_assist,
-                stage_watch:  update.stage_watch,
-                stage_launch: update.stage_launch,
-            }
+                .upsert({ checklist_id: _activeChecklistId, item_id: itemId, mawl_stage: newStage },
+                         { onConflict: 'checklist_id,item_id' })
+            if (error) { console.error('[setMawlStage] error:', error); showNotification('Could not save progress.'); return }
+            _playbookProgress[itemId] = { mawl_stage: newStage }
             refreshPlaybookItemRow(itemId)
         }
 
