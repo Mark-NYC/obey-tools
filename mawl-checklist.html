@@ -322,6 +322,10 @@
         async function renderCollaboratorPanel(checklistId, container) {
             const { data: { session } } = await supabase.auth.getSession()
             const isCreator = !!(_activeChecklistCreatedBy && session?.user?.id === _activeChecklistCreatedBy)
+            console.log('[renderCollaboratorPanel] checklistId:', checklistId,
+                '| _activeChecklistCreatedBy:', _activeChecklistCreatedBy,
+                '| session.user.id:', session?.user?.id,
+                '| isCreator:', isCreator)
 
             const panel = document.createElement('div')
             panel.className = 'collab-panel'
@@ -368,7 +372,11 @@
                 .eq('checklist_id', checklistId)
                 .order('created_at')
 
-            if (error) { list.innerHTML = ''; console.error('[loadCollaborators]', error); return }
+            if (error) {
+                console.error('[loadCollaborators] error:', JSON.stringify(error))
+                list.innerHTML = '<div class="collab-empty">Error loading collaborators — see console.</div>'
+                return
+            }
 
             if (!data || data.length === 0) {
                 list.innerHTML = '<div class="collab-empty">No collaborators yet.</div>'
@@ -385,55 +393,95 @@
         }
 
         window.submitAddCollaborator = async function () {
-            console.log('[submitAddCollaborator] fired, _activeChecklistId:', _activeChecklistId)
+            // ── step 1: state check ───────────────────────────────────────────
+            console.log('[submitAddCollaborator] fired')
+            console.log('  _activeChecklistId    :', _activeChecklistId)
+            console.log('  _activeChecklistCreatedBy:', _activeChecklistCreatedBy)
+
             const input = document.getElementById('collab-email-input')
             const email = (input?.value ?? '').trim().toLowerCase()
-            if (!email) { input?.focus(); return }
-            if (!_activeChecklistId) return
+            console.log('  email entered         :', JSON.stringify(email))
+
+            if (!email) {
+                console.warn('  ↳ early return — email field is empty')
+                input?.focus()
+                return
+            }
+            if (!_activeChecklistId) {
+                console.warn('  ↳ early return — no active checklist selected')
+                showNotification('Select a checklist first.')
+                return
+            }
 
             const btn = document.getElementById('collab-add-btn')
-            if (!btn) { console.warn('[submitAddCollaborator] collab-add-btn not found in DOM'); return }
+            if (!btn) {
+                console.warn('  ↳ early return — collab-add-btn not in DOM')
+                return
+            }
             btn.disabled = true
             btn.textContent = 'Adding…'
 
+            // ── step 2: session ───────────────────────────────────────────────
             const { data: { session } } = await supabase.auth.getSession()
+            console.log('  session.user.id       :', session?.user?.id)
+            console.log('  isCreator             :', session?.user?.id === _activeChecklistCreatedBy)
 
-            // Secure server-side lookup — only finds leaders, never exposes other emails
+            // ── step 3: RPC lookup ────────────────────────────────────────────
+            console.log('  calling RPC get_leader_id_by_email({ lookup_email:', email, '})')
             const { data: userId, error: lookupError } = await supabase
                 .rpc('get_leader_id_by_email', { lookup_email: email })
 
-            if (lookupError || !userId) {
+            console.log('  RPC → userId          :', userId)
+            console.log('  RPC → error           :', lookupError ? JSON.stringify(lookupError) : null)
+
+            if (lookupError) {
+                console.error('[submitAddCollaborator] RPC error (full):', lookupError)
+                showNotification('Lookup failed — see console. The RPC may not exist yet.')
+                btn.disabled = false
+                btn.textContent = 'Add Leader'
+                return
+            }
+            if (!userId) {
+                console.warn('  ↳ RPC returned null — no leader account with that email')
                 showNotification('No leader account found with that email.')
                 btn.disabled = false
-                btn.textContent = 'Add'
+                btn.textContent = 'Add Leader'
                 return
             }
-
             if (userId === session.user.id) {
+                console.warn('  ↳ userId matches current user — cannot add self as collaborator')
                 showNotification('That\'s you — you\'re already the owner.')
                 btn.disabled = false
-                btn.textContent = 'Add'
+                btn.textContent = 'Add Leader'
                 return
             }
 
+            // ── step 4: insert ────────────────────────────────────────────────
+            const payload = {
+                checklist_id: _activeChecklistId,
+                user_id: userId,
+                collaborator_email: email,
+                added_by: session.user.id,
+            }
+            console.log('  inserting into checklist_collaborators:', payload)
             const { error: insertError } = await supabase
                 .from('checklist_collaborators')
-                .insert({
-                    checklist_id: _activeChecklistId,
-                    user_id: userId,
-                    collaborator_email: email,
-                    added_by: session.user.id,
-                })
+                .insert(payload)
+
+            console.log('  insert → error        :', insertError ? JSON.stringify(insertError) : null)
 
             btn.disabled = false
-            btn.textContent = 'Add'
+            btn.textContent = 'Add Leader'
 
             if (insertError) {
+                console.error('[submitAddCollaborator] insert error (full):', insertError)
                 if (insertError.code === '23505') showNotification('Already a collaborator.')
-                else { console.error(insertError); showNotification('Could not add collaborator.') }
+                else showNotification('Insert failed — see console: ' + (insertError.message ?? ''))
                 return
             }
 
+            // ── step 5: success ───────────────────────────────────────────────
+            console.log('  ✓ collaborator added successfully')
             input.value = ''
             await loadCollaborators(_activeChecklistId)
         }
@@ -451,35 +499,71 @@
 
         window.submitCreateChecklist = async function () {
             console.log('[submitCreateChecklist] fired')
+
             const input = document.getElementById('create-checklist-input')
             const coached_name = input.value.trim()
-            if (!coached_name) { input.focus(); return }
+            console.log('  coached_name :', JSON.stringify(coached_name))
+            if (!coached_name) {
+                console.warn('  ↳ early return — name is empty')
+                input.focus()
+                return
+            }
 
             const networkId = document.getElementById('network-select').value
-            if (!networkId) return
+            console.log('  networkId    :', networkId)
+            if (!networkId) {
+                console.warn('  ↳ early return — no network selected')
+                return
+            }
 
             const btn = document.getElementById('create-checklist-submit')
             btn.disabled = true
             btn.textContent = 'Adding…'
 
             const { data: { session } } = await supabase.auth.getSession()
-            const { data, error } = await supabase
+            console.log('  user id      :', session?.user?.id)
+
+            const payload = { network_id: networkId, coached_name, created_by: session.user.id }
+            console.log('  insert payload:', payload)
+
+            // Insert without .select() — avoids the RLS RETURNING race.
+            // PostgREST evaluates the RETURNING clause through the SELECT policy
+            // before the row is fully visible to it, so .select('id').single()
+            // always returns an error even when the insert succeeded.
+            // Same fix already applied to submitCreateNetwork.
+            const { error: insertError } = await supabase
                 .from('mawl_checklists')
-                .insert({ network_id: networkId, coached_name, created_by: session.user.id })
-                .select('id')
-                .single()
+                .insert(payload)
+
+            console.log('  insert error :', insertError ? JSON.stringify(insertError) : null)
 
             btn.disabled = false
             btn.textContent = 'Add'
 
-            if (error) {
+            if (insertError) {
+                console.error('[submitCreateChecklist] insert failed:', insertError)
                 showNotification('Could not add checklist.')
                 return
             }
 
+            console.log('  insert OK — fetching new checklist id for auto-select')
             input.value = ''
             document.getElementById('create-checklist-form').style.display = 'none'
-            await loadChecklists(networkId, data.id)
+
+            // Separate follow-up query — insert is committed, SELECT policy passes now.
+            const { data: newest, error: selectError } = await supabase
+                .from('mawl_checklists')
+                .select('id')
+                .eq('network_id', networkId)
+                .eq('created_by', session.user.id)
+                .order('created_at', { ascending: false })
+                .limit(1)
+                .single()
+
+            console.log('  follow-up id :', newest?.id, '| error:', selectError ? JSON.stringify(selectError) : null)
+            if (selectError) console.warn('[submitCreateChecklist] auto-select id unavailable:', selectError)
+
+            await loadChecklists(networkId, newest?.id ?? null)
         }
 
         // Load networks whenever auth state settles
