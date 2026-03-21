@@ -153,32 +153,6 @@
         }
 
         async function loadChecklists(networkId, autoSelectId = null) {
-            console.log('[loadChecklists] networkId:', networkId, '| autoSelectId:', autoSelectId)
-
-            // ── diagnostic probes (run before main query) ────────────────────
-            const { data: { session: _s } } = await supabase.auth.getSession()
-            console.log('[loadChecklists] caller user.id:', _s?.user?.id)
-
-            // Probe A — which checklist_collaborators rows can this user see?
-            // If collaborator: should see their own row(s).
-            // If result is empty, checklist_collaborators SELECT RLS is blocking them.
-            const { data: _ccRows, error: _ccErr } = await supabase
-                .from('checklist_collaborators')
-                .select('checklist_id, collaborator_email')
-            console.log('[loadChecklists] probe A — checklist_collaborators visible:',
-                _ccRows, _ccErr ? JSON.stringify(_ccErr) : null)
-
-            // Probe B — which mawl_checklists rows can this user see (no network filter)?
-            // If the shared checklist appears here but NOT in the main query, the
-            // network_id filter is filtering it out (wrong networkId being passed).
-            // If it does NOT appear here, mawl_checklists SELECT RLS is blocking them.
-            const { data: _mcRows, error: _mcErr } = await supabase
-                .from('mawl_checklists')
-                .select('id, coached_name, network_id')
-            console.log('[loadChecklists] probe B — all mawl_checklists visible (no network filter):',
-                _mcRows, _mcErr ? JSON.stringify(_mcErr) : null)
-            // ── end diagnostic probes ────────────────────────────────────────
-
             // Reset all state on every network change
             _activeChecklistId = null
             _activeChecklistCreatedBy = null
@@ -215,9 +189,6 @@
                 loadPlaybook(networkId),
             ])
 
-            console.log('[loadChecklists] query data :', data)
-            console.log('[loadChecklists] query error:', error ? JSON.stringify(error) : null)
-
             loading.style.display = 'none'
 
             if (error) {
@@ -234,8 +205,6 @@
                 return
             }
 
-            console.log('[loadChecklists] rendering', data.length, 'checklist(s):', data.map(c => c.coached_name))
-
             list.innerHTML = ''
             data.forEach(cl => {
                 const btn = document.createElement('button')
@@ -249,7 +218,6 @@
             list.style.display = 'flex'
             updateManagePlaybook(networkId)
 
-            console.log('[loadChecklists] list rendered, autoSelectId:', autoSelectId)
             if (autoSelectId) {
                 if (data.some(cl => cl.id === autoSelectId)) {
                     selectChecklist(autoSelectId)
@@ -261,14 +229,12 @@
         }
 
         function selectChecklist(id) {
-            console.log('[selectChecklist] id:', id)
             saveLastChecklist(id)
             document.querySelectorAll('.checklist-item').forEach(btn => {
                 btn.classList.toggle('active', btn.dataset.id === id)
             })
             const activeBtn = document.querySelector(`.checklist-item[data-id="${id}"]`)
             _activeChecklistCreatedBy = activeBtn?.dataset.createdBy ?? null
-            console.log('[selectChecklist] _activeChecklistCreatedBy:', _activeChecklistCreatedBy, '→ calling renderPlaybookGrid')
             renderPlaybookGrid(id)
         }
 
@@ -283,7 +249,6 @@
                 .eq('user_id', session.user.id)
                 .single()
             _networkRole = data?.role ?? null
-            console.log('[loadNetworkRole] role:', _networkRole)
         }
 
         async function loadPlaybook(networkId) {
@@ -303,7 +268,6 @@
             if (itemRes.error) console.error('[loadPlaybook] items error:', itemRes.error)
             _playbookSections = secRes.data ?? []
             _playbookItems = itemRes.data ?? []
-            console.log('[loadPlaybook] sections:', _playbookSections.length, 'items:', _playbookItems.length)
         }
 
         // ── Manage Playbook ───────────────────────────────────────────────────
@@ -567,7 +531,6 @@
 
         // ── Checklist progress grid (playbook-based) ──────────────────────────
         async function renderPlaybookGrid(checklistId) {
-            console.log('[renderPlaybookGrid] checklistId:', checklistId)
             _activeChecklistId = checklistId
             const section = document.getElementById('mawl-grid-section')
             if (!checklistId) { section.style.display = 'none'; section.innerHTML = ''; return }
