@@ -532,17 +532,19 @@
                 ? Math.max(...itemsInSec.map(i => i.sort_order)) + 1 : 0
             const payload = { network_id: networkId, section_id: secId, title, description: null, sort_order: maxSort, created_by: session.user.id }
             console.log('[submitAddItemToSection] payload:', JSON.stringify(payload))
-            const { error } = await supabase.from('network_checklist_items').insert(payload)
+            const { data, error } = await supabase.from('network_checklist_items').insert(payload).select()
             if (error) {
                 const isRls = error.code === '42501' || String(error.message ?? '').toLowerCase().includes('policy')
                 console.error('[submitAddItemToSection] insert error' + (isRls ? ' — RLS policy violation' : '') + ':', error)
                 showNotification('Could not add item.')
                 return
             }
-            input.value = ''
-            document.getElementById('add-item-form-' + secId).style.display = 'none'
+            console.log('[submitAddItemToSection] insert success:', data)
             await loadPlaybook(networkId)
             renderManagePlaybookList()
+            input.value = ''
+            const addedForm = document.getElementById('add-item-form-' + secId)
+            if (addedForm) addedForm.style.display = 'none'
         }
 
         async function movePlaybookItem(itemId, dir, sectionId) {
