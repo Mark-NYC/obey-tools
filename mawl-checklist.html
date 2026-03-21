@@ -337,12 +337,31 @@
                 renameForm.className = 'add-playbook-form'
                 renameForm.id = 'rename-sec-form-' + sec.id
                 renameForm.style.display = 'none'
-                renameForm.innerHTML = `<input type="text" class="playbook-item-input" id="rename-sec-input-\${sec.id}" maxlength="200"
-                    onkeydown="if(event.key==='Enter') submitRenameSection('\${sec.id}'); if(event.key==='Escape') hideRenameSection('\${sec.id}')">
-                <div class="playbook-item-form-actions">
-                    <button class="create-network-submit" onclick="submitRenameSection('\${sec.id}')">Save</button>
-                    <button class="create-network-cancel" onclick="hideRenameSection('\${sec.id}')">Cancel</button>
-                </div>`
+                const renameInput = document.createElement('input')
+                renameInput.type = 'text'
+                renameInput.className = 'playbook-item-input'
+                renameInput.id = 'rename-sec-input-' + sec.id
+                renameInput.maxLength = 200
+                renameInput.addEventListener('keydown', e => {
+                    if (e.key === 'Enter') submitRenameSection(sec.id)
+                    if (e.key === 'Escape') hideRenameSection(sec.id)
+                })
+                const renameBtnRow = document.createElement('div')
+                renameBtnRow.className = 'playbook-item-form-actions'
+                const renameSaveBtn = document.createElement('button')
+                renameSaveBtn.type = 'button'
+                renameSaveBtn.className = 'create-network-submit'
+                renameSaveBtn.textContent = 'Save'
+                renameSaveBtn.addEventListener('click', () => submitRenameSection(sec.id))
+                const renameCancelBtn = document.createElement('button')
+                renameCancelBtn.type = 'button'
+                renameCancelBtn.className = 'create-network-cancel'
+                renameCancelBtn.textContent = 'Cancel'
+                renameCancelBtn.addEventListener('click', () => hideRenameSection(sec.id))
+                renameBtnRow.appendChild(renameSaveBtn)
+                renameBtnRow.appendChild(renameCancelBtn)
+                renameForm.appendChild(renameInput)
+                renameForm.appendChild(renameBtnRow)
                 secBlock.appendChild(renameForm)
 
                 // Items under this section
@@ -390,12 +409,32 @@
                 addItemForm.className = 'add-playbook-form'
                 addItemForm.id = 'add-item-form-' + sec.id
                 addItemForm.style.display = 'none'
-                addItemForm.innerHTML = `<input type="text" class="playbook-item-input" id="add-item-input-\${sec.id}" placeholder="Item title" maxlength="200"
-                    onkeydown="if(event.key==='Enter') submitAddItemToSection('\${sec.id}'); if(event.key==='Escape') cancelAddItemToSection('\${sec.id}')">
-                <div class="playbook-item-form-actions">
-                    <button class="create-network-submit" onclick="submitAddItemToSection('\${sec.id}')">Add</button>
-                    <button class="create-network-cancel" onclick="cancelAddItemToSection('\${sec.id}')">Cancel</button>
-                </div>`
+                const addItemInput = document.createElement('input')
+                addItemInput.type = 'text'
+                addItemInput.className = 'playbook-item-input'
+                addItemInput.id = 'add-item-input-' + sec.id
+                addItemInput.placeholder = 'Item title'
+                addItemInput.maxLength = 200
+                addItemInput.addEventListener('keydown', e => {
+                    if (e.key === 'Enter') submitAddItemToSection(sec.id)
+                    if (e.key === 'Escape') cancelAddItemToSection(sec.id)
+                })
+                const addItemBtnRow = document.createElement('div')
+                addItemBtnRow.className = 'playbook-item-form-actions'
+                const addItemSaveBtn = document.createElement('button')
+                addItemSaveBtn.type = 'button'
+                addItemSaveBtn.className = 'create-network-submit'
+                addItemSaveBtn.textContent = 'Add'
+                addItemSaveBtn.addEventListener('click', () => submitAddItemToSection(sec.id))
+                const addItemCancelBtn = document.createElement('button')
+                addItemCancelBtn.type = 'button'
+                addItemCancelBtn.className = 'create-network-cancel'
+                addItemCancelBtn.textContent = 'Cancel'
+                addItemCancelBtn.addEventListener('click', () => cancelAddItemToSection(sec.id))
+                addItemBtnRow.appendChild(addItemSaveBtn)
+                addItemBtnRow.appendChild(addItemCancelBtn)
+                addItemForm.appendChild(addItemInput)
+                addItemForm.appendChild(addItemBtnRow)
                 secBlock.appendChild(addItemForm)
 
                 list.appendChild(secBlock)
@@ -422,7 +461,7 @@
                 ? Math.max(..._playbookSections.map(s => s.sort_order)) + 1 : 0
             const { error } = await supabase.from('network_checklist_sections')
                 .insert({ network_id: networkId, title, sort_order: maxSort, created_by: session.user.id })
-            if (error) { showNotification('Could not add section.'); return }
+            if (error) { console.error('[submitAddSection] insert error:', error); showNotification('Could not add section.'); return }
             input.value = ''
             document.getElementById('add-section-form').style.display = 'none'
             await loadPlaybook(networkId)
@@ -444,7 +483,7 @@
             const networkId = document.getElementById('network-select').value
             const { error } = await supabase.from('network_checklist_sections')
                 .update({ title }).eq('id', secId)
-            if (error) { showNotification('Could not rename section.'); return }
+            if (error) { console.error('[submitRenameSection] update error:', error); showNotification('Could not rename section.'); return }
             await loadPlaybook(networkId)
             renderManagePlaybookList()
         }
@@ -459,7 +498,7 @@
                 supabase.from('network_checklist_sections').update({ sort_order: b.sort_order }).eq('id', a.id).then(r => r.error),
                 supabase.from('network_checklist_sections').update({ sort_order: a.sort_order }).eq('id', b.id).then(r => r.error),
             ])
-            if (eA || eB) { showNotification('Could not reorder sections.'); return }
+            if (eA || eB) { console.error('[moveSection] reorder error:', eA ?? eB); showNotification('Could not reorder sections.'); return }
             await loadPlaybook(networkId)
             renderManagePlaybookList()
         }
@@ -467,7 +506,7 @@
             const networkId = document.getElementById('network-select').value
             const { error } = await supabase.from('network_checklist_sections')
                 .update({ is_archived: true }).eq('id', secId)
-            if (error) { showNotification('Could not archive section.'); return }
+            if (error) { console.error('[archiveSection] update error:', error); showNotification('Could not archive section.'); return }
             await loadPlaybook(networkId)
             renderManagePlaybookList()
         }
@@ -493,7 +532,7 @@
                 ? Math.max(...itemsInSec.map(i => i.sort_order)) + 1 : 0
             const { error } = await supabase.from('network_checklist_items')
                 .insert({ network_id: networkId, section_id: secId, title, sort_order: maxSort, created_by: session.user.id })
-            if (error) { showNotification('Could not add item.'); return }
+            if (error) { console.error('[submitAddItemToSection] insert error:', error); showNotification('Could not add item.'); return }
             input.value = ''
             document.getElementById('add-item-form-' + secId).style.display = 'none'
             await loadPlaybook(networkId)
@@ -513,7 +552,7 @@
                 supabase.from('network_checklist_items').update({ sort_order: b.sort_order }).eq('id', a.id).then(r => r.error),
                 supabase.from('network_checklist_items').update({ sort_order: a.sort_order }).eq('id', b.id).then(r => r.error),
             ])
-            if (errA || errB) { showNotification('Could not reorder.'); return }
+            if (errA || errB) { console.error('[movePlaybookItem] reorder error:', errA ?? errB); showNotification('Could not reorder.'); return }
             await loadPlaybook(networkId)
             renderManagePlaybookList()
         }
@@ -524,7 +563,7 @@
                 .from('network_checklist_items')
                 .update({ is_archived: true })
                 .eq('id', itemId)
-            if (error) { showNotification('Could not archive item.'); return }
+            if (error) { console.error('[archivePlaybookItem] update error:', error); showNotification('Could not archive item.'); return }
             await loadPlaybook(networkId)
             renderManagePlaybookList()
         }
@@ -1121,7 +1160,7 @@
                        onkeydown="if(event.key==='Enter') submitCreateNetwork(); if(event.key==='Escape') cancelCreateNetwork()">
                 <div class="create-network-actions">
                     <button class="create-network-submit" id="create-network-submit" onclick="submitCreateNetwork()">Create</button>
-                    <button class="create-network-cancel" onclick="cancelCreateNetwork()">Cancel</button>
+                    <button type="button" class="create-network-cancel" onclick="cancelCreateNetwork()">Cancel</button>
                 </div>
             </div>
             <div class="network-empty" id="network-empty" style="display:none">
@@ -1144,7 +1183,7 @@
                        onkeydown="if(event.key==='Enter') submitCreateChecklist(); if(event.key==='Escape') cancelCreateChecklist()">
                 <div class="create-checklist-actions">
                     <button class="create-checklist-submit" id="create-checklist-submit" onclick="submitCreateChecklist()">Add</button>
-                    <button class="create-checklist-cancel" onclick="cancelCreateChecklist()">Cancel</button>
+                    <button type="button" class="create-checklist-cancel" onclick="cancelCreateChecklist()">Cancel</button>
                 </div>
             </div>
             <div class="checklist-empty" id="checklist-empty" style="display:none">No checklists yet. Use "+ Add Checklist" to create one.</div>
@@ -1161,7 +1200,7 @@
                        onkeydown="if(event.key==='Enter') submitAddSection(); if(event.key==='Escape') cancelAddSection()">
                 <div class="playbook-item-form-actions">
                     <button class="create-network-submit" onclick="submitAddSection()">Add</button>
-                    <button class="create-network-cancel" onclick="cancelAddSection()">Cancel</button>
+                    <button type="button" class="create-network-cancel" onclick="cancelAddSection()">Cancel</button>
                 </div>
             </div>
             <div id="manage-playbook-list"></div>
