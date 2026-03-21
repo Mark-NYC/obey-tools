@@ -206,6 +206,30 @@
         async function loadChecklists(networkId, autoSelectId = null) {
             console.log('[loadChecklists] networkId:', networkId, '| autoSelectId:', autoSelectId)
 
+            // ── diagnostic probes (run before main query) ────────────────────
+            const { data: { session: _s } } = await supabase.auth.getSession()
+            console.log('[loadChecklists] caller user.id:', _s?.user?.id)
+
+            // Probe A — which checklist_collaborators rows can this user see?
+            // If collaborator: should see their own row(s).
+            // If result is empty, checklist_collaborators SELECT RLS is blocking them.
+            const { data: _ccRows, error: _ccErr } = await supabase
+                .from('checklist_collaborators')
+                .select('checklist_id, collaborator_email')
+            console.log('[loadChecklists] probe A — checklist_collaborators visible:',
+                _ccRows, _ccErr ? JSON.stringify(_ccErr) : null)
+
+            // Probe B — which mawl_checklists rows can this user see (no network filter)?
+            // If the shared checklist appears here but NOT in the main query, the
+            // network_id filter is filtering it out (wrong networkId being passed).
+            // If it does NOT appear here, mawl_checklists SELECT RLS is blocking them.
+            const { data: _mcRows, error: _mcErr } = await supabase
+                .from('mawl_checklists')
+                .select('id, coached_name, network_id')
+            console.log('[loadChecklists] probe B — all mawl_checklists visible (no network filter):',
+                _mcRows, _mcErr ? JSON.stringify(_mcErr) : null)
+            // ── end diagnostic probes ────────────────────────────────────────
+
             // Reset progress grid on every reload
             _activeChecklistId = null
             _activeChecklistCreatedBy = null
@@ -574,8 +598,39 @@
                 return
             }
 
-            // ── step 5: success ───────────────────────────────────────────────
-            console.log('  ✓ collaborator added successfully')
+            // ── step 5: success + post-insert verification ────────────────────
+            console.log('  ✓ insert OK — running post-insert verification')
+
+            // 5a. Verify the collab row is readable by the creator
+            const { data: v1, error: e1 } = await supabase
+                .from('checklist_collaborators')
+                .select('user_id, collaborator_email')
+                .eq('checklist_id', _activeChecklistId)
+                .eq('user_id', userId)
+                .single()
+            console.log('  5a. checklist_collaborators SELECT → data:', v1, '| error:', e1 ? JSON.stringify(e1) : null)
+            if (e1) console.error('      ↳ creator cannot read the row just inserted — SELECT RLS on checklist_collaborators is broken')
+
+            // 5b. Verify mawl_checklists is still visible (SELECT policy health check)
+            const { data: v2, error: e2 } = await supabase
+                .from('mawl_checklists')
+                .select('id, coached_name')
+                .eq('id', _activeChecklistId)
+                .single()
+            console.log('  5b. mawl_checklists SELECT → data:', v2, '| error:', e2 ? JSON.stringify(e2) : null)
+            if (e2) console.error('      ↳ mawl_checklists SELECT is broken — SELECT policy likely references checklist_collaborators before it existed')
+
+            // 5c. Verify mawl_progress is readable for this checklist
+            const { data: v3, error: e3 } = await supabase
+                .from('mawl_progress')
+                .select('item_key')
+                .eq('checklist_id', _activeChecklistId)
+                .limit(1)
+            console.log('  5c. mawl_progress SELECT → data:', v3, '| error:', e3 ? JSON.stringify(e3) : null)
+            if (e3) console.error('      ↳ mawl_progress SELECT is broken — SELECT policy does not cover this checklist')
+
+            console.log('  NOTE: collaborator access (as', email, ') can only be confirmed when logged in as that user')
+
             input.value = ''
             await loadCollaborators(_activeChecklistId)
         }
