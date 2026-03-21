@@ -499,35 +499,71 @@
 
         window.submitCreateChecklist = async function () {
             console.log('[submitCreateChecklist] fired')
+
             const input = document.getElementById('create-checklist-input')
             const coached_name = input.value.trim()
-            if (!coached_name) { input.focus(); return }
+            console.log('  coached_name :', JSON.stringify(coached_name))
+            if (!coached_name) {
+                console.warn('  ↳ early return — name is empty')
+                input.focus()
+                return
+            }
 
             const networkId = document.getElementById('network-select').value
-            if (!networkId) return
+            console.log('  networkId    :', networkId)
+            if (!networkId) {
+                console.warn('  ↳ early return — no network selected')
+                return
+            }
 
             const btn = document.getElementById('create-checklist-submit')
             btn.disabled = true
             btn.textContent = 'Adding…'
 
             const { data: { session } } = await supabase.auth.getSession()
-            const { data, error } = await supabase
+            console.log('  user id      :', session?.user?.id)
+
+            const payload = { network_id: networkId, coached_name, created_by: session.user.id }
+            console.log('  insert payload:', payload)
+
+            // Insert without .select() — avoids the RLS RETURNING race.
+            // PostgREST evaluates the RETURNING clause through the SELECT policy
+            // before the row is fully visible to it, so .select('id').single()
+            // always returns an error even when the insert succeeded.
+            // Same fix already applied to submitCreateNetwork.
+            const { error: insertError } = await supabase
                 .from('mawl_checklists')
-                .insert({ network_id: networkId, coached_name, created_by: session.user.id })
-                .select('id')
-                .single()
+                .insert(payload)
+
+            console.log('  insert error :', insertError ? JSON.stringify(insertError) : null)
 
             btn.disabled = false
             btn.textContent = 'Add'
 
-            if (error) {
+            if (insertError) {
+                console.error('[submitCreateChecklist] insert failed:', insertError)
                 showNotification('Could not add checklist.')
                 return
             }
 
+            console.log('  insert OK — fetching new checklist id for auto-select')
             input.value = ''
             document.getElementById('create-checklist-form').style.display = 'none'
-            await loadChecklists(networkId, data.id)
+
+            // Separate follow-up query — insert is committed, SELECT policy passes now.
+            const { data: newest, error: selectError } = await supabase
+                .from('mawl_checklists')
+                .select('id')
+                .eq('network_id', networkId)
+                .eq('created_by', session.user.id)
+                .order('created_at', { ascending: false })
+                .limit(1)
+                .single()
+
+            console.log('  follow-up id :', newest?.id, '| error:', selectError ? JSON.stringify(selectError) : null)
+            if (selectError) console.warn('[submitCreateChecklist] auto-select id unavailable:', selectError)
+
+            await loadChecklists(networkId, newest?.id ?? null)
         }
 
         // Load networks whenever auth state settles
