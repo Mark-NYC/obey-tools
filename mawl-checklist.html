@@ -155,6 +155,8 @@
         }
 
         async function loadChecklists(networkId, autoSelectId = null) {
+            console.log('[loadChecklists] networkId:', networkId, '| autoSelectId:', autoSelectId)
+
             // Reset progress grid on every reload
             _activeChecklistId = null
             _activeChecklistCreatedBy = null
@@ -183,12 +185,24 @@
                 .eq('network_id', networkId)
                 .order('created_at', { ascending: false })
 
+            console.log('[loadChecklists] query data :', data)
+            console.log('[loadChecklists] query error:', error ? JSON.stringify(error) : null)
+
             loading.style.display = 'none'
 
-            if (error || !data || data.length === 0) {
+            if (error) {
+                console.error('[loadChecklists] SELECT failed (full):', error)
                 empty.style.display = 'block'
                 return
             }
+
+            if (!data || data.length === 0) {
+                console.warn('[loadChecklists] query returned 0 rows for networkId:', networkId)
+                empty.style.display = 'block'
+                return
+            }
+
+            console.log('[loadChecklists] rendering', data.length, 'checklist(s):', data.map(c => c.coached_name))
 
             list.innerHTML = ''
             data.forEach(cl => {
@@ -202,15 +216,18 @@
             })
             list.style.display = 'flex'
 
+            console.log('[loadChecklists] list rendered, autoSelectId:', autoSelectId)
             if (autoSelectId) selectChecklist(autoSelectId)
         }
 
         function selectChecklist(id) {
+            console.log('[selectChecklist] id:', id)
             document.querySelectorAll('.checklist-item').forEach(btn => {
                 btn.classList.toggle('active', btn.dataset.id === id)
             })
             const activeBtn = document.querySelector(`.checklist-item[data-id="${id}"]`)
             _activeChecklistCreatedBy = activeBtn?.dataset.createdBy ?? null
+            console.log('[selectChecklist] _activeChecklistCreatedBy:', _activeChecklistCreatedBy, '→ calling renderGrid')
             renderGrid(id)
         }
 
@@ -226,6 +243,7 @@
         }
 
         async function renderGrid(checklistId) {
+            console.log('[renderGrid] checklistId:', checklistId)
             _activeChecklistId = checklistId
             const section = document.getElementById('mawl-grid-section')
             if (!checklistId) { section.style.display = 'none'; section.innerHTML = ''; return }
