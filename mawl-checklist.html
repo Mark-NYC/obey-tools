@@ -205,6 +205,8 @@
             gridSection.style.display = 'none'
             gridSection.innerHTML = ''
             document.getElementById('manage-playbook-section').style.display = 'none'
+            const personHdr = document.getElementById('active-person-header')
+            if (personHdr) { personHdr.style.display = 'none'; personHdr.textContent = '' }
 
             const section = document.getElementById('checklist-section')
             if (!networkId) { section.style.display = 'none'; return }
@@ -276,6 +278,12 @@
             })
             const activeBtn = document.querySelector(`.checklist-item[data-id="${id}"]`)
             _activeChecklistCreatedBy = activeBtn?.dataset.createdBy ?? null
+            const hdr = document.getElementById('active-person-header')
+            if (hdr) {
+                const name = activeBtn?.textContent?.trim() ?? ''
+                hdr.textContent = name
+                hdr.style.display = name ? 'block' : 'none'
+            }
             renderPlaybookGrid(id)
         }
 
@@ -1059,15 +1067,17 @@
         .network-empty-sub { font-size: 14px; color: #8e8e93; }
 
         /* Checklist section */
-        .checklist-section { padding: 0 16px 24px; border-top: 0.5px solid #c6c6c8; }
-        .checklist-row { display: flex; align-items: center; justify-content: space-between; padding: 20px 0 10px; }
-        .checklist-label { font-size: 13px; font-weight: 600; color: #8e8e93; text-transform: uppercase; letter-spacing: 0.5px; }
-        .add-checklist-btn { padding: 6px 14px; border: none; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; background: #00D084; color: #fff; font-family: inherit; }
-        .checklist-loading { padding: 24px 0; text-align: center; color: #8e8e93; font-size: 15px; }
-        .checklist-list { flex-direction: column; gap: 8px; }
-        .checklist-item { width: 100%; padding: 14px 16px; border: 1px solid #c6c6c8; border-radius: 12px; font-size: 16px; font-family: inherit; background: #fff; color: #000; text-align: left; cursor: pointer; font-weight: 500; }
-        .checklist-item.active { border-color: #00D084; background: #f0fff8; color: #009960; font-weight: 600; }
-        .checklist-empty { padding: 28px 0; text-align: center; color: #8e8e93; font-size: 15px; }
+        .checklist-section { padding: 0 16px 12px; border-top: 0.5px solid #c6c6c8; }
+        .checklist-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0 8px; }
+        .checklist-label { font-size: 11px; font-weight: 600; color: #aeaeb2; text-transform: uppercase; letter-spacing: 0.5px; }
+        .add-checklist-btn { padding: 0; border: none; background: none; font-size: 12px; font-weight: 600; cursor: pointer; color: #00D084; font-family: inherit; text-decoration: underline; text-underline-offset: 2px; }
+        .add-checklist-btn:hover { color: #009960; }
+        .checklist-loading { padding: 16px 0; text-align: center; color: #8e8e93; font-size: 14px; }
+        .checklist-list { flex-direction: column; gap: 0; }
+        .checklist-item { width: 100%; padding: 9px 10px 9px 12px; border: none; border-radius: 0; border-left: 3px solid transparent; font-size: 15px; font-family: inherit; background: transparent; color: #3a3a3c; text-align: left; cursor: pointer; font-weight: 400; border-bottom: 0.5px solid #f2f2f7; }
+        .checklist-item:hover { background: #f9f9fb; }
+        .checklist-item.active { border-left-color: #00D084; background: #f0fff8; color: #009960; font-weight: 600; }
+        .checklist-empty { padding: 16px 0; text-align: center; color: #8e8e93; font-size: 14px; }
         .create-checklist-form { margin-top: 12px; padding: 14px; background: #f2f2f7; border-radius: 12px; }
         .create-checklist-input { width: 100%; padding: 11px 14px; border: 1px solid #c6c6c8; border-radius: 10px; font-size: 16px; font-family: inherit; background: #fff; outline: none; margin-bottom: 10px; }
         .create-checklist-input:focus { border-color: #00D084; }
@@ -1076,8 +1086,11 @@
         .create-checklist-submit:disabled { opacity: 0.6; cursor: default; }
         .create-checklist-cancel { flex: 1; padding: 10px; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; background: #e5e5ea; color: #3a3a3c; font-family: inherit; }
 
+        /* Active person header */
+        .active-person-header { padding: 18px 16px 6px; font-size: 20px; font-weight: 700; color: #000; border-top: 2px solid #00D084; background: #fff; }
+
         /* MAWL progress grid */
-        .mawl-grid-section { border-top: 0.5px solid #c6c6c8; padding-bottom: 40px; }
+        .mawl-grid-section { border-top: none; padding-bottom: 40px; }
         .mawl-grid-loading { padding: 24px 16px; text-align: center; color: #8e8e93; font-size: 15px; }
         /* Column header (Item | M  A  W  L) */
         .mawl-col-header { display: flex; align-items: center; padding: 7px 16px; background: #f2f2f7; border-bottom: 0.5px solid #c6c6c8; }
@@ -1087,10 +1100,10 @@
         /* Category and items */
         .mawl-category { }
         .mawl-category-header { font-size: 11px; font-weight: 700; color: #3a3a3c; text-transform: uppercase; letter-spacing: 0.5px; padding: 7px 16px; background: #f2f2f7; border-top: 0.5px solid #c6c6c8; border-bottom: 0.5px solid #c6c6c8; }
-        .mawl-item-row { display: flex; align-items: center; justify-content: space-between; padding: 9px 16px; border-bottom: 0.5px solid #f2f2f7; }
-        .mawl-item-label { font-size: 14px; color: #000; flex: 1; padding-right: 12px; }
-        .mawl-stage-btns { display: flex; gap: 6px; flex-shrink: 0; }
-        .mawl-stage-btn { width: 36px; height: 36px; border: none; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; background: #e5e5ea; color: #8e8e93; }
+        .mawl-item-row { display: flex; align-items: center; justify-content: space-between; padding: 11px 16px; border-bottom: 0.5px solid #f2f2f7; }
+        .mawl-item-label { font-size: 14px; color: #1c1c1e; flex: 1; padding-right: 12px; line-height: 1.3; }
+        .mawl-stage-btns { display: flex; gap: 5px; flex-shrink: 0; }
+        .mawl-stage-btn { width: 34px; height: 34px; border: none; border-radius: 7px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; background: #e5e5ea; color: #aeaeb2; transition: background 0.1s; }
         .mawl-stage-btn.done { background: #00D084; color: #fff; }
 
         /* Access denied */
@@ -1103,20 +1116,21 @@
         .notification { position: fixed; top: 60px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: white; padding: 12px 20px; border-radius: 8px; font-size: 15px; font-weight: 500; z-index: 1000; opacity: 0; animation: notificationSlide 3s ease; }
         @keyframes notificationSlide { 0% { opacity:0; transform:translateX(-50%) translateY(-20px); } 10% { opacity:1; transform:translateX(-50%) translateY(0); } 90% { opacity:1; transform:translateX(-50%) translateY(0); } 100% { opacity:0; transform:translateX(-50%) translateY(-20px); } }
 
-        /* Collaborator panel */
-        .collab-panel { padding: 0 16px 32px; border-top: 0.5px solid #c6c6c8; margin-top: 8px; }
-        .collab-header-row { display: flex; align-items: center; justify-content: space-between; padding: 20px 0 10px; }
-        .collab-label { font-size: 13px; font-weight: 600; color: #8e8e93; text-transform: uppercase; letter-spacing: 0.5px; }
-        .collab-add-form { margin-bottom: 12px; }
-        .collab-email-input { width: 100%; padding: 11px 14px; border: 1px solid #c6c6c8; border-radius: 10px; font-size: 16px; font-family: inherit; background: #fff; outline: none; margin-bottom: 8px; }
+        /* Collaborator panel — demoted secondary section */
+        .collab-panel { padding: 0 16px 24px; margin-top: 24px; border-top: 0.5px solid #f2f2f7; }
+        .collab-header-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0 8px; }
+        .collab-label { font-size: 11px; font-weight: 600; color: #aeaeb2; text-transform: uppercase; letter-spacing: 0.5px; }
+        .collab-add-form { margin-bottom: 10px; }
+        .collab-email-input { width: 100%; padding: 9px 12px; border: 1px solid #c6c6c8; border-radius: 8px; font-size: 14px; font-family: inherit; background: #fff; outline: none; margin-bottom: 6px; }
         .collab-email-input:focus { border-color: #00D084; }
         .collab-add-actions { display: flex; }
-        .collab-add-btn { padding: 9px 20px; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; background: #00D084; color: #fff; font-family: inherit; }
+        .collab-add-btn { padding: 7px 16px; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; background: #e5e5ea; color: #3a3a3c; font-family: inherit; }
+        .collab-add-btn:hover { background: #d1d1d6; }
         .collab-add-btn:disabled { opacity: 0.6; cursor: default; }
-        .collab-list { display: flex; flex-direction: column; gap: 8px; }
-        .collab-item { padding: 11px 14px; background: #f2f2f7; border-radius: 10px; font-size: 15px; color: #3a3a3c; }
-        .collab-empty { font-size: 14px; color: #8e8e93; padding: 8px 0; }
-        .collab-loading { font-size: 14px; color: #8e8e93; padding: 8px 0; }
+        .collab-list { display: flex; flex-direction: column; gap: 4px; }
+        .collab-item { padding: 5px 0; font-size: 13px; color: #8e8e93; border-bottom: 0.5px solid #f2f2f7; }
+        .collab-empty { font-size: 13px; color: #c7c7cc; padding: 4px 0; }
+        .collab-loading { font-size: 13px; color: #c7c7cc; padding: 4px 0; }
 
 
         /* Playbook progress (checkbox style) */
@@ -1127,8 +1141,8 @@
 
         /* Manage Playbook section */
         /* Checklist view section headers */
-        .playbook-section-header { padding: 14px 16px 6px; font-size: 13px; font-weight: 700; color: #3a3a3c; text-transform: uppercase; letter-spacing: 0.5px; background: #f9f9fb; border-top: 0.5px solid #e5e5ea; margin-top: 4px; }
-        .playbook-section-header:first-child { border-top: none; margin-top: 0; }
+        .playbook-section-header { padding: 16px 16px 4px; font-size: 11px; font-weight: 700; color: #aeaeb2; text-transform: uppercase; letter-spacing: 0.6px; background: transparent; border-top: none; margin-top: 0; }
+        .playbook-section-header:first-child { padding-top: 12px; }
 
         /* Manage Playbook section */
         .manage-playbook-section { padding: 0 16px 24px; border-top: 0.5px solid #c6c6c8; }
@@ -1155,13 +1169,15 @@
         .manage-section-items .add-playbook-form { padding: 10px 0 4px; background: none; border-radius: 0; }
 
         /* Network header bar */
-        .network-header-bar { padding: 10px 16px; background: #f2f2f7; border-bottom: 0.5px solid #c6c6c8; }
-        .network-display-row { display: flex; align-items: center; gap: 8px; min-height: 34px; }
-        .network-display-label { font-size: 13px; font-weight: 600; color: #8e8e93; text-transform: uppercase; letter-spacing: 0.5px; flex-shrink: 0; }
-        .network-display-name { font-size: 15px; font-weight: 600; color: #3a3a3c; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .network-display-actions { display: flex; gap: 6px; flex-shrink: 0; }
-        .network-action-btn { padding: 5px 12px; border: none; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; background: #e5e5ea; color: #3a3a3c; font-family: inherit; }
-        .network-action-add { background: #00D084; color: #fff; }
+        .network-header-bar { padding: 8px 16px; background: #f2f2f7; border-bottom: 0.5px solid #c6c6c8; }
+        .network-display-row { display: flex; align-items: center; gap: 6px; min-height: 30px; }
+        .network-display-label { font-size: 11px; font-weight: 600; color: #aeaeb2; text-transform: uppercase; letter-spacing: 0.5px; flex-shrink: 0; }
+        .network-display-name { font-size: 14px; font-weight: 600; color: #3a3a3c; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .network-display-actions { display: flex; gap: 10px; flex-shrink: 0; }
+        .network-action-btn { padding: 0; border: none; background: none; font-size: 12px; font-weight: 600; cursor: pointer; color: #8e8e93; font-family: inherit; text-decoration: underline; text-underline-offset: 2px; }
+        .network-action-btn:hover { color: #3a3a3c; }
+        .network-action-add { color: #00D084; }
+        .network-action-add:hover { color: #009960; }
         #network-picker-panel { padding-top: 8px; }
 
         /* Tabs */
@@ -1270,6 +1286,7 @@
                 </div>
                 <div class="checklist-empty" id="checklist-empty" style="display:none">No checklists yet. Use "+ Add Checklist" to create one.</div>
             </div>
+            <div id="active-person-header" class="active-person-header" style="display:none"></div>
             <div class="mawl-grid-section" id="mawl-grid-section" style="display:none"></div>
         </div>
 
