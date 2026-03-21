@@ -530,9 +530,15 @@
             const itemsInSec = _playbookItems.filter(i => i.section_id === secId)
             const maxSort = itemsInSec.length > 0
                 ? Math.max(...itemsInSec.map(i => i.sort_order)) + 1 : 0
-            const { error } = await supabase.from('network_checklist_items')
-                .insert({ network_id: networkId, section_id: secId, title, sort_order: maxSort, created_by: session.user.id })
-            if (error) { console.error('[submitAddItemToSection] insert error:', error); showNotification('Could not add item.'); return }
+            const payload = { network_id: networkId, section_id: secId, title, description: null, sort_order: maxSort, created_by: session.user.id }
+            console.log('[submitAddItemToSection] payload:', JSON.stringify(payload))
+            const { error } = await supabase.from('network_checklist_items').insert(payload)
+            if (error) {
+                const isRls = error.code === '42501' || String(error.message ?? '').toLowerCase().includes('policy')
+                console.error('[submitAddItemToSection] insert error' + (isRls ? ' — RLS policy violation' : '') + ':', error)
+                showNotification('Could not add item.')
+                return
+            }
             input.value = ''
             document.getElementById('add-item-form-' + secId).style.display = 'none'
             await loadPlaybook(networkId)
