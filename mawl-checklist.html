@@ -14,6 +14,7 @@
         let _activeChecklistId = null
         let _activeChecklistCreatedBy = null  // tracks creator of selected checklist
         let _networkRole = null      // 'owner' | 'leader' | 'member' | null
+        let _playbookSections = []   // network_checklist_sections rows
         let _playbookItems = []      // network_checklist_items rows
         let _playbookProgress = {}   // item_id → { completed, completed_at, completed_by }
 
@@ -184,6 +185,7 @@
             _playbookProgress = {}
             _networkRole = null
             _playbookItems = []
+            _playbookSections = []
             const gridSection = document.getElementById('mawl-grid-section')
             gridSection.style.display = 'none'
             gridSection.innerHTML = ''
@@ -285,15 +287,23 @@
         }
 
         async function loadPlaybook(networkId) {
-            const { data, error } = await supabase
-                .from('network_checklist_items')
-                .select('id, title, description, sort_order')
-                .eq('network_id', networkId)
-                .eq('is_archived', false)
-                .order('sort_order', { ascending: true })
-            if (error) { console.error('[loadPlaybook] error:', error); _playbookItems = []; return }
-            _playbookItems = data ?? []
-            console.log('[loadPlaybook] items:', _playbookItems.length)
+            const [secRes, itemRes] = await Promise.all([
+                supabase.from('network_checklist_sections')
+                    .select('id, title, sort_order')
+                    .eq('network_id', networkId)
+                    .eq('is_archived', false)
+                    .order('sort_order', { ascending: true }),
+                supabase.from('network_checklist_items')
+                    .select('id, title, description, sort_order, section_id')
+                    .eq('network_id', networkId)
+                    .eq('is_archived', false)
+                    .order('sort_order', { ascending: true }),
+            ])
+            if (secRes.error) console.error('[loadPlaybook] sections error:', secRes.error)
+            if (itemRes.error) console.error('[loadPlaybook] items error:', itemRes.error)
+            _playbookSections = secRes.data ?? []
+            _playbookItems = itemRes.data ?? []
+            console.log('[loadPlaybook] sections:', _playbookSections.length, 'items:', _playbookItems.length)
         }
 
         // ── Manage Playbook ───────────────────────────────────────────────────
@@ -311,84 +321,230 @@
             const list = document.getElementById('manage-playbook-list')
             if (!list) return
             list.innerHTML = ''
-            if (_playbookItems.length === 0) {
+            if (_playbookSections.length === 0) {
                 const empty = document.createElement('div')
                 empty.className = 'manage-playbook-empty'
-                empty.textContent = 'No items yet. Use "+ Add Item" to build the playbook.'
+                empty.textContent = 'No sections yet. Use "+ Add Section" to build the playbook.'
                 list.appendChild(empty)
                 return
             }
-            _playbookItems.forEach((item, idx) => {
-                const row = document.createElement('div')
-                row.className = 'manage-playbook-item-row'
-                const titleEl = document.createElement('div')
-                titleEl.className = 'manage-playbook-item-title'
-                titleEl.textContent = item.title
-                row.appendChild(titleEl)
-                const actions = document.createElement('div')
-                actions.className = 'manage-playbook-item-actions'
-                if (idx > 0) {
-                    const upBtn = document.createElement('button')
-                    upBtn.className = 'manage-playbook-action-btn'
-                    upBtn.textContent = '↑'
-                    upBtn.onclick = () => movePlaybookItem(item.id, 'up')
-                    actions.appendChild(upBtn)
+            _playbookSections.forEach((sec, secIdx) => {
+                const secBlock = document.createElement('div')
+                secBlock.className = 'manage-section-block'
+                secBlock.id = 'manage-sec-' + sec.id
+
+                // Section header row
+                const secHeader = document.createElement('div')
+                secHeader.className = 'manage-section-header-row'
+
+                const secTitleEl = document.createElement('div')
+                secTitleEl.className = 'manage-section-title'
+                secTitleEl.id = 'manage-sec-title-' + sec.id
+                secTitleEl.textContent = sec.title
+                secHeader.appendChild(secTitleEl)
+
+                const secActions = document.createElement('div')
+                secActions.className = 'manage-playbook-item-actions'
+                if (secIdx > 0) {
+                    const up = document.createElement('button')
+                    up.className = 'manage-playbook-action-btn'; up.textContent = '↑'
+                    up.onclick = () => moveSection(sec.id, 'up')
+                    secActions.appendChild(up)
                 }
-                if (idx < _playbookItems.length - 1) {
-                    const downBtn = document.createElement('button')
-                    downBtn.className = 'manage-playbook-action-btn'
-                    downBtn.textContent = '↓'
-                    downBtn.onclick = () => movePlaybookItem(item.id, 'down')
-                    actions.appendChild(downBtn)
+                if (secIdx < _playbookSections.length - 1) {
+                    const down = document.createElement('button')
+                    down.className = 'manage-playbook-action-btn'; down.textContent = '↓'
+                    down.onclick = () => moveSection(sec.id, 'down')
+                    secActions.appendChild(down)
                 }
-                const archiveBtn = document.createElement('button')
-                archiveBtn.className = 'manage-playbook-action-btn manage-playbook-archive-btn'
-                archiveBtn.textContent = 'Archive'
-                archiveBtn.onclick = () => archivePlaybookItem(item.id)
-                actions.appendChild(archiveBtn)
-                row.appendChild(actions)
-                list.appendChild(row)
+                const renameBtn = document.createElement('button')
+                renameBtn.className = 'manage-playbook-action-btn'; renameBtn.textContent = 'Rename'
+                renameBtn.onclick = () => showRenameSection(sec.id, sec.title)
+                secActions.appendChild(renameBtn)
+                const archSecBtn = document.createElement('button')
+                archSecBtn.className = 'manage-playbook-action-btn manage-playbook-archive-btn'; archSecBtn.textContent = 'Archive'
+                archSecBtn.onclick = () => archiveSection(sec.id)
+                secActions.appendChild(archSecBtn)
+                secHeader.appendChild(secActions)
+                secBlock.appendChild(secHeader)
+
+                // Rename inline form (hidden)
+                const renameForm = document.createElement('div')
+                renameForm.className = 'add-playbook-form'
+                renameForm.id = 'rename-sec-form-' + sec.id
+                renameForm.style.display = 'none'
+                renameForm.innerHTML = \`<input type="text" class="playbook-item-input" id="rename-sec-input-\${sec.id}" maxlength="200"
+                    onkeydown="if(event.key==='Enter') submitRenameSection('\${sec.id}'); if(event.key==='Escape') hideRenameSection('\${sec.id}')">
+                <div class="playbook-item-form-actions">
+                    <button class="create-network-submit" onclick="submitRenameSection('\${sec.id}')">Save</button>
+                    <button class="create-network-cancel" onclick="hideRenameSection('\${sec.id}')">Cancel</button>
+                </div>\`
+                secBlock.appendChild(renameForm)
+
+                // Items under this section
+                const itemsOfSec = _playbookItems.filter(i => i.section_id === sec.id)
+                const itemList = document.createElement('div')
+                itemList.className = 'manage-section-items'
+                itemsOfSec.forEach((item, itemIdx) => {
+                    const itemRow = document.createElement('div')
+                    itemRow.className = 'manage-playbook-item-row'
+                    const titleEl = document.createElement('div')
+                    titleEl.className = 'manage-playbook-item-title'
+                    titleEl.textContent = item.title
+                    itemRow.appendChild(titleEl)
+                    const acts = document.createElement('div')
+                    acts.className = 'manage-playbook-item-actions'
+                    if (itemIdx > 0) {
+                        const up = document.createElement('button')
+                        up.className = 'manage-playbook-action-btn'; up.textContent = '↑'
+                        up.onclick = () => movePlaybookItem(item.id, 'up', sec.id)
+                        acts.appendChild(up)
+                    }
+                    if (itemIdx < itemsOfSec.length - 1) {
+                        const down = document.createElement('button')
+                        down.className = 'manage-playbook-action-btn'; down.textContent = '↓'
+                        down.onclick = () => movePlaybookItem(item.id, 'down', sec.id)
+                        acts.appendChild(down)
+                    }
+                    const archBtn = document.createElement('button')
+                    archBtn.className = 'manage-playbook-action-btn manage-playbook-archive-btn'; archBtn.textContent = 'Archive'
+                    archBtn.onclick = () => archivePlaybookItem(item.id)
+                    acts.appendChild(archBtn)
+                    itemRow.appendChild(acts)
+                    itemList.appendChild(itemRow)
+                })
+                secBlock.appendChild(itemList)
+
+                // Add item form for this section
+                const addItemBtn = document.createElement('button')
+                addItemBtn.className = 'add-section-item-btn'
+                addItemBtn.textContent = '+ Add Item'
+                addItemBtn.onclick = () => showAddItemToSection(sec.id)
+                secBlock.appendChild(addItemBtn)
+
+                const addItemForm = document.createElement('div')
+                addItemForm.className = 'add-playbook-form'
+                addItemForm.id = 'add-item-form-' + sec.id
+                addItemForm.style.display = 'none'
+                addItemForm.innerHTML = \`<input type="text" class="playbook-item-input" id="add-item-input-\${sec.id}" placeholder="Item title" maxlength="200"
+                    onkeydown="if(event.key==='Enter') submitAddItemToSection('\${sec.id}'); if(event.key==='Escape') cancelAddItemToSection('\${sec.id}')">
+                <div class="playbook-item-form-actions">
+                    <button class="create-network-submit" onclick="submitAddItemToSection('\${sec.id}')">Add</button>
+                    <button class="create-network-cancel" onclick="cancelAddItemToSection('\${sec.id}')">Cancel</button>
+                </div>\`
+                secBlock.appendChild(addItemForm)
+
+                list.appendChild(secBlock)
             })
         }
 
-        window.showAddPlaybookItem = function () {
-            document.getElementById('add-playbook-item-form').style.display = 'block'
-            document.getElementById('playbook-item-title-input').focus()
+        // ── Section management ────────────────────────────────────────────────
+        window.showAddSection = function () {
+            document.getElementById('add-section-form').style.display = 'block'
+            document.getElementById('add-section-input').focus()
         }
-
-        window.cancelAddPlaybookItem = function () {
-            document.getElementById('add-playbook-item-form').style.display = 'none'
-            document.getElementById('playbook-item-title-input').value = ''
+        window.cancelAddSection = function () {
+            document.getElementById('add-section-form').style.display = 'none'
+            document.getElementById('add-section-input').value = ''
         }
-
-        window.submitAddPlaybookItem = async function () {
-            const input = document.getElementById('playbook-item-title-input')
+        window.submitAddSection = async function () {
+            const input = document.getElementById('add-section-input')
             const title = input.value.trim()
             if (!title) { input.focus(); return }
             const networkId = document.getElementById('network-select').value
             if (!networkId) return
             const { data: { session } } = await supabase.auth.getSession()
-            const maxSort = _playbookItems.length > 0
-                ? Math.max(..._playbookItems.map(i => i.sort_order)) + 1
-                : 0
-            const { error } = await supabase
-                .from('network_checklist_items')
+            const maxSort = _playbookSections.length > 0
+                ? Math.max(..._playbookSections.map(s => s.sort_order)) + 1 : 0
+            const { error } = await supabase.from('network_checklist_sections')
                 .insert({ network_id: networkId, title, sort_order: maxSort, created_by: session.user.id })
-            if (error) { showNotification('Could not add item.'); return }
+            if (error) { showNotification('Could not add section.'); return }
             input.value = ''
-            document.getElementById('add-playbook-item-form').style.display = 'none'
+            document.getElementById('add-section-form').style.display = 'none'
+            await loadPlaybook(networkId)
+            renderManagePlaybookList()
+        }
+        window.showRenameSection = function (secId, currentTitle) {
+            document.getElementById('rename-sec-form-' + secId).style.display = 'block'
+            const inp = document.getElementById('rename-sec-input-' + secId)
+            inp.value = currentTitle
+            inp.focus()
+        }
+        window.hideRenameSection = function (secId) {
+            document.getElementById('rename-sec-form-' + secId).style.display = 'none'
+        }
+        window.submitRenameSection = async function (secId) {
+            const inp = document.getElementById('rename-sec-input-' + secId)
+            const title = inp.value.trim()
+            if (!title) { inp.focus(); return }
+            const networkId = document.getElementById('network-select').value
+            const { error } = await supabase.from('network_checklist_sections')
+                .update({ title }).eq('id', secId)
+            if (error) { showNotification('Could not rename section.'); return }
+            await loadPlaybook(networkId)
+            renderManagePlaybookList()
+        }
+        async function moveSection(secId, dir) {
+            const networkId = document.getElementById('network-select').value
+            const idx = _playbookSections.findIndex(s => s.id === secId)
+            if (idx < 0) return
+            const swapIdx = dir === 'up' ? idx - 1 : idx + 1
+            if (swapIdx < 0 || swapIdx >= _playbookSections.length) return
+            const a = _playbookSections[idx], b = _playbookSections[swapIdx]
+            const [eA, eB] = await Promise.all([
+                supabase.from('network_checklist_sections').update({ sort_order: b.sort_order }).eq('id', a.id).then(r => r.error),
+                supabase.from('network_checklist_sections').update({ sort_order: a.sort_order }).eq('id', b.id).then(r => r.error),
+            ])
+            if (eA || eB) { showNotification('Could not reorder sections.'); return }
+            await loadPlaybook(networkId)
+            renderManagePlaybookList()
+        }
+        async function archiveSection(secId) {
+            const networkId = document.getElementById('network-select').value
+            const { error } = await supabase.from('network_checklist_sections')
+                .update({ is_archived: true }).eq('id', secId)
+            if (error) { showNotification('Could not archive section.'); return }
             await loadPlaybook(networkId)
             renderManagePlaybookList()
         }
 
-        async function movePlaybookItem(itemId, dir) {
+        // ── Item management (per-section) ─────────────────────────────────────
+        window.showAddItemToSection = function (secId) {
+            document.getElementById('add-item-form-' + secId).style.display = 'block'
+            document.getElementById('add-item-input-' + secId).focus()
+        }
+        window.cancelAddItemToSection = function (secId) {
+            document.getElementById('add-item-form-' + secId).style.display = 'none'
+            document.getElementById('add-item-input-' + secId).value = ''
+        }
+        window.submitAddItemToSection = async function (secId) {
+            const input = document.getElementById('add-item-input-' + secId)
+            const title = input.value.trim()
+            if (!title) { input.focus(); return }
             const networkId = document.getElementById('network-select').value
-            const idx = _playbookItems.findIndex(i => i.id === itemId)
+            if (!networkId) return
+            const { data: { session } } = await supabase.auth.getSession()
+            const itemsInSec = _playbookItems.filter(i => i.section_id === secId)
+            const maxSort = itemsInSec.length > 0
+                ? Math.max(...itemsInSec.map(i => i.sort_order)) + 1 : 0
+            const { error } = await supabase.from('network_checklist_items')
+                .insert({ network_id: networkId, section_id: secId, title, sort_order: maxSort, created_by: session.user.id })
+            if (error) { showNotification('Could not add item.'); return }
+            input.value = ''
+            document.getElementById('add-item-form-' + secId).style.display = 'none'
+            await loadPlaybook(networkId)
+            renderManagePlaybookList()
+        }
+
+        async function movePlaybookItem(itemId, dir, sectionId) {
+            const networkId = document.getElementById('network-select').value
+            const scoped = sectionId ? _playbookItems.filter(i => i.section_id === sectionId) : _playbookItems
+            const idx = scoped.findIndex(i => i.id === itemId)
             if (idx < 0) return
             const swapIdx = dir === 'up' ? idx - 1 : idx + 1
-            if (swapIdx < 0 || swapIdx >= _playbookItems.length) return
-            const a = _playbookItems[idx]
-            const b = _playbookItems[swapIdx]
+            if (swapIdx < 0 || swapIdx >= scoped.length) return
+            const a = scoped[idx]
+            const b = scoped[swapIdx]
             const [errA, errB] = await Promise.all([
                 supabase.from('network_checklist_items').update({ sort_order: b.sort_order }).eq('id', a.id).then(r => r.error),
                 supabase.from('network_checklist_items').update({ sort_order: a.sort_order }).eq('id', b.id).then(r => r.error),
@@ -435,15 +591,32 @@
 
             section.innerHTML = ''
 
-            if (_playbookItems.length === 0) {
+            if (_playbookSections.length === 0 && _playbookItems.length === 0) {
                 const emptyEl = document.createElement('div')
                 emptyEl.className = 'mawl-grid-loading'
                 emptyEl.textContent = (_networkRole === 'owner' || _networkRole === 'leader')
-                    ? 'No items in playbook yet. Use "Manage Playbook" above to add items.'
+                    ? 'No items in playbook yet. Use "Manage Playbook" above to add sections.'
                     : 'No checklist items yet.'
                 section.appendChild(emptyEl)
             } else {
-                _playbookItems.forEach(item => section.appendChild(buildPlaybookItemRow(item)))
+                _playbookSections.forEach(sec => {
+                    const itemsInSec = _playbookItems.filter(i => i.section_id === sec.id)
+                    if (itemsInSec.length === 0) return
+                    const hdr = document.createElement('div')
+                    hdr.className = 'playbook-section-header'
+                    hdr.textContent = sec.title
+                    section.appendChild(hdr)
+                    itemsInSec.forEach(item => section.appendChild(buildPlaybookItemRow(item)))
+                })
+                // Items with no section (shouldn't normally exist, but be safe)
+                const unsectioned = _playbookItems.filter(i => !i.section_id)
+                if (unsectioned.length > 0) {
+                    const hdr = document.createElement('div')
+                    hdr.className = 'playbook-section-header'
+                    hdr.textContent = 'Other'
+                    section.appendChild(hdr)
+                    unsectioned.forEach(item => section.appendChild(buildPlaybookItemRow(item)))
+                }
             }
 
             await renderCollaboratorPanel(checklistId, section)
@@ -902,6 +1075,11 @@
         .pb-completed .mawl-item-label { text-decoration: line-through; color: #8e8e93; }
 
         /* Manage Playbook section */
+        /* Checklist view section headers */
+        .playbook-section-header { padding: 14px 16px 6px; font-size: 13px; font-weight: 700; color: #3a3a3c; text-transform: uppercase; letter-spacing: 0.5px; background: #f9f9fb; border-top: 0.5px solid #e5e5ea; margin-top: 4px; }
+        .playbook-section-header:first-child { border-top: none; margin-top: 0; }
+
+        /* Manage Playbook section */
         .manage-playbook-section { padding: 0 16px 24px; border-top: 0.5px solid #c6c6c8; }
         .manage-playbook-header-row { display: flex; align-items: center; justify-content: space-between; padding: 20px 0 10px; }
         .manage-playbook-label { font-size: 13px; font-weight: 600; color: #8e8e93; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -916,6 +1094,14 @@
         .manage-playbook-action-btn { padding: 5px 10px; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; background: #e5e5ea; color: #3a3a3c; font-family: inherit; }
         .manage-playbook-archive-btn { background: #ffeaea; color: #c00; }
         .manage-playbook-empty { font-size: 14px; color: #8e8e93; padding: 8px 0; }
+        .manage-section-block { margin-bottom: 16px; border: 1px solid #e5e5ea; border-radius: 10px; overflow: hidden; }
+        .manage-section-header-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; background: #f2f2f7; border-bottom: 0.5px solid #e5e5ea; }
+        .manage-section-title { font-size: 14px; font-weight: 700; color: #3a3a3c; flex: 1; }
+        .manage-section-items { padding: 0 12px; }
+        .manage-section-items .manage-playbook-item-row { padding: 8px 0; }
+        .add-section-item-btn { display: block; width: 100%; padding: 8px 12px; border: none; background: none; text-align: left; font-size: 13px; color: #00D084; font-weight: 600; cursor: pointer; font-family: inherit; border-top: 0.5px solid #f2f2f7; }
+        .add-section-item-btn:hover { background: #f9f9fb; }
+        .manage-section-items .add-playbook-form { padding: 10px 0 4px; background: none; border-radius: 0; }
 
         @media (min-width: 768px) {
             .container { border-radius: 12px; margin: 20px auto; box-shadow: 0 4px 20px rgba(0,0,0,0.1); overflow: hidden; }
@@ -1004,15 +1190,15 @@
         <div id="manage-playbook-section" class="manage-playbook-section" style="display:none">
             <div class="manage-playbook-header-row">
                 <div class="manage-playbook-label">Manage Playbook</div>
-                <button class="add-playbook-item-btn" onclick="showAddPlaybookItem()">+ Add Item</button>
+                <button class="add-playbook-item-btn" onclick="showAddSection()">+ Add Section</button>
             </div>
-            <div id="add-playbook-item-form" class="add-playbook-form" style="display:none">
-                <input type="text" id="playbook-item-title-input" class="playbook-item-input"
-                       placeholder="Item title" maxlength="200"
-                       onkeydown="if(event.key==='Enter') submitAddPlaybookItem(); if(event.key==='Escape') cancelAddPlaybookItem()">
+            <div id="add-section-form" class="add-playbook-form" style="display:none">
+                <input type="text" id="add-section-input" class="playbook-item-input"
+                       placeholder="Section title" maxlength="200"
+                       onkeydown="if(event.key==='Enter') submitAddSection(); if(event.key==='Escape') cancelAddSection()">
                 <div class="playbook-item-form-actions">
-                    <button class="create-network-submit" onclick="submitAddPlaybookItem()">Add</button>
-                    <button class="create-network-cancel" onclick="cancelAddPlaybookItem()">Cancel</button>
+                    <button class="create-network-submit" onclick="submitAddSection()">Add</button>
+                    <button class="create-network-cancel" onclick="cancelAddSection()">Cancel</button>
                 </div>
             </div>
             <div id="manage-playbook-list"></div>
