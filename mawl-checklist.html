@@ -206,6 +206,30 @@
         async function loadChecklists(networkId, autoSelectId = null) {
             console.log('[loadChecklists] networkId:', networkId, '| autoSelectId:', autoSelectId)
 
+            // ── diagnostic probes (run before main query) ────────────────────
+            const { data: { session: _s } } = await supabase.auth.getSession()
+            console.log('[loadChecklists] caller user.id:', _s?.user?.id)
+
+            // Probe A — which checklist_collaborators rows can this user see?
+            // If collaborator: should see their own row(s).
+            // If result is empty, checklist_collaborators SELECT RLS is blocking them.
+            const { data: _ccRows, error: _ccErr } = await supabase
+                .from('checklist_collaborators')
+                .select('checklist_id, collaborator_email')
+            console.log('[loadChecklists] probe A — checklist_collaborators visible:',
+                _ccRows, _ccErr ? JSON.stringify(_ccErr) : null)
+
+            // Probe B — which mawl_checklists rows can this user see (no network filter)?
+            // If the shared checklist appears here but NOT in the main query, the
+            // network_id filter is filtering it out (wrong networkId being passed).
+            // If it does NOT appear here, mawl_checklists SELECT RLS is blocking them.
+            const { data: _mcRows, error: _mcErr } = await supabase
+                .from('mawl_checklists')
+                .select('id, coached_name, network_id')
+            console.log('[loadChecklists] probe B — all mawl_checklists visible (no network filter):',
+                _mcRows, _mcErr ? JSON.stringify(_mcErr) : null)
+            // ── end diagnostic probes ────────────────────────────────────────
+
             // Reset progress grid on every reload
             _activeChecklistId = null
             _activeChecklistCreatedBy = null
