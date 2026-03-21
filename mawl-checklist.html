@@ -16,7 +16,7 @@
         let _networkRole = null      // 'owner' | 'leader' | 'member' | null
         let _playbookSections = []   // network_checklist_sections rows
         let _playbookItems = []      // network_checklist_items rows
-        let _playbookProgress = {}   // item_id → { completed, completed_at, completed_by }
+        let _playbookProgress = {}   // item_id → { stage_model, stage_assist, stage_watch, stage_launch }
 
 
         // ── localStorage persistence ──────────────────────────────────────────
@@ -586,15 +586,16 @@
 
             const { data, error } = await supabase
                 .from('checklist_item_progress')
-                .select('item_id, completed, completed_at, completed_by')
+                .select('item_id, stage_model, stage_assist, stage_watch, stage_launch')
                 .eq('checklist_id', checklistId)
             _playbookProgress = {}
             if (!error && data) {
                 data.forEach(r => {
                     _playbookProgress[r.item_id] = {
-                        completed: r.completed,
-                        completed_at: r.completed_at,
-                        completed_by: r.completed_by,
+                        stage_model:  r.stage_model,
+                        stage_assist: r.stage_assist,
+                        stage_watch:  r.stage_watch,
+                        stage_launch: r.stage_launch,
                     }
                 })
             }
@@ -633,46 +634,54 @@
         }
 
         function buildPlaybookItemRow(item) {
-            const prog = _playbookProgress[item.id]
-            const completed = prog?.completed ?? false
+            const prog = _playbookProgress[item.id] ?? {}
+            const launched = !!prog.stage_launch
 
             const row = document.createElement('div')
-            row.className = 'mawl-item-row' + (completed ? ' pb-completed' : '')
+            row.className = 'mawl-item-row' + (launched ? ' pb-completed' : '')
             row.id = 'mawl-row-' + item.id
-
-            const checkBtn = document.createElement('button')
-            checkBtn.className = 'playbook-check-btn' + (completed ? ' done' : '')
-            checkBtn.setAttribute('aria-label', completed ? 'Mark incomplete' : 'Mark complete')
-            checkBtn.onclick = () => toggleProgress(item.id)
-            row.appendChild(checkBtn)
 
             const labelEl = document.createElement('div')
             labelEl.className = 'mawl-item-label'
             labelEl.textContent = item.title
             row.appendChild(labelEl)
 
+            const stageBtns = document.createElement('div')
+            stageBtns.className = 'mawl-stage-btns'
+            ;[['M', 'stage_model'], ['A', 'stage_assist'], ['W', 'stage_watch'], ['L', 'stage_launch']].forEach(([label, key]) => {
+                const btn = document.createElement('button')
+                btn.className = 'mawl-stage-btn' + (prog[key] ? ' done' : '')
+                btn.textContent = label
+                btn.setAttribute('aria-label', label + (prog[key] ? ' (done)' : ''))
+                btn.onclick = () => setMawlStage(item.id, key)
+                stageBtns.appendChild(btn)
+            })
+            row.appendChild(stageBtns)
+
             return row
         }
 
-        async function toggleProgress(itemId) {
+        async function setMawlStage(itemId, stage) {
             if (!_activeChecklistId) return
-            const current = _playbookProgress[itemId]
-            const nowCompleted = !(current?.completed ?? false)
-            const { data: { session } } = await supabase.auth.getSession()
+            const current = _playbookProgress[itemId] ?? {}
+            const nowDone = !current[stage]
+            const update = {
+                checklist_id:  _activeChecklistId,
+                item_id:       itemId,
+                stage_model:   stage === 'stage_model'  ? nowDone : (current.stage_model  ?? false),
+                stage_assist:  stage === 'stage_assist' ? nowDone : (current.stage_assist ?? false),
+                stage_watch:   stage === 'stage_watch'  ? nowDone : (current.stage_watch  ?? false),
+                stage_launch:  stage === 'stage_launch' ? nowDone : (current.stage_launch ?? false),
+            }
             const { error } = await supabase
                 .from('checklist_item_progress')
-                .upsert({
-                    checklist_id: _activeChecklistId,
-                    item_id: itemId,
-                    completed: nowCompleted,
-                    completed_at: nowCompleted ? new Date().toISOString() : null,
-                    completed_by: nowCompleted ? session.user.id : null,
-                }, { onConflict: 'checklist_id,item_id' })
+                .upsert(update, { onConflict: 'checklist_id,item_id' })
             if (error) { showNotification('Could not save progress.'); return }
             _playbookProgress[itemId] = {
-                completed: nowCompleted,
-                completed_at: nowCompleted ? new Date().toISOString() : null,
-                completed_by: nowCompleted ? session.user.id : null,
+                stage_model:  update.stage_model,
+                stage_assist: update.stage_assist,
+                stage_watch:  update.stage_watch,
+                stage_launch: update.stage_launch,
             }
             refreshPlaybookItemRow(itemId)
         }
