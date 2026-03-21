@@ -25,6 +25,38 @@
         function saveLastNetwork(id)   { id ? localStorage.setItem(LS_NETWORK, id)   : localStorage.removeItem(LS_NETWORK) }
         function saveLastChecklist(id) { id ? localStorage.setItem(LS_CHECKLIST, id) : localStorage.removeItem(LS_CHECKLIST) }
 
+        // ── Network header helpers ─────────────────────────────────────────────
+        function updateNetworkDisplay() {
+            const sel = document.getElementById('network-select')
+            const opt = sel?.options[sel.selectedIndex]
+            const name = (opt && opt.value) ? opt.textContent : null
+            const el = document.getElementById('network-display-text')
+            if (el) el.textContent = name ?? '—'
+        }
+
+        function hideNetworkPicker() {
+            document.getElementById('network-picker-panel').style.display = 'none'
+        }
+
+        window.showNetworkPicker = function () {
+            const panel = document.getElementById('network-picker-panel')
+            if (panel.style.display === 'block') {
+                panel.style.display = 'none'
+            } else {
+                panel.style.display = 'block'
+                const sel = document.getElementById('network-select')
+                if (sel.options.length > 1) sel.style.display = 'block'
+            }
+        }
+
+        // ── Tab switching ──────────────────────────────────────────────────────
+        window.switchTab = function (name) {
+            document.getElementById('tab-people').style.display   = name === 'people'   ? 'block' : 'none'
+            document.getElementById('tab-playbook').style.display = name === 'playbook' ? 'block' : 'none'
+            document.getElementById('tab-btn-people').classList.toggle('active',   name === 'people')
+            document.getElementById('tab-btn-playbook').classList.toggle('active', name === 'playbook')
+        }
+
         async function loadNetworks(autoSelectId = null) {
             const { data: { session } } = await supabase.auth.getSession()
             if (!session?.user) return
@@ -55,6 +87,7 @@
 
             if (error || !networks || networks.length === 0) {
                 networkEmpty.style.display = 'block'
+                document.getElementById('network-picker-panel').style.display = 'block'
                 return
             }
 
@@ -78,11 +111,16 @@
                     networkSelect.value = networkToSelect
                     saveLastNetwork(networkToSelect)
                     await loadChecklists(networkToSelect, checklistToRestore)
+                    updateNetworkDisplay()
+                    hideNetworkPicker()
                 } else {
                     // Previously saved network is no longer accessible — clear both.
                     saveLastNetwork(null)
                     saveLastChecklist(null)
+                    document.getElementById('network-picker-panel').style.display = 'block'
                 }
+            } else {
+                document.getElementById('network-picker-panel').style.display = 'block'
             }
         }
 
@@ -93,9 +131,12 @@
             document.getElementById('create-network-form').style.display = 'none'
             document.getElementById('create-network-input').value = ''
             loadChecklists(networkId)
+            updateNetworkDisplay()
+            hideNetworkPicker()
         }
 
         window.showCreateNetwork = function () {
+            document.getElementById('network-picker-panel').style.display = 'block'
             const form = document.getElementById('create-network-form')
             form.style.display = 'block'
             document.getElementById('create-network-input').focus()
@@ -1113,6 +1154,23 @@
         .add-section-item-btn:hover { background: #f9f9fb; }
         .manage-section-items .add-playbook-form { padding: 10px 0 4px; background: none; border-radius: 0; }
 
+        /* Network header bar */
+        .network-header-bar { padding: 10px 16px; background: #f2f2f7; border-bottom: 0.5px solid #c6c6c8; }
+        .network-display-row { display: flex; align-items: center; gap: 8px; min-height: 34px; }
+        .network-display-label { font-size: 13px; font-weight: 600; color: #8e8e93; text-transform: uppercase; letter-spacing: 0.5px; flex-shrink: 0; }
+        .network-display-name { font-size: 15px; font-weight: 600; color: #3a3a3c; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .network-display-actions { display: flex; gap: 6px; flex-shrink: 0; }
+        .network-action-btn { padding: 5px 12px; border: none; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; background: #e5e5ea; color: #3a3a3c; font-family: inherit; }
+        .network-action-add { background: #00D084; color: #fff; }
+        #network-picker-panel { padding-top: 8px; }
+
+        /* Tabs */
+        .tab-bar { display: flex; border-bottom: 0.5px solid #c6c6c8; background: #fff; }
+        .tab-btn { flex: 1; padding: 12px; border: none; background: none; font-size: 15px; font-weight: 600; color: #8e8e93; cursor: pointer; font-family: inherit; border-bottom: 2px solid transparent; margin-bottom: -0.5px; transition: color 0.15s; }
+        .tab-btn.active { color: #00D084; border-bottom-color: #00D084; }
+        /* Remove redundant top border when checklist-section is first child inside a tab */
+        .tab-panel > .checklist-section { border-top: none; }
+
         @media (min-width: 768px) {
             .container { border-radius: 12px; margin: 20px auto; box-shadow: 0 4px 20px rgba(0,0,0,0.1); overflow: hidden; }
         }
@@ -1153,68 +1211,87 @@
             <div class="subtitle">Model · Assist · Watch · Leave</div>
         </div>
 
-        <div class="network-section" id="network-section">
-            <div class="network-row">
-                <div class="network-label">Network</div>
-                <button class="create-network-btn" onclick="showCreateNetwork()">+ Create Network</button>
-            </div>
-            <div class="network-loading" id="network-loading">Loading networks…</div>
-            <select class="network-select" id="network-select" style="display:none" onchange="onNetworkChange()">
-                <option value="">— Choose a network —</option>
-            </select>
-            <div class="create-network-form" id="create-network-form" style="display:none">
-                <input type="text" class="create-network-input" id="create-network-input"
-                       placeholder="Network name" maxlength="80"
-                       onkeydown="if(event.key==='Enter') submitCreateNetwork(); if(event.key==='Escape') cancelCreateNetwork()">
-                <div class="create-network-actions">
-                    <button class="create-network-submit" id="create-network-submit" onclick="submitCreateNetwork()">Create</button>
-                    <button type="button" class="create-network-cancel" onclick="cancelCreateNetwork()">Cancel</button>
+        <!-- Network header bar (above tabs, always visible) -->
+        <div class="network-header-bar" id="network-section">
+            <div class="network-display-row">
+                <span class="network-display-label">Network:</span>
+                <span class="network-display-name" id="network-display-text">—</span>
+                <div class="network-display-actions">
+                    <button class="network-action-btn" onclick="showNetworkPicker()">Change</button>
+                    <button class="network-action-btn network-action-add" onclick="showCreateNetwork()">Add</button>
                 </div>
             </div>
-            <div class="network-empty" id="network-empty" style="display:none">
-                <div class="network-empty-icon">🌐</div>
-                <div class="network-empty-title">No networks yet</div>
-                <div class="network-empty-sub">Use "+ Create Network" above to get started.</div>
+            <!-- Picker panel: hidden until Change/Add is clicked -->
+            <div id="network-picker-panel" style="display:none">
+                <div class="network-loading" id="network-loading" style="display:none">Loading networks…</div>
+                <select class="network-select" id="network-select" style="display:none" onchange="onNetworkChange()">
+                    <option value="">— Choose a network —</option>
+                </select>
+                <div class="create-network-form" id="create-network-form" style="display:none">
+                    <input type="text" class="create-network-input" id="create-network-input"
+                           placeholder="Network name" maxlength="80"
+                           onkeydown="if(event.key==='Enter') submitCreateNetwork(); if(event.key==='Escape') cancelCreateNetwork()">
+                    <div class="create-network-actions">
+                        <button class="create-network-submit" id="create-network-submit" onclick="submitCreateNetwork()">Create</button>
+                        <button type="button" class="create-network-cancel" onclick="cancelCreateNetwork()">Cancel</button>
+                    </div>
+                </div>
+                <div class="network-empty" id="network-empty" style="display:none">
+                    <div class="network-empty-icon">🌐</div>
+                    <div class="network-empty-title">No networks yet</div>
+                    <div class="network-empty-sub">Use "Add" above to create one.</div>
+                </div>
             </div>
         </div>
 
-        <div class="checklist-section" id="checklist-section" style="display:none">
-            <div class="checklist-row">
-                <div class="checklist-label">Checklists</div>
-                <button class="add-checklist-btn" onclick="showCreateChecklist()">+ Add Checklist</button>
-            </div>
-            <div class="checklist-loading" id="checklist-loading" style="display:none">Loading…</div>
-            <div class="checklist-list" id="checklist-list" style="display:none"></div>
-            <div class="create-checklist-form" id="create-checklist-form" style="display:none">
-                <input type="text" class="create-checklist-input" id="create-checklist-input"
-                       placeholder="Coached leader's name" maxlength="80"
-                       onkeydown="if(event.key==='Enter') submitCreateChecklist(); if(event.key==='Escape') cancelCreateChecklist()">
-                <div class="create-checklist-actions">
-                    <button class="create-checklist-submit" id="create-checklist-submit" onclick="submitCreateChecklist()">Add</button>
-                    <button type="button" class="create-checklist-cancel" onclick="cancelCreateChecklist()">Cancel</button>
-                </div>
-            </div>
-            <div class="checklist-empty" id="checklist-empty" style="display:none">No checklists yet. Use "+ Add Checklist" to create one.</div>
+        <!-- Tab bar -->
+        <div class="tab-bar">
+            <button class="tab-btn active" id="tab-btn-people" onclick="switchTab('people')">People</button>
+            <button class="tab-btn" id="tab-btn-playbook" onclick="switchTab('playbook')">Playbook</button>
         </div>
 
-        <div id="manage-playbook-section" class="manage-playbook-section" style="display:none">
-            <div class="manage-playbook-header-row">
-                <div class="manage-playbook-label">Manage Playbook</div>
-                <button class="add-playbook-item-btn" onclick="showAddSection()">+ Add Section</button>
-            </div>
-            <div id="add-section-form" class="add-playbook-form" style="display:none">
-                <input type="text" id="add-section-input" class="playbook-item-input"
-                       placeholder="Section title" maxlength="200"
-                       onkeydown="if(event.key==='Enter') submitAddSection(); if(event.key==='Escape') cancelAddSection()">
-                <div class="playbook-item-form-actions">
-                    <button class="create-network-submit" onclick="submitAddSection()">Add</button>
-                    <button type="button" class="create-network-cancel" onclick="cancelAddSection()">Cancel</button>
+        <!-- People tab -->
+        <div id="tab-people" class="tab-panel">
+            <div class="checklist-section" id="checklist-section" style="display:none">
+                <div class="checklist-row">
+                    <div class="checklist-label">Checklists</div>
+                    <button class="add-checklist-btn" onclick="showCreateChecklist()">+ Add Checklist</button>
                 </div>
+                <div class="checklist-loading" id="checklist-loading" style="display:none">Loading…</div>
+                <div class="checklist-list" id="checklist-list" style="display:none"></div>
+                <div class="create-checklist-form" id="create-checklist-form" style="display:none">
+                    <input type="text" class="create-checklist-input" id="create-checklist-input"
+                           placeholder="Coached leader's name" maxlength="80"
+                           onkeydown="if(event.key==='Enter') submitCreateChecklist(); if(event.key==='Escape') cancelCreateChecklist()">
+                    <div class="create-checklist-actions">
+                        <button class="create-checklist-submit" id="create-checklist-submit" onclick="submitCreateChecklist()">Add</button>
+                        <button type="button" class="create-checklist-cancel" onclick="cancelCreateChecklist()">Cancel</button>
+                    </div>
+                </div>
+                <div class="checklist-empty" id="checklist-empty" style="display:none">No checklists yet. Use "+ Add Checklist" to create one.</div>
             </div>
-            <div id="manage-playbook-list"></div>
+            <div class="mawl-grid-section" id="mawl-grid-section" style="display:none"></div>
         </div>
 
-        <div class="mawl-grid-section" id="mawl-grid-section" style="display:none"></div>
+        <!-- Playbook tab -->
+        <div id="tab-playbook" class="tab-panel" style="display:none">
+            <div id="manage-playbook-section" class="manage-playbook-section" style="display:none">
+                <div class="manage-playbook-header-row">
+                    <div class="manage-playbook-label">Manage Playbook</div>
+                    <button class="add-playbook-item-btn" onclick="showAddSection()">+ Add Section</button>
+                </div>
+                <div id="add-section-form" class="add-playbook-form" style="display:none">
+                    <input type="text" id="add-section-input" class="playbook-item-input"
+                           placeholder="Section title" maxlength="200"
+                           onkeydown="if(event.key==='Enter') submitAddSection(); if(event.key==='Escape') cancelAddSection()">
+                    <div class="playbook-item-form-actions">
+                        <button class="create-network-submit" onclick="submitAddSection()">Add</button>
+                        <button type="button" class="create-network-cancel" onclick="cancelAddSection()">Cancel</button>
+                    </div>
+                </div>
+                <div id="manage-playbook-list"></div>
+            </div>
+        </div>
 
     </div>
 
