@@ -14,25 +14,53 @@
         // ── MAWL item definitions ─────────────────────────────────────────────
         // These are the stable coaching items. item_key values are the DB keys.
         const MAWL_ITEMS = [
-            { category: 'Welcome', items: [
-                { key: 'welcome_icebreaker', label: 'Icebreaker Question' },
-                { key: 'welcome_worship',    label: 'Worship' },
-                { key: 'welcome_look_back',  label: 'Look Back' },
+            { category: 'Personal Habits', items: [
+                { key: 'habits_self_feeding',         label: 'Self Feeding' },
+                { key: 'habits_sos_read_word',        label: 'SOS \u2013 Read the Word Daily' },
+                { key: 'habits_pray_daily',           label: 'Pray Daily' },
+                { key: 'habits_prepare_persecution',  label: 'Prepare for Persecution' },
+                { key: 'habits_body_life',            label: "Body Life (One Another's)" },
             ]},
-            { category: 'Word', items: [
-                { key: 'word_discovery',  label: 'Bible Discovery' },
-                { key: 'word_obedience',  label: 'Obedience Question' },
-                { key: 'word_retell',     label: 'Re-tell the Story' },
+            { category: 'Stories of Hope', items: [
+                { key: 'stories_sinful_woman',        label: '1. Sinful Woman \u2013 Lk 7:36-50' },
+                { key: 'stories_tax_collector',       label: '2. Tax Collector \u2013 Lk 18:9-17' },
+                { key: 'stories_zacchaeus',           label: '3. Zacchaeus \u2013 Lk 19:1-10' },
+                { key: 'stories_unforgiving_servant', label: '4. Unforgiving Serv. \u2013 Mt. 18:21-35' },
+                { key: 'stories_thieves_on_cross',    label: '5. Thieves on Cross \u2013 Lk 23:26-43' },
+                { key: 'stories_resurrection',        label: '6. Resurrection \u2013 Lk 24:1-20' },
+                { key: 'stories_prodigal_son',        label: '7. Prodigal Son \u2013 Luke 15:11-32' },
             ]},
-            { category: 'Works', items: [
-                { key: 'works_story',        label: 'Share Story of Hope' },
-                { key: 'works_baptism',      label: 'Baptism' },
-                { key: 'works_lords_supper', label: "Lord's Supper" },
+            { category: 'Gospel Tools', items: [
+                { key: 'gospel_pop_prayer_walk', label: 'Person of Peace/Prayer Walking' },
+                { key: 'gospel_4_responses',     label: '4 Responses to the Gospel' },
+                { key: 'gospel_4_1_1',           label: '4-1-1' },
+                { key: 'gospel_identity',        label: 'Identity (Follow/Fish)' },
+                { key: 'gospel_oikos_map',       label: 'Oikos Map + Camp Quadrant' },
+                { key: 'gospel_15_sec_story',    label: '15 Second Story (Tell your story)' },
+                { key: 'gospel_3_circles',       label: "3 Circles (Tell God's story)" },
             ]},
-            { category: 'Witness', items: [
-                { key: 'witness_prayer',    label: 'Prayer for Lost' },
-                { key: 'witness_pop',       label: 'Person of Peace' },
-                { key: 'witness_new_group', label: 'Start New Group' },
+            { category: '3/3 Meeting Format', items: [
+                { key: 'meeting_repent_believe',  label: '1. Repent & Believe' },
+                { key: 'meeting_baptism',         label: '2. Baptism' },
+                { key: 'meeting_holy_spirit',     label: '3. Holy Spirit' },
+                { key: 'meeting_read_word',       label: '4. Read the Word' },
+                { key: 'meeting_fellowship',      label: '5. Fellowship' },
+                { key: 'meeting_lords_supper',    label: "6. Lord's Supper" },
+                { key: 'meeting_prayer',          label: '7. Prayer' },
+                { key: 'meeting_signs_wonders',   label: '8. Signs & Wonders' },
+                { key: 'meeting_giving',          label: '9. Giving' },
+                { key: 'meeting_worship',         label: '10. Worship' },
+                { key: 'meeting_make_disciples',  label: '11. Make Disciples' },
+                { key: 'meeting_gather',          label: '12. Gather' },
+                { key: 'meeting_appoint_elders',  label: '13. Appoint Elders' },
+            ]},
+            { category: 'Training Tools', items: [
+                { key: 'tools_church_circle', label: "Church Circle & The '2 Church Vision Cast'" },
+                { key: 'tools_handy_guide',   label: 'Handy Guide (Right Hand)' },
+                { key: 'tools_mawl',          label: 'MAWL' },
+                { key: 'tools_1_3_9',         label: '1-3-9' },
+                { key: 'tools_fatr',          label: 'FATR (2 Timothy 2)' },
+                { key: 'tools_four_fields',   label: 'Four Fields' },
             ]},
         ]
         const STAGES       = ['model', 'assist', 'watch', 'leave']
@@ -254,6 +282,25 @@
             _progress = await loadProgress(checklistId)
 
             section.innerHTML = ''
+
+            // Column header row — "Item | M  A  W  L"
+            const colHeader = document.createElement('div')
+            colHeader.className = 'mawl-col-header'
+            const colItemLabel = document.createElement('div')
+            colItemLabel.className = 'mawl-col-item-label'
+            colItemLabel.textContent = 'Item'
+            colHeader.appendChild(colItemLabel)
+            const colBtns = document.createElement('div')
+            colBtns.className = 'mawl-col-btns'
+            STAGE_LABELS.forEach(lbl => {
+                const span = document.createElement('span')
+                span.className = 'mawl-col-btn-label'
+                span.textContent = lbl
+                colBtns.appendChild(span)
+            })
+            colHeader.appendChild(colBtns)
+            section.appendChild(colHeader)
+
             MAWL_ITEMS.forEach(({ category, items }) => {
                 const catEl = document.createElement('div')
                 catEl.className = 'mawl-category'
@@ -658,10 +705,16 @@
         /* MAWL progress grid */
         .mawl-grid-section { border-top: 0.5px solid #c6c6c8; padding-bottom: 40px; }
         .mawl-grid-loading { padding: 24px 16px; text-align: center; color: #8e8e93; font-size: 15px; }
-        .mawl-category { padding: 0 16px; }
-        .mawl-category-header { font-size: 13px; font-weight: 600; color: #8e8e93; text-transform: uppercase; letter-spacing: 0.5px; padding: 20px 0 8px; }
-        .mawl-item-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 0.5px solid #f2f2f7; }
-        .mawl-item-label { font-size: 15px; color: #000; flex: 1; padding-right: 12px; }
+        /* Column header (Item | M  A  W  L) */
+        .mawl-col-header { display: flex; align-items: center; padding: 7px 16px; background: #f2f2f7; border-bottom: 0.5px solid #c6c6c8; }
+        .mawl-col-item-label { flex: 1; font-size: 11px; font-weight: 700; color: #8e8e93; text-transform: uppercase; letter-spacing: 0.5px; }
+        .mawl-col-btns { display: flex; gap: 6px; flex-shrink: 0; }
+        .mawl-col-btn-label { width: 36px; text-align: center; font-size: 11px; font-weight: 700; color: #8e8e93; text-transform: uppercase; letter-spacing: 0.5px; }
+        /* Category and items */
+        .mawl-category { }
+        .mawl-category-header { font-size: 11px; font-weight: 700; color: #3a3a3c; text-transform: uppercase; letter-spacing: 0.5px; padding: 7px 16px; background: #f2f2f7; border-top: 0.5px solid #c6c6c8; border-bottom: 0.5px solid #c6c6c8; }
+        .mawl-item-row { display: flex; align-items: center; justify-content: space-between; padding: 9px 16px; border-bottom: 0.5px solid #f2f2f7; }
+        .mawl-item-label { font-size: 14px; color: #000; flex: 1; padding-right: 12px; }
         .mawl-stage-btns { display: flex; gap: 6px; flex-shrink: 0; }
         .mawl-stage-btn { width: 36px; height: 36px; border: none; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; background: #e5e5ea; color: #8e8e93; }
         .mawl-stage-btn.done { background: #00D084; color: #fff; }
