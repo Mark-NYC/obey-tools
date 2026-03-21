@@ -373,12 +373,12 @@
                 renameForm.className = 'add-playbook-form'
                 renameForm.id = 'rename-sec-form-' + sec.id
                 renameForm.style.display = 'none'
-                renameForm.innerHTML = \`<input type="text" class="playbook-item-input" id="rename-sec-input-\${sec.id}" maxlength="200"
+                renameForm.innerHTML = `<input type="text" class="playbook-item-input" id="rename-sec-input-\${sec.id}" maxlength="200"
                     onkeydown="if(event.key==='Enter') submitRenameSection('\${sec.id}'); if(event.key==='Escape') hideRenameSection('\${sec.id}')">
                 <div class="playbook-item-form-actions">
                     <button class="create-network-submit" onclick="submitRenameSection('\${sec.id}')">Save</button>
                     <button class="create-network-cancel" onclick="hideRenameSection('\${sec.id}')">Cancel</button>
-                </div>\`
+                </div>`
                 secBlock.appendChild(renameForm)
 
                 // Items under this section
@@ -426,12 +426,12 @@
                 addItemForm.className = 'add-playbook-form'
                 addItemForm.id = 'add-item-form-' + sec.id
                 addItemForm.style.display = 'none'
-                addItemForm.innerHTML = \`<input type="text" class="playbook-item-input" id="add-item-input-\${sec.id}" placeholder="Item title" maxlength="200"
+                addItemForm.innerHTML = `<input type="text" class="playbook-item-input" id="add-item-input-\${sec.id}" placeholder="Item title" maxlength="200"
                     onkeydown="if(event.key==='Enter') submitAddItemToSection('\${sec.id}'); if(event.key==='Escape') cancelAddItemToSection('\${sec.id}')">
                 <div class="playbook-item-form-actions">
                     <button class="create-network-submit" onclick="submitAddItemToSection('\${sec.id}')">Add</button>
                     <button class="create-network-cancel" onclick="cancelAddItemToSection('\${sec.id}')">Cancel</button>
-                </div>\`
+                </div>`
                 secBlock.appendChild(addItemForm)
 
                 list.appendChild(secBlock)
