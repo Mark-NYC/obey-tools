@@ -205,20 +205,18 @@
             gridSection.style.display = 'none'
             gridSection.innerHTML = ''
             document.getElementById('manage-playbook-section').style.display = 'none'
-            const personHdr = document.getElementById('active-person-header')
-            if (personHdr) { personHdr.style.display = 'none'; personHdr.textContent = '' }
 
             const section = document.getElementById('checklist-section')
             if (!networkId) { section.style.display = 'none'; return }
 
             section.style.display = 'block'
-            const loading = document.getElementById('checklist-loading')
-            const list    = document.getElementById('checklist-list')
-            const empty   = document.getElementById('checklist-empty')
+            const loading  = document.getElementById('checklist-loading')
+            const empty    = document.getElementById('checklist-empty')
+            const clSelect = document.getElementById('checklist-select')
 
             loading.style.display = 'block'
-            list.style.display    = 'none'
             empty.style.display   = 'none'
+            clSelect.innerHTML = '<option value="">— Select a person —</option>'
             document.getElementById('create-checklist-form').style.display = 'none'
             document.getElementById('create-checklist-input').value = ''
 
@@ -248,17 +246,13 @@
                 return
             }
 
-            list.innerHTML = ''
             data.forEach(cl => {
-                const btn = document.createElement('button')
-                btn.className = 'checklist-item' + (cl.id === autoSelectId ? ' active' : '')
-                btn.dataset.id = cl.id
-                btn.dataset.createdBy = cl.created_by
-                btn.textContent = cl.coached_name
-                btn.onclick = () => selectChecklist(cl.id)
-                list.appendChild(btn)
+                const opt = document.createElement('option')
+                opt.value = cl.id
+                opt.dataset.createdBy = cl.created_by
+                opt.textContent = cl.coached_name
+                clSelect.appendChild(opt)
             })
-            list.style.display = 'flex'
             updateManagePlaybook(networkId)
 
             if (autoSelectId) {
@@ -272,18 +266,12 @@
         }
 
         function selectChecklist(id) {
+            if (!id) return
             saveLastChecklist(id)
-            document.querySelectorAll('.checklist-item').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.id === id)
-            })
-            const activeBtn = document.querySelector(`.checklist-item[data-id="${id}"]`)
-            _activeChecklistCreatedBy = activeBtn?.dataset.createdBy ?? null
-            const hdr = document.getElementById('active-person-header')
-            if (hdr) {
-                const name = activeBtn?.textContent?.trim() ?? ''
-                hdr.textContent = name
-                hdr.style.display = name ? 'block' : 'none'
-            }
+            const clSelect = document.getElementById('checklist-select')
+            if (clSelect) clSelect.value = id
+            const activeOpt = clSelect?.querySelector(`option[value="${id}"]`)
+            _activeChecklistCreatedBy = activeOpt?.dataset.createdBy ?? null
             renderPlaybookGrid(id)
         }
 
@@ -1067,17 +1055,15 @@
         .network-empty-sub { font-size: 14px; color: #8e8e93; }
 
         /* Checklist section */
-        .checklist-section { padding: 0 16px 12px; border-top: 0.5px solid #c6c6c8; }
-        .checklist-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0 8px; }
-        .checklist-label { font-size: 11px; font-weight: 600; color: #aeaeb2; text-transform: uppercase; letter-spacing: 0.5px; }
-        .add-checklist-btn { padding: 0; border: none; background: none; font-size: 12px; font-weight: 600; cursor: pointer; color: #00D084; font-family: inherit; text-decoration: underline; text-underline-offset: 2px; }
+        .checklist-section { padding: 0 16px 8px; border-top: 0.5px solid #c6c6c8; }
+        .checklist-row { display: flex; align-items: center; gap: 8px; padding: 10px 0 8px; }
+        .checklist-label { font-size: 11px; font-weight: 600; color: #aeaeb2; text-transform: uppercase; letter-spacing: 0.5px; flex-shrink: 0; }
+        .checklist-select { flex: 1; min-width: 0; padding: 6px 8px; border: 1px solid #c6c6c8; border-radius: 8px; font-size: 14px; font-family: inherit; background: #fff; color: #000; appearance: none; -webkit-appearance: none; cursor: pointer; }
+        .checklist-select:focus { outline: none; border-color: #00D084; }
+        .add-checklist-btn { padding: 0; border: none; background: none; font-size: 12px; font-weight: 600; cursor: pointer; color: #00D084; font-family: inherit; text-decoration: underline; text-underline-offset: 2px; flex-shrink: 0; }
         .add-checklist-btn:hover { color: #009960; }
-        .checklist-loading { padding: 16px 0; text-align: center; color: #8e8e93; font-size: 14px; }
-        .checklist-list { flex-direction: column; gap: 0; }
-        .checklist-item { width: 100%; padding: 9px 10px 9px 12px; border: none; border-radius: 0; border-left: 3px solid transparent; font-size: 15px; font-family: inherit; background: transparent; color: #3a3a3c; text-align: left; cursor: pointer; font-weight: 400; border-bottom: 0.5px solid #f2f2f7; }
-        .checklist-item:hover { background: #f9f9fb; }
-        .checklist-item.active { border-left-color: #00D084; background: #f0fff8; color: #009960; font-weight: 600; }
-        .checklist-empty { padding: 16px 0; text-align: center; color: #8e8e93; font-size: 14px; }
+        .checklist-loading { padding: 8px 0; text-align: center; color: #8e8e93; font-size: 13px; }
+        .checklist-empty { padding: 8px 0; color: #8e8e93; font-size: 13px; }
         .create-checklist-form { margin-top: 12px; padding: 14px; background: #f2f2f7; border-radius: 12px; }
         .create-checklist-input { width: 100%; padding: 11px 14px; border: 1px solid #c6c6c8; border-radius: 10px; font-size: 16px; font-family: inherit; background: #fff; outline: none; margin-bottom: 10px; }
         .create-checklist-input:focus { border-color: #00D084; }
@@ -1086,11 +1072,8 @@
         .create-checklist-submit:disabled { opacity: 0.6; cursor: default; }
         .create-checklist-cancel { flex: 1; padding: 10px; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; background: #e5e5ea; color: #3a3a3c; font-family: inherit; }
 
-        /* Active person header */
-        .active-person-header { padding: 18px 16px 6px; font-size: 20px; font-weight: 700; color: #000; border-top: 2px solid #00D084; background: #fff; }
-
         /* MAWL progress grid */
-        .mawl-grid-section { border-top: none; padding-bottom: 40px; }
+        .mawl-grid-section { border-top: 0.5px solid #e5e5ea; padding-bottom: 40px; }
         .mawl-grid-loading { padding: 24px 16px; text-align: center; color: #8e8e93; font-size: 15px; }
         /* Column header (Item | M  A  W  L) */
         .mawl-col-header { display: flex; align-items: center; padding: 7px 16px; background: #f2f2f7; border-bottom: 0.5px solid #c6c6c8; }
@@ -1265,11 +1248,14 @@
         <div id="tab-people" class="tab-panel">
             <div class="checklist-section" id="checklist-section" style="display:none">
                 <div class="checklist-row">
-                    <div class="checklist-label">Checklists</div>
-                    <button class="add-checklist-btn" onclick="showCreateChecklist()">+ Add Checklist</button>
+                    <span class="checklist-label">Person</span>
+                    <select class="checklist-select" id="checklist-select" onchange="selectChecklist(this.value)">
+                        <option value="">— Select a person —</option>
+                    </select>
+                    <button class="add-checklist-btn" onclick="showCreateChecklist()">+ Add</button>
                 </div>
                 <div class="checklist-loading" id="checklist-loading" style="display:none">Loading…</div>
-                <div class="checklist-list" id="checklist-list" style="display:none"></div>
+                <div class="checklist-empty" id="checklist-empty" style="display:none">No people yet. Use "+ Add" to create one.</div>
                 <div class="create-checklist-form" id="create-checklist-form" style="display:none">
                     <input type="text" class="create-checklist-input" id="create-checklist-input"
                            placeholder="Coached leader's name" maxlength="80"
@@ -1279,9 +1265,7 @@
                         <button type="button" class="create-checklist-cancel" onclick="cancelCreateChecklist()">Cancel</button>
                     </div>
                 </div>
-                <div class="checklist-empty" id="checklist-empty" style="display:none">No checklists yet. Use "+ Add Checklist" to create one.</div>
             </div>
-            <div id="active-person-header" class="active-person-header" style="display:none"></div>
             <div class="mawl-grid-section" id="mawl-grid-section" style="display:none"></div>
         </div>
 
