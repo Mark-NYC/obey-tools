@@ -280,6 +280,8 @@
             _activeChecklistCreatedBy = activeOpt?.dataset.createdBy ?? null
             renderPlaybookGrid(id)
         }
+        // Expose to global scope so the dropdown onchange attribute can call it.
+        window.selectChecklist = selectChecklist
 
         // ── Network role + playbook loading ──────────────────────────────────
         async function loadNetworkRole(networkId) {
@@ -582,9 +584,9 @@
                 showNotification('Could not add item.')
                 return
             }
-            console.log('[submitAddItemToSection] insert success:', data)
             await loadPlaybook(networkId)
             renderManagePlaybookList()
+            if (_activeChecklistId) await renderPlaybookGrid(_activeChecklistId)
             input.value = ''
             const addedForm = document.getElementById('add-item-form-' + secId)
             if (addedForm) addedForm.style.display = 'none'
@@ -1015,12 +1017,17 @@
             await loadChecklists(networkId, newest?.id ?? null)
         }
 
-        // Load networks whenever auth state settles
+        // Load networks on initial session. getSession() handles the startup case.
+        // onAuthStateChange is filtered to avoid the double-fire of INITIAL_SESSION
+        // (which fires at the same time as getSession resolves) and TOKEN_REFRESHED
+        // (session token rotation — no need to reload the full UI).
         supabase.auth.getSession().then(({ data: { session } }) => {
             if (session?.user) loadNetworks()
         })
         supabase.auth.onAuthStateChange((_event, session) => {
-            if (session?.user) loadNetworks()
+            if (!session?.user) return
+            if (_event === 'INITIAL_SESSION' || _event === 'TOKEN_REFRESHED') return
+            loadNetworks()
         })
 
         initLeaderPage()
