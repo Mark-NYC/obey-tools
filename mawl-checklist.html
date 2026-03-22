@@ -779,6 +779,9 @@
         async function renderCollaboratorPanel(checklistId, container) {
             const { data: { session } } = await supabase.auth.getSession()
             const isCreator = !!(_activeChecklistCreatedBy && session?.user?.id === _activeChecklistCreatedBy)
+            // Any user who can access the checklist (owner, collaborator, or network member
+            // who reached this panel) may invite additional collaborators.
+            // isCreator is still computed for the self-add guard in submitAddCollaborator.
             console.log('[renderCollaboratorPanel] checklistId:', checklistId,
                 '| _activeChecklistCreatedBy:', _activeChecklistCreatedBy,
                 '| session.user.id:', session?.user?.id,
@@ -812,18 +815,17 @@
                 toggleChevron.textContent = open ? '▸' : '▾'
             }
 
-            if (isCreator) {
-                const form = document.createElement('div')
-                form.className = 'collab-add-form'
-                form.innerHTML = `
-                    <input type="email" id="collab-email-input" class="collab-email-input"
-                           placeholder="Co-leader's email address" maxlength="200"
-                           onkeydown="if(event.key==='Enter') submitAddCollaborator()">
-                    <div class="collab-add-actions">
-                        <button type="button" class="collab-add-btn" id="collab-add-btn" onclick="submitAddCollaborator()">Add Leader</button>
-                    </div>`
-                body.appendChild(form)
-            }
+            // Show the add form to any user with checklist access (not just the creator).
+            const form = document.createElement('div')
+            form.className = 'collab-add-form'
+            form.innerHTML = `
+                <input type="email" id="collab-email-input" class="collab-email-input"
+                       placeholder="Co-leader's email address" maxlength="200"
+                       onkeydown="if(event.key==='Enter') submitAddCollaborator()">
+                <div class="collab-add-actions">
+                    <button type="button" class="collab-add-btn" id="collab-add-btn" onclick="submitAddCollaborator()">Add Leader</button>
+                </div>`
+            body.appendChild(form)
 
             const list = document.createElement('div')
             list.className = 'collab-list'
@@ -933,7 +935,7 @@
             }
             if (userId === session.user.id) {
                 console.warn('  ↳ userId matches current user — cannot add self as collaborator')
-                showNotification('That\'s you — you\'re already the owner.')
+                showNotification('That\'s your own email — you already have access.')
                 btn.disabled = false
                 btn.textContent = 'Add Leader'
                 return
