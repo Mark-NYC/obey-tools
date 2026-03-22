@@ -154,6 +154,17 @@
             const name  = input.value.trim()
             if (!name) { input.focus(); return }
 
+            // Prevent duplicate network names (case-insensitive, trimmed)
+            const networkSelect = document.getElementById('network-select')
+            const existingNames = networkSelect
+                ? Array.from(networkSelect.options).filter(o => o.value !== '').map(o => o.textContent.trim().toLowerCase())
+                : []
+            if (existingNames.includes(name.toLowerCase())) {
+                showNotification('A network with that name already exists.')
+                input.focus()
+                return
+            }
+
             const btn = document.getElementById('create-network-submit')
             btn.disabled = true
             btn.textContent = 'Creating…'
@@ -484,6 +495,35 @@
 
                 list.appendChild(secBlock)
             })
+
+            // Orphaned items (section_id == null) — only render if they exist
+            const orphaned = _playbookItems.filter(i => i.section_id == null)
+            if (orphaned.length > 0) {
+                const otherHdr = document.createElement('div')
+                otherHdr.className = 'manage-section-title playbook-section-header-other'
+                otherHdr.textContent = 'Other'
+                list.appendChild(otherHdr)
+                const otherList = document.createElement('div')
+                otherList.className = 'manage-section-items'
+                orphaned.forEach(item => {
+                    const itemRow = document.createElement('div')
+                    itemRow.className = 'manage-playbook-item-row'
+                    const titleEl = document.createElement('div')
+                    titleEl.className = 'manage-playbook-item-title'
+                    titleEl.textContent = item.title
+                    itemRow.appendChild(titleEl)
+                    const acts = document.createElement('div')
+                    acts.className = 'manage-playbook-item-actions'
+                    const archBtn = document.createElement('button')
+                    archBtn.className = 'manage-playbook-action-btn manage-playbook-archive-btn'
+                    archBtn.textContent = 'Archive'
+                    archBtn.onclick = () => archivePlaybookItem(item.id)
+                    acts.appendChild(archBtn)
+                    itemRow.appendChild(acts)
+                    otherList.appendChild(itemRow)
+                })
+                list.appendChild(otherList)
+            }
         }
 
         // ── Section management ────────────────────────────────────────────────
@@ -665,7 +705,7 @@
                     itemsInSec.forEach(item => section.appendChild(buildPlaybookItemRow(item)))
                 })
                 // Items with no section (shouldn't normally exist, but be safe)
-                const unsectioned = _playbookItems.filter(i => !i.section_id)
+                const unsectioned = _playbookItems.filter(i => i.section_id == null)
                 if (unsectioned.length > 0) {
                     const hdr = document.createElement('div')
                     hdr.className = 'playbook-section-header playbook-section-header-other'
