@@ -782,6 +782,9 @@
                 .eq('checklist_id', checklistId)
                 .order('created_at')
 
+            // Discard if a different checklist became active while this fetch was in flight.
+            if (_activeChecklistId !== checklistId) return
+
             if (error) {
                 console.error('[loadCollaborators] error:', JSON.stringify(error))
                 list.innerHTML = '<div class="collab-empty">Error loading collaborators — see console.</div>'
