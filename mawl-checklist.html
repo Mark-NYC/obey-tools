@@ -17,6 +17,7 @@
         let _playbookSections = []   // network_checklist_sections rows
         let _playbookItems = []      // network_checklist_items rows
         let _playbookProgress = {}   // item_id → { mawl_stage: 'M'|'A'|'W'|'L'|null }
+        let _renderGeneration = 0    // incremented each renderPlaybookGrid call; stale renders abort
 
 
         // ── localStorage persistence ──────────────────────────────────────────
@@ -616,6 +617,7 @@
         // ── Checklist progress grid (playbook-based) ──────────────────────────
         async function renderPlaybookGrid(checklistId) {
             _activeChecklistId = checklistId
+            const myGen = ++_renderGeneration
             const section = document.getElementById('mawl-grid-section')
             if (!checklistId) { section.style.display = 'none'; section.innerHTML = ''; return }
             section.style.display = 'block'
@@ -625,6 +627,10 @@
                 .from('checklist_item_progress')
                 .select('item_id, mawl_stage')
                 .eq('checklist_id', checklistId)
+
+            // If the user selected a different person while this fetch was in flight, discard.
+            if (myGen !== _renderGeneration) return
+
             _playbookProgress = {}
             if (!error && data) {
                 data.forEach(r => {
