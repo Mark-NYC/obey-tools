@@ -668,7 +668,7 @@
                 const unsectioned = _playbookItems.filter(i => !i.section_id)
                 if (unsectioned.length > 0) {
                     const hdr = document.createElement('div')
-                    hdr.className = 'playbook-section-header'
+                    hdr.className = 'playbook-section-header playbook-section-header-other'
                     hdr.textContent = 'Other'
                     section.appendChild(hdr)
                     unsectioned.forEach(item => section.appendChild(buildPlaybookItemRow(item)))
@@ -747,13 +747,30 @@
             const panel = document.createElement('div')
             panel.className = 'collab-panel'
 
-            const headerRow = document.createElement('div')
-            headerRow.className = 'collab-header-row'
-            const headerLabel = document.createElement('div')
-            headerLabel.className = 'collab-label'
-            headerLabel.textContent = 'Collaborators'
-            headerRow.appendChild(headerLabel)
-            panel.appendChild(headerRow)
+            // Collapsed toggle row — click to expand/collapse the body
+            const toggleRow = document.createElement('div')
+            toggleRow.className = 'collab-toggle-row'
+            const toggleLabel = document.createElement('span')
+            toggleLabel.className = 'collab-label'
+            toggleLabel.id = 'collab-toggle-label'
+            toggleLabel.textContent = 'Collaborators'
+            const toggleChevron = document.createElement('span')
+            toggleChevron.className = 'collab-toggle-chevron'
+            toggleChevron.textContent = '▸'
+            toggleRow.appendChild(toggleLabel)
+            toggleRow.appendChild(toggleChevron)
+            panel.appendChild(toggleRow)
+
+            // Collapsible body — hidden by default
+            const body = document.createElement('div')
+            body.className = 'collab-body'
+            body.style.display = 'none'
+
+            toggleRow.onclick = () => {
+                const open = body.style.display !== 'none'
+                body.style.display = open ? 'none' : 'block'
+                toggleChevron.textContent = open ? '▸' : '▾'
+            }
 
             if (isCreator) {
                 const form = document.createElement('div')
@@ -765,13 +782,14 @@
                     <div class="collab-add-actions">
                         <button type="button" class="collab-add-btn" id="collab-add-btn" onclick="submitAddCollaborator()">Add Leader</button>
                     </div>`
-                panel.appendChild(form)
+                body.appendChild(form)
             }
 
             const list = document.createElement('div')
             list.className = 'collab-list'
             list.id = 'collab-list'
-            panel.appendChild(list)
+            body.appendChild(list)
+            panel.appendChild(body)
 
             container.appendChild(panel)
             await loadCollaborators(checklistId)
@@ -791,6 +809,11 @@
 
             // Discard if a different checklist became active while this fetch was in flight.
             if (_activeChecklistId !== checklistId) return
+
+            // Update toggle label with collaborator count (cosmetic, no logic change)
+            const count = !error && data ? data.length : 0
+            const toggleLabel = document.getElementById('collab-toggle-label')
+            if (toggleLabel) toggleLabel.textContent = count > 0 ? `Collaborators (${count})` : 'Collaborators'
 
             if (error) {
                 console.error('[loadCollaborators] error:', JSON.stringify(error))
@@ -1077,12 +1100,12 @@
 
         /* Checklist section */
         .checklist-section { padding: 0 16px 8px; border-top: 0.5px solid #c6c6c8; }
-        .checklist-row { display: flex; align-items: center; gap: 8px; padding: 10px 0 8px; }
+        .checklist-row { display: flex; align-items: center; gap: 8px; padding: 8px 0 6px; }
         .checklist-label { font-size: 11px; font-weight: 600; color: #aeaeb2; text-transform: uppercase; letter-spacing: 0.5px; flex-shrink: 0; }
         .checklist-select { flex: 1; min-width: 0; padding: 6px 8px; border: 1px solid #c6c6c8; border-radius: 8px; font-size: 14px; font-family: inherit; background: #fff; color: #000; appearance: none; -webkit-appearance: none; cursor: pointer; }
         .checklist-select:focus { outline: none; border-color: #00D084; }
-        .add-checklist-btn { padding: 0; border: none; background: none; font-size: 12px; font-weight: 600; cursor: pointer; color: #00D084; font-family: inherit; text-decoration: underline; text-underline-offset: 2px; flex-shrink: 0; }
-        .add-checklist-btn:hover { color: #009960; }
+        .add-checklist-btn { padding: 0; border: none; background: none; font-size: 12px; font-weight: 600; cursor: pointer; color: #8e8e93; font-family: inherit; text-decoration: underline; text-underline-offset: 2px; flex-shrink: 0; }
+        .add-checklist-btn:hover { color: #3a3a3c; }
         .checklist-loading { padding: 8px 0; text-align: center; color: #8e8e93; font-size: 13px; }
         .checklist-empty { padding: 8px 0; color: #8e8e93; font-size: 13px; }
         .create-checklist-form { margin-top: 12px; padding: 14px; background: #f2f2f7; border-radius: 12px; }
@@ -1135,7 +1158,12 @@
         .collab-item { padding: 5px 0; font-size: 13px; color: #8e8e93; border-bottom: 0.5px solid #f2f2f7; }
         .collab-empty { font-size: 13px; color: #c7c7cc; padding: 4px 0; }
         .collab-loading { font-size: 13px; color: #c7c7cc; padding: 4px 0; }
-
+        /* Collapsible collaborator toggle */
+        .collab-toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0 8px; cursor: pointer; user-select: none; }
+        .collab-toggle-row:hover .collab-label { color: #8e8e93; }
+        .collab-toggle-chevron { font-size: 10px; color: #c7c7cc; flex-shrink: 0; padding-left: 6px; }
+        /* "Other" fallback section label — visually subdued */
+        .playbook-section-header-other { color: #c7c7cc; font-weight: 600; font-size: 10px; letter-spacing: 0.3px; }
 
         /* Playbook progress (checkbox style) */
         .playbook-check-btn { width: 28px; height: 28px; border: 2px solid #c6c6c8; border-radius: 6px; background: #fff; cursor: pointer; flex-shrink: 0; margin-right: 12px; font-size: 16px; font-weight: 700; color: #fff; display: flex; align-items: center; justify-content: center; }
@@ -1173,20 +1201,20 @@
         .manage-section-items .add-playbook-form { padding: 10px 0 4px; background: none; border-radius: 0; }
 
         /* Network header bar */
-        .network-header-bar { padding: 8px 16px; background: #f2f2f7; border-bottom: 0.5px solid #c6c6c8; }
+        .network-header-bar { padding: 6px 16px; background: #f2f2f7; border-bottom: 0.5px solid #c6c6c8; }
         .network-display-row { display: flex; align-items: center; gap: 6px; min-height: 30px; }
         .network-display-label { font-size: 11px; font-weight: 600; color: #aeaeb2; text-transform: uppercase; letter-spacing: 0.5px; flex-shrink: 0; }
         .network-display-name { font-size: 14px; font-weight: 600; color: #3a3a3c; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .network-display-actions { display: flex; gap: 10px; flex-shrink: 0; }
         .network-action-btn { padding: 0; border: none; background: none; font-size: 12px; font-weight: 600; cursor: pointer; color: #8e8e93; font-family: inherit; text-decoration: underline; text-underline-offset: 2px; }
         .network-action-btn:hover { color: #3a3a3c; }
-        .network-action-add { color: #00D084; }
-        .network-action-add:hover { color: #009960; }
+        .network-action-add { color: #8e8e93; }
+        .network-action-add:hover { color: #3a3a3c; }
         #network-picker-panel { padding-top: 8px; }
 
         /* Tabs */
         .tab-bar { display: flex; border-bottom: 0.5px solid #c6c6c8; background: #fff; }
-        .tab-btn { flex: 1; padding: 12px; border: none; background: none; font-size: 15px; font-weight: 600; color: #8e8e93; cursor: pointer; font-family: inherit; border-bottom: 2px solid transparent; margin-bottom: -0.5px; transition: color 0.15s; }
+        .tab-btn { flex: 1; padding: 10px 12px; border: none; background: none; font-size: 15px; font-weight: 600; color: #8e8e93; cursor: pointer; font-family: inherit; border-bottom: 2px solid transparent; margin-bottom: -0.5px; transition: color 0.15s; }
         .tab-btn.active { color: #00D084; border-bottom-color: #00D084; }
         /* Remove redundant top border when checklist-section is first child inside a tab */
         .tab-panel > .checklist-section { border-top: none; }
@@ -1269,7 +1297,6 @@
         <div id="tab-people" class="tab-panel">
             <div class="checklist-section" id="checklist-section" style="display:none">
                 <div class="checklist-row">
-                    <span class="checklist-label">Person</span>
                     <select class="checklist-select" id="checklist-select" onchange="selectChecklist(this.value)">
                         <option value="">— Select a person —</option>
                     </select>
