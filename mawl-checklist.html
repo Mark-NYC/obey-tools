@@ -258,7 +258,12 @@
 
             if (autoSelectId) {
                 if (data.some(cl => cl.id === autoSelectId)) {
-                    selectChecklist(autoSelectId)
+                    // Guard against a second concurrent loadChecklists call (e.g. the dual-fire of
+                    // getSession().then and onAuthStateChange(INITIAL_SESSION) at startup).  The
+                    // first call to reach this point sets _activeChecklistId via renderPlaybookGrid;
+                    // the second must not overwrite it with a new renderPlaybookGrid call that
+                    // would increment _renderGeneration and abort any in-flight user-triggered render.
+                    if (_activeChecklistId === null) selectChecklist(autoSelectId)
                 } else {
                     // Saved checklist no longer belongs to this network — clear it.
                     saveLastChecklist(null)
