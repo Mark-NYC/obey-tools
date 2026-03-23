@@ -588,32 +588,50 @@
         spiritualLayer.clearLayers()
         discoveryLayer.clearLayers()
 
-        // Aggregate rows by (lat, lon, event_type) so each unique location gets
-        // one circle whose count, color, radius, and label all use the same total.
-        const groups = {}
+        // Group filtered rows into location buckets (lat/lon rounded to 3dp ≈ 111m).
+        // Each bucket accumulates spiritual and discovery counts independently.
+        const buckets = {}
         mapData.conversations.forEach(ev => {
             if (city   && ev.city       !== city)  return
             if (cutoff && ev.created_at <  cutoff) return
-            const key = ev.latitude + ',' + ev.longitude + ',' + ev.event_type
-            if (!groups[key]) groups[key] = { ...ev, totalCount: 0 }
-            groups[key].totalCount += (ev.count || 1)
+            const lat3 = +ev.latitude.toFixed(3)
+            const lon3 = +ev.longitude.toFixed(3)
+            const key  = lat3 + ',' + lon3
+            if (!buckets[key]) {
+                buckets[key] = { lat: lat3, lon: lon3, locationText: null, spiritualCount: 0, discoveryCount: 0 }
+            }
+            if (!buckets[key].locationText && ev.location_text) buckets[key].locationText = ev.location_text
+            if (ev.event_type === 'spiritual') buckets[key].spiritualCount += (ev.count || 1)
+            else                               buckets[key].discoveryCount += (ev.count || 1)
         })
 
-        Object.values(groups).forEach(ev => {
-            const n      = ev.totalCount
-            const color  = n <= 3 ? '#add8e6' : n <= 10 ? '#0077b6' : '#002f6c'
-            const radius = Math.min(500 + n * 400, 10000)
+        // radius in metres: grows with count, capped at 8 km
+        function convoRadius(n) { return Math.min(400 + n * 300, 8000) }
 
-            const circle = L.circle([ev.latitude, ev.longitude], {
+        function makeCircle(lat, lon, n, type, locationText) {
+            const color  = n <= 3 ? '#add8e6' : n <= 10 ? '#0077b6' : '#002f6c'
+            const radius = convoRadius(n)
+            return L.circle([lat, lon], {
                 color, fillColor: color, fillOpacity: 0.55, radius, weight: 1
             }).bindPopup(
-                '<strong>' + (ev.location_text || 'Location') + '</strong>' +
-                '<br>' + (ev.event_type === 'spiritual' ? 'Spiritual' : 'Discovery') +
+                '<strong>' + (locationText || 'Location') + '</strong>' +
+                '<br>' + (type === 'spiritual' ? 'Spiritual' : 'Discovery') +
                 ' conversations: ' + n
             )
+        }
 
-            if (ev.event_type === 'spiritual') spiritualLayer.addLayer(circle)
-            else discoveryLayer.addLayer(circle)
+        Object.values(buckets).forEach(b => {
+            const sn = b.spiritualCount
+            const dn = b.discoveryCount
+
+            // Render larger circle first so the smaller sits on top and both are clickable.
+            if (sn >= dn) {
+                if (sn > 0) spiritualLayer.addLayer(makeCircle(b.lat, b.lon, sn, 'spiritual', b.locationText))
+                if (dn > 0) discoveryLayer.addLayer(makeCircle(b.lat, b.lon, dn, 'discovery', b.locationText))
+            } else {
+                if (dn > 0) discoveryLayer.addLayer(makeCircle(b.lat, b.lon, dn, 'discovery', b.locationText))
+                if (sn > 0) spiritualLayer.addLayer(makeCircle(b.lat, b.lon, sn, 'spiritual', b.locationText))
+            }
         })
 
         if (showSpiritual) spiritualLayer.addTo(map); else spiritualLayer.remove()
