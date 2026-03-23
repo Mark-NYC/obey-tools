@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How We're Doing — OBEY.TOOLS</title>
+    <script type="module">
+        import { supabase } from './supabase.js'
+        import { authSignUp, authLogIn, authLogOut, initLeaderPage } from './auth.js'
+        window.authSignUp = authSignUp
+        window.authLogIn  = authLogIn
+        window.authLogOut = authLogOut
+        window.supabase   = supabase
+        initLeaderPage()
+        // After auth resolves, trigger initial data load
+        supabase.auth.onAuthStateChange((_event, session) => {
+            if (session) window._authReady = true
+        })
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            if (session) window._authReady = true
+        })
+    </script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+            background: #f2f2f7;
+            min-height: 100vh;
+            color: #000;
+            line-height: 1.4;
+            padding-bottom: 60px;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: #fff;
+            min-height: 100vh;
+        }
+
+        /* ── Auth ──────────────────────────────────────────────────── */
+        .auth-section {
+            padding: 12px 16px;
+            background: #f2f2f7;
+            border-bottom: 0.5px solid #c6c6c8;
+        }
+        .auth-section input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #c6c6c8;
+            border-radius: 8px;
+            font-size: 15px;
+            background: #fff;
+            outline: none;
+            margin-bottom: 8px;
+            font-family: inherit;
+        }
+        .auth-section input:focus { border-color: #3a3a3c; }
+        .auth-buttons { display: flex; gap: 8px; }
+        .auth-buttons button {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .auth-btn-primary  { background: #3a3a3c; color: #fff; }
+        .auth-btn-secondary { background: #e5e5ea; color: #3a3a3c; }
+        .auth-status { display: flex; align-items: center; justify-content: space-between; }
+        .auth-status-text { font-size: 13px; color: #8e8e93; }
+        .auth-logout-btn {
+            padding: 6px 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            background: #e5e5ea;
+            color: #3a3a3c;
+            font-family: inherit;
+        }
+
+        /* ── Header ────────────────────────────────────────────────── */
+        .header {
+            padding: 24px 20px 16px;
+            text-align: center;
+            border-bottom: 0.5px solid #e5e5ea;
+        }
+        .header h1 {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 42px;
+            font-weight: 400;
+            letter-spacing: 2px;
+            color: #00D084;
+            -webkit-text-stroke: 2px #000;
+            margin-bottom: 4px;
+        }
+        .header .subtitle { font-size: 14px; color: #8e8e93; }
+
+        /* ── Tabs ──────────────────────────────────────────────────── */
+        .tab-bar {
+            display: flex;
+            gap: 8px;
+            padding: 12px 16px;
+            background: #f2f2f7;
+            border-bottom: 0.5px solid #e5e5ea;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 9px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            background: #e5e5ea;
+            color: #8e8e93;
+            transition: background 0.15s, color 0.15s;
+        }
+        .tab-btn.active { background: #3a3a3c; color: #fff; }
+
+        /* ── Filter bar ────────────────────────────────────────────── */
+        .filters {
+            padding: 10px 16px;
+            background: #f2f2f7;
+            border-bottom: 0.5px solid #e5e5ea;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .filter-select {
+            flex: 1;
+            min-width: 120px;
+            padding: 8px 10px;
+            border: 1px solid #c6c6c8;
+            border-radius: 8px;
+            font-size: 14px;
+            background: #fff;
+            font-family: inherit;
+            color: #3a3a3c;
+            outline: none;
+            cursor: pointer;
+        }
+        .filter-select:focus { border-color: #3a3a3c; }
+        .icon-btn {
+            padding: 8px 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            background: #3a3a3c;
+            color: #fff;
+            cursor: pointer;
+            line-height: 1;
+        }
+        .icon-btn:active { opacity: 0.75; }
+
+        /* ── Map view ──────────────────────────────────────────────── */
+        .layer-toggles {
+            padding: 10px 16px;
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+            border-bottom: 0.5px solid #e5e5ea;
+            background: #fafafa;
+        }
+        .layer-toggle {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #3a3a3c;
+            cursor: pointer;
+            user-select: none;
+        }
+        .layer-toggle input[type=checkbox] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            accent-color: #3a3a3c;
+        }
+
+        #map-el {
+            width: 100%;
+            height: 340px;
+            display: block;
+        }
+
+        .map-legend {
+            padding: 12px 16px;
+            border-top: 0.5px solid #e5e5ea;
+        }
+        .map-legend h4 {
+            font-size: 13px;
+            font-weight: 600;
+            color: #3a3a3c;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+        .legend-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 5px;
+        }
+        .legend-swatch {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .legend-label { font-size: 13px; color: #3a3a3c; }
+
+        .map-footer {
+            padding: 8px 16px 12px;
+            font-size: 12px;
+            color: #8e8e93;
+            text-align: center;
+            border-top: 0.5px solid #e5e5ea;
+        }
+
+        /* ── Metrics view ──────────────────────────────────────────── */
+        .stats-section { padding: 16px; }
+
+        .period-label {
+            text-align: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: #8e8e93;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 12px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .stat-card {
+            background: #f2f2f7;
+            border-radius: 14px;
+            padding: 18px 12px;
+            text-align: center;
+        }
+        .stat-card.accent {
+            background: linear-gradient(135deg, #4A90E2, #5BA3F5);
+            grid-column: span 2;
+        }
+        .stat-card.wide {
+            grid-column: span 2;
+        }
+        .stat-value {
+            font-size: 44px;
+            font-weight: 700;
+            color: #3a3a3c;
+            line-height: 1;
+            margin-bottom: 6px;
+        }
+        .stat-card.accent .stat-value { color: #fff; }
+        .stat-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #8e8e93;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .stat-card.accent .stat-label { color: rgba(255,255,255,0.85); }
+
+        /* ── Shared ────────────────────────────────────────────────── */
+        .loading {
+            padding: 48px 24px;
+            text-align: center;
+            color: #8e8e93;
+            font-size: 15px;
+        }
+        .empty-state {
+            padding: 48px 24px;
+            text-align: center;
+            color: #8e8e93;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* ── Access denied ─────────────────────────────────────────── */
+        .access-denied {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 60vh;
+            padding: 40px 24px;
+            text-align: center;
+        }
+        .access-denied-msg { font-size: 17px; font-weight: 600; color: #3a3a3c; margin-bottom: 6px; }
+        .access-denied-sub { font-size: 14px; color: #8e8e93; margin-bottom: 28px; }
+        .access-denied-btn {
+            display: inline-block;
+            background: #000;
+            color: #fff;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            font-weight: 700;
+            font-size: 15px;
+            padding: 11px 28px;
+            border-radius: 50px;
+            text-decoration: none;
+        }
+
+        /* ── Notification ──────────────────────────────────────────── */
+        .notification {
+            position: fixed;
+            top: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 500;
+            z-index: 9999;
+            opacity: 0;
+            animation: notificationSlide 3s ease;
+            white-space: nowrap;
+        }
+        @keyframes notificationSlide {
+            0%   { opacity:0; transform:translateX(-50%) translateY(-20px); }
+            10%  { opacity:1; transform:translateX(-50%) translateY(0); }
+            90%  { opacity:1; transform:translateX(-50%) translateY(0); }
+            100% { opacity:0; transform:translateX(-50%) translateY(-20px); }
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                border-radius: 12px;
+                margin: 20px auto;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+                overflow: hidden;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div style="display:flex; gap:10px; justify-content:center; padding:20px 16px 8px;">
+        <a href="index.html" style="display:inline-block; background:#000; color:#fff; font-family:-apple-system,BlinkMacSystemFont,sans-serif; font-weight:700; font-size:15px; padding:11px 22px; border-radius:50px; text-decoration:none; white-space:nowrap;">Home</a>
+    </div>
+
+    <div id="access-denied" class="access-denied">
+        <div class="access-denied-msg">Access restricted.</div>
+        <div class="access-denied-sub">Leader approval required.</div>
+        <a href="index.html" class="access-denied-btn">Go to Home</a>
+    </div>
+
+    <div class="container" id="main-container">
+
+        <div class="auth-section" id="auth-section">
+            <div id="auth-form">
+                <input type="email" id="auth-email" placeholder="Email">
+                <input type="password" id="auth-password" placeholder="Password">
+                <div class="auth-buttons">
+                    <button class="auth-btn-primary" onclick="authSignUp()">Sign Up</button>
+                    <button class="auth-btn-secondary" onclick="authLogIn()">Log In</button>
+                </div>
+            </div>
+            <div class="auth-status" id="auth-status" style="display:none">
+                <span class="auth-status-text" id="auth-status-text">Not signed in</span>
+                <button class="auth-logout-btn" onclick="authLogOut()">Log Out</button>
+            </div>
+        </div>
+
+        <div class="header">
+            <h1>How We're Doing</h1>
+            <div class="subtitle">Movement health at a glance.</div>
+        </div>
+
+        <div class="tab-bar">
+            <button class="tab-btn active" id="tab-map" onclick="switchTab('map')">Map</button>
+            <button class="tab-btn" id="tab-metrics" onclick="switchTab('metrics')">Metrics</button>
+        </div>
+
+        <!-- ── MAP VIEW ──────────────────────────────────────────── -->
+        <div id="map-view">
+            <div class="layer-toggles">
+                <label class="layer-toggle">
+                    <input type="checkbox" id="toggle-churches" checked onchange="renderMap()">
+                    Churches
+                </label>
+                <label class="layer-toggle">
+                    <input type="checkbox" id="toggle-spiritual" onchange="renderMap()">
+                    Spiritual Convos
+                </label>
+                <label class="layer-toggle">
+                    <input type="checkbox" id="toggle-discovery" onchange="renderMap()">
+                    Discovery Convos
+                </label>
+            </div>
+
+            <div class="filters">
+                <select class="filter-select" id="map-city" onchange="renderMap()">
+                    <option value="">All Cities</option>
+                </select>
+                <select class="filter-select" id="map-date" onchange="renderMap()">
+                    <option value="30">Last 30 Days</option>
+                    <option value="7">Last 7 Days</option>
+                    <option value="90">Last 3 Months</option>
+                    <option value="365">Last Year</option>
+                    <option value="0">All Time</option>
+                </select>
+                <button class="icon-btn" onclick="loadMapData(true)" title="Refresh">↺</button>
+            </div>
+
+            <div id="map-el"></div>
+
+            <div class="map-legend">
+                <h4>Legend</h4>
+                <div class="legend-row">
+                    <div class="legend-swatch" style="background:#3a3a3c;"></div>
+                    <span class="legend-label">Church</span>
+                </div>
+                <div class="legend-row">
+                    <div class="legend-swatch" style="background:#add8e6; opacity:0.8;"></div>
+                    <span class="legend-label">Low conversation activity</span>
+                </div>
+                <div class="legend-row">
+                    <div class="legend-swatch" style="background:#0077b6; opacity:0.8;"></div>
+                    <span class="legend-label">Medium conversation activity</span>
+                </div>
+                <div class="legend-row">
+                    <div class="legend-swatch" style="background:#002f6c; opacity:0.9;"></div>
+                    <span class="legend-label">High conversation activity</span>
+                </div>
+            </div>
+
+            <div class="map-footer" id="map-last-updated"></div>
+        </div>
+
+        <!-- ── METRICS VIEW ──────────────────────────────────────── -->
+        <div id="metrics-view" style="display:none">
+            <div class="filters">
+                <select class="filter-select" id="metrics-date" onchange="loadMetrics()">
+                    <option value="30">Last 30 Days</option>
+                    <option value="7">Last 7 Days</option>
+                    <option value="90">Last 3 Months</option>
+                    <option value="365">Last Year</option>
+                    <option value="0">All Time</option>
+                </select>
+            </div>
+            <div class="stats-section" id="stats-section">
+                <div class="loading">Loading…</div>
+            </div>
+        </div>
+
+    </div><!-- /#main-container -->
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+    // ── Map state ────────────────────────────────────────────────────────────
+    let map = null
+    let churchLayer    = null
+    let spiritualLayer = null
+    let discoveryLayer = null
+    let mapData = { churches: [], conversations: [] }
+
+    // ── Tab switching ────────────────────────────────────────────────────────
+    function switchTab(tab) {
+        const isMap = tab === 'map'
+        document.getElementById('tab-map').classList.toggle('active', isMap)
+        document.getElementById('tab-metrics').classList.toggle('active', !isMap)
+        document.getElementById('map-view').style.display     = isMap ? 'block' : 'none'
+        document.getElementById('metrics-view').style.display = isMap ? 'none'  : 'block'
+
+        if (isMap) {
+            ensureMap()
+        } else {
+            loadMetrics()
+        }
+    }
+
+    // ── Map setup ────────────────────────────────────────────────────────────
+    function ensureMap() {
+        if (map) { map.invalidateSize(); return }
+
+        map = L.map('map-el').setView([39.8283, -98.5795], 4)
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 19
+        }).addTo(map)
+
+        churchLayer    = L.layerGroup().addTo(map)
+        spiritualLayer = L.layerGroup()
+        discoveryLayer = L.layerGroup()
+
+        loadMapData(false)
+    }
+
+    async function loadMapData(showMessage) {
+        if (!window.supabase) return
+
+        // Churches — needs latitude/longitude/location_text/city columns in church_assessments
+        const { data: churches } = await window.supabase
+            .from('church_assessments')
+            .select('latitude, longitude, location_text, city, leader_name, baptism_count, church_generation, updated_at')
+            .eq('is_church', true)
+
+        // Conversation events — needs conversation_events table
+        const { data: convos } = await window.supabase
+            .from('conversation_events')
+            .select('latitude, longitude, location_text, city, event_type, count, created_at')
+
+        mapData.churches      = (churches || []).filter(c => c.latitude && c.longitude)
+        mapData.conversations = (convos   || []).filter(c => c.latitude && c.longitude)
+
+        populateCityDropdown()
+        renderMap()
+
+        document.getElementById('map-last-updated').textContent =
+            'Last updated: ' + new Date().toLocaleTimeString()
+
+        if (showMessage) notify('Data refreshed')
+    }
+
+    function populateCityDropdown() {
+        const cities = new Set()
+        mapData.churches.forEach(c => { if (c.city) cities.add(c.city) })
+        mapData.conversations.forEach(c => { if (c.city) cities.add(c.city) })
+
+        const sel = document.getElementById('map-city')
+        const prev = sel.value
+        sel.innerHTML = '<option value="">All Cities</option>'
+        Array.from(cities).sort().forEach(city => {
+            const opt = document.createElement('option')
+            opt.value = city
+            opt.textContent = city
+            sel.appendChild(opt)
+        })
+        if (prev) sel.value = prev
+    }
+
+    function cutoffFromDays(days) {
+        return days > 0 ? new Date(Date.now() - days * 86400000).toISOString() : null
+    }
+
+    function renderMap() {
+        if (!map) return
+
+        const showChurches  = document.getElementById('toggle-churches').checked
+        const showSpiritual = document.getElementById('toggle-spiritual').checked
+        const showDiscovery = document.getElementById('toggle-discovery').checked
+        const city  = document.getElementById('map-city').value
+        const days  = parseInt(document.getElementById('map-date').value)
+        const cutoff = cutoffFromDays(days)
+
+        // ── Churches ──
+        churchLayer.clearLayers()
+        if (showChurches) {
+            mapData.churches.forEach(c => {
+                if (city   && c.city       !== city)   return
+                if (cutoff && c.updated_at <  cutoff)  return
+
+                L.circleMarker([c.latitude, c.longitude], {
+                    radius: 9,
+                    fillColor: '#3a3a3c',
+                    color: '#fff',
+                    weight: 2,
+                    fillOpacity: 0.9
+                }).bindPopup(
+                    '<strong>' + (c.location_text || 'Church') + '</strong>' +
+                    (c.leader_name      ? '<br>Leader: '     + c.leader_name      : '') +
+                    '<br>Baptisms: '    + (c.baptism_count  || 0) +
+                    (c.church_generation ? '<br>Generation: ' + c.church_generation : '')
+                ).addTo(churchLayer)
+            })
+        }
+
+        // ── Conversation heatmap circles ──
+        spiritualLayer.clearLayers()
+        discoveryLayer.clearLayers()
+
+        mapData.conversations.forEach(ev => {
+            if (city   && ev.city       !== city)  return
+            if (cutoff && ev.created_at <  cutoff) return
+
+            const n      = ev.count || 1
+            const color  = n <= 3 ? '#add8e6' : n <= 10 ? '#0077b6' : '#002f6c'
+            const radius = Math.min(500 + n * 400, 10000)
+
+            const circle = L.circle([ev.latitude, ev.longitude], {
+                color, fillColor: color, fillOpacity: 0.55, radius, weight: 1
+            }).bindPopup(
+                '<strong>' + (ev.location_text || 'Location') + '</strong>' +
+                '<br>' + (ev.event_type === 'spiritual' ? 'Spiritual' : 'Discovery') +
+                ' conversations: ' + n
+            )
+
+            if (ev.event_type === 'spiritual') spiritualLayer.addLayer(circle)
+            else discoveryLayer.addLayer(circle)
+        })
+
+        if (showSpiritual) spiritualLayer.addTo(map); else spiritualLayer.remove()
+        if (showDiscovery) discoveryLayer.addTo(map); else discoveryLayer.remove()
+    }
+
+    // ── Metrics ──────────────────────────────────────────────────────────────
+    async function loadMetrics() {
+        if (!window.supabase) return
+
+        const section = document.getElementById('stats-section')
+        section.innerHTML = '<div class="loading">Loading…</div>'
+
+        const days   = parseInt(document.getElementById('metrics-date').value)
+        const cutoff = cutoffFromDays(days)
+
+        // Church assessments
+        let query = window.supabase
+            .from('church_assessments')
+            .select('baptism_count, church_generation')
+            .eq('is_church', true)
+
+        if (cutoff) query = query.gte('updated_at', cutoff)
+
+        const { data: churches, error } = await query
+
+        if (error) {
+            section.innerHTML =
+                '<div class="empty-state">Could not load data.<br><small>' + error.message + '</small></div>'
+            return
+        }
+
+        const rows      = churches || []
+        const total     = rows.length
+        const baptisms  = rows.reduce((s, r) => s + (r.baptism_count || 0), 0)
+        const gen2      = rows.filter(r => r.church_generation === 'gen2+').length
+
+        // Spiritual conversations (conversation_events table — graceful if missing)
+        let spiritual = 0
+        const { data: convData } = await window.supabase
+            .from('conversation_events')
+            .select('count')
+            .eq('event_type', 'spiritual')
+        if (convData) spiritual = convData.reduce((s, r) => s + (r.count || 0), 0)
+
+        const label = days === 0 ? 'All Time' :
+                      days === 7  ? 'Last 7 Days' :
+                      days === 30 ? 'Last 30 Days' :
+                      days === 90 ? 'Last 3 Months' : 'Last Year'
+
+        section.innerHTML =
+            '<div class="period-label">' + label + '</div>' +
+            '<div class="stats-grid">' +
+                '<div class="stat-card accent">' +
+                    '<div class="stat-value">' + spiritual.toLocaleString() + '</div>' +
+                    '<div class="stat-label">Spiritual Conversations</div>' +
+                '</div>' +
+                '<div class="stat-card">' +
+                    '<div class="stat-value">' + total.toLocaleString() + '</div>' +
+                    '<div class="stat-label">Churches</div>' +
+                '</div>' +
+                '<div class="stat-card">' +
+                    '<div class="stat-value">' + baptisms.toLocaleString() + '</div>' +
+                    '<div class="stat-label">Baptisms</div>' +
+                '</div>' +
+                '<div class="stat-card wide">' +
+                    '<div class="stat-value">' + gen2.toLocaleString() + '</div>' +
+                    '<div class="stat-label">2+ Generation Churches</div>' +
+                '</div>' +
+            '</div>'
+    }
+
+    // ── Notification ─────────────────────────────────────────────────────────
+    function notify(msg) {
+        const el = document.createElement('div')
+        el.className = 'notification'
+        el.textContent = msg
+        document.body.appendChild(el)
+        setTimeout(() => el.remove(), 3200)
+    }
+
+    // ── Boot ─────────────────────────────────────────────────────────────────
+    // Wait for Supabase auth to resolve before loading any data.
+    // initLeaderPage() (imported above) controls #main-container visibility.
+    // We poll until both supabase client and an auth session are ready.
+    (function waitForAuth() {
+        const interval = setInterval(() => {
+            if (!window.supabase) return
+            window.supabase.auth.getSession().then(({ data: { session } }) => {
+                if (!session) return
+                clearInterval(interval)
+                ensureMap()
+            })
+        }, 150)
+    })()
+    </script>
+</body>
+</html>
