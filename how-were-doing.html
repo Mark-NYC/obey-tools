@@ -781,14 +781,24 @@
             return
         }
 
+        const today = new Date()
         const items = rows.map((ev, i) => {
             const color    = ev.event_type === 'spiritual' ? '#0077b6' : '#34c759'
-            const loc      = ev.location_text || ev.city || 'an unknown location'
+            const rawLoc   = ev.location_text ? ev.location_text.split(', ')[0] : (ev.city || 'an unknown location')
+            const loc      = rawLoc || 'an unknown location'
             const n        = ev.count || 1
             const noun     = n === 1 ? 'conversation' : 'conversations'
             const typeWord = ev.event_type === 'spiritual' ? 'spiritual' : 'discovery'
             const d        = new Date(ev.created_at)
-            const date     = (d.getMonth() + 1) + '/' + String(d.getDate()).padStart(2, '0')
+            const isToday  = d.getFullYear() === today.getFullYear() &&
+                             d.getMonth()    === today.getMonth()    &&
+                             d.getDate()     === today.getDate()
+            const h        = d.getHours()
+            const ampm     = h >= 12 ? 'PM' : 'AM'
+            const h12      = (h % 12) || 12
+            const min      = String(d.getMinutes()).padStart(2, '0')
+            const timeStr  = h12 + ':' + min + '\u00a0' + ampm
+            const stamp    = isToday ? timeStr : (d.getMonth() + 1) + '/' + d.getDate() + '\u00a0' + timeStr
             const dotCls   = i < 3 ? 'feed-dot pulse-dot' : 'feed-dot'
             return '<div class="feed-row">' +
                 '<div class="' + dotCls + '" style="background:' + color + '"></div>' +
@@ -796,7 +806,7 @@
                     '<span class="feed-type" style="color:' + color + '">' + typeWord + '</span>' +
                     '\u00a0' + noun + ' in ' + loc +
                 '</div>' +
-                '<div class="feed-date">' + date + '</div>' +
+                '<div class="feed-date">' + stamp + '</div>' +
             '</div>'
         })
 
