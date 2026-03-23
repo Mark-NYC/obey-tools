@@ -263,6 +263,9 @@
         let submittedGreenLights = [];
         let submittedEvents = { spiritual: new Set(), discovery: new Set() };
         let appInitialized = false;
+        let _saving = false;       // serialize concurrent saveToSupabase calls
+        let _savePending = false;
+        let _lastLoadedUserId = null; // prevent double-load on page init
         let wpAjaxUrl = null;
         let wpNonce = null;
         let wpPageId = null;
@@ -387,6 +390,15 @@ function saveConversations() {
                         conversations[row.box_name].push({ name: row.person_name, date: '', color: row.color });
                     }
                 });
+                // Deduplicate by name within each box (guards against prior save-race doubles in DB)
+                ['casual', 'meaningful', 'spiritual', 'discovery'].forEach(box => {
+                    const seen = new Set();
+                    conversations[box] = conversations[box].filter(p => {
+                        if (seen.has(p.name)) return false;
+                        seen.add(p.name);
+                        return true;
+                    });
+                });
 
                 const { data: events } = await window.supabase
                     .from('submitted_events')
@@ -419,9 +431,14 @@ function saveConversations() {
 
         // Persist current in-memory state to Supabase for the signed-in user.
         // No-ops silently if no user is signed in.
+        // Self-serializing: a second call while one is in flight sets _savePending and
+        // returns; when the first finishes it re-runs so the final state always wins.
         async function saveToSupabase() {
+            if (_saving) { _savePending = true; return; }
+            _saving = true;
+            _savePending = false;
             const user = getCurrentUser();
-            if (!user) return;
+            if (!user) { _saving = false; return; }
             const userId = user.id;
 
             try {
@@ -465,6 +482,9 @@ function saveConversations() {
                 showNotification('Saved to cloud');
             } catch (err) {
                 console.error('Supabase save error:', err);
+            } finally {
+                _saving = false;
+                if (_savePending) saveToSupabase(); // run any queued call with final state
             }
         }
 
@@ -481,6 +501,7 @@ function saveConversations() {
                 if (session?.user) {
                     window._supabaseUser = session.user;
                     const loaded = await loadFromSupabase(session.user.id);
+                    _lastLoadedUserId = session.user.id; // prevent updateAuthUI from reloading on init
                     if (loaded) {
                         showNotification('Loaded saved data');
                     } else {
@@ -722,6 +743,24 @@ function saveConversations() {
                             position.coords.latitude,
                             position.coords.longitude
                         );
+                        // Write to conversation_events so the How We're Doing map receives data
+                        const user = getCurrentUser();
+                        if (user) {
+                            const locParts = location.split(', ');
+                            const city = locParts.length > 1 ? locParts[locParts.length - 1] : location;
+                            const { error: evErr } = await window.supabase
+                                .from('conversation_events')
+                                .insert({
+                                    user_id: user.id,
+                                    event_type: eventType,
+                                    latitude: position.coords.latitude,
+                                    longitude: position.coords.longitude,
+                                    location_text: location,
+                                    city: city,
+                                    count: 1
+                                });
+                            if (evErr) console.error('conversation_events insert error:', evErr);
+                        }
                     },
                     async (error) => {
                         console.warn('GPS error, falling back to IP location:', error.message);
@@ -1217,8 +1256,10 @@ function saveConversations() {
                 status.style.display = 'flex';
                 text.textContent     = 'Signed in as ' + user.email;
 
-                // Reload from Supabase whenever a user signs in (or session restores)
-                if (appInitialized) {
+                // Reload from Supabase when auth state changes to a new user.
+                // Skip if initializeApp already loaded this user to avoid a double-load race.
+                if (appInitialized && user.id !== _lastLoadedUserId) {
+                    _lastLoadedUserId = user.id;
                     loadFromSupabase(user.id).then(loaded => {
                         updateDisplay();
                         showNotification(loaded ? 'Loaded saved data' : 'Using local data');
