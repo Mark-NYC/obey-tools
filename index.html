@@ -10,7 +10,6 @@
 
         async function checkLeaderBtn(session, source) {
             const btn        = document.getElementById('btn-leader-tools')
-            const btnReports = document.getElementById('btn-how-were-doing')
 
             console.log('[LeaderBtn] source         :', source)
             console.log('[LeaderBtn] session exists :', !!session)
@@ -20,7 +19,6 @@
             if (!session?.user) {
                 console.log('[LeaderBtn] path: no user — button stays hidden')
                 if (btn)        btn.style.display        = 'none'
-                if (btnReports) btnReports.style.display = 'none'
                 return
             }
 
@@ -37,15 +35,9 @@
                 btn.removeAttribute('hidden')
                 btn.classList.remove('hidden')
                 btn.style.display = 'block'
-                if (btnReports) {
-                    btnReports.removeAttribute('hidden')
-                    btnReports.classList.remove('hidden')
-                    btnReports.style.display = 'block'
-                }
                 console.log('[LeaderBtn] path: role=leader → buttons revealed (display:block)')
             } else {
                 btn.style.display = 'none'
-                if (btnReports) btnReports.style.display = 'none'
                 console.log('[LeaderBtn] path: role=' + role + ' → buttons stay hidden')
             }
         }
@@ -203,8 +195,7 @@
         <!-- Leader Tools — only shown to users with role=leader -->
         <a href="leader-tools.html" class="btn btn-leader" id="btn-leader-tools" style="display:none">Leader Tools</a>
 
-        <!-- How We're Doing — only shown to users with role=leader -->
-        <a href="how-were-doing.html" class="btn btn-leader" id="btn-how-were-doing" style="display:none">How We're Doing</a>
+
 
     </div>
 
