@@ -588,17 +588,18 @@
         spiritualLayer.clearLayers()
         discoveryLayer.clearLayers()
 
-        // Group filtered rows into location buckets (lat/lon rounded to 3dp ≈ 111m).
-        // Each bucket accumulates spiritual and discovery counts independently.
+        // Group filtered rows into location buckets (lat/lon rounded to 2dp ≈ 1.1km).
+        // 2dp absorbs GPS jitter (±50–100m per reading) that would cause same-location
+        // events to land in different 3dp keys and each show n=1 instead of the true total.
         const buckets = {}
         mapData.conversations.forEach(ev => {
             if (city   && ev.city       !== city)  return
             if (cutoff && ev.created_at <  cutoff) return
-            const lat3 = +ev.latitude.toFixed(3)
-            const lon3 = +ev.longitude.toFixed(3)
-            const key  = lat3 + ',' + lon3
+            const lat2 = +ev.latitude.toFixed(2)
+            const lon2 = +ev.longitude.toFixed(2)
+            const key  = lat2 + ',' + lon2
             if (!buckets[key]) {
-                buckets[key] = { lat: lat3, lon: lon3, locationText: null, spiritualCount: 0, discoveryCount: 0 }
+                buckets[key] = { lat: lat2, lon: lon2, locationText: null, spiritualCount: 0, discoveryCount: 0 }
             }
             if (!buckets[key].locationText && ev.location_text) buckets[key].locationText = ev.location_text
             if (ev.event_type === 'spiritual') buckets[key].spiritualCount += (ev.count || 1)
