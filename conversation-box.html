@@ -716,6 +716,7 @@ function saveConversations() {
         }
 
         async function submitEvent(personName, eventType) {
+            console.log('[submitEvent:start]', eventType, personName);
             const userName = localStorage.getItem('user-name') || 'Anonymous';
             const eventKey = `${personName}-${eventType}`;
 
@@ -723,51 +724,57 @@ function saveConversations() {
                 return;
             }
 
-            // Write to Supabase immediately, before any geolocation/WordPress work
             submittedEvents[eventType].add(eventKey);
             saveSubmittedEvents();
 
-            // Fire-and-forget: send to WordPress map API with best-available location
+            // Helper: write one row to conversation_events. lat/lon are null when GPS is unavailable.
+            async function writeConversationEvent(lat, lon, locationText, city) {
+                const user = getCurrentUser();
+                if (!user) {
+                    console.error('[conversation_events:insert:error] user not signed in — row not written');
+                    return;
+                }
+                const payload = {
+                    user_id: user.id,
+                    event_type: eventType,
+                    latitude: lat,
+                    longitude: lon,
+                    location_text: locationText,
+                    city: city,
+                    count: 1
+                };
+                console.log('[conversation_events:insert:payload]', payload);
+                const { data, error: evErr } = await window.supabase
+                    .from('conversation_events')
+                    .insert(payload)
+                    .select('id')
+                    .single();
+                if (evErr) {
+                    console.error('[conversation_events:insert:error]', evErr);
+                } else {
+                    console.log('[conversation_events:insert:success]', data);
+                }
+            }
+
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     async (position) => {
-                        const location = await getCityFromCoords(
-                            position.coords.latitude,
-                            position.coords.longitude
-                        );
-                        await sendEventToAPI(
-                            userName,
-                            personName,
-                            eventType,
-                            location,
-                            position.coords.latitude,
-                            position.coords.longitude
-                        );
-                        // Write to conversation_events so the How We're Doing map receives data
-                        const user = getCurrentUser();
-                        if (user) {
-                            const locParts = location.split(', ');
-                            const city = locParts.length > 1 ? locParts[locParts.length - 1] : location;
-                            const { error: evErr } = await window.supabase
-                                .from('conversation_events')
-                                .insert({
-                                    user_id: user.id,
-                                    event_type: eventType,
-                                    latitude: position.coords.latitude,
-                                    longitude: position.coords.longitude,
-                                    location_text: location,
-                                    city: city,
-                                    count: 1
-                                });
-                            if (evErr) console.error('conversation_events insert error:', evErr);
-                        }
+                        const lat = position.coords.latitude;
+                        const lon = position.coords.longitude;
+                        console.log('[submitEvent:gpsSuccess]', lat, lon);
+                        const location = await getCityFromCoords(lat, lon);
+                        const locParts = location.split(', ');
+                        const city = locParts.length > 1 ? locParts[locParts.length - 1] : location;
+                        console.log('[submitEvent:gpsSuccess] city:', city);
+                        await sendEventToAPI(userName, personName, eventType, location, lat, lon);
+                        await writeConversationEvent(lat, lon, location, city);
                     },
-                    async (error) => {
-                        console.warn('GPS error, falling back to IP location:', error.message);
+                    async (gpsErr) => {
+                        console.warn('[submitEvent:gpsError]', gpsErr.message, '— no coords available, row not written to conversation_events');
                         try {
                             const response = await fetch('https://ipapi.co/json/');
-                            const data = await response.json();
-                            const location = [data.city, data.region].filter(Boolean).join(', ') || 'Unknown';
+                            const ipData = await response.json();
+                            const location = [ipData.city, ipData.region].filter(Boolean).join(', ') || 'Unknown';
                             await sendEventToAPI(userName, personName, eventType, location, null, null);
                         } catch (e) {
                             await sendEventToAPI(userName, personName, eventType, 'Unknown', null, null);
