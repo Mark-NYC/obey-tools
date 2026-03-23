@@ -588,11 +588,19 @@
         spiritualLayer.clearLayers()
         discoveryLayer.clearLayers()
 
+        // Aggregate rows by (lat, lon, event_type) so each unique location gets
+        // one circle whose count, color, radius, and label all use the same total.
+        const groups = {}
         mapData.conversations.forEach(ev => {
             if (city   && ev.city       !== city)  return
             if (cutoff && ev.created_at <  cutoff) return
+            const key = ev.latitude + ',' + ev.longitude + ',' + ev.event_type
+            if (!groups[key]) groups[key] = { ...ev, totalCount: 0 }
+            groups[key].totalCount += (ev.count || 1)
+        })
 
-            const n      = ev.count || 1
+        Object.values(groups).forEach(ev => {
+            const n      = ev.totalCount
             const color  = n <= 3 ? '#add8e6' : n <= 10 ? '#0077b6' : '#002f6c'
             const radius = Math.min(500 + n * 400, 10000)
 
