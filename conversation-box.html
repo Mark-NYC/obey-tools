@@ -734,7 +734,7 @@ function saveConversations() {
                 const user = getCurrentUser();
                 if (!user) {
                     console.error('[conversation_events:insert:error] user not signed in — row not written');
-                    showNotification('Sign in so your conversations update the dashboard');
+                    showNotification('Saved locally, but dashboard reporting requires sign-in.');
                     return;
                 }
                 const payload = {
