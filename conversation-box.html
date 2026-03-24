@@ -130,6 +130,11 @@
             .delete-btn { width: 32px; height: 32px; border-radius: 16px; font-size: 14px; opacity: 0.55; }
             .conversation-actions { gap: 12px; }
             .conversation-name { flex: 1; min-width: 0; }
+            /* Phase C: collapsible sections on mobile */
+            .conversation-box.collapsed .conversation-list { display: none; }
+            .box-header { cursor: pointer; }
+            .box-header::after { content: '▾'; position: absolute; right: 16px; top: 50%; transform: translateY(-50%); font-size: 14px; color: #8e8e93; }
+            .conversation-box.collapsed .box-header::after { content: '▸'; }
         }
     </style>
 </head>
@@ -1111,6 +1116,14 @@ function saveConversations() {
                     const label = box.charAt(0).toUpperCase() + box.slice(1);
                     titleEl.textContent = window.innerWidth < 768 ? `${label} (${conversations[box].length})` : label;
                 }
+                if (window.innerWidth < 768) {
+                    const boxEl = document.querySelector(`.conversation-box.${box}`);
+                    if (conversations[box].length === 0) {
+                        boxEl.classList.add('collapsed');
+                    } else {
+                        boxEl.classList.remove('collapsed');
+                    }
+                }
             });
         }
 
@@ -1197,7 +1210,8 @@ function saveConversations() {
             ['casual', 'meaningful', 'discovery', 'spiritual'].forEach((boxClass, index) => {
                 const box = document.querySelector(`.conversation-box.${boxClass}`);
                 if (box) { 
-                    const clone = box.cloneNode(true); 
+                    const clone = box.cloneNode(true);
+                    clone.classList.remove('collapsed');
                     clone.style.order = index + 1; 
                     clone.querySelectorAll('.conversation-actions').forEach(a => a.style.display = 'none'); 
                     clone.querySelector('.conversation-list').style.minHeight = '250px'; 
@@ -1257,10 +1271,17 @@ function saveConversations() {
         }
 
         // Event listeners
-        document.addEventListener('DOMContentLoaded', () => { 
+        document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('.btn').forEach(btn => {
                 btn.addEventListener('click', (e) => addHapticFeedback(e.target));
-            }); 
+            });
+            document.querySelectorAll('.box-header').forEach(header => {
+                header.addEventListener('click', () => {
+                    if (window.innerWidth < 768) {
+                        header.closest('.conversation-box').classList.toggle('collapsed');
+                    }
+                });
+            });
         });
         
         document.getElementById('user-name-input').addEventListener('keypress', (e) => { 
