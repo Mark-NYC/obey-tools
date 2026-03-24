@@ -121,6 +121,10 @@
             .auth-section input { font-size: 16px; }
             .action-btn { width: 36px; height: 36px; border-radius: 18px; font-size: 16px; }
             .btn { min-height: 44px; }
+            .conversation-grid { gap: 12px; }
+            .box-header { padding: 10px 16px; }
+            .conversation-item { padding: 10px 16px; }
+            .empty-state { padding: 16px; }
         }
     </style>
 </head>
@@ -1096,6 +1100,11 @@ function saveConversations() {
                     conversations[box].forEach(person => {
                         listElement.appendChild(createConversationItem(person.name, box, person.color));
                     });
+                }
+                const titleEl = document.querySelector(`.conversation-box.${box} .box-title`);
+                if (titleEl) {
+                    const label = box.charAt(0).toUpperCase() + box.slice(1);
+                    titleEl.textContent = window.innerWidth < 768 ? `${label} (${conversations[box].length})` : label;
                 }
             });
         }
