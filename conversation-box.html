@@ -132,9 +132,15 @@
             .conversation-name { flex: 1; min-width: 0; }
             /* Phase C: collapsible sections on mobile */
             .conversation-box.collapsed .conversation-list { display: none; }
-            .box-header { cursor: pointer; }
-            .box-header::after { content: '▾'; position: absolute; right: 16px; top: 50%; transform: translateY(-50%); font-size: 14px; color: #8e8e93; }
-            .conversation-box.collapsed .box-header::after { content: '▸'; }
+            .box-header { cursor: pointer; display: flex; align-items: center; justify-content: space-between; }
+            .box-title { font-size: 15px; font-weight: 600; text-transform: none; letter-spacing: 0; color: #3a3a3c; text-align: left; display: flex; align-items: center; flex-wrap: wrap; }
+            .box-label { font-weight: 600; }
+            .box-count { font-size: 12px; font-weight: 600; color: #8e8e93; background: #f2f2f7; padding: 2px 8px; border-radius: 10px; margin-left: 8px; }
+            .box-header::after { content: '▾'; font-size: 20px; color: #c6c6c8; flex-shrink: 0; margin-left: 8px; position: static; transform: none; top: auto; right: auto; }
+            .conversation-box.collapsed .box-header { background: #f7f7f7; }
+            .conversation-box.collapsed .box-header::after { content: '▸'; color: #8e8e93; }
+            .conversation-box.collapsed .box-count { background: #e5e5ea; }
+            .share-indicator { right: 44px; top: 50%; transform: translateY(-50%); }
         }
     </style>
 </head>
@@ -1114,7 +1120,11 @@ function saveConversations() {
                 const titleEl = document.querySelector(`.conversation-box.${box} .box-title`);
                 if (titleEl) {
                     const label = box.charAt(0).toUpperCase() + box.slice(1);
-                    titleEl.textContent = window.innerWidth < 768 ? `${label} (${conversations[box].length})` : label;
+                    if (window.innerWidth < 768) {
+                        titleEl.innerHTML = `<span class="box-label">${label}</span><span class="box-count">${conversations[box].length}</span>`;
+                    } else {
+                        titleEl.textContent = label;
+                    }
                 }
                 if (window.innerWidth < 768) {
                     const boxEl = document.querySelector(`.conversation-box.${box}`);
