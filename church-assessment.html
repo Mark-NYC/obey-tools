@@ -19,7 +19,7 @@
     <div class="status-bar"></div>
 
     <div class="auth-section" id="auth-section">
-        <div id="auth-form">
+        <div id="auth-form" style="display:none">
             <input type="email" id="auth-email" placeholder="Email">
             <input type="password" id="auth-password" placeholder="Password">
             <div class="auth-buttons">
@@ -368,7 +368,6 @@ function setGeneration(isFromAnotherChurch) {
     document.getElementById('generation-prompt').style.display = 'none';
     updateDateDisplay();
     saveToSupabase();
-    showNotification(`Church marked as ${isFromAnotherChurch ? 'Gen 2+' : 'Gen 1'}`);
 }
 
 function saveAssessmentState() {
@@ -625,7 +624,6 @@ function performCapture(leaders, startDate, location, baptismCount) {
                         title: 'Church Assessment',
                         text: `Shared on ${shareDate}. Church assessment - Leader(s): ${leaders} | Start Date: ${formatInputDate(startDate)} | Location: ${location} | Baptisms: ${baptismCount}`
                     });
-                    showNotification('Shared successfully');
                     shareSuccess = true;
                 } catch (e) {
                     console.error('Sharing failed:', e);
@@ -637,7 +635,6 @@ function performCapture(leaders, startDate, location, baptismCount) {
                 if (!isSafari && navigator.clipboard && navigator.clipboard.write) {
                     try {
                         await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
-                        showNotification('Image copied to clipboard!');
                         copied = true;
                     } catch (e) {
                         console.log('Clipboard write failed:', e);
@@ -653,7 +650,6 @@ function performCapture(leaders, startDate, location, baptismCount) {
                     a.click();
                     document.body.removeChild(a);
                     URL.revokeObjectURL(url);
-                    showNotification('Image downloaded.');
                 }
                 showSharePopup();
             }
@@ -812,7 +808,6 @@ function updateAuthUI(user) {
                 updateDateDisplay();
                 updateCircleBorder();
                 renderCells();
-                showNotification(loaded ? 'Loaded saved data' : 'Using local data');
             });
         }
     } else {
@@ -824,7 +819,6 @@ function updateAuthUI(user) {
             updateDateDisplay();
             updateCircleBorder();
             renderCells();
-            showNotification('Using local data');
         }
     }
 }

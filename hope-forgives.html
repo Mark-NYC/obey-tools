@@ -3,13 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap">
     <script type="module">
         import { supabase } from './supabase.js';
         window.supabase = supabase;
     </script>
     <title>Hope Forgives - Matthew 18:21-35</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif; background: #f2f2f7; min-height: 100vh; color: #000; line-height: 1.5; padding-bottom: 100px; }
         .container { max-width: 375px; margin: 0 auto; background: #ffffff; min-height: 100vh; }
@@ -92,7 +94,7 @@
     </div>
     <div class="container">
         <div class="auth-section" id="auth-section">
-            <div id="auth-form">
+            <div id="auth-form" style="display:none">
                 <input type="email" id="auth-email" placeholder="Email">
                 <input type="password" id="auth-password" placeholder="Password">
                 <div class="auth-buttons">
