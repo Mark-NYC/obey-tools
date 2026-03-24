@@ -136,11 +136,12 @@
             .box-title { font-size: 15px; font-weight: 600; text-transform: none; letter-spacing: 0; color: #3a3a3c; text-align: left; display: flex; align-items: center; flex-wrap: wrap; }
             .box-label { font-weight: 600; }
             .box-count { font-size: 12px; font-weight: 600; color: #8e8e93; background: #f2f2f7; padding: 2px 8px; border-radius: 10px; margin-left: 8px; }
-            .box-header::after { content: '▾'; font-size: 20px; color: #c6c6c8; flex-shrink: 0; margin-left: 8px; position: static; transform: none; top: auto; right: auto; }
-            .conversation-box.collapsed .box-header { background: #f7f7f7; }
-            .conversation-box.collapsed .box-header::after { content: '▸'; color: #8e8e93; }
+            .box-header::after { content: '▾'; font-size: 22px; color: #3a3a3c; flex-shrink: 0; margin-left: 8px; position: static; transform: none; top: auto; right: auto; }
+            .conversation-box.collapsed .box-header { background: #ebebeb; }
+            .conversation-box.collapsed .box-header::after { content: '▸'; color: #c6c6c8; }
             .conversation-box.collapsed .box-count { background: #e5e5ea; }
-            .share-indicator { right: 44px; top: 50%; transform: translateY(-50%); }
+            .share-indicator { display: none; }
+            .auth-section { padding: 8px 16px; }
         }
     </style>
 </head>
@@ -504,7 +505,6 @@ function saveConversations() {
                 }));
                 if (glRows.length > 0) await window.supabase.from('submitted_green_lights').insert(glRows);
 
-                showNotification('Saved to cloud');
             } catch (err) {
                 console.error('Supabase save error:', err);
             } finally {
@@ -527,11 +527,8 @@ function saveConversations() {
                     window._supabaseUser = session.user;
                     const loaded = await loadFromSupabase(session.user.id);
                     _lastLoadedUserId = session.user.id; // prevent updateAuthUI from reloading on init
-                    if (loaded) {
-                        showNotification('Loaded saved data');
-                    } else {
+                    if (!loaded) {
                         loadFromLocalStorage();
-                        showNotification('Using local data');
                     }
                 } else {
                     loadFromLocalStorage();
@@ -730,9 +727,7 @@ function saveConversations() {
 
                 const result = await response.json();
 
-                if (result.success) {
-                    showNotification(`${personName} recorded on map!`);
-                } else {
+                if (!result.success) {
                     console.warn('WordPress API rejected event:', result);
                 }
             } catch (error) {
@@ -917,9 +912,8 @@ function saveConversations() {
                     const person = conversations[editingBox].find(p => p.name === editingName);
                     if (person) { 
                         person.name = newName; 
-                        saveConversations(); 
-                        updateDisplay(); 
-                        showNotification(`Name changed to ${newName}`); 
+                        saveConversations();
+                        updateDisplay();
                     }
                 } else {
                     showNotification('Name already exists');
@@ -964,9 +958,8 @@ function saveConversations() {
                         date: formatDate(new Date()), 
                         color: null 
                     }); 
-                    saveConversations(); 
+                    saveConversations();
                     updateDisplay(); 
-                    showNotification(`${pendingNewName} added to ${box}`); 
                     
                     if (box === 'spiritual') {
                         submitEvent(pendingNewName, 'spiritual');
@@ -992,9 +985,8 @@ function saveConversations() {
                 conversations[toBox].push({ ...person, color: null });
             }
             
-            saveConversations(); 
-            updateDisplay(); 
-            showNotification(`${name} moved to ${toBox}`);
+            saveConversations();
+            updateDisplay();
             
             if (toBox === 'spiritual' || toBox === 'discovery') {
                 submitEvent(name, toBox);
@@ -1024,7 +1016,6 @@ function saveConversations() {
                     });
                     saveConversations();
                     updateDisplay();
-                    showNotification(`${currentName} added to ${currentToBox}`);
                     
                     if (currentToBox === 'discovery') {
                         submitEvent(currentName, 'discovery');
@@ -1045,7 +1036,6 @@ function saveConversations() {
                         conversations[currentToBox].push({ ...person, color: hexColor });
                         saveConversations();
                         updateDisplay();
-                        showNotification(`${currentName} moved to ${currentToBox}`);
                         
                         if (currentToBox === 'discovery') {
                             submitEvent(currentName, 'discovery');
@@ -1067,11 +1057,8 @@ function saveConversations() {
             document.getElementById('remove-prompt').style.display = 'none';
             if (confirm) { 
                 conversations[currentFromBox] = conversations[currentFromBox].filter(p => p.name !== currentName); 
-                saveConversations(); 
-                updateDisplay(); 
-                showNotification(`${currentName} removed`); 
-            } else {
-                showNotification(`${currentName} remains in ${currentFromBox}`);
+                saveConversations();
+                updateDisplay();
             }
             currentName = null; 
             currentFromBox = null; 
@@ -1092,17 +1079,14 @@ function saveConversations() {
                 updateDisplay(); 
                 showNotification('Reset complete'); 
                 setTimeout(startHere, 0); 
-            } else {
-                showNotification('Reset cancelled');
             }
         }
 
         function deleteConversation(name, fromBox) {
             if (confirm(`Remove ${name}?`)) { 
                 conversations[fromBox] = conversations[fromBox].filter(p => p.name !== name); 
-                saveConversations(); 
-                updateDisplay(); 
-                showNotification(`${name} removed`); 
+                saveConversations();
+                updateDisplay();
             }
         }
 
@@ -1239,7 +1223,6 @@ function saveConversations() {
                     try {
                         if (navigator.clipboard && navigator.clipboard.write && !isSafari) {
                             await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
-                            showNotification('Image copied to clipboard!');
                             return;
                         }
                     } catch (e) { 
@@ -1254,7 +1237,6 @@ function saveConversations() {
                                 title: 'Conversation Quadrant', 
                                 text: `${userName}'s conversation box updated ${today}` 
                             }); 
-                            showNotification('Shared successfully'); 
                             return; 
                         } catch (e) { 
                             console.error('Share failed:', e); 
@@ -1269,8 +1251,7 @@ function saveConversations() {
                     a.click();
                     document.body.removeChild(a); 
                     URL.revokeObjectURL(url);
-                    showSharePopup(); 
-                    showNotification('Image downloaded.');
+                    showSharePopup();
                 }, 'image/png');
             } catch (error) { 
                 console.error('Error:', error); 
@@ -1323,9 +1304,8 @@ function saveConversations() {
                 // Skip if initializeApp already loaded this user to avoid a double-load race.
                 if (appInitialized && user.id !== _lastLoadedUserId) {
                     _lastLoadedUserId = user.id;
-                    loadFromSupabase(user.id).then(loaded => {
+                    loadFromSupabase(user.id).then(() => {
                         updateDisplay();
-                        showNotification(loaded ? 'Loaded saved data' : 'Using local data');
                     });
                 }
             } else {
@@ -1337,7 +1317,6 @@ function saveConversations() {
                 if (appInitialized) {
                     loadFromLocalStorage();
                     updateDisplay();
-                    showNotification('Using local data');
                 }
             }
         }
