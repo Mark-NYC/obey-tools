@@ -10,6 +10,8 @@
     <link rel="icon" type="image/png" sizes="512x512" href="assets/images/favicons/android-chrome-512x512.png">
     <link rel="manifest" href="/manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#000000">
+    <meta name="apple-mobile-web-app-title" content="Obey Tools">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -81,8 +83,6 @@
             networkSelect.style.display  = 'none'
             networkEmpty.style.display   = 'none'
 
-            console.log('[loadNetworks] user:', session.user.id)
-
             // Query networks directly — RLS on the networks table filters to
             // only rows this user can see.  Avoids going through network_members
             // which has a separate RLS SELECT policy that silently blocks direct
@@ -92,7 +92,6 @@
                 .select('id, name')
                 .order('name')
 
-            console.log('[loadNetworks] networks:', networks)
             if (error) console.error('[loadNetworks] error:', error)
 
             networkLoading.style.display = 'none'
@@ -160,7 +159,6 @@
         }
 
         window.submitCreateNetwork = async function () {
-            console.log('[submitCreateNetwork] fired')
             const input = document.getElementById('create-network-input')
             const name  = input.value.trim()
             if (!name) { input.focus(); return }
@@ -263,7 +261,6 @@
             }
 
             if (!data || data.length === 0) {
-                console.warn('[loadChecklists] query returned 0 rows for networkId:', networkId)
                 empty.style.display = 'block'
                 updateManagePlaybook(networkId)
                 return
@@ -627,7 +624,6 @@
             const maxSort = itemsInSec.length > 0
                 ? Math.max(...itemsInSec.map(i => i.sort_order)) + 1 : 0
             const payload = { network_id: networkId, section_id: secId, title, description: null, sort_order: maxSort, created_by: session.user.id }
-            console.log('[submitAddItemToSection] payload:', JSON.stringify(payload))
             const { data, error } = await supabase.from('network_checklist_items').insert(payload).select()
             if (error) {
                 const isRls = error.code === '42501' || String(error.message ?? '').toLowerCase().includes('policy')
@@ -793,11 +789,6 @@
             // Any user who can access the checklist (owner, collaborator, or network member
             // who reached this panel) may invite additional collaborators.
             // isCreator is still computed for the self-add guard in submitAddCollaborator.
-            console.log('[renderCollaboratorPanel] checklistId:', checklistId,
-                '| _activeChecklistCreatedBy:', _activeChecklistCreatedBy,
-                '| session.user.id:', session?.user?.id,
-                '| isCreator:', isCreator)
-
             const panel = document.createElement('div')
             panel.className = 'collab-panel'
 
@@ -889,46 +880,27 @@
         }
 
         window.submitAddCollaborator = async function () {
-            // ── step 1: state check ───────────────────────────────────────────
-            console.log('[submitAddCollaborator] fired')
-            console.log('  _activeChecklistId    :', _activeChecklistId)
-            console.log('  _activeChecklistCreatedBy:', _activeChecklistCreatedBy)
-
             const input = document.getElementById('collab-email-input')
             const email = (input?.value ?? '').trim().toLowerCase()
-            console.log('  email entered         :', JSON.stringify(email))
 
             if (!email) {
-                console.warn('  ↳ early return — email field is empty')
                 input?.focus()
                 return
             }
             if (!_activeChecklistId) {
-                console.warn('  ↳ early return — no active checklist selected')
                 showNotification('Select a checklist first.')
                 return
             }
 
             const btn = document.getElementById('collab-add-btn')
-            if (!btn) {
-                console.warn('  ↳ early return — collab-add-btn not in DOM')
-                return
-            }
+            if (!btn) return
             btn.disabled = true
             btn.textContent = 'Adding…'
 
-            // ── step 2: session ───────────────────────────────────────────────
             const { data: { session } } = await supabase.auth.getSession()
-            console.log('  session.user.id       :', session?.user?.id)
-            console.log('  isCreator             :', session?.user?.id === _activeChecklistCreatedBy)
 
-            // ── step 3: RPC lookup ────────────────────────────────────────────
-            console.log('  calling RPC get_leader_id_by_email({ lookup_email:', email, '})')
             const { data: userId, error: lookupError } = await supabase
                 .rpc('get_leader_id_by_email', { lookup_email: email })
-
-            console.log('  RPC → userId          :', userId)
-            console.log('  RPC → error           :', lookupError ? JSON.stringify(lookupError) : null)
 
             if (lookupError) {
                 console.error('[submitAddCollaborator] RPC error (full):', lookupError)
@@ -938,33 +910,27 @@
                 return
             }
             if (!userId) {
-                console.warn('  ↳ RPC returned null — no leader account with that email')
                 showNotification('No leader account found with that email.')
                 btn.disabled = false
                 btn.textContent = 'Add Leader'
                 return
             }
             if (userId === session.user.id) {
-                console.warn('  ↳ userId matches current user — cannot add self as collaborator')
                 showNotification('That\'s your own email — you already have access.')
                 btn.disabled = false
                 btn.textContent = 'Add Leader'
                 return
             }
 
-            // ── step 4: insert ────────────────────────────────────────────────
             const payload = {
                 checklist_id: _activeChecklistId,
                 user_id: userId,
                 collaborator_email: email,
                 added_by: session.user.id,
             }
-            console.log('  inserting into checklist_collaborators:', payload)
             const { error: insertError } = await supabase
                 .from('checklist_collaborators')
                 .insert(payload)
-
-            console.log('  insert → error        :', insertError ? JSON.stringify(insertError) : null)
 
             btn.disabled = false
             btn.textContent = 'Add Leader'
@@ -976,45 +942,34 @@
                 return
             }
 
-            // ── step 5: success + post-insert verification ────────────────────
-            console.log('  ✓ insert OK — running post-insert verification')
-
-            // 5a. Verify the collab row is readable by the creator
-            const { data: v1, error: e1 } = await supabase
+            // Post-insert verification: check RLS health after adding collaborator
+            const { error: e1 } = await supabase
                 .from('checklist_collaborators')
                 .select('user_id, collaborator_email')
                 .eq('checklist_id', _activeChecklistId)
                 .eq('user_id', userId)
                 .single()
-            console.log('  5a. checklist_collaborators SELECT → data:', v1, '| error:', e1 ? JSON.stringify(e1) : null)
             if (e1) console.error('      ↳ creator cannot read the row just inserted — SELECT RLS on checklist_collaborators is broken')
 
-            // 5b. Verify mawl_checklists is still visible (SELECT policy health check)
-            const { data: v2, error: e2 } = await supabase
+            const { error: e2 } = await supabase
                 .from('mawl_checklists')
                 .select('id, coached_name')
                 .eq('id', _activeChecklistId)
                 .single()
-            console.log('  5b. mawl_checklists SELECT → data:', v2, '| error:', e2 ? JSON.stringify(e2) : null)
             if (e2) console.error('      ↳ mawl_checklists SELECT is broken — SELECT policy likely references checklist_collaborators before it existed')
 
-            // 5c. Verify mawl_progress is readable for this checklist
-            const { data: v3, error: e3 } = await supabase
+            const { error: e3 } = await supabase
                 .from('mawl_progress')
                 .select('item_key')
                 .eq('checklist_id', _activeChecklistId)
                 .limit(1)
-            console.log('  5c. mawl_progress SELECT → data:', v3, '| error:', e3 ? JSON.stringify(e3) : null)
             if (e3) console.error('      ↳ mawl_progress SELECT is broken — SELECT policy does not cover this checklist')
-
-            console.log('  NOTE: collaborator access (as', email, ') can only be confirmed when logged in as that user')
 
             input.value = ''
             await loadCollaborators(_activeChecklistId)
         }
 
         window.showCreateChecklist = function () {
-            console.log('[showCreateChecklist] fired')
             document.getElementById('create-checklist-form').style.display = 'block'
             document.getElementById('create-checklist-input').focus()
         }
@@ -1025,33 +980,23 @@
         }
 
         window.submitCreateChecklist = async function () {
-            console.log('[submitCreateChecklist] fired')
-
             const input = document.getElementById('create-checklist-input')
             const coached_name = input.value.trim()
-            console.log('  coached_name :', JSON.stringify(coached_name))
             if (!coached_name) {
-                console.warn('  ↳ early return — name is empty')
                 input.focus()
                 return
             }
 
             const networkId = document.getElementById('network-select').value
-            console.log('  networkId    :', networkId)
-            if (!networkId) {
-                console.warn('  ↳ early return — no network selected')
-                return
-            }
+            if (!networkId) return
 
             const btn = document.getElementById('create-checklist-submit')
             btn.disabled = true
             btn.textContent = 'Adding…'
 
             const { data: { session } } = await supabase.auth.getSession()
-            console.log('  user id      :', session?.user?.id)
 
             const payload = { network_id: networkId, coached_name, created_by: session.user.id }
-            console.log('  insert payload:', payload)
 
             // Insert without .select() — avoids the RLS RETURNING race.
             // PostgREST evaluates the RETURNING clause through the SELECT policy
@@ -1062,8 +1007,6 @@
                 .from('mawl_checklists')
                 .insert(payload)
 
-            console.log('  insert error :', insertError ? JSON.stringify(insertError) : null)
-
             btn.disabled = false
             btn.textContent = 'Add'
 
@@ -1073,7 +1016,6 @@
                 return
             }
 
-            console.log('  insert OK — fetching new checklist id for auto-select')
             input.value = ''
             document.getElementById('create-checklist-form').style.display = 'none'
 
@@ -1087,7 +1029,6 @@
                 .limit(1)
                 .single()
 
-            console.log('  follow-up id :', newest?.id, '| error:', selectError ? JSON.stringify(selectError) : null)
             if (selectError) console.warn('[submitCreateChecklist] auto-select id unavailable:', selectError)
 
             await loadChecklists(networkId, newest?.id ?? null)
@@ -1114,7 +1055,7 @@
         .container { max-width: 500px; margin: 0 auto; background: #fff; min-height: 100vh; }
 
         /* Auth section */
-        .auth-section { padding: 12px 16px; background: #f2f2f7; border-bottom: 0.5px solid #c6c6c8; }
+        .auth-section { padding: 12px 16px; background: #f2f2f7; border-bottom: 0.5px solid #c6c6c8; visibility: hidden; }
         .auth-section input { width: 100%; padding: 10px 14px; border: 1px solid #c6c6c8; border-radius: 8px; font-size: 15px; background: #fff; outline: none; margin-bottom: 8px; font-family: inherit; }
         .auth-section input:focus { border-color: #3a3a3c; }
         .auth-buttons { display: flex; gap: 8px; }

@@ -10,6 +10,8 @@
     <link rel="icon" type="image/png" sizes="512x512" href="assets/images/favicons/android-chrome-512x512.png">
     <link rel="manifest" href="/manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#000000">
+    <meta name="apple-mobile-web-app-title" content="Obey Tools">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -22,19 +24,12 @@
         async function checkLeaderBtn(session, source) {
             const btn        = document.getElementById('btn-leader-tools')
 
-            console.log('[LeaderBtn] source         :', source)
-            console.log('[LeaderBtn] session exists :', !!session)
-            console.log('[LeaderBtn] user id        :', session?.user?.id ?? 'none')
-            console.log('[LeaderBtn] button found   :', !!btn)
-
             if (!session?.user) {
-                console.log('[LeaderBtn] path: no user — button stays hidden')
                 if (btn)        btn.style.display        = 'none'
                 return
             }
 
             const role = await fetchRole(session.user.id)
-            console.log('[LeaderBtn] fetched role   :', role)
 
             if (!btn) {
                 console.error('[LeaderBtn] ERROR: #btn-leader-tools not found in DOM')
@@ -46,10 +41,8 @@
                 btn.removeAttribute('hidden')
                 btn.classList.remove('hidden')
                 btn.style.display = 'block'
-                console.log('[LeaderBtn] path: role=leader → buttons revealed (display:block)')
             } else {
                 btn.style.display = 'none'
-                console.log('[LeaderBtn] path: role=' + role + ' → buttons stay hidden')
             }
         }
 
@@ -60,7 +53,6 @@
         })
         // onAuthStateChange — covers INITIAL_SESSION, TOKEN_REFRESHED, SIGNED_IN, SIGNED_OUT
         supabase.auth.onAuthStateChange((_event, session) => {
-            console.log('[LeaderBtn] onAuthStateChange event:', _event)
             checkLeaderBtn(session, 'onAuthStateChange/' + _event)
         })
     </script>
