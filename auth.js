@@ -26,6 +26,8 @@ export async function fetchRole(userId) {
 
 export function updateAuthUI(user) {
     window._supabaseUser = user
+    const section = document.getElementById('auth-section')
+    if (section) section.style.visibility = 'visible'
     const form   = document.getElementById('auth-form')
     const status = document.getElementById('auth-status')
     const text   = document.getElementById('auth-status-text')
