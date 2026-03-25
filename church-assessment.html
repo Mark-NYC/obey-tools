@@ -10,6 +10,8 @@
     <link rel="icon" type="image/png" sizes="512x512" href="assets/images/favicons/android-chrome-512x512.png">
     <link rel="manifest" href="/manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#000000">
+    <meta name="apple-mobile-web-app-title" content="Obey Tools">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Church Assessment Tool</title>
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
@@ -428,8 +430,7 @@ async function getCityFromCoords(lat, lon) {
         if (lat && lon) {
             const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}&addressdetails=1&zoom=18`);
             const data = await response.json();
-            console.log('Geocoding response:', data);
-            
+
             if (data && data.address) {
                 const parts = [];
                 
@@ -445,7 +446,6 @@ async function getCityFromCoords(lat, lon) {
                 const locationStr = parts.length > 0 ? parts.join(', ') : 
                                    (data.address.county || data.address.state || '');
                 
-                console.log('Formatted location:', locationStr);
                 return locationStr;
             }
         }
@@ -542,7 +542,6 @@ async function showShareInputPopup() {
                     longitude: position.coords.longitude,
                     accuracy: position.coords.accuracy
                 };
-                console.log('✓ GPS captured:', userCoordinates);
                 const location = await getCityFromCoords(position.coords.latitude, position.coords.longitude);
                 document.getElementById('location-input').value = location;
                 updateGPSStatus(`✓ GPS captured (${Math.round(userCoordinates.accuracy)}m accuracy)`, 'success');
@@ -756,8 +755,6 @@ function renderCells() {
 
 // Called once on startup: renders cells and attaches click handlers.
 function initializeChurchAssessment() {
-    console.log('🔧 Initializing church assessment...');
-
     updateDateDisplay();
     updateCircleBorder();
     renderCells();
@@ -778,8 +775,6 @@ function initializeChurchAssessment() {
             checkAssessmentCompletion();
         });
     });
-
-    console.log('✓ Church assessment initialized');
 }
 
 async function initializeApp() {
@@ -798,7 +793,6 @@ async function initializeApp() {
     }
     initializeChurchAssessment();
     appInitialized = true;
-    console.log('✓ Church assessment initialized');
 }
 
 function updateAuthUI(user) {

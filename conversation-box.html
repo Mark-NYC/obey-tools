@@ -10,6 +10,8 @@
     <link rel="icon" type="image/png" sizes="512x512" href="assets/images/favicons/android-chrome-512x512.png">
     <link rel="manifest" href="/manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#000000">
+    <meta name="apple-mobile-web-app-title" content="Obey Tools">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Conversation Box</title>
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
@@ -340,53 +342,45 @@ function saveConversations() {
 
     // WordPress sync disabled — Supabase is now the cloud backend
     if (false && typeof jQuery !== 'undefined' && wpAjaxUrl && wpNonce && wpPageId) {
-        console.log('🔄 Syncing to WordPress...');
         showSyncIndicator('syncing');
-        
+
         // Send each localStorage item as separate POST parameter
         var postData = {
             action: 'tools_save_progress',
             nonce: wpNonce,
             page_id: wpPageId
         };
-        
+
         // Add each localStorage item as its own parameter
         var keys = ['conversations', 'submittedEvents', 'submittedGreenLights', 'user-name'];
         var dataToSave = {};
-        
+
         keys.forEach(function(key) {
             var value = localStorage.getItem(key);
             if (value !== null && value !== 'null') {
                 dataToSave[key] = value;
             }
         });
-        
+
         // Send the data object as a single stringified parameter
         postData.page_data = JSON.stringify(dataToSave);
-        
-        console.log('📤 Data keys being sent:', Object.keys(dataToSave));
-        console.log('📤 page_data length:', postData.page_data.length);
-        
+
         jQuery.ajax({
             url: wpAjaxUrl,
             type: 'POST',
             data: postData,
             dataType: 'json',
             success: function(response) {
-                console.log('✅ Sync result:', response);
                 if (response.success) {
                     showSyncIndicator('synced');
                 } else {
-                    console.error('Server rejected data:', response.data);
+                    showSyncIndicator('synced');
                 }
             },
             error: function(xhr) {
-                console.error('❌ Sync failed:', xhr.status, xhr.responseText);
                 showSyncIndicator('synced');
             }
         });
-    } else {
-        console.log('⚠️ WordPress sync not available - data saved locally only');
     }
 }
 
@@ -526,8 +520,6 @@ function saveConversations() {
         async function initializeApp() {
             if (appInitialized) return;
 
-            console.log('🎯 Initializing Conversation Box...');
-
             // Check for a signed-in user; load from Supabase if available.
             // window.supabase is guaranteed set by DOMContentLoaded (module runs first).
             if (window.supabase) {
@@ -549,27 +541,16 @@ function saveConversations() {
             updateDisplay();
             preloadImages();
             appInitialized = true;
-            console.log('✓ Initialized:', {
-                casual: conversations.casual?.length || 0,
-                meaningful: conversations.meaningful?.length || 0,
-                spiritual: conversations.spiritual?.length || 0,
-                discovery: conversations.discovery?.length || 0
-            });
         }
 
         // Wait for WordPress progress system to load
         if (typeof jQuery !== 'undefined') {
             jQuery(document).on('progressLoaded', function() {
-                console.log('✓ Progress loaded from server - initializing Conversation Box');
-                
                 // Capture WordPress config
                 if (typeof tools_ajax !== 'undefined') {
                     wpAjaxUrl = tools_ajax.ajax_url;
                     wpNonce = tools_ajax.nonce;
                     wpPageId = tools_ajax.page_id;
-                    console.log('📡 WordPress config:', { wpAjaxUrl, wpNonce, wpPageId });
-                } else {
-                    console.error('❌ tools_ajax not defined - sync will not work');
                 }
                 
                 initializeApp();
@@ -579,8 +560,6 @@ function saveConversations() {
             jQuery(document).ready(function() {
                 setTimeout(function() {
                     if (!appInitialized) {
-                        console.log('⏱️ Timeout - initializing Conversation Box without server sync');
-                        
                         // Try to get WordPress config anyway
                         if (typeof tools_ajax !== 'undefined') {
                             wpAjaxUrl = tools_ajax.ajax_url;
@@ -603,11 +582,8 @@ function saveConversations() {
             const eventKey = `${userName}-${personName}`;
             
             if (submittedGreenLights.includes(eventKey)) {
-                console.log(`Green light already submitted for: ${personName}`);
                 return;
             }
-            
-            console.log(`🟢 Submitting Green Light event for: ${personName}`);
             
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
@@ -678,9 +654,7 @@ function saveConversations() {
                 
                 const result = await response.json();
                 
-                if (result.success) {
-                    console.log(`✓ Green Light submitted: ${personName}`);
-                } else {
+                if (!result.success) {
                     console.error('API error:', result);
                 }
             } catch (error) {
@@ -736,16 +710,12 @@ function saveConversations() {
 
                 const result = await response.json();
 
-                if (!result.success) {
-                    console.warn('WordPress API rejected event:', result);
-                }
             } catch (error) {
-                console.warn('WordPress event API unreachable:', error.message);
+                // WordPress event API unreachable — non-critical
             }
         }
 
         async function submitEvent(personName, eventType) {
-            console.log('[submitEvent:start]', eventType, personName);
             const userName = localStorage.getItem('user-name') || 'Anonymous';
             const eventKey = `${personName}-${eventType}`;
 
@@ -775,16 +745,13 @@ function saveConversations() {
                     city: city,
                     count: 1
                 };
-                console.log('[conversation_events:insert:payload]', payload);
-                const { data, error: evErr } = await window.supabase
+                const { error: evErr } = await window.supabase
                     .from('conversation_events')
                     .insert(payload)
                     .select('id')
                     .single();
                 if (evErr) {
                     console.error('[conversation_events:insert:error]', evErr);
-                } else {
-                    console.log('[conversation_events:insert:success]', data);
                 }
             }
 
@@ -793,11 +760,9 @@ function saveConversations() {
                     async (position) => {
                         const lat = position.coords.latitude;
                         const lon = position.coords.longitude;
-                        console.log('[submitEvent:gpsSuccess]', lat, lon);
                         const location = await getCityFromCoords(lat, lon);
                         const locParts = location.split(', ');
                         const city = locParts.length > 1 ? locParts[locParts.length - 1] : location;
-                        console.log('[submitEvent:gpsSuccess] city:', city);
                         await sendEventToAPI(userName, personName, eventType, location, lat, lon);
                         await writeConversationEvent(lat, lon, location || null, city || null);
                     },
