@@ -21,11 +21,54 @@
         import { supabase } from './supabase.js'
         import { fetchRole } from './auth.js'
 
+        // ---- Auth redirect detection ----
+        // Supabase v2 PKCE: success delivers ?code=..., errors deliver #error=...
+        const _urlParams  = new URLSearchParams(window.location.search)
+        const _hashRaw    = window.location.hash.startsWith('#') ? window.location.hash.slice(1) : ''
+        const _hashParams = new URLSearchParams(_hashRaw)
+        const _authError  = _hashParams.get('error')
+        const _authErrDesc = _hashParams.get('error_description')
+        // Flag: this page load is a Supabase auth callback
+        const _isAuthRedirect = _urlParams.has('code') || _hashParams.has('access_token') || !!_authError
+
+        function showAuthToast(message, isError) {
+            const el = document.createElement('div')
+            el.className = isError ? 'auth-toast auth-toast-error' : 'auth-toast'
+            el.textContent = message
+            document.body.appendChild(el)
+            // for errors, also add a dismiss button so the user isn't time-pressured
+            if (isError) {
+                const btn = document.createElement('button')
+                btn.className = 'auth-toast-close'
+                btn.setAttribute('aria-label', 'Dismiss')
+                btn.textContent = '\u00d7'
+                btn.onclick = () => el.remove()
+                el.appendChild(btn)
+                // remove after 12s as a fallback
+                setTimeout(() => el.remove(), 12000)
+            } else {
+                setTimeout(() => el.remove(), 4000)
+            }
+        }
+
+        // Surface auth errors immediately (expired / invalid link)
+        if (_authError) {
+            const rawDesc = _authErrDesc || ''
+            const decoded = rawDesc.replace(/\+/g, ' ')
+            // Map common Supabase error types to user-friendly messages
+            const msg = _authError === 'access_denied' || decoded.toLowerCase().includes('expired')
+                ? 'This sign-in link is invalid or expired. Request a new one.'
+                : decoded || 'Sign-in failed. Please try again.'
+            showAuthToast(msg, true)
+            // Clean up the error hash so it doesn't persist on refresh
+            history.replaceState(null, '', window.location.pathname + window.location.search)
+        }
+
         async function checkLeaderBtn(session, source) {
-            const btn        = document.getElementById('btn-leader-tools')
+            const btn = document.getElementById('btn-leader-tools')
 
             if (!session?.user) {
-                if (btn)        btn.style.display        = 'none'
+                if (btn) btn.style.display = 'none'
                 return
             }
 
@@ -53,6 +96,14 @@
         })
         // onAuthStateChange — covers INITIAL_SESSION, TOKEN_REFRESHED, SIGNED_IN, SIGNED_OUT
         supabase.auth.onAuthStateChange((_event, session) => {
+            // Surface successful sign-in from email link
+            if (_event === 'SIGNED_IN' && _isAuthRedirect) {
+                showAuthToast("You're signed in.", false)
+                // Clean up the ?code= param left in URL after PKCE exchange
+                if (window.location.search.includes('code=')) {
+                    history.replaceState(null, '', window.location.pathname)
+                }
+            }
             checkLeaderBtn(session, 'onAuthStateChange/' + _event)
         })
     </script>
@@ -170,6 +221,56 @@
         @media (max-width: 480px) {
             h1 { font-size: 82px; letter-spacing: -1px; margin-bottom: 48px; }
             .btn { font-size: 16px; padding: 14px 28px; }
+        }
+
+        /* Auth feedback toasts */
+        .auth-toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(0);
+            background: rgba(0,0,0,0.85);
+            color: #fff;
+            padding: 13px 22px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 500;
+            z-index: 200;
+            white-space: nowrap;
+            pointer-events: none;
+            animation: authToastIn 4s ease forwards;
+        }
+        .auth-toast-error {
+            background: #b91c1c;
+            white-space: normal;
+            max-width: min(340px, calc(100vw - 40px));
+            text-align: center;
+            padding-right: 38px;
+            pointer-events: auto;
+            animation: authToastInStay 0.2s ease forwards;
+        }
+        .auth-toast-close {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.8);
+            font-size: 20px;
+            line-height: 1;
+            cursor: pointer;
+            padding: 2px 4px;
+        }
+        @keyframes authToastIn {
+            0%   { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+            12%  { opacity: 1; transform: translateX(-50%) translateY(0); }
+            80%  { opacity: 1; transform: translateX(-50%) translateY(0); }
+            100% { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+        }
+        @keyframes authToastInStay {
+            0%   { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+            100% { opacity: 1; transform: translateX(-50%) translateY(0); }
         }
 
         #install-banner {
