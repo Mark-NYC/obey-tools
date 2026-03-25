@@ -171,6 +171,46 @@
             h1 { font-size: 82px; letter-spacing: -1px; margin-bottom: 48px; }
             .btn { font-size: 16px; padding: 14px 28px; }
         }
+
+        #install-banner {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #fff;
+            border: 1.5px solid #ccc;
+            border-radius: 12px;
+            padding: 12px 16px;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: #333;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+            max-width: calc(100% - 40px);
+            z-index: 100;
+        }
+        #install-btn {
+            background: #000;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        #install-dismiss {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #aaa;
+            font-size: 18px;
+            padding: 0;
+            line-height: 1;
+            flex-shrink: 0;
+        }
     </style>
     <script src="/pwa.js" defer></script>
 </head>
@@ -202,6 +242,62 @@
 
     </div>
 
+    <div id="install-banner">
+        <span id="install-text"></span>
+        <button id="install-btn" style="display:none">Install App</button>
+        <button id="install-dismiss" aria-label="Dismiss">&#x2715;</button>
+    </div>
+
+    <script>
+    (function () {
+        var DISMISSED_KEY = 'obeytools_install_banner_dismissed'
+        if (localStorage.getItem(DISMISSED_KEY)) return
+
+        var banner  = document.getElementById('install-banner')
+        var text    = document.getElementById('install-text')
+        var btn     = document.getElementById('install-btn')
+        var dismiss = document.getElementById('install-dismiss')
+        var deferredPrompt = null
+
+        // Chromium: capture and hold the install prompt
+        window.addEventListener('beforeinstallprompt', function (e) {
+            e.preventDefault()
+            deferredPrompt = e
+            text.textContent = 'Add to your home screen for the best experience.'
+            btn.style.display = 'inline-block'
+            banner.style.display = 'flex'
+        })
+
+        // Chromium: trigger native prompt on button click
+        btn.addEventListener('click', function () {
+            if (!deferredPrompt) return
+            deferredPrompt.prompt()
+            deferredPrompt.userChoice.then(function () {
+                deferredPrompt = null
+                banner.style.display = 'none'
+                localStorage.setItem(DISMISSED_KEY, '1')
+            })
+        })
+
+        // iPhone / iPad Safari: show share instructions (no native prompt available)
+        var isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) ||
+                    (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1)
+        var isStandalone = window.navigator.standalone === true
+        if (isIOS && !isStandalone) {
+            window.addEventListener('load', function () {
+                if (deferredPrompt) return  // Chromium already showing
+                text.textContent = 'Tap \u238b Share, then \u201cAdd to Home Screen\u201d to install.'
+                banner.style.display = 'flex'
+            })
+        }
+
+        // Dismiss button
+        dismiss.addEventListener('click', function () {
+            banner.style.display = 'none'
+            localStorage.setItem(DISMISSED_KEY, '1')
+        })
+    })()
+    </script>
 
 </body>
 </html>
