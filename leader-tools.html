@@ -28,13 +28,13 @@
         window.generateInvite = async function () {
             const btn = document.getElementById('generate-invite-btn')
             btn.disabled = true
-            btn.textContent = 'Generating...'
+            btn.textContent = window.t('leader_tools.generating')
             try {
                 const { data: { session } } = await supabase.auth.getSession()
-                if (!session?.user) { showNotification('You must be logged in.'); return }
+                if (!session?.user) { showNotification(window.t('leader_tools.not_logged_in')); return }
 
                 const role = await fetchRole(session.user.id)
-                if (role !== 'leader') { showNotification('Only leaders can generate invites.'); return }
+                if (role !== 'leader') { showNotification(window.t('leader_tools.leaders_only')); return }
 
                 // 32 cryptographically random bytes -> 64-char hex string (256-bit entropy)
                 const bytes = new Uint8Array(32)
@@ -47,21 +47,21 @@
                 const row = { token, invited_by: session.user.id, status: 'pending', expires_at: expiresAt }
                 if (emailInput) row.email = emailInput
                 const { error } = await supabase.from('leader_invites').insert(row)
-                if (error) { showNotification('Error: ' + error.message); return }
+                if (error) { showNotification(window.t('leader_tools.error_prefix', { message: error.message })); return }
 
                 const inviteUrl = new URL('invite.html?token=' + token, window.location.href).href
                 document.getElementById('invite-url').textContent = inviteUrl
                 const label = emailInput
-                    ? `Invite link for ${emailInput} (expires in 7 days):`
-                    : 'Invite link (expires in 7 days):'
+                    ? window.t('leader_tools.invite_link_for', { email: emailInput })
+                    : window.t('leader_tools.invite_link_label')
                 document.getElementById('invite-url-label').textContent = label
                 document.getElementById('invite-result').style.display = 'block'
-                document.getElementById('copy-btn').textContent = 'Copy Link'
+                document.getElementById('copy-btn').textContent = window.t('leader_tools.copy_link')
                 document.getElementById('invite-email').value = ''
                 loadInviteHistory(session.user.id)
             } finally {
                 btn.disabled = false
-                btn.textContent = 'Generate Leader Invite'
+                btn.textContent = window.t('leader_tools.generate_invite')
             }
         }
 
@@ -70,17 +70,17 @@
             try {
                 await navigator.clipboard.writeText(url)
                 const btn = document.getElementById('copy-btn')
-                btn.textContent = 'Copied!'
-                setTimeout(() => { btn.textContent = 'Copy Link' }, 2000)
+                btn.textContent = window.t('leader_tools.copied')
+                setTimeout(() => { btn.textContent = window.t('leader_tools.copy_link') }, 2000)
             } catch {
-                showNotification('Copy failed — select and copy the link manually.')
+                showNotification(window.t('leader_tools.copy_failed'))
             }
         }
 
         window.revokeInvite = async function (btn) {
-            if (!window.confirm('Revoke this invite link? It will no longer be redeemable.')) return
+            if (!window.confirm(window.t('leader_tools.revoke_confirm'))) return
             btn.disabled = true
-            btn.textContent = 'Revoking…'
+            btn.textContent = window.t('leader_tools.revoking')
             const token = btn.dataset.token
             const { error } = await supabase
                 .from('leader_invites')
@@ -88,9 +88,9 @@
                 .eq('token', token)
                 .eq('status', 'pending')
             if (error) {
-                showNotification('Error: ' + error.message)
+                showNotification(window.t('leader_tools.error_prefix', { message: error.message }))
                 btn.disabled = false
-                btn.textContent = 'Revoke'
+                btn.textContent = window.t('leader_tools.revoke')
                 return
             }
             const { data: { session } } = await supabase.auth.getSession()
@@ -101,9 +101,9 @@
             const url = btn.dataset.url
             try {
                 await navigator.clipboard.writeText(url)
-                showNotification('Invite link copied.')
+                showNotification(window.t('leader_tools.invite_copied'))
             } catch {
-                showNotification('Copy failed — select and copy the link manually.')
+                showNotification(window.t('leader_tools.copy_failed'))
             }
         }
 
@@ -116,7 +116,7 @@
         async function loadInviteHistory(userId) {
             const list = document.getElementById('history-list')
             if (!list) return
-            list.innerHTML = '<div class="history-loading">Loading...</div>'
+            list.innerHTML = '<div class="history-loading">' + window.t('leader_tools.loading') + '</div>'
 
             const { data, error } = await supabase
                 .from('leader_invites')
@@ -125,11 +125,11 @@
                 .order('created_at', { ascending: false })
 
             if (error) {
-                list.innerHTML = '<div class="history-empty">Could not load invite history.</div>'
+                list.innerHTML = '<div class="history-empty">' + window.t('leader_tools.load_error') + '</div>'
                 return
             }
             if (!data.length) {
-                list.innerHTML = '<div class="history-empty">No invites generated yet.</div>'
+                list.innerHTML = '<div class="history-empty">' + window.t('leader_tools.no_invites') + '</div>'
                 return
             }
 
@@ -139,28 +139,29 @@
                 const isUsed    = inv.status === 'used'
                 const isExpired = !isRevoked && !isUsed && new Date(inv.expires_at) < now
                 const badge     = isRevoked ? 'revoked' : isUsed ? 'used' : isExpired ? 'expired' : 'active'
-                const label     = badge.charAt(0).toUpperCase() + badge.slice(1)
+                const badgeKeys = { revoked: 'leader_tools.badge_revoked', used: 'leader_tools.badge_used', expired: 'leader_tools.badge_expired', active: 'leader_tools.badge_active' }
+                const label     = window.t(badgeKeys[badge])
 
                 let dateInfo
                 if (isRevoked) {
-                    dateInfo = 'Revoked'
+                    dateInfo = window.t('leader_tools.date_revoked')
                 } else if (isUsed) {
-                    dateInfo = 'Used ' + (inv.used_at ? fmtDate(inv.used_at) : 'date unknown')
+                    dateInfo = window.t('leader_tools.date_used', { date: inv.used_at ? fmtDate(inv.used_at) : 'date unknown' })
                     if (inv.redeemed_by_email) dateInfo += ' · ' + inv.redeemed_by_email
                 } else if (isExpired) {
-                    dateInfo = 'Expired ' + fmtDate(inv.expires_at)
+                    dateInfo = window.t('leader_tools.date_expired', { date: fmtDate(inv.expires_at) })
                 } else {
-                    dateInfo = 'Expires ' + fmtDate(inv.expires_at)
+                    dateInfo = window.t('leader_tools.date_expires', { date: fmtDate(inv.expires_at) })
                 }
 
                 const inviteUrl = new URL('invite.html?token=' + inv.token, window.location.href).href
                 const actionBtns = badge === 'active'
-                    ? `<button class="history-copy-btn" data-url="${inviteUrl}" onclick="copyHistoryUrl(this)">Copy</button>
-                       <button class="history-revoke-btn" data-token="${inv.token}" onclick="revokeInvite(this)">Revoke</button>`
+                    ? `<button class="history-copy-btn" data-url="${inviteUrl}" onclick="copyHistoryUrl(this)">${window.t('leader_tools.copy_link')}</button>
+                       <button class="history-revoke-btn" data-token="${inv.token}" onclick="revokeInvite(this)">${window.t('leader_tools.revoke')}</button>`
                     : ''
 
                 const forLine = inv.email
-                    ? `<span class="history-for">For: ${inv.email}</span>`
+                    ? `<span class="history-for">${window.t('leader_tools.for_email', { email: inv.email })}</span>`
                     : ''
 
                 return `<div class="history-item">
@@ -169,7 +170,7 @@
                         <div class="history-meta">
                             <span class="history-date-info">${dateInfo}</span>
                             ${forLine}
-                            <span class="history-created">Created ${fmtDate(inv.created_at)}</span>
+                            <span class="history-created">${window.t('leader_tools.date_created', { date: fmtDate(inv.created_at) })}</span>
                         </div>
                     </div>
                     <div class="history-url-row">
@@ -275,40 +276,41 @@
             .container { max-width: 768px; border-radius: 12px; margin: 20px auto; box-shadow: 0 4px 20px rgba(0,0,0,0.1); overflow: hidden; }
         }
     </style>
+    <script src="/i18n.js" defer></script>
     <script src="/pwa.js" defer></script>
 </head>
 <body>
 
     <div style="text-align:center; padding:20px 0 8px;">
-        <a href="index.html" style="display:inline-block; background:#000; color:#fff; font-family:-apple-system,BlinkMacSystemFont,sans-serif; font-weight:700; font-size:17px; padding:12px 28px; border-radius:50px; text-decoration:none;">Home</a>
+        <a href="index.html" data-i18n="nav.home" style="display:inline-block; background:#000; color:#fff; font-family:-apple-system,BlinkMacSystemFont,sans-serif; font-weight:700; font-size:17px; padding:12px 28px; border-radius:50px; text-decoration:none;">Home</a>
     </div>
 
     <div id="access-denied" class="access-denied">
-        <div class="access-denied-msg">Access restricted.</div>
-        <div class="access-denied-sub">Leader approval required.</div>
-        <a href="index.html" class="access-denied-btn">Go to Home</a>
+        <div class="access-denied-msg" data-i18n="access.restricted">Access restricted.</div>
+        <div class="access-denied-sub" data-i18n="access.leader_required">Leader approval required.</div>
+        <a href="index.html" class="access-denied-btn" data-i18n="access.go_home">Go to Home</a>
     </div>
 
     <div class="container" id="main-container">
 
         <div class="auth-section" id="auth-section">
             <div id="auth-form" style="display:none">
-                <input type="email" id="auth-email" placeholder="Email">
-                <input type="password" id="auth-password" placeholder="Password">
+                <input type="email" id="auth-email" placeholder="Email" data-i18n-placeholder="auth.email_placeholder">
+                <input type="password" id="auth-password" placeholder="Password" data-i18n-placeholder="auth.password_placeholder">
                 <div class="auth-buttons">
-                    <button class="auth-btn-primary" onclick="authSignUp()">Sign Up</button>
-                    <button class="auth-btn-secondary" onclick="authLogIn()">Log In</button>
+                    <button class="auth-btn-primary" onclick="authSignUp()" data-i18n="auth.sign_up">Sign Up</button>
+                    <button class="auth-btn-secondary" onclick="authLogIn()" data-i18n="auth.log_in">Log In</button>
                 </div>
             </div>
             <div class="auth-status" id="auth-status" style="display:none">
                 <span class="auth-status-text" id="auth-status-text">Not signed in</span>
-                <button class="auth-logout-btn" onclick="authLogOut()">Log Out</button>
+                <button class="auth-logout-btn" onclick="authLogOut()" data-i18n="auth.log_out">Log Out</button>
             </div>
         </div>
 
         <div class="page-header">
-            <div class="page-title">Leader Tools</div>
-            <div class="page-subtitle">Resources for discipleship leaders.</div>
+            <div class="page-title" data-i18n="leader_tools.title">Leader Tools</div>
+            <div class="page-subtitle" data-i18n="leader_tools.subtitle">Resources for discipleship leaders.</div>
             <div class="accent-bar"></div>
         </div>
 
@@ -331,20 +333,20 @@
 
         <!-- Invite section -->
         <div class="invite-section">
-            <div class="invite-title">Leader Invites</div>
-            <div class="invite-sub">Generate a secure one-time link to invite someone as a leader. Links expire after 7 days. Optionally restrict the link to a specific email address.</div>
-            <input type="email" id="invite-email" class="invite-email-input" placeholder="Email (optional — leave blank for generic link)" autocomplete="off">
-            <button class="invite-generate-btn" id="generate-invite-btn" onclick="generateInvite()">Generate Leader Invite</button>
+            <div class="invite-title" data-i18n="leader_tools.invite_section">Leader Invites</div>
+            <div class="invite-sub" data-i18n="leader_tools.invite_desc">Generate a secure one-time link to invite someone as a leader. Links expire after 7 days. Optionally restrict the link to a specific email address.</div>
+            <input type="email" id="invite-email" class="invite-email-input" placeholder="Email (optional — leave blank for generic link)" data-i18n-placeholder="leader_tools.email_placeholder" autocomplete="off">
+            <button class="invite-generate-btn" id="generate-invite-btn" onclick="generateInvite()" data-i18n="leader_tools.generate_invite">Generate Leader Invite</button>
             <div id="invite-result" style="display:none" class="invite-result">
                 <div class="invite-url-label" id="invite-url-label">Invite link (expires in 7 days):</div>
                 <div class="invite-url-box"><span id="invite-url"></span></div>
-                <button class="invite-copy-btn" id="copy-btn" onclick="copyInvite()">Copy Link</button>
+                <button class="invite-copy-btn" id="copy-btn" onclick="copyInvite()" data-i18n="leader_tools.copy_link">Copy Link</button>
             </div>
         </div>
 
         <!-- Invite History -->
         <div class="invite-history-section">
-            <div class="invite-title">Invite History</div>
+            <div class="invite-title" data-i18n="leader_tools.invite_history">Invite History</div>
             <div id="history-list"></div>
         </div>
 

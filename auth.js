@@ -1,6 +1,7 @@
 // auth.js — shared auth utilities
 // Import supabase directly so all pages use the same client instance.
 import { supabase } from './supabase.js'
+import { t } from './i18n.js'
 
 export function showNotification(message) {
     const el = document.createElement('div')
@@ -34,11 +35,11 @@ export function updateAuthUI(user) {
     if (user) {
         form.style.display   = 'none'
         status.style.display = 'flex'
-        text.textContent     = 'Signed in as ' + user.email
+        text.textContent     = t('auth.signed_in_as', { email: user.email })
     } else {
         form.style.display   = 'block'
         status.style.display = 'none'
-        text.textContent     = 'Not signed in'
+        text.textContent     = t('auth.not_signed_in')
     }
 }
 
@@ -47,7 +48,7 @@ export async function authSignUp() {
     const password = document.getElementById('auth-password').value
     const { error } = await supabase.auth.signUp({ email, password })
     if (error) showNotification(error.message)
-    else        showNotification('Check your email to confirm sign up.')
+    else        showNotification(t('auth.check_email'))
 }
 
 export async function authLogIn() {

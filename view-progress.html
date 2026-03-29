@@ -64,44 +64,45 @@
             .container { border-radius: 12px; margin: 20px auto; box-shadow: 0 4px 20px rgba(0,0,0,0.1); overflow: hidden; }
         }
     </style>
+    <script src="/i18n.js" defer></script>
     <script src="/pwa.js" defer></script>
 </head>
 <body>
 
     <div style="display:flex; gap:10px; justify-content:center; padding:20px 16px 8px;">
-        <a href="index.html" style="display:inline-block; background:#000; color:#fff; font-family:-apple-system,BlinkMacSystemFont,sans-serif; font-weight:700; font-size:15px; padding:11px 22px; border-radius:50px; text-decoration:none; white-space:nowrap;">Home</a>
-        <a href="leader-tools.html" style="display:inline-block; background:#00D084; color:#fff; font-family:-apple-system,BlinkMacSystemFont,sans-serif; font-weight:700; font-size:15px; padding:11px 22px; border-radius:50px; text-decoration:none; white-space:nowrap;">← Leader Tools</a>
+        <a href="index.html" style="display:inline-block; background:#000; color:#fff; font-family:-apple-system,BlinkMacSystemFont,sans-serif; font-weight:700; font-size:15px; padding:11px 22px; border-radius:50px; text-decoration:none; white-space:nowrap;" data-i18n="nav.home">Home</a>
+        <a href="leader-tools.html" style="display:inline-block; background:#00D084; color:#fff; font-family:-apple-system,BlinkMacSystemFont,sans-serif; font-weight:700; font-size:15px; padding:11px 22px; border-radius:50px; text-decoration:none; white-space:nowrap;" data-i18n="nav.back_leader">← Leader Tools</a>
     </div>
 
     <div id="access-denied" class="access-denied">
-        <div class="access-denied-msg">Access restricted.</div>
-        <div class="access-denied-sub">Leader approval required.</div>
-        <a href="index.html" class="access-denied-btn">Go to Home</a>
+        <div class="access-denied-msg" data-i18n="access.restricted">Access restricted.</div>
+        <div class="access-denied-sub" data-i18n="access.leader_required">Leader approval required.</div>
+        <a href="index.html" class="access-denied-btn" data-i18n="access.go_home">Go to Home</a>
     </div>
 
     <div class="container" id="main-container">
 
         <div class="auth-section" id="auth-section">
             <div id="auth-form" style="display:none">
-                <input type="email" id="auth-email" placeholder="Email">
-                <input type="password" id="auth-password" placeholder="Password">
+                <input type="email" id="auth-email" placeholder="Email" data-i18n-placeholder="auth.email_placeholder">
+                <input type="password" id="auth-password" placeholder="Password" data-i18n-placeholder="auth.password_placeholder">
                 <div class="auth-buttons">
-                    <button class="auth-btn-primary" onclick="authSignUp()">Sign Up</button>
-                    <button class="auth-btn-secondary" onclick="authLogIn()">Log In</button>
+                    <button class="auth-btn-primary" onclick="authSignUp()" data-i18n="auth.sign_up">Sign Up</button>
+                    <button class="auth-btn-secondary" onclick="authLogIn()" data-i18n="auth.log_in">Log In</button>
                 </div>
             </div>
             <div class="auth-status" id="auth-status" style="display:none">
                 <span class="auth-status-text" id="auth-status-text">Not signed in</span>
-                <button class="auth-logout-btn" onclick="authLogOut()">Log Out</button>
+                <button class="auth-logout-btn" onclick="authLogOut()" data-i18n="auth.log_out">Log Out</button>
             </div>
         </div>
 
         <div class="header">
-            <h1>View Progress</h1>
-            <div class="subtitle">Track discipleship progress.</div>
+            <h1 data-i18n="view_progress.title">View Progress</h1>
+            <div class="subtitle" data-i18n="view_progress.subtitle">Track discipleship progress.</div>
         </div>
 
-        <div class="placeholder">
+        <div class="placeholder" data-i18n="view_progress.coming_soon">
             Content coming soon.
         </div>
 
