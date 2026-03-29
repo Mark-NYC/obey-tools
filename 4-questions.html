@@ -259,32 +259,33 @@
   .page-header .subtitle { font-size: 14px; color: #8e8e93; line-height: 1.6; }
   .page-header .subtitle .green { color: #00D084; font-weight: 600; }
 </style>
+    <script type="module" src="/i18n.js"></script>
     <script src="/pwa.js" defer></script>
 </head>
 <body>
 <!-- Home button -->
 <div style="width:100%; text-align:center; padding:20px 0 4px;">
-  <a href="index.html" style="display:inline-block; background:#000; color:#fff; font-family:-apple-system,BlinkMacSystemFont,sans-serif; font-weight:700; font-size:15px; padding:11px 22px; border-radius:50px; text-decoration:none;">Home</a>
+  <a href="index.html" style="display:inline-block; background:#000; color:#fff; font-family:-apple-system,BlinkMacSystemFont,sans-serif; font-weight:700; font-size:15px; padding:11px 22px; border-radius:50px; text-decoration:none;" data-i18n="nav.home">Home</a>
 </div>
 <!-- Auth section -->
 <div class="auth-section" id="auth-section">
   <div id="auth-form" style="display:none">
-    <input type="email" id="auth-email" placeholder="Email">
-    <input type="password" id="auth-password" placeholder="Password">
+    <input type="email" id="auth-email" placeholder="Email" data-i18n-placeholder="auth.email_placeholder">
+    <input type="password" id="auth-password" placeholder="Password" data-i18n-placeholder="auth.password_placeholder">
     <div class="auth-buttons">
-      <button class="auth-btn-primary" onclick="authSignUp()">Sign Up</button>
-      <button class="auth-btn-secondary" onclick="authLogIn()">Log In</button>
+      <button class="auth-btn-primary" onclick="authSignUp()" data-i18n="auth.sign_up">Sign Up</button>
+      <button class="auth-btn-secondary" onclick="authLogIn()" data-i18n="auth.log_in">Log In</button>
     </div>
   </div>
   <div class="auth-status" id="auth-status" style="display:none">
     <span class="auth-status-text" id="auth-status-text">Not signed in</span>
-    <button class="auth-logout-btn" onclick="authLogOut()">Log Out</button>
+    <button class="auth-logout-btn" onclick="authLogOut()" data-i18n="auth.log_out">Log Out</button>
   </div>
 </div>
 <!-- Page header -->
 <div class="page-header">
-  <h1>4 Questions</h1>
-  <div class="subtitle">Start here with new believers <span class="green">(green lights)</span> or believers who need to be trained in getting started.</div>
+  <h1 data-i18n="four_questions.title">4 Questions</h1>
+  <div class="subtitle" data-i18n-html="four_questions.subtitle">Start here with new believers <span class="green">(green lights)</span> or believers who need to be trained in getting started.</div>
 </div>
 <!-- Progress bar -->
 <div class="progress-bar-container">
@@ -334,8 +335,8 @@
 <!-- ══════════════════════════════════════ -->
 <div class="section" data-id="s2" onclick="toggleSection(this)">
   <div class="section-checkbox"></div>
-  <div class="label-top">Identity</div>
-  <div class="section-number">1. WHY?</div>
+  <div class="label-top" data-i18n="four_questions.section2_label">Identity</div>
+  <div class="section-number" data-i18n="four_questions.section2_number">1. WHY?</div>
   <div class="svg-wrap" style="max-width:400px;">
     <svg viewBox="0 0 400 340" xmlns="http://www.w3.org/2000/svg">
       <defs>
@@ -370,8 +371,8 @@
 <!-- ══════════════════════════════════════ -->
 <div class="section" data-id="s3" onclick="toggleSection(this)">
   <div class="section-checkbox"></div>
-  <div class="label-top">Oikos Map</div>
-  <div class="section-number">2. WHO?</div>
+  <div class="label-top" data-i18n="four_questions.section3_label">Oikos Map</div>
+  <div class="section-number" data-i18n="four_questions.section3_number">2. WHO?</div>
   <div class="svg-wrap" style="max-width:420px;">
     <svg viewBox="0 0 580 480" xmlns="http://www.w3.org/2000/svg">
       <defs>
@@ -422,7 +423,7 @@
       <text x="300" y="283" font-family="'Amatic SC',cursive" font-weight="700" font-size="36" fill="#111" stroke="#111" stroke-width="1.6" paint-order="stroke" text-anchor="middle">Name</text>
     </svg>
   </div>
-  <div class="verse">*JOHN 17:20</div>
+  <div class="verse" data-i18n="four_questions.section3_verse">*JOHN 17:20</div>
 </div>
 <!-- ══════════════════════════════════════ -->
 <img src="assets/images/divider.svg" alt="" class="divider">
@@ -430,8 +431,8 @@
 <!-- ══════════════════════════════════════ -->
 <div class="section" data-id="s4a" onclick="toggleSection(this)">
   <div class="section-checkbox"></div>
-  <div class="label-top">15 Second Story</div>
-  <div class="section-number">3. HOW?</div>
+  <div class="label-top" data-i18n="four_questions.section4a_label">15 Second Story</div>
+  <div class="section-number" data-i18n="four_questions.section4a_number">3. HOW?</div>
   <div class="svg-wrap" style="max-width:460px;">
     <svg viewBox="0 0 460 300" xmlns="http://www.w3.org/2000/svg">
       <defs>
@@ -474,7 +475,7 @@
 <!-- SECTION 4b — HOW? / 3 Circles -->
 <div class="section" data-id="s4b" onclick="toggleSection(this)">
   <div class="section-checkbox"></div>
-  <div class="label-top">3 Circles Gospel Tool</div>
+  <div class="label-top" data-i18n="four_questions.section4b_label">3 Circles Gospel Tool</div>
   <img src="assets/images/3 Circles Gospel Tool updated.webp" alt="3 Circles Gospel Tool"
     style="width:100%; max-width:460px; height:auto; display:block; border-radius: 8px;">
 </div>
@@ -485,16 +486,16 @@
 <div class="section" data-id="s5" onclick="toggleSection(this)" style="padding-bottom: 64px;">
   <div class="section-checkbox"></div>
   <div class="section-number" style="font-size: clamp(14px,3.5vw,18px); letter-spacing:0.28em;"></div>
-  <div class="when-title">4. WHEN?</div>
-  <div class="goals-label">GOALS</div>
+  <div class="when-title" data-i18n="four_questions.section5_title">4. WHEN?</div>
+  <div class="goals-label" data-i18n="four_questions.section5_goals_label">GOALS</div>
   <div class="goals-list">
-    <div class="goal-item">Share?</div>
-    <div class="goal-item">Pray?</div>
-    <div class="goal-item">Meet?</div>
+    <div class="goal-item" data-i18n="four_questions.goal_share">Share?</div>
+    <div class="goal-item" data-i18n="four_questions.goal_pray">Pray?</div>
+    <div class="goal-item" data-i18n="four_questions.goal_meet">Meet?</div>
   </div>
 </div>
 <div class="reset-bar">
-  <button class="reset-btn" onclick="resetAll(event)">RESET</button>
+  <button class="reset-btn" onclick="resetAll(event)" data-i18n="common.reset">RESET</button>
 </div>
 <script>
   const STORAGE_KEY = 'discipleship-guide-progress';
@@ -524,11 +525,11 @@
     const completed = document.querySelectorAll('.section.completed').length;
     const pct = (completed / TOTAL) * 100;
     document.getElementById('progressFill').style.width = pct + '%';
-    document.getElementById('progressText').textContent = completed + ' of ' + TOTAL + ' completed';
+    document.getElementById('progressText').textContent = window.t('common.completed_of', { done: completed, total: TOTAL });
   }
   function resetAll(e) {
     e.stopPropagation();
-    if (confirm('Reset all progress?')) {
+    if (confirm(window.t('common.reset_confirm'))) {
       document.querySelectorAll('.section.completed').forEach(function(s) {
         s.classList.remove('completed');
       });
@@ -544,7 +545,7 @@
     if (user) {
       form.style.display   = 'none';
       status.style.display = 'flex';
-      text.textContent     = 'Signed in as ' + user.email;
+      text.textContent     = window.t('auth.signed_in_as', { email: user.email });
     } else {
       form.style.display   = 'block';
       status.style.display = 'none';
@@ -555,7 +556,7 @@
     var password = document.getElementById('auth-password').value;
     var res = await window.supabase.auth.signUp({ email, password });
     if (res.error) alert(res.error.message);
-    else alert('Check your email to confirm sign up.');
+    else alert(window.t('auth.check_email'));
   }
   async function authLogIn() {
     var email    = document.getElementById('auth-email').value.trim();
