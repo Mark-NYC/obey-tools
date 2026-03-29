@@ -313,6 +313,7 @@
             flex-shrink: 0;
         }
     </style>
+    <script src="/i18n.js" defer></script>
     <script src="/pwa.js" defer></script>
 </head>
 <body>
@@ -322,30 +323,35 @@
     <div class="buttons">
 
         <!-- LIVE: links to conversation-box.html -->
-        <a href="conversation-box.html" class="btn btn-conversation">Conversation Box</a>
+        <a href="conversation-box.html" class="btn btn-conversation" data-i18n="index.conversation_box">Conversation Box</a>
 
         <!-- PLACEHOLDER: page not yet created -->
-        <a href="stories-of-hope.html" class="btn btn-stories">Stories of Hope</a>
+        <a href="stories-of-hope.html" class="btn btn-stories" data-i18n="index.stories_of_hope">Stories of Hope</a>
 
         <!-- PLACEHOLDER: page not yet created -->
-        <a href="4-questions.html" class="btn btn-questions">4 Questions</a>
+        <a href="4-questions.html" class="btn btn-questions" data-i18n="index.four_questions">4 Questions</a>
 
         <!-- LIVE: links to commands-of-christ.html -->
-        <a href="commands-of-christ.html" class="btn btn-commands">Commands of Christ</a>
+        <a href="commands-of-christ.html" class="btn btn-commands" data-i18n="index.commands_of_christ">Commands of Christ</a>
 
         <!-- PLACEHOLDER: no church-circle.html found; swap href when page is ready -->
-        <a href="church-assessment.html" class="btn btn-church">Church Circle</a>
+        <a href="church-assessment.html" class="btn btn-church" data-i18n="index.church_circle">Church Circle</a>
 
         <!-- Leader Tools — only shown to users with role=leader -->
-        <a href="leader-tools.html" class="btn btn-leader" id="btn-leader-tools" style="display:none">Leader Tools</a>
+        <a href="leader-tools.html" class="btn btn-leader" id="btn-leader-tools" style="display:none" data-i18n="index.leader_tools">Leader Tools</a>
 
 
 
     </div>
 
+    <select onchange="window.i18n.setLang(this.value)" style="margin-top: 8px;">
+        <option value="en">English</option>
+        <option value="es">Español</option>
+    </select>
+
     <div id="install-banner">
         <span id="install-text"></span>
-        <button id="install-btn" style="display:none">Install App</button>
+        <button id="install-btn" style="display:none" data-i18n="pwa.install_btn">Install App</button>
         <button id="install-dismiss" aria-label="Dismiss">&#x2715;</button>
     </div>
 
@@ -364,7 +370,7 @@
         window.addEventListener('beforeinstallprompt', function (e) {
             e.preventDefault()
             deferredPrompt = e
-            text.textContent = 'Add to your home screen for the best experience.'
+            text.textContent = window.t('pwa.install_text')
             btn.style.display = 'inline-block'
             banner.style.display = 'flex'
         })
@@ -398,6 +404,13 @@
             localStorage.setItem(DISMISSED_KEY, '1')
         })
     })()
+    </script>
+
+    <script>
+    (function() {
+        var sel = document.querySelector('select[onchange]');
+        if (sel) sel.value = localStorage.getItem('obeytools_lang') || 'en';
+    })();
     </script>
 
 </body>

@@ -66,6 +66,7 @@
             .container { max-width: 768px; border-radius: 12px; margin: 20px auto; box-shadow: 0 4px 20px rgba(0,0,0,0.1); overflow: hidden; }
         }
     </style>
+    <script src="/i18n.js" defer></script>
     <script src="/pwa.js" defer></script>
 </head>
 <body>
@@ -73,7 +74,7 @@
     <div class="sync-indicator" id="sync-indicator"></div>
 
     <div style="text-align:center; padding:20px 0 8px;">
-        <a href="index.html" style="display:inline-block; background:#000; color:#fff; font-weight:700; font-size:17px; padding:12px 28px; border-radius:50px; text-decoration:none;">Home</a>
+        <a href="index.html" style="display:inline-block; background:#000; color:#fff; font-weight:700; font-size:17px; padding:12px 28px; border-radius:50px; text-decoration:none;" data-i18n="nav.home">Home</a>
     </div>
 
     <div class="container">
@@ -81,22 +82,22 @@
         <!-- Auth section — wired to Supabase -->
         <div class="auth-section" id="auth-section">
             <div id="auth-form" style="display:none">
-                <input type="email" id="auth-email" placeholder="Email">
-                <input type="password" id="auth-password" placeholder="Password">
+                <input type="email" id="auth-email" placeholder="Email" data-i18n-placeholder="auth.email_placeholder">
+                <input type="password" id="auth-password" placeholder="Password" data-i18n-placeholder="auth.password_placeholder">
                 <div class="auth-buttons">
-                    <button class="auth-btn-primary" onclick="authSignUp()">Sign Up</button>
-                    <button class="auth-btn-secondary" onclick="authLogIn()">Log In</button>
+                    <button class="auth-btn-primary" onclick="authSignUp()" data-i18n="auth.sign_up">Sign Up</button>
+                    <button class="auth-btn-secondary" onclick="authLogIn()" data-i18n="auth.log_in">Log In</button>
                 </div>
             </div>
             <div class="auth-status" id="auth-status" style="display:none">
                 <span class="auth-status-text" id="auth-status-text">Not signed in</span>
-                <button class="auth-logout-btn" onclick="authLogOut()">Log Out</button>
+                <button class="auth-logout-btn" onclick="authLogOut()" data-i18n="auth.log_out">Log Out</button>
             </div>
         </div>
 
         <div class="page-header">
-            <div class="page-title">Commands of Christ</div>
-            <div class="page-subtitle">Obey everything he commanded.</div>
+            <div class="page-title" data-i18n="commands_of_christ.title">Commands of Christ</div>
+            <div class="page-subtitle" data-i18n="commands_of_christ.subtitle">Obey everything he commanded.</div>
             <div class="accent-bar"></div>
         </div>
 
@@ -104,96 +105,96 @@
             <a href="repent-and-believe.html" class="command-item">
                 <span class="command-num">1</span>
                 <span class="command-info">
-                    <span class="command-title">Repent &amp; Believe</span>
-                    <span class="command-ref">Mk 1:15 / Lk 19:1-10 (Zacchaeus)</span>
+                    <span class="command-title" data-i18n="commands_of_christ.cmd_1_title">Repent &amp; Believe</span>
+                    <span class="command-ref" data-i18n="commands_of_christ.cmd_1_ref">Mk 1:15 / Lk 19:1-10 (Zacchaeus)</span>
                 </span>
                 <span class="command-arrow">›</span>
             </a>
             <a href="be-baptized.html" class="command-item">
                 <span class="command-num">2</span>
                 <span class="command-info">
-                    <span class="command-title">Be Baptized</span>
-                    <span class="command-ref">Matt. 28:19 / Acts 8:26-39 (Philip &amp; The Ethiopian)</span>
+                    <span class="command-title" data-i18n="commands_of_christ.cmd_2_title">Be Baptized</span>
+                    <span class="command-ref" data-i18n="commands_of_christ.cmd_2_ref">Matt. 28:19 / Acts 8:26-39 (Philip &amp; The Ethiopian)</span>
                 </span>
                 <span class="command-arrow">›</span>
             </a>
             <a href="holy-spirit.html" class="command-item">
                 <span class="command-num">3</span>
                 <span class="command-info">
-                    <span class="command-title">Holy Spirit</span>
-                    <span class="command-ref">Acts 4:27-31 (Empowered Church)</span>
+                    <span class="command-title" data-i18n="commands_of_christ.cmd_3_title">Holy Spirit</span>
+                    <span class="command-ref" data-i18n="commands_of_christ.cmd_3_ref">Acts 4:27-31 (Empowered Church)</span>
                 </span>
                 <span class="command-arrow">›</span>
             </a>
             <a href="the-word-of-god.html" class="command-item">
                 <span class="command-num">4</span>
                 <span class="command-info">
-                    <span class="command-title">The Word of God</span>
-                    <span class="command-ref">Jn 8:31-32 / Jn 15:1-17 (I am the Vine)</span>
+                    <span class="command-title" data-i18n="commands_of_christ.cmd_4_title">The Word of God</span>
+                    <span class="command-ref" data-i18n="commands_of_christ.cmd_4_ref">Jn 8:31-32 / Jn 15:1-17 (I am the Vine)</span>
                 </span>
                 <span class="command-arrow">›</span>
             </a>
             <a href="love-one-another.html" class="command-item">
                 <span class="command-num">5</span>
                 <span class="command-info">
-                    <span class="command-title">Love One Another</span>
-                    <span class="command-ref">Jn 15:12 / Lk 10:25-37 (The Good Samaritan)</span>
+                    <span class="command-title" data-i18n="commands_of_christ.cmd_5_title">Love One Another</span>
+                    <span class="command-ref" data-i18n="commands_of_christ.cmd_5_ref">Jn 15:12 / Lk 10:25-37 (The Good Samaritan)</span>
                 </span>
                 <span class="command-arrow">›</span>
             </a>
             <a href="lords-supper.html" class="command-item">
                 <span class="command-num">6</span>
                 <span class="command-info">
-                    <span class="command-title">Lord's Supper</span>
-                    <span class="command-ref">Lk 22:19-20 / Lk 22:7-20 (The Last Supper)</span>
+                    <span class="command-title" data-i18n="commands_of_christ.cmd_6_title">Lord's Supper</span>
+                    <span class="command-ref" data-i18n="commands_of_christ.cmd_6_ref">Lk 22:19-20 / Lk 22:7-20 (The Last Supper)</span>
                 </span>
                 <span class="command-arrow">›</span>
             </a>
             <a href="pray.html" class="command-item">
                 <span class="command-num">7</span>
                 <span class="command-info">
-                    <span class="command-title">Pray</span>
-                    <span class="command-ref">Matt 6:9 / Matt 6:5-15 (Lord's Prayer)</span>
+                    <span class="command-title" data-i18n="commands_of_christ.cmd_7_title">Pray</span>
+                    <span class="command-ref" data-i18n="commands_of_christ.cmd_7_ref">Matt 6:9 / Matt 6:5-15 (Lord's Prayer)</span>
                 </span>
                 <span class="command-arrow">›</span>
             </a>
             <a href="signs-and-wonders.html" class="command-item">
                 <span class="command-num">8</span>
                 <span class="command-info">
-                    <span class="command-title">Signs &amp; Wonders</span>
-                    <span class="command-ref">Jn 14:6-14 / Lk 5:17-39 (Through the Roof)</span>
+                    <span class="command-title" data-i18n="commands_of_christ.cmd_8_title">Signs &amp; Wonders</span>
+                    <span class="command-ref" data-i18n="commands_of_christ.cmd_8_ref">Jn 14:6-14 / Lk 5:17-39 (Through the Roof)</span>
                 </span>
                 <span class="command-arrow">›</span>
             </a>
             <a href="generosity.html" class="command-item">
                 <span class="command-num">9</span>
                 <span class="command-info">
-                    <span class="command-title">Generosity</span>
-                    <span class="command-ref">Matt 6:1-4 / Mark 12:41-44 (The Widow's Coins)</span>
+                    <span class="command-title" data-i18n="commands_of_christ.cmd_9_title">Generosity</span>
+                    <span class="command-ref" data-i18n="commands_of_christ.cmd_9_ref">Matt 6:1-4 / Mark 12:41-44 (The Widow's Coins)</span>
                 </span>
                 <span class="command-arrow">›</span>
             </a>
             <a href="worship.html" class="command-item">
                 <span class="command-num">10</span>
                 <span class="command-info">
-                    <span class="command-title">Worship</span>
-                    <span class="command-ref">Mk 12:28-34 / Lk 7:36-50 (The Sinful Woman)</span>
+                    <span class="command-title" data-i18n="commands_of_christ.cmd_10_title">Worship</span>
+                    <span class="command-ref" data-i18n="commands_of_christ.cmd_10_ref">Mk 12:28-34 / Lk 7:36-50 (The Sinful Woman)</span>
                 </span>
                 <span class="command-arrow">›</span>
             </a>
             <a href="go-make-disciples.html" class="command-item">
                 <span class="command-num">11</span>
                 <span class="command-info">
-                    <span class="command-title">Go…Make Disciples</span>
-                    <span class="command-ref">Matt 28:18-20 / Lk 10:1-11 (The 72)</span>
+                    <span class="command-title" data-i18n="commands_of_christ.cmd_11_title">Go…Make Disciples</span>
+                    <span class="command-ref" data-i18n="commands_of_christ.cmd_11_ref">Matt 28:18-20 / Lk 10:1-11 (The 72)</span>
                 </span>
                 <span class="command-arrow">›</span>
             </a>
             <a href="gather.html" class="command-item">
                 <span class="command-num">12</span>
                 <span class="command-info">
-                    <span class="command-title">Gather</span>
-                    <span class="command-ref">Heb 10:24-25 / Acts 2:36-47 (The First Church)</span>
+                    <span class="command-title" data-i18n="commands_of_christ.cmd_12_title">Gather</span>
+                    <span class="command-ref" data-i18n="commands_of_christ.cmd_12_ref">Heb 10:24-25 / Acts 2:36-47 (The First Church)</span>
                 </span>
                 <span class="command-arrow">›</span>
             </a>
@@ -219,11 +220,11 @@
             if (user) {
                 form.style.display   = 'none';
                 status.style.display = 'flex';
-                text.textContent     = 'Signed in as ' + user.email;
+                text.textContent     = window.t('auth.signed_in_as', { email: user.email });
             } else {
                 form.style.display   = 'block';
                 status.style.display = 'none';
-                text.textContent     = 'Not signed in';
+                text.textContent     = window.t('auth.not_signed_in');
             }
         }
 
@@ -232,7 +233,7 @@
             const password = document.getElementById('auth-password').value;
             const { error } = await window.supabase.auth.signUp({ email, password });
             if (error) showNotification(error.message);
-            else        showNotification('Check your email to confirm sign up.');
+            else        showNotification(window.t('auth.check_email'));
         }
 
         async function authLogIn() {

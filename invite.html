@@ -49,7 +49,7 @@
             })
 
             if (error) {
-                document.getElementById('error-msg').textContent = 'Redemption failed. Please try again.'
+                document.getElementById('error-msg').textContent = window.t('invite.err_redemption_failed')
                 console.error('[invite] rpc error:', error)
                 redeemed = false  // allow retry
                 show('state-error')
@@ -58,13 +58,13 @@
 
             if (!data.success) {
                 const messages = {
-                    invite_not_found:   'This invite link is not valid. Ask your leader for a new one.',
-                    invite_unavailable: 'This invite has already been used or has expired.',
-                    not_authenticated:  'You must be logged in to redeem an invite.',
-                    email_mismatch:     'This invite was created for a different email address. Log in with the correct account to redeem it.'
+                    invite_not_found:   window.t('invite.err_not_found'),
+                    invite_unavailable: window.t('invite.err_unavailable'),
+                    not_authenticated:  window.t('invite.err_not_authenticated'),
+                    email_mismatch:     window.t('invite.err_email_mismatch')
                 }
                 document.getElementById('error-msg').textContent =
-                    messages[data.error] ?? 'This invite could not be redeemed.'
+                    messages[data.error] ?? window.t('invite.err_default')
                 show(data.error === 'invite_not_found' ? 'state-invalid' : 'state-error')
                 return
             }
@@ -162,50 +162,51 @@
             .container { max-width: 768px; border-radius: 12px; margin: 20px auto; box-shadow: 0 4px 20px rgba(0,0,0,0.1); overflow: hidden; }
         }
     </style>
+    <script src="/i18n.js" defer></script>
     <script src="/pwa.js" defer></script>
 </head>
 <body>
 
     <div class="top-nav">
-        <a href="index.html">Home</a>
+        <a href="index.html" data-i18n="nav.home">Home</a>
     </div>
 
     <div class="container">
 
         <div class="page-header">
-            <div class="page-title">Leader Invite</div>
+            <div class="page-title" data-i18n="invite.page_title">Leader Invite</div>
             <div class="accent-bar"></div>
         </div>
 
         <!-- Checking: shown briefly while getSession() resolves -->
         <div id="state-checking" class="state-section">
             <div class="state-indicator pending">...</div>
-            <div class="state-title">Checking invite</div>
-            <div class="state-msg">One moment...</div>
+            <div class="state-title" data-i18n="invite.checking_title">Checking invite</div>
+            <div class="state-msg" data-i18n="invite.checking_msg">One moment...</div>
         </div>
 
         <!-- Invalid: no token in URL, or token not found in DB -->
         <div id="state-invalid" class="state-section" style="display:none">
             <div class="state-indicator warning">!</div>
-            <div class="state-title">Invalid Invite</div>
-            <div class="state-msg">This invite link is not valid. Ask your leader for a new one.</div>
-            <a href="index.html" class="state-btn">Go to Home</a>
+            <div class="state-title" data-i18n="invite.invalid_title">Invalid Invite</div>
+            <div class="state-msg" data-i18n="invite.invalid_msg">This invite link is not valid. Ask your leader for a new one.</div>
+            <a href="index.html" class="state-btn" data-i18n="invite.go_home">Go to Home</a>
         </div>
 
         <!-- Login: user is not authenticated — prompt to log in or sign up -->
         <div id="state-login" class="state-section" style="display:none">
-            <div class="state-title">You have been invited</div>
-            <div class="state-msg">Log in or sign up to accept your leader invitation.</div>
+            <div class="state-title" data-i18n="invite.login_title">You have been invited</div>
+            <div class="state-msg" data-i18n="invite.login_msg">Log in or sign up to accept your leader invitation.</div>
             <div class="auth-form">
-                <input type="email" id="auth-email" placeholder="Email" autocomplete="email">
-                <input type="password" id="auth-password" placeholder="Password" autocomplete="current-password">
+                <input type="email" id="auth-email" placeholder="Email" autocomplete="email" data-i18n-placeholder="auth.email_placeholder">
+                <input type="password" id="auth-password" placeholder="Password" autocomplete="current-password" data-i18n-placeholder="auth.password_placeholder">
                 <div id="auth-error" class="auth-error" style="display:none"></div>
-                <div id="auth-confirm" class="auth-confirm" style="display:none">
+                <div id="auth-confirm" class="auth-confirm" style="display:none" data-i18n="invite.auth_confirm">
                     Check your email for a confirmation link. Once confirmed, return to this invite link to complete activation.
                 </div>
                 <div class="auth-buttons">
-                    <button class="auth-btn-primary" onclick="doSignUp()">Sign Up</button>
-                    <button class="auth-btn-secondary" onclick="doLogIn()">Log In</button>
+                    <button class="auth-btn-primary" onclick="doSignUp()" data-i18n="auth.sign_up">Sign Up</button>
+                    <button class="auth-btn-secondary" onclick="doLogIn()" data-i18n="auth.log_in">Log In</button>
                 </div>
             </div>
         </div>
@@ -213,24 +214,24 @@
         <!-- Redeeming: async work in progress -->
         <div id="state-redeeming" class="state-section" style="display:none">
             <div class="state-indicator pending">...</div>
-            <div class="state-title">Activating access</div>
-            <div class="state-msg">Upgrading your account to leader...</div>
+            <div class="state-title" data-i18n="invite.redeeming_title">Activating access</div>
+            <div class="state-msg" data-i18n="invite.redeeming_msg">Upgrading your account to leader...</div>
         </div>
 
         <!-- Success -->
         <div id="state-success" class="state-section" style="display:none">
             <div class="state-indicator success">&#10003;</div>
-            <div class="state-title">You are now a leader</div>
-            <div class="state-msg">Your account has been upgraded. You now have access to all leader tools.</div>
-            <a href="leader-tools.html" class="state-btn green">Open Leader Tools</a>
+            <div class="state-title" data-i18n="invite.success_title">You are now a leader</div>
+            <div class="state-msg" data-i18n="invite.success_msg">Your account has been upgraded. You now have access to all leader tools.</div>
+            <a href="leader-tools.html" class="state-btn green" data-i18n="invite.open_leader_tools">Open Leader Tools</a>
         </div>
 
         <!-- Error: used, expired, or DB failure -->
         <div id="state-error" class="state-section" style="display:none">
             <div class="state-indicator warning">!</div>
-            <div class="state-title">Invite Problem</div>
+            <div class="state-title" data-i18n="invite.error_title">Invite Problem</div>
             <div id="error-msg" class="state-msg"></div>
-            <a href="index.html" class="state-btn">Go to Home</a>
+            <a href="index.html" class="state-btn" data-i18n="invite.go_home">Go to Home</a>
         </div>
 
     </div>

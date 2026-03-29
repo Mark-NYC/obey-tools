@@ -578,33 +578,34 @@
         .bible-verse { font-size: 14px; line-height: 1.65; color: #3a3a3c; margin-bottom: 6px; }
         .verse-num { font-size: 11px; font-weight: 700; vertical-align: super; margin-right: 2px; opacity: 0.6; }
     </style>
+    <script src="/i18n.js" defer></script>
     <script src="/pwa.js" defer></script>
 </head>
 <body>
     <div style="display:flex; gap:10px; justify-content:center; padding:20px 16px 8px;">
-        <a href="index.html" style="display:inline-block; background:#000; color:#fff; font-weight:700; font-size:15px; padding:11px 22px; border-radius:50px; text-decoration:none; white-space:nowrap;">Home</a>
-        <a href="commands-of-christ.html" style="display:inline-block; background:#00D084; color:#fff; font-weight:700; font-size:15px; padding:11px 22px; border-radius:50px; text-decoration:none; white-space:nowrap;">← Commands of Christ</a>
+        <a href="index.html" style="display:inline-block; background:#000; color:#fff; font-weight:700; font-size:15px; padding:11px 22px; border-radius:50px; text-decoration:none; white-space:nowrap;" data-i18n="nav.home">Home</a>
+        <a href="commands-of-christ.html" style="display:inline-block; background:#00D084; color:#fff; font-weight:700; font-size:15px; padding:11px 22px; border-radius:50px; text-decoration:none; white-space:nowrap;" data-i18n="nav.back_commands">← Commands of Christ</a>
     </div>
     <div class="container">
         <div class="auth-section" id="auth-section">
             <div id="auth-form" style="display:none">
-                <input type="email" id="auth-email" placeholder="Email">
-                <input type="password" id="auth-password" placeholder="Password">
+                <input type="email" id="auth-email" placeholder="Email" data-i18n-placeholder="auth.email_placeholder">
+                <input type="password" id="auth-password" placeholder="Password" data-i18n-placeholder="auth.password_placeholder">
                 <div class="auth-buttons">
-                    <button class="auth-btn-primary" onclick="authSignUp()">Sign Up</button>
-                    <button class="auth-btn-secondary" onclick="authLogIn()">Log In</button>
+                    <button class="auth-btn-primary" onclick="authSignUp()" data-i18n="auth.sign_up">Sign Up</button>
+                    <button class="auth-btn-secondary" onclick="authLogIn()" data-i18n="auth.log_in">Log In</button>
                 </div>
             </div>
             <div class="auth-status" id="auth-status" style="display:none">
                 <span class="auth-status-text" id="auth-status-text">Not signed in</span>
-                <button class="auth-logout-btn" onclick="authLogOut()">Log Out</button>
+                <button class="auth-logout-btn" onclick="authLogOut()" data-i18n="auth.log_out">Log Out</button>
             </div>
         </div>
         <div class="header">
             <button class="settings-btn" onclick="openSettings()">⚙️</button>
             <img src="assets/images/header/repent-and-believe-header.webp" alt="Command Icon" class="header-icon">
-            <h1>Repent &amp; Believe</h1>
-            <div class="scripture">Command: Mark 1:15 | Story: Luke 19:1–10</div>
+            <h1 data-i18n="repent_and_believe.title">Repent &amp; Believe</h1>
+            <div class="scripture" data-i18n="repent_and_believe.scripture">Command: Mark 1:15 | Story: Luke 19:1–10</div>
         </div>
         <div class="progress-bar-container">
             <div class="progress-bar">
@@ -615,15 +616,15 @@
         <div class="content">
             <div class="section-divider">
                 <div class="section-divider-line"></div>
-                <div class="section-divider-text">Look Back</div>
+                <div class="section-divider-text" data-i18n="common.look_back">Look Back</div>
                 <div class="section-divider-line"></div>
             </div>
             <div class="card" onclick="toggleCard(this)" data-card="care" data-assignment-key="care" data-section="lookback">
                 <div class="card-content">
                     <div class="card-icon care-icon"></div>
                     <div class="card-text">
-                        <div class="card-title">Care &amp; Prayer</div>
-                        <div class="card-description">Everyone shares briefly how they are doing. Pray if appropriate.</div>
+                        <div class="card-title" data-i18n="common.care_title">Care &amp; Prayer</div>
+                        <div class="card-description" data-i18n="common.care_desc">Everyone shares briefly how they are doing. Pray if appropriate.</div>
                         <div class="assignment-badge-container"></div>
                     </div>
                     <div class="card-checkbox"></div>
@@ -633,8 +634,8 @@
                 <div class="card-content">
                     <div class="card-icon worship-icon"></div>
                     <div class="card-text">
-                        <div class="card-title">Worship</div>
-                        <div class="card-description">Praise God • Give to Needs • Lord's Supper</div>
+                        <div class="card-title" data-i18n="common.worship_title">Worship</div>
+                        <div class="card-description" data-i18n="common.worship_desc">Praise God • Give to Needs • Lord's Supper</div>
                         <div class="assignment-badge-container"></div>
                     </div>
                     <div class="card-checkbox"></div>
@@ -644,8 +645,8 @@
                 <div class="card-content">
                     <div class="card-icon accountability-icon"></div>
                     <div class="card-text">
-                        <div class="card-title">Loving Accountability</div>
-                        <div class="card-description">Follow: Share how you obeyed. Fish: Share who you shared with.</div>
+                        <div class="card-title" data-i18n="common.accountability_title">Loving Accountability</div>
+                        <div class="card-description" data-i18n="common.accountability_desc">Follow: Share how you obeyed. Fish: Share who you shared with.</div>
                         <div class="assignment-badge-container"></div>
                     </div>
                     <div class="card-checkbox"></div>
@@ -656,7 +657,7 @@
                     <div class="card-icon vision-icon"></div>
                     <div class="card-text">
                         <div class="card-title">Vision: Acts 2 Church Circle <span class="view-link" onclick="event.stopPropagation(); showVisionPopup()">(View)</span></div>
-                        <div class="card-description">Acts 2:36-47</div>
+                        <div class="card-description" data-i18n="common.vision_ref">Acts 2:36-47</div>
                         <div class="assignment-badge-container"></div>
                     </div>
                     <div class="card-checkbox"></div>
@@ -664,7 +665,7 @@
             </div>
             <div class="section-divider">
                 <div class="section-divider-line"></div>
-                <div class="section-divider-text">Look Up</div>
+                <div class="section-divider-text" data-i18n="common.look_up">Look Up</div>
                 <div class="section-divider-line"></div>
             </div>
             <div class="card step-card" data-card="teaching" data-assignment-key="lookup" data-section="lookup">
@@ -672,23 +673,23 @@
                     <div style="display: flex; align-items: center; gap: 16px;">
                         <div class="card-icon discover-icon"></div>
                         <div class="card-text">
-                            <div class="card-title">New Teaching From Scripture</div>
-                            <div class="card-description">Mark 1:15 | Luke 19:1-10</div>
+                            <div class="card-title" data-i18n="common.new_teaching">New Teaching From Scripture</div>
+                            <div class="card-description" data-i18n="repent_and_believe.teaching_ref">Mark 1:15 | Luke 19:1-10</div>
                             <div class="assignment-badge-container"></div>
                         </div>
                     </div>
                     <div class="step-indicators">
                         <div style="flex: 1;">
                             <div class="step-dot" data-step="1" onclick="event.stopPropagation(); toggleStep(this, 'teaching')">1</div>
-                            <div class="step-label">Read Command &amp; Tell Story</div>
+                            <div class="step-label" data-i18n="common.step_read_command">Read Command &amp; Tell Story</div>
                         </div>
                         <div style="flex: 1;">
                             <div class="step-dot" data-step="2" onclick="event.stopPropagation(); toggleStep(this, 'teaching')">2</div>
-                            <div class="step-label">Read Story Together</div>
+                            <div class="step-label" data-i18n="common.step_read_story_together">Read Story Together</div>
                         </div>
                         <div style="flex: 1;">
                             <div class="step-dot" data-step="3" onclick="event.stopPropagation(); toggleStep(this, 'teaching')">3</div>
-                            <div class="step-label">Retell Story</div>
+                            <div class="step-label" data-i18n="common.step_retell_story">Retell Story</div>
                         </div>
                     </div>
                 </div>
@@ -713,7 +714,7 @@
                 <div class="card-content">
                     <div class="card-icon discover-icon"></div>
                     <div class="card-text">
-                        <div class="card-title">What do we learn about God?</div>
+                        <div class="card-title" data-i18n="common.discuss_god_title">What do we learn about God?</div>
                         <div class="assignment-badge-container"></div>
                     </div>
                     <div class="card-checkbox"></div>
@@ -723,7 +724,7 @@
                 <div class="card-content">
                     <div class="card-icon discover-icon"></div>
                     <div class="card-text">
-                        <div class="card-title">What do we learn about people?</div>
+                        <div class="card-title" data-i18n="common.discuss_people_title">What do we learn about people?</div>
                         <div class="assignment-badge-container"></div>
                     </div>
                     <div class="card-checkbox"></div>
@@ -733,7 +734,7 @@
                 <div class="card-content">
                     <div class="card-icon discover-icon"></div>
                     <div class="card-text">
-                        <div class="card-title">Pause — Pray and Listen</div>
+                        <div class="card-title" data-i18n="common.pray_listen_title">Pause — Pray and Listen</div>
                         <div class="assignment-badge-container"></div>
                     </div>
                     <div class="card-checkbox"></div>
@@ -743,8 +744,8 @@
                 <div class="card-content">
                     <div class="card-icon discover-icon"></div>
                     <div class="card-text">
-                        <div class="card-title">How will you obey the story?</div>
-                        <div class="card-description">Share how you will obey.</div>
+                        <div class="card-title" data-i18n="common.how_obey_title">How will you obey the story?</div>
+                        <div class="card-description" data-i18n="common.how_obey_desc">Share how you will obey.</div>
                         <div class="assignment-badge-container"></div>
                     </div>
                     <div class="card-checkbox"></div>
@@ -752,15 +753,15 @@
             </div>
             <div class="section-divider">
                 <div class="section-divider-line"></div>
-                <div class="section-divider-text">Look Forward</div>
+                <div class="section-divider-text" data-i18n="common.look_forward">Look Forward</div>
                 <div class="section-divider-line"></div>
             </div>
             <div class="card" onclick="toggleCard(this)" data-card="practice" data-assignment-key="practice" data-section="lookforward">
                 <div class="card-content">
                     <div class="card-icon practice-icon"></div>
                     <div class="card-text">
-                        <div class="card-title">Practice: 3 Circles</div>
-                        <div class="card-description">Practice the 3 Circles gospel tool.</div>
+                        <div class="card-title" data-i18n="common.practice_3circles_title">Practice: 3 Circles</div>
+                        <div class="card-description" data-i18n="common.practice_3circles_desc">Practice the 3 Circles gospel tool.</div>
                         <div class="assignment-badge-container"></div>
                     </div>
                     <div class="card-checkbox"></div>
@@ -770,8 +771,8 @@
                 <div class="card-content">
                     <div class="card-icon accountability-icon"></div>
                     <div class="card-text">
-                        <div class="card-title">Set Goals</div>
-                        <div class="card-description">Follow: What is Jesus asking you to obey? Fish: Who needs to hear this story?</div>
+                        <div class="card-title" data-i18n="common.set_goals_title">Set Goals</div>
+                        <div class="card-description" data-i18n="common.set_goals_desc">Follow: What is Jesus asking you to obey? Fish: Who needs to hear this story?</div>
                         <div class="assignment-badge-container"></div>
                     </div>
                     <div class="card-checkbox"></div>
@@ -781,8 +782,8 @@
                 <div class="card-content">
                     <div class="card-icon pray-icon"></div>
                     <div class="card-text">
-                        <div class="card-title">Commission with Prayer</div>
-                        <div class="card-description">Pray together.</div>
+                        <div class="card-title" data-i18n="common.commission_title">Commission with Prayer</div>
+                        <div class="card-description" data-i18n="common.commission_desc">Pray together.</div>
                         <div class="assignment-badge-container"></div>
                     </div>
                     <div class="card-checkbox"></div>
@@ -790,31 +791,31 @@
             </div>
         </div>
         <div class="reset-section">
-            <button class="btn" onclick="resetAll()">RESET</button>
+            <button class="btn" onclick="resetAll()" data-i18n="common.reset">RESET</button>
         </div>
     </div>
     <div class="popup-overlay" id="visionPopup" onclick="closeVisionPopup()">
         <div class="popup-content" onclick="event.stopPropagation()">
             <button class="popup-close" onclick="closeVisionPopup()">×</button>
             <img src="assets/images/popups/vision-popup.jpg" alt="Church Circle" class="popup-image">
-            <div class="popup-text">Read Acts 2:36-47. Be a part of a church and start a church</div>
+            <div class="popup-text" data-i18n="common.vision_popup_text">Read Acts 2:36-47. Be a part of a church and start a church</div>
         </div>
     </div>
     <div class="modal-overlay" id="settingsModal">
         <div class="modal-content" onclick="event.stopPropagation()">
-            <div class="modal-header">Assignment Settings</div>
+            <div class="modal-header" data-i18n="settings.title">Assignment Settings</div>
             <div class="modal-section">
-                <label class="modal-label">Assignment Mode</label>
+                <label class="modal-label" data-i18n="settings.mode_label">Assignment Mode</label>
                 <div class="toggle-group">
-                    <button class="toggle-btn active" id="sectionBtn" onclick="setAssignmentMode('section')">By Section</button>
-                    <button class="toggle-btn" id="componentBtn" onclick="setAssignmentMode('component')">By Component</button>
+                    <button class="toggle-btn active" id="sectionBtn" onclick="setAssignmentMode('section')" data-i18n="settings.section_mode">By Section</button>
+                    <button class="toggle-btn" id="componentBtn" onclick="setAssignmentMode('component')" data-i18n="settings.component_mode">By Component</button>
                 </div>
             </div>
             <div id="assignmentInputs"></div>
-            <button class="generate-btn" onclick="generateLink()">Generate Share Link</button>
+            <button class="generate-btn" onclick="generateLink()" data-i18n="settings.generate_link">Generate Share Link</button>
             <div class="link-display" id="linkDisplay"></div>
-            <button class="copy-btn" id="copyBtn" onclick="copyLink()">Copy Link</button>
-            <button class="btn" onclick="closeSettings()" style="margin-top: 16px;">Close</button>
+            <button class="copy-btn" id="copyBtn" onclick="copyLink()" data-i18n="settings.copy_link">Copy Link</button>
+            <button class="btn" onclick="closeSettings()" style="margin-top: 16px;" data-i18n="settings.close">Close</button>
         </div>
     </div>
     <script>
@@ -825,19 +826,19 @@
         let completedCards = [];
         let stepProgress = {};
         const sectionAssignments = {
-            'lookback': 'Look Back',
-            'lookup': 'Look Up',
-            'lookforward': 'Look Forward'
+            'lookback': window.t('section_keys.lookback'),
+            'lookup': window.t('section_keys.lookup'),
+            'lookforward': window.t('section_keys.lookforward')
         };
         const componentAssignments = {
-            'care': 'Care & Prayer',
-            'worship': 'Worship',
-            'accountability': 'Loving Accountability',
-            'vision': 'Vision',
-            'lookup': 'Look Up Section',
-            'practice': 'Practice',
-            'goals': 'Set Goals',
-            'commission': 'Commission'
+            'care': window.t('component_keys.care'),
+            'worship': window.t('component_keys.worship'),
+            'accountability': window.t('component_keys.accountability'),
+            'vision': window.t('component_keys.vision'),
+            'lookup': window.t('component_keys.lookup'),
+            'practice': window.t('component_keys.practice'),
+            'goals': window.t('component_keys.goals'),
+            'commission': window.t('component_keys.commission')
         };
         function initializeFromURL() {
             const hash = window.location.hash.substring(1);
@@ -930,7 +931,7 @@
         function copyLink() {
             const linkText = document.getElementById('linkDisplay').textContent;
             navigator.clipboard.writeText(linkText).then(function() {
-                showNotification('Link copied to clipboard!');
+                showNotification(window.t('common.link_copied'));
             });
         }
         function saveProgress() {
@@ -978,13 +979,13 @@
             const completed = completedCards.length;
             const percentage = (completed / total) * 100;
             document.getElementById('progressFill').style.width = percentage + '%';
-            document.getElementById('progressText').textContent = completed + ' of ' + total + ' completed';
+            document.getElementById('progressText').textContent = window.t('common.completed_of', { done: completed, total: total });
             if (completed === total) {
-                showNotification('Study complete! 🎉');
+                showNotification(window.t('common.study_complete'));
             }
         }
         function resetAll() {
-            if (confirm('Reset all progress?')) {
+            if (confirm(window.t('common.reset_confirm'))) {
                 completedCards = [];
                 stepProgress = {};
                 localStorage.removeItem(storageKey);
@@ -996,7 +997,7 @@
                     dot.classList.remove('completed');
                 });
                 updateProgress();
-                showNotification('Progress reset');
+                showNotification(window.t('common.progress_reset'));
             }
         }
         function showNotification(message) {
@@ -1045,14 +1046,14 @@
             const form = document.getElementById('auth-form');
             const status = document.getElementById('auth-status');
             const text = document.getElementById('auth-status-text');
-            if (user) { form.style.display = 'none'; status.style.display = 'flex'; text.textContent = 'Signed in as ' + user.email; }
-            else { form.style.display = 'block'; status.style.display = 'none'; text.textContent = 'Not signed in'; }
+            if (user) { form.style.display = 'none'; status.style.display = 'flex'; text.textContent = window.t('auth.signed_in_as', { email: user.email }); }
+            else { form.style.display = 'block'; status.style.display = 'none'; text.textContent = window.t('auth.not_signed_in'); }
         }
         async function authSignUp() {
             const email = document.getElementById('auth-email').value.trim();
             const password = document.getElementById('auth-password').value;
             const { error } = await window.supabase.auth.signUp({ email, password });
-            if (error) showNotification(error.message); else showNotification('Check your email to confirm sign up.');
+            if (error) showNotification(error.message); else showNotification(window.t('auth.check_email'));
         }
         async function authLogIn() {
             const email = document.getElementById('auth-email').value.trim();

@@ -66,6 +66,7 @@
             .container { max-width: 768px; border-radius: 12px; margin: 20px auto; box-shadow: 0 4px 20px rgba(0,0,0,0.1); overflow: hidden; }
         }
     </style>
+    <script src="/i18n.js" defer></script>
     <script src="/pwa.js" defer></script>
 </head>
 <body>
@@ -73,7 +74,7 @@
     <div class="sync-indicator" id="sync-indicator">Syncing...</div>
 
     <div style="text-align:center; padding:20px 0 8px;">
-        <a href="index.html" style="display:inline-block; background:#000; color:#fff; font-weight:700; font-size:17px; padding:12px 28px; border-radius:50px; text-decoration:none;">Home</a>
+        <a href="index.html" style="display:inline-block; background:#000; color:#fff; font-weight:700; font-size:17px; padding:12px 28px; border-radius:50px; text-decoration:none;" data-i18n="nav.home">Home</a>
     </div>
 
     <div class="container">
@@ -81,22 +82,22 @@
         <!-- Auth section — wired to Supabase, identical pattern to conversation-box -->
         <div class="auth-section" id="auth-section">
             <div id="auth-form" style="display:none">
-                <input type="email" id="auth-email" placeholder="Email">
-                <input type="password" id="auth-password" placeholder="Password">
+                <input type="email" id="auth-email" placeholder="Email" data-i18n-placeholder="auth.email_placeholder">
+                <input type="password" id="auth-password" placeholder="Password" data-i18n-placeholder="auth.password_placeholder">
                 <div class="auth-buttons">
-                    <button class="auth-btn-primary" onclick="authSignUp()">Sign Up</button>
-                    <button class="auth-btn-secondary" onclick="authLogIn()">Log In</button>
+                    <button class="auth-btn-primary" onclick="authSignUp()" data-i18n="auth.sign_up">Sign Up</button>
+                    <button class="auth-btn-secondary" onclick="authLogIn()" data-i18n="auth.log_in">Log In</button>
                 </div>
             </div>
             <div class="auth-status" id="auth-status" style="display:none">
                 <span class="auth-status-text" id="auth-status-text">Not signed in</span>
-                <button class="auth-logout-btn" onclick="authLogOut()">Log Out</button>
+                <button class="auth-logout-btn" onclick="authLogOut()" data-i18n="auth.log_out">Log Out</button>
             </div>
         </div>
 
         <div class="page-header">
-            <div class="page-title">Stories of Hope</div>
-            <div class="page-subtitle">Real stories. Real change.</div>
+            <div class="page-title" data-i18n="stories_of_hope.title">Stories of Hope</div>
+            <div class="page-subtitle" data-i18n="stories_of_hope.subtitle">Real stories. Real change.</div>
             <div class="accent-bar"></div>
         </div>
 
@@ -104,56 +105,56 @@
             <a href="hope-for-the-rejected.html" class="story-item">
                 <span class="story-num">1</span>
                 <div class="story-text">
-                    <span class="story-title">Hope For The Rejected</span>
-                    <span class="story-subtitle">Repentant Woman — Luke 7:36-50</span>
+                    <span class="story-title" data-i18n="stories_of_hope.story_1_title">Hope For The Rejected</span>
+                    <span class="story-subtitle" data-i18n="stories_of_hope.story_1_sub">Repentant Woman — Luke 7:36-50</span>
                 </div>
                 <span class="story-arrow">›</span>
             </a>
             <a href="hope-for-the-nonreligious.html" class="story-item">
                 <span class="story-num">2</span>
                 <div class="story-text">
-                    <span class="story-title">Hope For The Nonreligious</span>
-                    <span class="story-subtitle">Pharisee & Tax Collector — Luke 18:9–17</span>
+                    <span class="story-title" data-i18n="stories_of_hope.story_2_title">Hope For The Nonreligious</span>
+                    <span class="story-subtitle" data-i18n="stories_of_hope.story_2_sub">Pharisee & Tax Collector — Luke 18:9–17</span>
                 </div>
                 <span class="story-arrow">›</span>
             </a>
             <a href="hope-changes-things.html" class="story-item">
                 <span class="story-num">3</span>
                 <div class="story-text">
-                    <span class="story-title">Hope Changes Things</span>
-                    <span class="story-subtitle">Zacchaeus — Luke 19:1-10</span>
+                    <span class="story-title" data-i18n="stories_of_hope.story_3_title">Hope Changes Things</span>
+                    <span class="story-subtitle" data-i18n="stories_of_hope.story_3_sub">Zacchaeus — Luke 19:1-10</span>
                 </div>
                 <span class="story-arrow">›</span>
             </a>
             <a href="hope-forgives.html" class="story-item">
                 <span class="story-num">4</span>
                 <div class="story-text">
-                    <span class="story-title">Hope Forgives</span>
-                    <span class="story-subtitle">Unforgiving Servant — Matthew 18:21–35</span>
+                    <span class="story-title" data-i18n="stories_of_hope.story_4_title">Hope Forgives</span>
+                    <span class="story-subtitle" data-i18n="stories_of_hope.story_4_sub">Unforgiving Servant — Matthew 18:21–35</span>
                 </div>
                 <span class="story-arrow">›</span>
             </a>
             <a href="hope-through-death.html" class="story-item">
                 <span class="story-num">5</span>
                 <div class="story-text">
-                    <span class="story-title">Hope Through Death</span>
-                    <span class="story-subtitle">Thieves on the Cross — Luke 23:26-43</span>
+                    <span class="story-title" data-i18n="stories_of_hope.story_5_title">Hope Through Death</span>
+                    <span class="story-subtitle" data-i18n="stories_of_hope.story_5_sub">Thieves on the Cross — Luke 23:26-43</span>
                 </div>
                 <span class="story-arrow">›</span>
             </a>
             <a href="hope-rose-from-the-dead.html" class="story-item">
                 <span class="story-num">6</span>
                 <div class="story-text">
-                    <span class="story-title">Hope Rose From The Dead</span>
-                    <span class="story-subtitle">Resurrection — Luke 24:1–20</span>
+                    <span class="story-title" data-i18n="stories_of_hope.story_6_title">Hope Rose From The Dead</span>
+                    <span class="story-subtitle" data-i18n="stories_of_hope.story_6_sub">Resurrection — Luke 24:1–20</span>
                 </div>
                 <span class="story-arrow">›</span>
             </a>
             <a href="hope-is-waiting-for-you.html" class="story-item">
                 <span class="story-num">7</span>
                 <div class="story-text">
-                    <span class="story-title">Hope is Waiting For You</span>
-                    <span class="story-subtitle">Prodigal Son — Luke 15:11–32</span>
+                    <span class="story-title" data-i18n="stories_of_hope.story_7_title">Hope is Waiting For You</span>
+                    <span class="story-subtitle" data-i18n="stories_of_hope.story_7_sub">Prodigal Son — Luke 15:11–32</span>
                 </div>
                 <span class="story-arrow">›</span>
             </a>
@@ -193,11 +194,11 @@
             if (user) {
                 form.style.display   = 'none';
                 status.style.display = 'flex';
-                text.textContent     = 'Signed in as ' + user.email;
+                text.textContent     = window.t('auth.signed_in_as', { email: user.email });
             } else {
                 form.style.display   = 'block';
                 status.style.display = 'none';
-                text.textContent     = 'Not signed in';
+                text.textContent     = window.t('auth.not_signed_in');
             }
         }
 
@@ -206,7 +207,7 @@
             const password = document.getElementById('auth-password').value;
             const { error } = await window.supabase.auth.signUp({ email, password });
             if (error) showNotification(error.message);
-            else        showNotification('Check your email to confirm sign up.');
+            else        showNotification(window.t('auth.check_email'));
         }
 
         async function authLogIn() {
