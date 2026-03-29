@@ -471,9 +471,22 @@
   },
   "four_questions": {
     "title": "4 Preguntas",
-    "subtitle": "Estudio Bíblico de Descubrimiento",
+    "subtitle": "Comienza aquí con nuevos creyentes <span class=\"green\">(luces verdes)</span> o creyentes que necesitan ser entrenados para comenzar.",
     "progress_text": "{done} de {total} completados",
     "reset": "REINICIAR",
-    "reset_confirm": "¿Reiniciar todo el progreso?"
+    "reset_confirm": "¿Reiniciar todo el progreso?",
+    "section2_label": "Identidad",
+    "section2_number": "1. ¿POR QUÉ?",
+    "section3_label": "Mapa de Oikos",
+    "section3_number": "2. ¿QUIÉN?",
+    "section3_verse": "*JUAN 17:20",
+    "section4a_label": "Historia de 15 Segundos",
+    "section4a_number": "3. ¿CÓMO?",
+    "section4b_label": "Herramienta del Evangelio: 3 Círculos",
+    "section5_title": "4. ¿CUÁNDO?",
+    "section5_goals_label": "METAS",
+    "goal_share": "¿Compartir?",
+    "goal_pray": "¿Orar?",
+    "goal_meet": "¿Reunirse?"
   }
 }

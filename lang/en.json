@@ -471,9 +471,22 @@
   },
   "four_questions": {
     "title": "4 Questions",
-    "subtitle": "Discovery Bible Study",
+    "subtitle": "Start here with new believers <span class=\"green\">(green lights)</span> or believers who need to be trained in getting started.",
     "progress_text": "{done} of {total} completed",
     "reset": "RESET",
-    "reset_confirm": "Reset all progress?"
+    "reset_confirm": "Reset all progress?",
+    "section2_label": "Identity",
+    "section2_number": "1. WHY?",
+    "section3_label": "Oikos Map",
+    "section3_number": "2. WHO?",
+    "section3_verse": "*JOHN 17:20",
+    "section4a_label": "15 Second Story",
+    "section4a_number": "3. HOW?",
+    "section4b_label": "3 Circles Gospel Tool",
+    "section5_title": "4. WHEN?",
+    "section5_goals_label": "GOALS",
+    "goal_share": "Share?",
+    "goal_pray": "Pray?",
+    "goal_meet": "Meet?"
   }
 }
