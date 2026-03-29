@@ -154,27 +154,28 @@
             .auth-section { padding: 8px 16px; }
         }
     </style>
+    <script type="module" src="/i18n.js"></script>
     <script src="/pwa.js" defer></script>
 </head>
 <body>
-    <div class="sync-indicator" id="sync-indicator">Syncing...</div>
+    <div class="sync-indicator" id="sync-indicator" data-i18n="sync.syncing">Syncing...</div>
     <div style="text-align:center; padding:20px 0 8px;">
-        <a href="index.html" style="display:inline-block; background:#000; color:#fff; font-weight:700; font-size:17px; padding:12px 28px; border-radius:50px; text-decoration:none;">Home</a>
+        <a href="index.html" style="display:inline-block; background:#000; color:#fff; font-weight:700; font-size:17px; padding:12px 28px; border-radius:50px; text-decoration:none;" data-i18n="nav.home">Home</a>
     </div>
     <div class="container">
         <!-- Auth section: shown at top, collapses to status row when signed in -->
         <div class="auth-section" id="auth-section">
             <div id="auth-form" style="display:none">
-                <input type="email" id="auth-email" placeholder="Email">
-                <input type="password" id="auth-password" placeholder="Password">
+                <input type="email" id="auth-email" placeholder="Email" data-i18n-placeholder="auth.email_placeholder">
+                <input type="password" id="auth-password" placeholder="Password" data-i18n-placeholder="auth.password_placeholder">
                 <div class="auth-buttons">
-                    <button class="auth-btn-primary" onclick="authSignUp()">Sign Up</button>
-                    <button class="auth-btn-secondary" onclick="authLogIn()">Log In</button>
+                    <button class="auth-btn-primary" onclick="authSignUp()" data-i18n="auth.sign_up">Sign Up</button>
+                    <button class="auth-btn-secondary" onclick="authLogIn()" data-i18n="auth.log_in">Log In</button>
                 </div>
             </div>
             <div class="auth-status" id="auth-status" style="display:none">
                 <span class="auth-status-text" id="auth-status-text">Not signed in</span>
-                <button class="auth-logout-btn" onclick="authLogOut()">Log Out</button>
+                <button class="auth-logout-btn" onclick="authLogOut()" data-i18n="auth.log_out">Log Out</button>
             </div>
         </div>
         <div class="header">
@@ -183,110 +184,110 @@
         </div>
         <div class="controls">
             <div class="btn-group">
-                <button class="btn btn-primary" onclick="startHere()">START HERE</button>
-                <button class="btn btn-secondary" onclick="captureSnapshot()">SHARE</button>
+                <button class="btn btn-primary" onclick="startHere()" data-i18n="conversation_box.start_here">START HERE</button>
+                <button class="btn btn-secondary" onclick="captureSnapshot()" data-i18n="conversation_box.share_btn">SHARE</button>
             </div>
         </div>
         <div class="content-wrapper">
             <div class="conversation-grid">
                 <div class="conversation-box casual">
-                    <div class="box-header"><div class="box-title">Casual</div></div>
+                    <div class="box-header"><div class="box-title" data-i18n="conversation_box.box_casual">Casual</div></div>
                     <div class="conversation-list" id="casual-list"></div>
                 </div>
                 <div class="conversation-box meaningful">
-                    <div class="box-header"><div class="box-title">Meaningful</div></div>
+                    <div class="box-header"><div class="box-title" data-i18n="conversation_box.box_meaningful">Meaningful</div></div>
                     <div class="conversation-list" id="meaningful-list"></div>
                 </div>
                 <div class="conversation-box spiritual">
                     <div class="box-header">
-                        <div class="box-title">Spiritual</div>
+                        <div class="box-title" data-i18n="conversation_box.box_spiritual">Spiritual</div>
                         <div class="share-indicator" title="Share Upstream"></div>
                     </div>
                     <div class="conversation-list" id="spiritual-list"></div>
                 </div>
                 <div class="conversation-box discovery">
-                    <div class="box-header"><div class="box-title">Discovery</div></div>
+                    <div class="box-header"><div class="box-title" data-i18n="conversation_box.box_discovery">Discovery</div></div>
                     <div class="conversation-list" id="discovery-list"></div>
                 </div>
             </div>
             <div class="reset-section">
-                <button class="btn btn-secondary" onclick="showResetPrompt()">RESET</button>
+                <button class="btn btn-secondary" onclick="showResetPrompt()" data-i18n="common.reset">RESET</button>
             </div>
         </div>
         <div class="add-person-section">
             <div class="add-person-input">
-                <input type="text" id="new-person-name" placeholder="Add name..." onkeypress="handleEnterKey(event)">
-                <button class="btn btn-primary" onclick="initiateAddPerson()">Add</button>
+                <input type="text" id="new-person-name" placeholder="Add name..." onkeypress="handleEnterKey(event)" data-i18n-placeholder="conversation_box.placeholder_name">
+                <button class="btn btn-primary" onclick="initiateAddPerson()" data-i18n="conversation_box.add_btn">Add</button>
             </div>
         </div>
         <div class="name-prompt" id="name-prompt">
-            <input type="text" id="user-name-input" placeholder="Enter your name">
-            <button onclick="saveUserName()">Submit</button>
+            <input type="text" id="user-name-input" placeholder="Enter your name" data-i18n-placeholder="conversation_box.enter_your_name_placeholder">
+            <button onclick="saveUserName()" data-i18n="conversation_box.submit">Submit</button>
         </div>
         <div class="edit-name-prompt" id="edit-name-prompt">
-            <input type="text" id="edit-name-input" placeholder="Edit name">
-            <button onclick="saveEditedName()">Save</button>
+            <input type="text" id="edit-name-input" placeholder="Edit name" data-i18n-placeholder="conversation_box.edit_name_placeholder">
+            <button onclick="saveEditedName()" data-i18n="conversation_box.save">Save</button>
         </div>
         <div class="box-selection-prompt" id="box-selection-prompt">
-            <div class="option" onclick="selectBox('casual')">Casual</div>
-            <div class="option" onclick="selectBox('meaningful')">Meaningful</div>
-            <div class="option" onclick="selectBox('spiritual')">Spiritual</div>
-            <div class="option" onclick="selectBox('discovery')">Discovery</div>
+            <div class="option" onclick="selectBox('casual')" data-i18n="conversation_box.box_casual">Casual</div>
+            <div class="option" onclick="selectBox('meaningful')" data-i18n="conversation_box.box_meaningful">Meaningful</div>
+            <div class="option" onclick="selectBox('spiritual')" data-i18n="conversation_box.box_spiritual">Spiritual</div>
+            <div class="option" onclick="selectBox('discovery')" data-i18n="conversation_box.box_discovery">Discovery</div>
         </div>
         <div class="move-prompt" id="move-prompt">
             <div class="option" onclick="selectOption('rejected')">
                 <span class="color-circle red"></span>
-                <span>Rejected Christ</span>
+                <span data-i18n="conversation_box.move_rejected">Rejected Christ</span>
                 <span class="plus">+</span>
             </div>
             <div class="option" onclick="selectOption('open')">
                 <span class="color-circle yellow"></span>
-                <span>Open to learning</span>
+                <span data-i18n="conversation_box.move_open">Open to learning</span>
                 <span class="plus">+</span>
             </div>
             <div class="option" onclick="selectOption('trusted')">
                 <span class="color-circle lightgreen"></span>
-                <span>Trusted Christ</span>
+                <span data-i18n="conversation_box.move_trusted">Trusted Christ</span>
                 <span class="plus">+</span>
             </div>
             <div class="option" onclick="selectOption('existing')">
                 <span class="color-circle darkgreen"></span>
-                <span>Existing believer</span>
+                <span data-i18n="conversation_box.move_existing">Existing believer</span>
                 <span class="plus">+</span>
             </div>
         </div>
         <div class="remove-prompt" id="remove-prompt">
-            <h3>Remove?</h3>
-            <button class="yes-btn" onclick="confirmRemove(true)">Yes</button>
-            <button class="no-btn" onclick="confirmRemove(false)">No</button>
+            <h3 data-i18n="conversation_box.remove_confirm">Remove?</h3>
+            <button class="yes-btn" onclick="confirmRemove(true)" data-i18n="conversation_box.yes">Yes</button>
+            <button class="no-btn" onclick="confirmRemove(false)" data-i18n="conversation_box.no">No</button>
         </div>
         <div class="reset-prompt" id="reset-prompt">
-            <h3>Reset all conversations?</h3>
-            <button class="yes-btn" onclick="confirmReset(true)">Yes</button>
-            <button class="no-btn" onclick="confirmReset(false)">No</button>
+            <h3 data-i18n="conversation_box.reset_all_btn">Reset all conversations?</h3>
+            <button class="yes-btn" onclick="confirmReset(true)" data-i18n="conversation_box.yes">Yes</button>
+            <button class="no-btn" onclick="confirmReset(false)" data-i18n="conversation_box.no">No</button>
         </div>
         <div class="reset-prompt" id="start-warning-prompt">
-            <h3>Do you want to reset your progress?</h3>
-            <button class="yes-btn" onclick="confirmStartReset(true)">Yes</button>
-            <button class="no-btn" onclick="confirmStartReset(false)">No</button>
+            <h3 data-i18n="conversation_box.reset_progress_confirm">Do you want to reset your progress?</h3>
+            <button class="yes-btn" onclick="confirmStartReset(true)" data-i18n="conversation_box.yes">Yes</button>
+            <button class="no-btn" onclick="confirmStartReset(false)" data-i18n="conversation_box.no">No</button>
         </div>
         <div class="share-popup" id="share-popup">
-            <h3>Your Conversation Box has been downloaded. Share your progress now on any messaging app.</h3>
+            <h3 data-i18n="conversation_box.share_downloaded">Your Conversation Box has been downloaded. Share your progress now on any messaging app.</h3>
             <div class="app-icons">
-                <div><div class="app-icon messages" onclick="guideShare('Messages')"></div><div class="app-label">Messages</div></div>
-                <div><div class="app-icon whatsapp" onclick="guideShare('WhatsApp')"></div><div class="app-label">WhatsApp</div></div>
-                <div><div class="app-icon signal" onclick="guideShare('Signal')"></div><div class="app-label">Signal</div></div>
+                <div><div class="app-icon messages" onclick="guideShare('Messages')"></div><div class="app-label" data-i18n="conversation_box.share_app_messages">Messages</div></div>
+                <div><div class="app-icon whatsapp" onclick="guideShare('WhatsApp')"></div><div class="app-label" data-i18n="conversation_box.share_app_whatsapp">WhatsApp</div></div>
+                <div><div class="app-icon signal" onclick="guideShare('Signal')"></div><div class="app-label" data-i18n="conversation_box.share_app_signal">Signal</div></div>
             </div>
-            <button class="close-btn" onclick="closeSharePopup()">Close</button>
+            <button class="close-btn" onclick="closeSharePopup()" data-i18n="conversation_box.close">Close</button>
         </div>
         <div class="tutorial-popup" id="tutorial-popup">
-            <h3>Welcome <span id="tutorial-name"></span>. Quick start guide:</h3>
+            <h3 id="tutorial-heading"></h3>
             <ol>
-                <li><b>Add names</b> at the bottom of the screen and pick the progress box you have reached with each person.</li>
-                <li><b>Move names</b> as conversations progress to the gospel and Bible discovery.</li>
-                <li><b>Click the share button</b> to share progress with other disciples.</li>
+                <li data-i18n="conversation_box.tutorial_step1"><b>Add names</b> at the bottom of the screen and pick the progress box you have reached with each person.</li>
+                <li data-i18n="conversation_box.tutorial_step2"><b>Move names</b> as conversations progress to the gospel and Bible discovery.</li>
+                <li data-i18n="conversation_box.tutorial_step3"><b>Click the share button</b> to share progress with other disciples.</li>
             </ol>
-            <button class="btn btn-primary" onclick="closeTutorial()">Got it!</button>
+            <button class="btn btn-primary" onclick="closeTutorial()" data-i18n="conversation_box.got_it">Got it!</button>
         </div>
     </div>
     <script>
@@ -733,7 +734,7 @@ function saveConversations() {
                 const user = getCurrentUser();
                 if (!user) {
                     console.error('[conversation_events:insert:error] user not signed in — row not written');
-                    showNotification('Saved locally, but dashboard reporting requires sign-in.');
+                    showNotification(window.t('conversation_box.saved_locally'));
                     return;
                 }
                 const payload = {
@@ -810,16 +811,16 @@ function saveConversations() {
             if (hasProgress) {
                 document.getElementById('start-warning-prompt').style.display = 'flex';
             } else {
-                if (userName) { 
-                    document.getElementById('tutorial-name').textContent = userName; 
-                    document.getElementById('tutorial-popup').style.display = 'flex'; 
-                } else { 
-                    const prompt = document.getElementById('name-prompt'); 
-                    const input = document.getElementById('user-name-input'); 
-                    input.value = ''; 
-                    input.placeholder = 'Enter your name to get started'; 
-                    prompt.style.display = 'flex'; 
-                    input.focus(); 
+                if (userName) {
+                    document.getElementById('tutorial-heading').textContent = window.t('conversation_box.tutorial_title', { name: userName });
+                    document.getElementById('tutorial-popup').style.display = 'flex';
+                } else {
+                    const prompt = document.getElementById('name-prompt');
+                    const input = document.getElementById('user-name-input');
+                    input.value = '';
+                    input.placeholder = window.t('conversation_box.enter_name_to_start');
+                    prompt.style.display = 'flex';
+                    input.focus();
                 }
             }
         }
@@ -830,18 +831,18 @@ function saveConversations() {
                 conversations = { casual: [], meaningful: [], discovery: [], spiritual: [] }; 
                 submittedEvents = { spiritual: new Set(), discovery: new Set() };
                 localStorage.removeItem('submittedEvents');
-                saveConversations(); 
-                updateDisplay(); 
-                showNotification('Progress reset'); 
-                const prompt = document.getElementById('name-prompt'); 
-                const input = document.getElementById('user-name-input'); 
-                input.value = localStorage.getItem('user-name') || ''; 
-                prompt.style.display = 'flex'; 
-                input.focus(); 
-            } else { 
-                const userName = localStorage.getItem('user-name') || 'User'; 
-                document.getElementById('tutorial-name').textContent = userName; 
-                document.getElementById('tutorial-popup').style.display = 'flex'; 
+                saveConversations();
+                updateDisplay();
+                showNotification(window.t('conversation_box.progress_reset'));
+                const prompt = document.getElementById('name-prompt');
+                const input = document.getElementById('user-name-input');
+                input.value = localStorage.getItem('user-name') || '';
+                prompt.style.display = 'flex';
+                input.focus();
+            } else {
+                const userName = localStorage.getItem('user-name') || 'User';
+                document.getElementById('tutorial-heading').textContent = window.t('conversation_box.tutorial_title', { name: userName });
+                document.getElementById('tutorial-popup').style.display = 'flex';
             }
         }
 
@@ -855,12 +856,12 @@ function saveConversations() {
                 conversations = { casual: [], meaningful: [], discovery: [], spiritual: [] }; 
                 submittedEvents = { spiritual: new Set(), discovery: new Set() };
                 localStorage.removeItem('submittedEvents');
-                saveConversations(); 
-                updateDisplay(); 
-                document.getElementById('tutorial-name').textContent = name; 
-                document.getElementById('tutorial-popup').style.display = 'flex'; 
+                saveConversations();
+                updateDisplay();
+                document.getElementById('tutorial-heading').textContent = window.t('conversation_box.tutorial_title', { name });
+                document.getElementById('tutorial-popup').style.display = 'flex';
             } else {
-                showNotification('Please enter a name');
+                showNotification(window.t('conversation_box.enter_name'));
             }
         }
 
@@ -890,10 +891,10 @@ function saveConversations() {
                         updateDisplay();
                     }
                 } else {
-                    showNotification('Name already exists');
+                    showNotification(window.t('conversation_box.name_exists'));
                 }
             } else if (!newName) {
-                showNotification('Please enter a name');
+                showNotification(window.t('conversation_box.enter_name'));
             }
             document.getElementById('edit-name-prompt').style.display = 'none'; 
             input.value = ''; 
@@ -910,10 +911,10 @@ function saveConversations() {
                     document.getElementById('box-selection-prompt').style.display = 'flex'; 
                     input.value = ''; 
                 } else {
-                    showNotification('Person already exists');
+                    showNotification(window.t('conversation_box.person_exists'));
                 }
             } else {
-                showNotification('Please enter a name');
+                showNotification(window.t('conversation_box.enter_name'));
             }
         }
 
@@ -1049,15 +1050,15 @@ function saveConversations() {
                 conversations = { casual: [], meaningful: [], discovery: [], spiritual: [] }; 
                 submittedEvents = { spiritual: new Set(), discovery: new Set() };
                 localStorage.removeItem('submittedEvents');
-                saveConversations(); 
-                updateDisplay(); 
-                showNotification('Reset complete'); 
-                setTimeout(startHere, 0); 
+                saveConversations();
+                updateDisplay();
+                showNotification(window.t('conversation_box.reset_complete'));
+                setTimeout(startHere, 0);
             }
         }
 
         function deleteConversation(name, fromBox) {
-            if (confirm(`Remove ${name}?`)) { 
+            if (confirm(window.t('conversation_box.confirm_remove', { name }))) {
                 conversations[fromBox] = conversations[fromBox].filter(p => p.name !== name); 
                 saveConversations();
                 updateDisplay();
@@ -1069,7 +1070,10 @@ function saveConversations() {
                 const listElement = document.getElementById(`${box}-list`);
                 listElement.innerHTML = '';
                 if (conversations[box].length === 0) {
-                    listElement.innerHTML = '<div class="empty-state">No conversations</div>';
+                    const emptyEl = document.createElement('div');
+                    emptyEl.className = 'empty-state';
+                    emptyEl.textContent = window.t('conversation_box.no_conversations');
+                    listElement.appendChild(emptyEl);
                 } else {
                     conversations[box].forEach(person => {
                         listElement.appendChild(createConversationItem(person.name, box, person.color));
@@ -1077,7 +1081,7 @@ function saveConversations() {
                 }
                 const titleEl = document.querySelector(`.conversation-box.${box} .box-title`);
                 if (titleEl) {
-                    const label = box.charAt(0).toUpperCase() + box.slice(1);
+                    const label = window.t(`conversation_box.box_${box}`);
                     if (window.innerWidth < 768) {
                         titleEl.innerHTML = `<span class="box-label">${label}</span><span class="box-count">${conversations[box].length}</span>`;
                     } else {
@@ -1229,7 +1233,7 @@ function saveConversations() {
                 }, 'image/png');
             } catch (error) { 
                 console.error('Error:', error); 
-                showNotification('Error capturing snapshot'); 
+                showNotification(window.t('conversation_box.snapshot_error'));
             } finally { 
                 if (tempElement) document.body.removeChild(tempElement); 
             }
@@ -1273,7 +1277,7 @@ function saveConversations() {
             if (user) {
                 form.style.display   = 'none';
                 status.style.display = 'flex';
-                text.textContent     = 'Signed in as ' + user.email;
+                text.textContent     = window.t('auth.signed_in_as', { email: user.email });
 
                 // Reload from Supabase when auth state changes to a new user.
                 // Skip if initializeApp already loaded this user to avoid a double-load race.
@@ -1286,7 +1290,7 @@ function saveConversations() {
             } else {
                 form.style.display   = 'block';
                 status.style.display = 'none';
-                text.textContent     = 'Not signed in';
+                text.textContent     = window.t('auth.not_signed_in');
 
                 // Revert to localStorage when signed out
                 if (appInitialized) {
@@ -1301,7 +1305,7 @@ function saveConversations() {
             const password = document.getElementById('auth-password').value;
             const { error } = await window.supabase.auth.signUp({ email, password });
             if (error) { showNotification(error.message); }
-            else        { showNotification('Check your email to confirm sign up.'); }
+            else        { showNotification(window.t('auth.check_email')); }
         }
 
         async function authLogIn() {
