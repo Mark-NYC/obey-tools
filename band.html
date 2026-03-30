@@ -1,0 +1,970 @@
+
+<!-- wp:html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kingdom Stewardship Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif; 
+            background: #f2f2f7; 
+            min-height: 100vh; 
+            color: #000; 
+            line-height: 1.4; 
+        }
+        .container { 
+            max-width: 800px; 
+            margin: 0 auto; 
+            background: #f2f2f7; 
+            min-height: 100vh; 
+            padding-bottom: 40px;
+        }
+        .status-bar { 
+            height: 44px; 
+            background: #3a3a3c; 
+            display: flex; 
+            justify-content: space-between;
+            align-items: center; 
+            padding: 0 16px;
+            font-weight: 600; 
+            font-size: 17px; 
+            color: white;
+            letter-spacing: 1px;
+        }
+        .status-bar-controls { display: flex; align-items: center; gap: 10px; }
+        #liveModeBtn {
+            padding: 6px 12px;
+            background: #8e8e93;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        #liveModeBtn:active { transform: scale(0.95); }
+        .settings-icon { cursor: pointer; width: 24px; height: 24px; transition: transform 0.2s; }
+        .settings-icon:active { transform: scale(0.9); }
+        .header { padding: 20px 16px 16px; background: #fff; border-bottom: 0.5px solid #c6c6c8; }
+        .header h1 { font-size: 24px; font-weight: 700; text-align: center; margin-bottom: 6px; letter-spacing: -0.5px; }
+        .header .subtitle { text-align: center; color: #8e8e93; font-size: 13px; line-height: 1.4; }
+        .summary-section { margin: 16px; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .summary-header { padding: 16px; border-bottom: 0.5px solid #c6c6c8; background: #fff; }
+        .summary-title { font-size: 20px; font-weight: 700; letter-spacing: -0.5px; }
+        .summary-subtitle { font-size: 13px; color: #8e8e93; margin-top: 4px; font-weight: 500; }
+        .metrics-grid { display: grid; grid-template-columns: repeat(2, 1fr); border-top: 0.5px solid #c6c6c8; }
+        .metric-item { padding: 16px; border-right: 0.5px solid #c6c6c8; border-bottom: 0.5px solid #c6c6c8; }
+        .metric-item:nth-child(2n) { border-right: none; }
+        .metric-item:nth-last-child(-n+2) { border-bottom: none; }
+        .metric-value { font-size: 28px; font-weight: 700; color: #3a3a3c; margin-bottom: 4px; }
+        .metric-label { font-size: 13px; color: #8e8e93; font-weight: 500; }
+        .metric-icon { height: 24px; vertical-align: middle; margin-right: 6px; }
+        .counter-label-icon { height: 18px; vertical-align: middle; margin-right: 8px; }
+        .city-table { margin: 16px; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .table-header { padding: 16px; border-bottom: 0.5px solid #c6c6c8; background: #fff; }
+        .table-title { font-size: 20px; font-weight: 700; letter-spacing: -0.5px; }
+        .city-table-container { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px 16px; text-align: left; border-bottom: 0.5px solid #c6c6c8; font-size: 15px; }
+        th { background: #f2f2f7; font-weight: 600; color: #3a3a3c; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; }
+        tbody tr:last-child td { border-bottom: none; }
+        .city-name { font-weight: 600; color: #000; font-size: 14px; }
+        .metric-number { font-weight: 600; color: #3a3a3c; }
+        .stream-badge { display: inline-block; padding: 4px 8px; color: white; border-radius: 6px; font-size: 11px; font-weight: 600; }
+        .stream-badge.gen-1 { background: #86efac; color: #166534; }
+        .stream-badge.gen-2 { background: #4ade80; color: white; }
+        .stream-badge.gen-3 { background: #22c55e; color: white; }
+        .stream-badge.gen-4 { background: #16a34a; color: white; }
+        .participation-text { font-size: 13px; font-weight: 700; }
+        .participation-text.high { color: #34c759; }
+        .participation-text.medium { color: #ff9500; }
+        .participation-text.low { color: #ff3b30; }
+        .streak-text { font-size: 11px; margin-left: 4px; }
+        .update-btn { padding: 6px 12px; background: #3a3a3c; color: white; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
+        .update-btn:active { transform: scale(0.95); }
+        .update-btn-icon { display: none; }
+        .section { display: none; }
+        .section.active { display: block; }
+        .city-view-header { background: #fff; padding: 16px; border-bottom: 0.5px solid #c6c6c8; }
+        .back-btn-inline { background: transparent; border: none; color: #007aff; font-size: 17px; font-weight: 600; cursor: pointer; padding: 8px 0; display: block; }
+        .back-btn-inline:active { opacity: 0.6; }
+        .city-view-body { padding: 16px; }
+        .meeting-banner { background: #fff; padding: 12px 16px; border-radius: 8px; font-size: 15px; margin-bottom: 24px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .meeting-banner-label { font-size: 13px; color: #8e8e93; font-weight: 500; margin-right: 8px; }
+        .meeting-banner-date { font-size: 17px; font-weight: 700; color: #3a3a3c; }
+        .section-label { font-size: 13px; color: #8e8e93; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; margin-bottom: 12px; }
+        .leaders-section { margin-bottom: 32px; }
+        .leader-card { background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .leader-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .leader-name { font-size: 17px; font-weight: 600; color: #3a3a3c; }
+        .leader-streak { font-size: 18px; }
+        .post-toggle-btn { width: 100%; padding: 14px; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .post-toggle-btn.posted { background: #34c759; color: white; }
+        .post-toggle-btn.not-posted { background: #f2f2f7; color: #3a3a3c; border: 2px solid #e5e5ea; }
+        .post-toggle-btn:active { transform: scale(0.98); }
+        .post-toggle-btn:disabled { opacity: 0.5; }
+        .add-leader-inline { width: 100%; padding: 14px; background: #fff; color: #007aff; border: 2px dashed #007aff; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .add-leader-inline:active { transform: scale(0.98); }
+        .add-leader-form { background: #fff; border-radius: 12px; padding: 16px; margin-top: 12px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); display: none; }
+        .add-leader-form.active { display: block; }
+        .form-input { width: 100%; padding: 12px; border: 2px solid #c6c6c8; border-radius: 8px; font-size: 15px; margin-bottom: 12px; }
+        .form-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .form-btn { padding: 12px; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; }
+        .form-btn.primary { background: #007aff; color: white; }
+        .form-btn.secondary { background: #f2f2f7; color: #3a3a3c; }
+        .counters-section { background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 24px; }
+        .counter-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 0.5px solid #e5e5ea; }
+        .counter-row:last-child { border-bottom: none; }
+        .counter-label-text { font-size: 15px; font-weight: 500; color: #3a3a3c; display: flex; align-items: center; gap: 8px; }
+        .counter-controls { display: flex; align-items: center; gap: 12px; }
+        .counter-btn { width: 36px; height: 36px; border: none; border-radius: 18px; font-size: 20px; font-weight: 700; cursor: pointer; transition: all 0.15s; color: white; display: flex; align-items: center; justify-content: center; }
+        .counter-btn.minus { background: #ff3b30; }
+        .counter-btn.plus { background: #34c759; }
+        .counter-btn:active { transform: scale(0.9); }
+        .counter-value { min-width: 60px; text-align: center; font-size: 17px; font-weight: 700; color: #3a3a3c; }
+        .manage-section { background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .manage-leader-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #f2f2f7; border-radius: 8px; margin-bottom: 8px; }
+        .manage-leader-name { font-size: 15px; font-weight: 500; }
+        .delete-leader-btn { background: #ff3b30; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; }
+        .delete-leader-btn:active { transform: scale(0.95); }
+        .empty-state { text-align: center; padding: 40px 20px; color: #8e8e93; font-size: 15px; }
+        .momentum-arrow { display: inline-block; margin-left: 8px; font-size: 18px; font-weight: 700; }
+        .momentum-arrow.up { color: #34c759; }
+        .momentum-arrow.stagnant { color: #ff9500; }
+        .momentum-arrow.down { color: #ff3b30; }
+        .save-indicator { position: fixed; top: 50px; right: 10px; background: #007aff; color: white; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; z-index: 999; opacity: 0; transition: opacity 0.3s; }
+        .save-indicator.saving { opacity: 1; background: #ff9500; }
+        .save-indicator.saved { opacity: 1; background: #34c759; }
+        .save-indicator.error { opacity: 1; background: #ff3b30; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
+        .modal.active { display: flex; }
+        .modal-content { background: white; padding: 0; border-radius: 12px; max-width: 90%; width: 350px; overflow: hidden; max-height: 90vh; overflow-y: auto; }
+        .modal-header { padding: 16px; border-bottom: 0.5px solid #c6c6c8; }
+        .modal-title { font-size: 20px; font-weight: 700; letter-spacing: -0.5px; }
+        .modal-body { padding: 16px; }
+        .city-list { list-style: none; margin-bottom: 16px; }
+        .city-list li { padding: 12px; background: #f2f2f7; margin-bottom: 8px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; font-size: 15px; font-weight: 500; }
+        .delete-city-btn { background: #ff3b30; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; }
+        .modal-input { width: 100%; padding: 12px; border: 2px solid #c6c6c8; border-radius: 8px; font-size: 15px; margin-bottom: 12px; }
+        .input-group { margin-bottom: 16px; }
+        .input-group label { display: block; font-size: 13px; color: #8e8e93; margin-bottom: 6px; font-weight: 500; }
+        .stream-select { width: 100%; padding: 12px; border: 2px solid #c6c6c8; border-radius: 8px; font-size: 15px; background: white; margin-bottom: 12px; }
+        .modal-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .modal-buttons button { padding: 12px; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; }
+        .btn-primary { background: #3a3a3c; color: white; }
+        .btn-secondary { background: #f2f2f7; color: #3a3a3c; }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
+        @media (max-width: 600px) {
+            table { font-size: 13px; }
+            th, td { padding: 10px 6px; }
+            th:first-child, td:first-child { width: 15%; padding-left: 8px; padding-right: 4px; }
+            th:nth-child(2), td:nth-child(2) { width: 32%; }
+            th:last-child { display: none; }
+            td:last-child { width: 40px; padding: 4px; }
+            .update-btn { width: 32px; height: 32px; padding: 0; background: transparent; border: none; display: flex; align-items: center; justify-content: center; }
+            .update-btn-text { display: none; }
+            .update-btn-icon { display: block; width: 24px; height: 24px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="save-indicator" id="saveIndicator">Saving...</div>
+    
+    <div class="container">
+        <div class="status-bar">
+            <span>2026</span>
+            <div class="status-bar-controls">
+                <button id="liveModeBtn" onclick="toggleLiveMeetingMode()">⚫ Offline</button>
+                <img src="https://obey.tools/wp-content/uploads/2025/12/Settings-White.png" class="settings-icon" onclick="openSettings()" alt="Settings">
+            </div>
+        </div>
+        
+        <div class="header">
+            <h1>The Band</h1>
+            <p class="subtitle">Vision: Reverse the Kingdom of Darkness advance in N.A.<br>Endstate: Biblical worldview holders 4% → 5% by 2030</p>
+        </div>
+
+        <div id="overviewSection">
+            <div class="summary-section">
+                <div class="summary-header">
+                    <div class="summary-title">Summary</div>
+                    <div class="summary-subtitle">Cumulative metrics across all cities</div>
+                </div>
+                <div class="metrics-grid">
+                    <div class="metric-item">
+                        <div class="metric-value" id="totalActive">0 / 0</div>
+                        <div class="metric-label">Leaders Posted This Meeting</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value" id="totalBaptisms">0</div>
+                        <div class="metric-label">
+                            <img src="https://obey.tools/wp-content/uploads/2025/10/baptisms.png" class="metric-icon" alt="">Baptisms YTD
+                        </div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value" id="totalChurches">0</div>
+                        <div class="metric-label">
+                            <img src="https://obey.tools/wp-content/uploads/2025/10/churches.png" class="metric-icon" alt="">Total Churches (All Time)
+                        </div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value" id="cities4thGen">0 / 4</div>
+                        <div class="metric-label">
+                            <img src="https://obey.tools/wp-content/uploads/2025/10/stream-depth.png" class="metric-icon" alt="">Cities with 3rd Gen+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="city-table">
+                <div class="table-header"><div class="table-title">Cities</div></div>
+                <div class="city-table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>City</th>
+                                <th style="text-align:center;">Active</th>
+                                <th style="text-align:center;"><img src="https://obey.tools/wp-content/uploads/2025/10/baptisms.png" alt="Baptisms" style="height:20px;vertical-align:middle;"></th>
+                                <th style="text-align:center;"><img src="https://obey.tools/wp-content/uploads/2025/10/churches.png" alt="Churches" style="height:20px;vertical-align:middle;"></th>
+                                <th style="text-align:center;"><img src="https://obey.tools/wp-content/uploads/2025/10/stream-depth.png" alt="Stream" style="height:20px;vertical-align:middle;"></th>
+                                <th style="text-align:center;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cityTableBody">
+                            <tr><td colspan="6" class="empty-state">No cities added yet.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="summary-section" style="margin-top:16px;">
+                <div class="summary-header"><div class="summary-title">City to City Hub Definition</div></div>
+                <div style="padding:16px;font-size:15px;line-height:1.6;color:#3a3a3c;">
+                    A City to City hub is a collection of churches in a local city, autonomous from prevailing model of churches, with appointed elders and servant equippers, that reaches to at least the third generation of churches.
+                </div>
+            </div>
+        </div>
+
+        <div id="citySection" class="section">
+            <div class="city-view-header">
+                <button class="back-btn-inline" onclick="backToOverview()">← Back</button>
+            </div>
+            <div class="city-view-body">
+                <div class="meeting-banner">
+                    <span class="meeting-banner-label">Next Meeting:</span>
+                    <span class="meeting-banner-date" id="currentMeetingDate">—</span>
+                </div>
+                <div class="leaders-section">
+                    <div class="section-label" id="leadersLabel">Leaders</div>
+                    <div id="leadersList"></div>
+                    <div class="add-leader-form" id="addLeaderForm">
+                        <input type="text" class="form-input" id="leaderNameInput" placeholder="Leader name">
+                        <div class="form-buttons">
+                            <button class="form-btn primary" onclick="addLeader()">Add</button>
+                            <button class="form-btn secondary" onclick="toggleAddLeaderForm()">Cancel</button>
+                        </div>
+                    </div>
+                    <button class="add-leader-inline" onclick="toggleAddLeaderForm()">+ Add Leader</button>
+                </div>
+                <div class="counters-section">
+                    <div class="section-label">City Metrics</div>
+                    <div class="counter-row">
+                        <div class="counter-label-text">
+                            <img src="https://obey.tools/wp-content/uploads/2025/10/baptisms.png" class="counter-label-icon" alt="">Baptisms YTD
+                        </div>
+                        <div class="counter-controls">
+                            <button class="counter-btn minus" onclick="updateCityCounter('baptismsYTD',-1)">−</button>
+                            <div class="counter-value" id="baptismsCounter">0</div>
+                            <button class="counter-btn plus" onclick="updateCityCounter('baptismsYTD',1)">+</button>
+                        </div>
+                    </div>
+                    <div class="counter-row">
+                        <div class="counter-label-text">
+                            <img src="https://obey.tools/wp-content/uploads/2025/10/churches.png" class="counter-label-icon" alt="">Churches
+                        </div>
+                        <div class="counter-controls">
+                            <button class="counter-btn minus" onclick="updateCityCounter('churchesYTD',-1)">−</button>
+                            <div class="counter-value" id="churchesCounter">0</div>
+                            <button class="counter-btn plus" onclick="updateCityCounter('churchesYTD',1)">+</button>
+                        </div>
+                    </div>
+                    <div class="counter-row">
+                        <div class="counter-label-text">
+                            <img src="https://obey.tools/wp-content/uploads/2025/10/stream-depth.png" class="counter-label-icon" alt="">Stream Depth
+                        </div>
+                        <div class="counter-controls">
+                            <button class="counter-btn minus" onclick="updateCityStreamDepth(-1)">−</button>
+                            <div class="counter-value" id="streamCounter">1st Gen</div>
+                            <button class="counter-btn plus" onclick="updateCityStreamDepth(1)">+</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="manage-section">
+                    <div class="section-label">Manage Leaders</div>
+                    <div id="manageLeadersList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header"><div class="modal-title">Manage Cities</div></div>
+            <div class="modal-body">
+                <ul class="city-list" id="cityList"></ul>
+                <div style="border-top:1px solid #c6c6c8;padding-top:16px;margin-top:16px;">
+                    <div style="font-size:17px;font-weight:600;margin-bottom:16px;">Add New City</div>
+                    <input type="text" class="modal-input" id="newCityInput" placeholder="City name">
+                    <div class="input-group">
+                        <label>Total Churches (All Time)</label>
+                        <input type="number" class="modal-input" id="totalChurchesInput" placeholder="0" value="0" min="0">
+                    </div>
+                    <div class="input-group">
+                        <label>Current Stream Depth</label>
+                        <select class="stream-select" id="streamDepthInput">
+                            <option value="1st Gen">1st Gen</option>
+                            <option value="2nd Gen">2nd Gen</option>
+                            <option value="3rd Gen">3rd Gen</option>
+                            <option value="4th Gen">4th Gen</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-buttons">
+                    <button class="btn-primary" onclick="addCity()">Add City</button>
+                    <button class="btn-secondary" onclick="closeSettings()">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let cities = [];
+        let currentCity = null;
+        let currentCityIndex = -1;
+        let lastSyncTimestamp = null;
+        let syncInterval = null;
+        let isLiveMeetingMode = false;
+        let pendingSave = false;
+        let saveQueue = [];
+        const streamLevels = ['1st Gen', '2nd Gen', '3rd Gen', '4th Gen'];
+
+        // ============================================================
+        // SANITIZE: postHistory must always be a plain object {}
+        // Arrays silently drop string keys during JSON serialization
+        // ============================================================
+        function sanitizeLeaders(citiesArr) {
+            (citiesArr || []).forEach(city => {
+                (city.leaders || []).forEach(leader => {
+                    if (!leader.postHistory || Array.isArray(leader.postHistory)) {
+                        leader.postHistory = {};
+                    }
+                });
+            });
+            return citiesArr;
+        }
+
+        function getAjaxUrl() {
+            return typeof band_ajax !== 'undefined' ? band_ajax.ajax_url : '/wp-admin/admin-ajax.php';
+        }
+        function getNonce() {
+            return typeof band_ajax !== 'undefined' ? band_ajax.nonce : '';
+        }
+
+        function getNthSundayOfMonth(year, month, n) {
+            const firstDay = new Date(year, month, 1);
+            const firstSunday = 1 + (7 - firstDay.getDay()) % 7;
+            return new Date(year, month, firstSunday + (n - 1) * 7);
+        }
+
+        function getLastEightMeetings() {
+            const meetings = [];
+            const startDate = new Date('2026-01-11');
+            const now = new Date();
+            const estNow = new Date(now.toLocaleString("en-US", {timeZone: "America/New_York"}));
+            let year = estNow.getFullYear();
+            let month = estNow.getMonth();
+
+            for (let i = 0; i < 4; i++) {
+                const second = getNthSundayOfMonth(year, month, 2);
+                const fourth = getNthSundayOfMonth(year, month, 4);
+                if (second >= startDate) meetings.push({ date: new Date(second), key: `${year}-${month}-2` });
+                if (fourth >= startDate) meetings.push({ date: new Date(fourth), key: `${year}-${month}-4` });
+                month--;
+                if (month < 0) { month = 11; year--; }
+            }
+            return meetings.sort((a, b) => a.date - b.date).slice(-8);
+        }
+
+        function getCurrentMeetingPeriod() {
+            const now = new Date();
+            const estNow = new Date(now.toLocaleString("en-US", {timeZone: "America/New_York"}));
+            const meetings = getLastEightMeetings();
+
+            for (const meeting of meetings) {
+                const cutoff = new Date(meeting.date);
+                cutoff.setHours(23, 59, 59, 999);
+                const estCutoff = new Date(cutoff.toLocaleString("en-US", {timeZone: "America/New_York"}));
+                if (estNow <= estCutoff) {
+                    console.log('📅 Current meeting period:', meeting.key, formatMeetingDate(meeting.date));
+                    return meeting;
+                }
+            }
+
+            // Past all — return next upcoming
+            const year = estNow.getFullYear();
+            const month = estNow.getMonth();
+            const second = getNthSundayOfMonth(year, month, 2);
+            const fourth = getNthSundayOfMonth(year, month, 4);
+            const secondCutoff = new Date(second); secondCutoff.setHours(23,59,59,999);
+            const fourthCutoff = new Date(fourth); fourthCutoff.setHours(23,59,59,999);
+
+            let nextDate, nextWhich;
+            if (estNow <= secondCutoff) { nextDate = second; nextWhich = '2'; }
+            else if (estNow <= fourthCutoff) { nextDate = fourth; nextWhich = '4'; }
+            else {
+                const nm = month === 11 ? 0 : month + 1;
+                const ny = month === 11 ? year + 1 : year;
+                nextDate = getNthSundayOfMonth(ny, nm, 2);
+                nextWhich = '2';
+            }
+            const key = `${nextDate.getFullYear()}-${nextDate.getMonth()}-${nextWhich}`;
+            console.log('📅 Next meeting period:', key, formatMeetingDate(nextDate));
+            return { date: nextDate, key };
+        }
+
+        function formatMeetingDate(date) {
+            const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+            const estDate = new Date(date.toLocaleString("en-US", {timeZone: "America/New_York"}));
+            return `${months[estDate.getMonth()]} ${estDate.getDate()}`;
+        }
+
+        function calculateStreak(leader) {
+            if (!leader.postHistory || Object.keys(leader.postHistory).length === 0) return 0;
+            const meetings = getLastEightMeetings().reverse();
+            let streak = 0;
+            for (const m of meetings) {
+                if (leader.postHistory[m.key]) streak++;
+                else break;
+            }
+            return streak;
+        }
+
+        function calculateCityStreak(city) {
+            if (!city.leaders || city.leaders.length === 0) return 0;
+            const meetings = getLastEightMeetings().reverse();
+            let streak = 0;
+            for (const m of meetings) {
+                let posted = 0;
+                city.leaders.forEach(l => { if (l.postHistory && l.postHistory[m.key]) posted++; });
+                if (Math.round((posted / city.leaders.length) * 100) >= 75) streak++;
+                else break;
+            }
+            return streak;
+        }
+
+        function getStreakEmojis(streak) {
+            if (streak === 0) return '⚫';
+            if (streak === 1) return '🔥';
+            if (streak === 2) return '🔥🔥';
+            return '🔥🔥🔥';
+        }
+
+        function calculateCityParticipation(city) {
+            if (!city.leaders || city.leaders.length === 0) return 0;
+            const cm = getCurrentMeetingPeriod();
+            let posted = 0;
+            city.leaders.forEach(l => { if (l.postHistory && l.postHistory[cm.key]) posted++; });
+            return Math.round((posted / city.leaders.length) * 100);
+        }
+
+        function trackMomentum(cityIndex) {
+            const city = cities[cityIndex];
+            if (!city.momentumHistory) city.momentumHistory = [];
+            city.momentumHistory.push({ date: new Date().toISOString(), rate: calculateCityParticipation(city) });
+            if (city.momentumHistory.length > 8) city.momentumHistory.shift();
+        }
+
+        function calculateMomentum(city) {
+            if (!city.momentumHistory || city.momentumHistory.length < 3) return 'stagnant';
+            const h = city.momentumHistory;
+            const recentAvg = h.slice(-2).reduce((s, x) => s + x.rate, 0) / 2;
+            const olderAvg = h.slice(0, -2).reduce((s, x) => s + x.rate, 0) / (h.length - 2);
+            const d = recentAvg - olderAvg;
+            if (d > 10) return 'up';
+            if (d < -10) return 'down';
+            return 'stagnant';
+        }
+
+        function getMomentumArrow(m) {
+            if (m === 'up') return '<span class="momentum-arrow up">↑</span>';
+            if (m === 'down') return '<span class="momentum-arrow down">↓</span>';
+            return '<span class="momentum-arrow stagnant">→</span>';
+        }
+
+        function getStreamDisplay(sd) {
+            const match = (sd || '').match(/(\d+)(st|nd|rd|th)/);
+            return match ? match[1] + match[2] : sd;
+        }
+
+        function getStreamClass(sd) {
+            if ((sd || '').includes('1st')) return 'gen-1';
+            if ((sd || '').includes('2nd')) return 'gen-2';
+            if ((sd || '').includes('3rd')) return 'gen-3';
+            if ((sd || '').includes('4th')) return 'gen-4';
+            return 'gen-1';
+        }
+
+        function showSaveIndicator(state) {
+            const el = document.getElementById('saveIndicator');
+            el.className = 'save-indicator ' + state;
+            if (state === 'saving') { el.textContent = 'Saving...'; }
+            else if (state === 'saved') { el.textContent = 'Saved ✓'; setTimeout(() => { el.className = 'save-indicator'; }, 2000); }
+            else if (state === 'error') { el.textContent = 'Save failed ✗'; setTimeout(() => { el.className = 'save-indicator'; }, 3000); }
+        }
+
+        function mergeLeaders(localLeaders, serverLeaders) {
+            const map = {};
+            (serverLeaders || []).forEach(l => { map[l.name] = { ...l, postHistory: { ...(l.postHistory || {}) } }; });
+            (localLeaders || []).forEach(l => {
+                if (map[l.name]) {
+                    const h = { ...(map[l.name].postHistory || {}) };
+                    Object.keys(l.postHistory || {}).forEach(k => { if (l.postHistory[k] === true) h[k] = true; });
+                    map[l.name].postHistory = h;
+                } else {
+                    map[l.name] = { ...l, postHistory: { ...(l.postHistory || {}) } };
+                }
+            });
+            return Object.values(map);
+        }
+
+        function getMaxStreamDepth(d1, d2) {
+            return streamLevels[Math.max(streamLevels.indexOf(d1 || '1st Gen'), streamLevels.indexOf(d2 || '1st Gen'))];
+        }
+
+        async function handleConflict(serverData) {
+            console.log('🔄 Resolving conflict...');
+            const serverMap = {};
+            (serverData.data.cities || []).forEach(c => { serverMap[c.name] = c; });
+            const merged = [];
+            cities.forEach(lc => {
+                const sc = serverMap[lc.name];
+                if (!sc) { merged.push(lc); }
+                else {
+                    merged.push({
+                        ...sc,
+                        leaders: mergeLeaders(lc.leaders, sc.leaders),
+                        baptismsYTD: Math.max(lc.baptismsYTD || 0, sc.baptismsYTD || 0),
+                        churchesYTD: Math.max(lc.churchesYTD || 0, sc.churchesYTD || 0),
+                        totalChurches: Math.max(lc.totalChurches || 0, sc.totalChurches || 0),
+                        streamDepth: getMaxStreamDepth(lc.streamDepth, sc.streamDepth),
+                        totalStreamDepth: getMaxStreamDepth(lc.totalStreamDepth, sc.totalStreamDepth)
+                    });
+                    delete serverMap[lc.name];
+                }
+            });
+            Object.values(serverMap).forEach(sc => merged.push(sc));
+            cities = sanitizeLeaders(merged);
+            lastSyncTimestamp = serverData.lastModified;
+            await saveData();
+            showNotification('Changes merged from other device');
+        }
+
+        function startLiveSync() {
+            if (syncInterval) return;
+            syncInterval = setInterval(checkForUpdates, 5000);
+        }
+
+        function stopLiveSync() {
+            if (syncInterval) { clearInterval(syncInterval); syncInterval = null; }
+        }
+
+        async function checkForUpdates() {
+            if (pendingSave) return;
+            try {
+                const r = await fetch(getAjaxUrl(), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({ action: 'kingdom_check_updates', nonce: getNonce(), last_sync: lastSyncTimestamp })
+                });
+                const result = await r.json();
+                if (result.success && result.data.needsUpdate) {
+                    showNotification('Data updated by ' + result.data.modifiedBy);
+                    if (saveQueue.length > 0) {
+                        await handleConflict(result.data);
+                    } else {
+                        cities = sanitizeLeaders(result.data.data.cities || []);
+                        lastSyncTimestamp = result.data.lastModified;
+                        updateOverview();
+                        if (currentCityIndex >= 0) renderCityView();
+                    }
+                }
+            } catch(e) { console.error('❌ Sync check failed:', e); }
+        }
+
+        function showNotification(msg) {
+            const n = document.createElement('div');
+            n.style.cssText = 'position:fixed;top:60px;right:10px;background:#34c759;color:white;padding:12px 20px;border-radius:8px;font-weight:600;z-index:10000;animation:slideIn 0.3s ease-out;';
+            n.textContent = msg;
+            document.body.appendChild(n);
+            setTimeout(() => { n.style.animation = 'slideOut 0.3s ease-out'; setTimeout(() => n.remove(), 300); }, 3000);
+        }
+
+        function toggleLiveMeetingMode() {
+            isLiveMeetingMode = !isLiveMeetingMode;
+            if (isLiveMeetingMode) { startLiveSync(); showNotification('Live Meeting Mode ON'); }
+            else { stopLiveSync(); showNotification('Live Meeting Mode OFF'); }
+            updateLiveModeButton();
+        }
+
+        function updateLiveModeButton() {
+            const btn = document.getElementById('liveModeBtn');
+            if (btn) { btn.textContent = isLiveMeetingMode ? '🔴 Live' : '⚫ Offline'; btn.style.background = isLiveMeetingMode ? '#34c759' : '#8e8e93'; }
+        }
+
+        async function loadData() {
+            console.log('📥 Loading data from server...');
+            console.log('Using AJAX URL:', getAjaxUrl());
+            console.log('Using nonce:', getNonce() ? 'Present' : 'MISSING');
+            try {
+                const r = await fetch(getAjaxUrl(), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({ action: 'kingdom_load_data', nonce: getNonce() })
+                });
+                const result = await r.json();
+                console.log('📥 Load result:', result);
+                if (result.success) {
+                    cities = sanitizeLeaders(result.data.data.cities || []); // ✅ sanitize on load
+                    lastSyncTimestamp = result.data.lastModified || new Date().toISOString();
+                    console.log('✅ Loaded from server');
+                    console.log('📊 Loaded cities:', cities.length);
+                } else {
+                    console.error('❌ Load failed:', result);
+                    cities = [];
+                    lastSyncTimestamp = new Date().toISOString();
+                }
+            } catch(e) {
+                console.error('❌ Load error:', e);
+                cities = [];
+                lastSyncTimestamp = new Date().toISOString();
+            }
+            updateOverview();
+        }
+
+        async function saveData() {
+            return new Promise((resolve, reject) => {
+                saveQueue.push({ resolve, reject });
+                processSaveQueue();
+            });
+        }
+
+        async function processSaveQueue() {
+            if (pendingSave || saveQueue.length === 0) return;
+            pendingSave = true;
+            showSaveIndicator('saving');
+            const data = { cities: JSON.parse(JSON.stringify(cities)) };
+            console.log('💾 Saving cities:', data.cities.length);
+            try {
+                const r = await fetch(getAjaxUrl(), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({
+                        action: 'kingdom_save_data',
+                        nonce: getNonce(),
+                        network_data: JSON.stringify(data),
+                        last_known_timestamp: lastSyncTimestamp
+                    })
+                });
+                const result = await r.json();
+                console.log('💾 Save result:', result);
+                if (result.success) {
+                    lastSyncTimestamp = result.data.lastModified;
+                    console.log('✅ Saved successfully');
+                    showSaveIndicator('saved');
+                    updateOverview();
+                    while (saveQueue.length > 0) { const { resolve } = saveQueue.shift(); resolve(); }
+                } else if (result.data && result.data.conflict) {
+                    console.warn('⚠️ Conflict, merging...');
+                    await handleConflict(result.data.serverData);
+                    while (saveQueue.length > 0) { const { resolve } = saveQueue.shift(); resolve(); }
+                } else {
+                    console.error('❌ Save failed:', result);
+                    showSaveIndicator('error');
+                    while (saveQueue.length > 0) { const { reject } = saveQueue.shift(); reject(new Error('Save failed')); }
+                }
+            } catch(e) {
+                console.error('❌ Save error:', e);
+                showSaveIndicator('error');
+                while (saveQueue.length > 0) { const { reject } = saveQueue.shift(); reject(e); }
+            } finally {
+                pendingSave = false;
+                if (saveQueue.length > 0) setTimeout(processSaveQueue, 100);
+            }
+        }
+
+        function updateOverview() {
+            let totalLeaders = 0, totalActive = 0, totalBaptisms = 0, totalChurches = 0, cities3rdPlus = 0;
+            const cm = getCurrentMeetingPeriod();
+
+            cities.forEach((city, index) => {
+                (city.leaders || []).forEach(l => {
+                    totalLeaders++;
+                    if (l.postHistory && l.postHistory[cm.key]) totalActive++;
+                });
+                totalBaptisms += city.baptismsYTD || 0;
+                totalChurches += city.totalChurches || 0;
+                const sd = city.totalStreamDepth || '1st Gen';
+                if (sd === '3rd Gen' || sd === '4th Gen') cities3rdPlus++;
+                
+            });
+
+            document.getElementById('totalActive').textContent = `${totalActive} / ${totalLeaders}`;
+            document.getElementById('totalBaptisms').textContent = totalBaptisms;
+            document.getElementById('totalChurches').textContent = totalChurches;
+            document.getElementById('cities4thGen').textContent = `${cities3rdPlus} / 4`;
+
+            const tbody = document.getElementById('cityTableBody');
+            if (cities.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No cities added yet. Tap the settings icon to add cities.</td></tr>';
+                return;
+            }
+
+            const sorted = cities.map((c, i) => ({ c, i })).sort((a, b) => a.c.name.localeCompare(b.c.name));
+            tbody.innerHTML = sorted.map(({ c, i }) => {
+                let activeCount = 0;
+                (c.leaders || []).forEach(l => { if (l.postHistory && l.postHistory[cm.key]) activeCount++; });
+                const participation = calculateCityParticipation(c);
+                const textClass = participation >= 75 ? 'high' : participation >= 50 ? 'medium' : 'low';
+                const streakEmojis = getStreakEmojis(calculateCityStreak(c));
+                const streakText = streakEmojis !== '⚫' ? `<span class="streak-text">${streakEmojis}</span>` : '';
+                return `
+                    <tr>
+                        <td class="city-name">${c.name}</td>
+                        <td style="text-align:center;"><span class="participation-text ${textClass}">${activeCount}/${(c.leaders || []).length}</span>${getMomentumArrow(calculateMomentum(c))}${streakText}</td>
+                        <td class="metric-number" style="text-align:center;">${c.baptismsYTD || 0}</td>
+                        <td class="metric-number" style="text-align:center;">${c.totalChurches || 0}</td>
+                        <td style="text-align:center;"><span class="stream-badge ${getStreamClass(c.totalStreamDepth || '1st Gen')}">${getStreamDisplay(c.totalStreamDepth || '1st Gen')}</span></td>
+                        <td style="text-align:center;">
+                            <button class="update-btn" onclick="openCity(${i})">
+                                <span class="update-btn-text">UPDATE</span>
+                                <img src="https://obey.tools/wp-content/uploads/2025/12/edit-qtep4ftgzlsz4sl22a43m9.webp" class="update-btn-icon" alt="Update">
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function openCity(index) {
+            currentCityIndex = index;
+            currentCity = cities[index];
+            if (!currentCity.leaders) currentCity.leaders = [];
+            document.getElementById('overviewSection').style.display = 'none';
+            document.getElementById('citySection').classList.add('active');
+            renderCityView();
+        }
+
+        function backToOverview() {
+            document.getElementById('overviewSection').style.display = 'block';
+            document.getElementById('citySection').classList.remove('active');
+            currentCity = null;
+            currentCityIndex = -1;
+        }
+
+        function renderCityView() {
+            // ✅ FIX: always re-sync from live array — prevents stale reference after save/load cycles
+            if (currentCityIndex < 0) return;
+            currentCity = cities[currentCityIndex];
+            if (!currentCity) return;
+
+            const cm = getCurrentMeetingPeriod();
+            document.getElementById('currentMeetingDate').textContent = formatMeetingDate(cm.date);
+            document.getElementById('leadersLabel').textContent = `${currentCity.name.toUpperCase()} LEADERS`;
+            document.getElementById('baptismsCounter').textContent = currentCity.baptismsYTD || 0;
+            document.getElementById('churchesCounter').textContent = currentCity.totalChurches || 0;
+            document.getElementById('streamCounter').textContent = currentCity.streamDepth || '1st Gen';
+
+            const leadersList = document.getElementById('leadersList');
+            leadersList.innerHTML = '';
+
+            if (!currentCity.leaders || currentCity.leaders.length === 0) {
+                leadersList.innerHTML = '<div class="empty-state">No leaders added yet. Click "+ Add Leader" below.</div>';
+            } else {
+                currentCity.leaders.forEach((leader, index) => {
+                    const hasPosted = !!(leader.postHistory && leader.postHistory[cm.key]);
+                    const card = document.createElement('div');
+                    card.className = 'leader-card';
+                    card.innerHTML = `
+                        <div class="leader-card-header">
+                            <div class="leader-name">${leader.name}</div>
+                            <div class="leader-streak">${getStreakEmojis(calculateStreak(leader))}</div>
+                        </div>
+                        <button class="post-toggle-btn ${hasPosted ? 'posted' : 'not-posted'}"
+                                onclick="togglePostStatus(${index})"
+                                id="leader-btn-${index}">
+                            ${hasPosted ? `✓ Posted for ${formatMeetingDate(cm.date)}` : `Mark as Posted for ${formatMeetingDate(cm.date)}`}
+                        </button>
+                    `;
+                    leadersList.appendChild(card);
+                });
+            }
+
+            const manageList = document.getElementById('manageLeadersList');
+            manageList.innerHTML = '';
+            if (currentCity.leaders && currentCity.leaders.length > 0) {
+                currentCity.leaders.forEach((leader, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'manage-leader-item';
+                    div.innerHTML = `<span class="manage-leader-name">${leader.name}</span><button class="delete-leader-btn" onclick="removeLeader(${index})">Remove</button>`;
+                    manageList.appendChild(div);
+                });
+            } else {
+                manageList.innerHTML = '<div class="empty-state">No leaders to manage.</div>';
+            }
+        }
+
+        function toggleAddLeaderForm() {
+            const form = document.getElementById('addLeaderForm');
+            form.classList.toggle('active');
+            if (form.classList.contains('active')) document.getElementById('leaderNameInput').focus();
+        }
+
+        async function addLeader() {
+            const name = document.getElementById('leaderNameInput').value.trim();
+            if (!name) return;
+            cities[currentCityIndex].leaders.push({ name, postHistory: {} }); // ✅ always {}
+            document.getElementById('leaderNameInput').value = '';
+            toggleAddLeaderForm();
+            renderCityView();
+            try { await saveData(); } catch(e) { console.error('Failed to save leader:', e); alert('Failed to save. Try again.'); }
+        }
+
+        async function removeLeader(index) {
+            if (confirm(`Remove ${cities[currentCityIndex].leaders[index].name}?`)) {
+                cities[currentCityIndex].leaders.splice(index, 1);
+                renderCityView();
+                try { await saveData(); } catch(e) { console.error('Failed to save:', e); }
+            }
+        }
+
+        async function togglePostStatus(leaderIndex) {
+            // ✅ FIX: read directly from live cities array, not stale currentCity ref
+            const leader = cities[currentCityIndex].leaders[leaderIndex];
+            const btn = document.getElementById(`leader-btn-${leaderIndex}`);
+
+            if (!leader.postHistory || Array.isArray(leader.postHistory)) {
+                leader.postHistory = {};
+            }
+
+            const cm = getCurrentMeetingPeriod();
+            const prev = leader.postHistory[cm.key];
+
+            if (isLiveMeetingMode && prev === true) {
+                if (!confirm('Already marked as posted. Unmark?')) return;
+            }
+
+            leader.postHistory[cm.key] = !prev;
+
+            console.log('✏️ Toggling post status:', {
+                leader: leader.name,
+                meeting: cm.key,
+                newValue: leader.postHistory[cm.key],
+                fullHistory: leader.postHistory
+            });
+
+            btn.disabled = true;
+            renderCityView();
+
+            try {
+                await saveData();
+                console.log('✅ Post status saved successfully');
+            } catch(e) {
+                console.error('❌ Failed to save post status:', e);
+                alert('Failed to save. Try again.');
+                leader.postHistory[cm.key] = prev;
+                renderCityView();
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        async function updateCityCounter(field, change) {
+            const city = cities[currentCityIndex];
+            if (!city) return;
+            if (!city[field]) city[field] = 0;
+            city[field] = Math.max(0, city[field] + change);
+            if (field === 'churchesYTD') city.totalChurches = city[field];
+            renderCityView();
+            try { await saveData(); } catch(e) { console.error('Failed to save counter:', e); }
+        }
+
+        async function updateCityStreamDepth(change) {
+            const city = cities[currentCityIndex];
+            if (!city) return;
+            const idx = streamLevels.indexOf(city.streamDepth || '1st Gen');
+            const newIdx = Math.max(0, Math.min(streamLevels.length - 1, idx + change));
+            city.streamDepth = streamLevels[newIdx];
+            city.totalStreamDepth = streamLevels[newIdx];
+            renderCityView();
+            try { await saveData(); } catch(e) { console.error('Failed to save stream depth:', e); }
+        }
+
+        function openSettings() {
+            const pw = prompt('Enter password to access settings:');
+            if (pw === 'Matthew28!') {
+                document.getElementById('settingsModal').classList.add('active');
+                updateCityList();
+            } else if (pw !== null) {
+                alert('Incorrect password');
+            }
+        }
+
+        function closeSettings() {
+            document.getElementById('settingsModal').classList.remove('active');
+        }
+
+        function updateCityList() {
+            const list = document.getElementById('cityList');
+            list.innerHTML = '';
+            cities.forEach((city, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span>${city.name}</span><button class="delete-city-btn" onclick="deleteCity(${index})">Delete</button>`;
+                list.appendChild(li);
+            });
+        }
+
+        async function addCity() {
+            const name = document.getElementById('newCityInput').value.trim();
+            if (!name) return;
+            const totalChurches = parseInt(document.getElementById('totalChurchesInput').value) || 0;
+            const streamDepth = document.getElementById('streamDepthInput').value;
+            cities.push({ name, leaders: [], baptismsYTD: 0, churchesYTD: 0, streamDepth, totalChurches, totalStreamDepth: streamDepth });
+            document.getElementById('newCityInput').value = '';
+            document.getElementById('totalChurchesInput').value = '0';
+            document.getElementById('streamDepthInput').value = '1st Gen';
+            updateOverview();
+            updateCityList();
+            try { await saveData(); } catch(e) { console.error('Failed to save city:', e); }
+        }
+
+        async function deleteCity(index) {
+            if (confirm(`Delete ${cities[index].name}? This cannot be undone.`)) {
+                cities.splice(index, 1);
+                updateOverview();
+                updateCityList();
+                backToOverview();
+                try { await saveData(); } catch(e) { console.error('Failed to save after delete:', e); }
+            }
+        }
+
+        // Initialize
+        loadData();
+    </script>
+</body>
+</html>
+<!-- /wp:html -->
