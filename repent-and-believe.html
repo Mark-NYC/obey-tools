@@ -825,21 +825,8 @@
         let storageKey = 'command-repent-believe-progress';
         let completedCards = [];
         let stepProgress = {};
-        const sectionAssignments = {
-            'lookback': window.t('section_keys.lookback'),
-            'lookup': window.t('section_keys.lookup'),
-            'lookforward': window.t('section_keys.lookforward')
-        };
-        const componentAssignments = {
-            'care': window.t('component_keys.care'),
-            'worship': window.t('component_keys.worship'),
-            'accountability': window.t('component_keys.accountability'),
-            'vision': window.t('component_keys.vision'),
-            'lookup': window.t('component_keys.lookup'),
-            'practice': window.t('component_keys.practice'),
-            'goals': window.t('component_keys.goals'),
-            'commission': window.t('component_keys.commission')
-        };
+        const sectionAssignments = { 'lookback': 'Look Back', 'lookup': 'Look Up', 'lookforward': 'Look Forward' };
+        const componentAssignments = { 'care': 'Care & Prayer', 'worship': 'Worship', 'accountability': 'Loving Accountability', 'vision': 'Vision', 'lookup': 'Look Up Section', 'practice': 'Practice', 'goals': 'Set Goals', 'commission': 'Commission' };
         function initializeFromURL() {
             const hash = window.location.hash.substring(1);
             if (hash) {
