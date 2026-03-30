@@ -8,7 +8,7 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
       background: #f2f2f7;
       min-height: 100vh;
       color: #000;
@@ -83,41 +83,6 @@
       border: 0;
     }
 
-    .controls {
-      padding: 0 16px 20px;
-      background: #fff;
-      border-bottom: 0.5px solid #c6c6c8;
-    }
-
-    .btn-group {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .btn {
-      flex: 1 1 100%;
-      padding: 11px 16px;
-      border: none;
-      border-radius: 8px;
-      font-weight: 600;
-      font-size: 15px;
-      text-align: center;
-      text-decoration: none;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .btn-primary {
-      background: #3a3a3c;
-      color: white;
-    }
-
-    .btn-primary:active {
-      background: #2c2c2e;
-      transform: scale(0.98);
-    }
-
     .languages-section {
       padding: 20px 16px;
       background: #f2f2f7;
@@ -132,26 +97,31 @@
       letter-spacing: 0.4px;
     }
 
-    .language-box {
+    .language-box,
+    .next-steps-box {
       background: #fff;
       border-radius: 12px;
       overflow: hidden;
       box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
 
-    .language-list {
+    .language-list,
+    .next-steps-list {
       list-style: none;
     }
 
-    .language-item {
+    .language-item,
+    .next-step-item {
       border-bottom: 0.5px solid #c6c6c8;
     }
 
-    .language-item:last-child {
+    .language-item:last-child,
+    .next-step-item:last-child {
       border-bottom: none;
     }
 
-    .language-link {
+    .language-link,
+    .next-step-link {
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -164,15 +134,26 @@
       font-weight: 500;
     }
 
-    .language-link:active {
+    .language-link:active,
+    .next-step-link:active {
       background: #f2f2f7;
     }
 
-    .language-arrow {
+    .language-arrow,
+    .next-step-arrow {
       color: #c7c7cc;
       font-size: 18px;
       margin-left: 12px;
       flex-shrink: 0;
+    }
+
+    .next-steps-section {
+      padding: 0 16px 20px;
+      background: #f2f2f7;
+    }
+
+    .next-step-link.primary {
+      font-weight: 600;
     }
 
     @media (min-width: 768px) {
@@ -189,18 +170,14 @@
         min-height: auto;
       }
 
-      .btn-group {
-        flex-wrap: nowrap;
-      }
-
-      .btn {
-        flex: 1;
-      }
-
       .language-columns {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 20px;
+      }
+
+      .next-steps-box {
+        max-width: 420px;
       }
     }
   </style>
@@ -225,14 +202,6 @@
               allowfullscreen>
             </iframe>
           </div>
-        </div>
-      </div>
-
-      <div class="controls">
-        <div class="btn-group">
-          <a class="btn btn-primary" href="YOUR_TRAINING_LINK_HERE">Get Training</a>
-          <a class="btn btn-primary" href="YOUR_COMMANDS_LINK_HERE">Commands of Christ</a>
-          <a class="btn btn-primary" href="YOUR_STICKERS_LINK_HERE">Stickers</a>
         </div>
       </div>
 
@@ -281,6 +250,32 @@
               <li class="language-item"><a class="language-link" href="https://youtu.be/vHTKavU63K8" target="_blank" rel="noopener noreferrer"><span>🇻🇳 Vietnamese – 3 Vòng tròn</span><span class="language-arrow">›</span></a></li>
             </ul>
           </div>
+        </div>
+      </div>
+
+      <div class="next-steps-section">
+        <div class="section-title">Next Steps</div>
+        <div class="next-steps-box">
+          <ul class="next-steps-list">
+            <li class="next-step-item">
+              <a class="next-step-link primary" href="https://multiplyingdisciples.us/#training">
+                <span>Get 3 Circles Training</span>
+                <span class="next-step-arrow">›</span>
+              </a>
+            </li>
+            <li class="next-step-item">
+              <a class="next-step-link" href="https://obey.tools/commands-of-christ.html">
+                <span>Commands of Christ</span>
+                <span class="next-step-arrow">›</span>
+              </a>
+            </li>
+            <li class="next-step-item">
+              <a class="next-step-link" href="http://multiplyingdisciples.us/stickers">
+                <span>Stickers</span>
+                <span class="next-step-arrow">›</span>
+              </a>
+            </li>
+          </ul>
         </div>
       </div>
     </div>
