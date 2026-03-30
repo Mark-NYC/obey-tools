@@ -192,7 +192,8 @@
   "lords_supper": {
     "title": "Lord's Supper",
     "scripture": "Command: Luke 22:19–20 | Story: Luke 22:7–20",
-    "teaching_ref": "Luke 22:19-20 | Luke 22:7-20"
+    "teaching_ref": "Luke 22:19-20 | Luke 22:7-20",
+    "bible_btn": "Luke 22:7–20 (CSB)"
   },
   "pray_page": {
     "title": "Pray",

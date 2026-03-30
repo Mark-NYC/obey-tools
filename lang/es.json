@@ -192,7 +192,8 @@
   "lords_supper": {
     "title": "La Cena del Señor",
     "scripture": "Mandamiento: Lucas 22:19–20 | Historia: Lucas 22:7–20",
-    "teaching_ref": "Lucas 22:19-20 | Lucas 22:7-20"
+    "teaching_ref": "Lucas 22:19-20 | Lucas 22:7-20",
+    "bible_btn": "Luke 22:7–20 (CSB)"
   },
   "pray_page": {
     "title": "Orar",
