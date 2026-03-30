@@ -194,32 +194,38 @@
   "pray_page": {
     "title": "Pray",
     "scripture": "Command: Matt 6:9 | Story: Matt 6:5–15",
-    "teaching_ref": "Matt 6:9 | Matt 6:5-15"
+    "teaching_ref": "Matt 6:9 | Matt 6:5-15",
+    "bible_btn": "Matthew 6:5–15 (CSB)"
   },
   "signs_and_wonders": {
     "title": "Signs & Wonders",
     "scripture": "Command: John 14:6–14 | Story: Luke 5:17–26",
-    "teaching_ref": "John 14:6-14 | Luke 5:17-26"
+    "teaching_ref": "John 14:6-14 | Luke 5:17-26",
+    "bible_btn": "Luke 5:17–26 (CSB)"
   },
   "generosity": {
     "title": "Generosity",
     "scripture": "Command: Matt 6:1–4 | Story: Mark 12:41–44",
-    "teaching_ref": "Matt 6:1-4 | Mark 12:41-44"
+    "teaching_ref": "Matt 6:1-4 | Mark 12:41-44",
+    "bible_btn": "Mark 12:41–44 (CSB)"
   },
   "worship_page": {
     "title": "Worship",
     "scripture": "Command: Mark 12:28–34 | Story: Luke 7:36–50",
-    "teaching_ref": "Mark 12:28-34 | Luke 7:36-50"
+    "teaching_ref": "Mark 12:28-34 | Luke 7:36-50",
+    "bible_btn": "Luke 7:36–50 (CSB)"
   },
   "go_make_disciples": {
     "title": "Go…Make Disciples",
     "scripture": "Command: Matt 28:18–20 | Story: Luke 10:1–11",
-    "teaching_ref": "Matt 28:18-20 | Luke 10:1-11"
+    "teaching_ref": "Matt 28:18-20 | Luke 10:1-11",
+    "bible_btn": "Luke 10:1–11 (CSB)"
   },
   "gather": {
     "title": "Gather",
     "scripture": "Command: Heb 10:24–25 | Story: Acts 2:36–47",
-    "teaching_ref": "Heb 10:24-25 | Acts 2:36-47"
+    "teaching_ref": "Heb 10:24-25 | Acts 2:36-47",
+    "bible_btn": "Acts 2:36–47 (CSB)"
   },
   "hope_rejected": {
     "title": "Hope for the Rejected",

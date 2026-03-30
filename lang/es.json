@@ -194,32 +194,38 @@
   "pray_page": {
     "title": "Orar",
     "scripture": "Mandamiento: Mt 6:9 | Historia: Mt 6:5–15",
-    "teaching_ref": "Mt 6:9 | Mt 6:5-15"
+    "teaching_ref": "Mt 6:9 | Mt 6:5-15",
+    "bible_btn": "Matthew 6:5–15 (CSB)"
   },
   "signs_and_wonders": {
     "title": "Señales y Milagros",
     "scripture": "Mandamiento: Juan 14:6–14 | Historia: Lucas 5:17–26",
-    "teaching_ref": "Juan 14:6-14 | Lucas 5:17-26"
+    "teaching_ref": "Juan 14:6-14 | Lucas 5:17-26",
+    "bible_btn": "Luke 5:17–26 (CSB)"
   },
   "generosity": {
     "title": "Generosidad",
     "scripture": "Mandamiento: Mt 6:1–4 | Historia: Marcos 12:41–44",
-    "teaching_ref": "Mt 6:1-4 | Marcos 12:41-44"
+    "teaching_ref": "Mt 6:1-4 | Marcos 12:41-44",
+    "bible_btn": "Mark 12:41–44 (CSB)"
   },
   "worship_page": {
     "title": "Adoración",
     "scripture": "Mandamiento: Marcos 12:28–34 | Historia: Lucas 7:36–50",
-    "teaching_ref": "Marcos 12:28-34 | Lucas 7:36-50"
+    "teaching_ref": "Marcos 12:28-34 | Lucas 7:36-50",
+    "bible_btn": "Luke 7:36–50 (CSB)"
   },
   "go_make_disciples": {
     "title": "Id…Haced Discípulos",
     "scripture": "Mandamiento: Mt 28:18–20 | Historia: Lucas 10:1–11",
-    "teaching_ref": "Mt 28:18-20 | Lucas 10:1-11"
+    "teaching_ref": "Mt 28:18-20 | Lucas 10:1-11",
+    "bible_btn": "Luke 10:1–11 (CSB)"
   },
   "gather": {
     "title": "Congregarse",
     "scripture": "Mandamiento: Heb 10:24–25 | Historia: Hch 2:36–47",
-    "teaching_ref": "Heb 10:24-25 | Hch 2:36-47"
+    "teaching_ref": "Heb 10:24-25 | Hch 2:36-47",
+    "bible_btn": "Acts 2:36–47 (CSB)"
   },
   "hope_rejected": {
     "title": "Esperanza para el Rechazado",
