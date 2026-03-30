@@ -314,7 +314,9 @@
     "revoking": "Revoking…",
     "revoke_confirm": "Revoke this invite link? It will no longer be redeemable.",
     "revoke": "Revoke",
-    "invite_history": "Invite History"
+    "invite_history": "Invite History",
+    "mawl_checklist": "MAWL Checklist",
+    "view_progress": "View Progress"
   },
   "invite": {
     "page_title": "Leader Invite",
@@ -395,7 +397,7 @@
   },
   "how_were_doing": {
     "title": "How We're Doing",
-    "subtitle": "Live network metrics.",
+    "subtitle": "Movement health at a glance.",
     "tab_map": "Map",
     "tab_metrics": "Metrics",
     "layer_churches": "Churches",
@@ -409,7 +411,7 @@
     "period_all": "All Time",
     "period_7": "Last 7 Days",
     "period_30": "Last 30 Days",
-    "period_90": "Last 90 Days",
+    "period_90": "Last 3 Months",
     "period_year": "Last Year",
     "recent_activity": "Recent Activity",
     "live": "Live",
@@ -425,7 +427,14 @@
     "popup_baptisms": "Baptisms:",
     "popup_generation": "Generation:",
     "popup_convos": "Spiritual/Discovery conversations: {n}",
-    "data_refreshed": "Data refreshed"
+    "data_refreshed": "Data refreshed",
+    "loading": "Loading…",
+    "last_updated": "Last updated: {time}",
+    "load_error": "Could not load data.",
+    "popup_spiritual": "Spiritual",
+    "popup_discovery": "Discovery",
+    "popup_convos_type": "<br>{type} conversations: {n}",
+    "unknown_location": "an unknown location"
   },
   "mawl": {
     "title": "MAWL Checklist",

@@ -314,7 +314,9 @@
     "revoking": "रद्द गर्दैछ…",
     "revoke_confirm": "यो निमन्त्रणा लिङ्क रद्द गर्ने? अब यसलाई प्रयोग गर्न मिल्दैन।",
     "revoke": "रद्द गर्नुहोस्",
-    "invite_history": "निमन्त्रणा इतिहास"
+    "invite_history": "निमन्त्रणा इतिहास",
+    "mawl_checklist": "MAWL जाँचसूची",
+    "view_progress": "प्रगति हेर्नुहोस्"
   },
   "invite": {
     "page_title": "लिडर निमन्त्रणा",
@@ -409,7 +411,7 @@
     "period_all": "सबै समय",
     "period_7": "पछिल्ला ७ दिन",
     "period_30": "पछिल्ला ३० दिन",
-    "period_90": "पछिल्ला ९० दिन",
+    "period_90": "पछिल्ला ३ महिना",
     "period_year": "गत वर्ष",
     "recent_activity": "हालको गतिविधि",
     "live": "लाइभ",
@@ -425,7 +427,14 @@
     "popup_baptisms": "बप्तिस्माहरू:",
     "popup_generation": "पुस्ता:",
     "popup_convos": "आध्यात्मिक/डिस्कभरी कुराकानीहरू: {n}",
-    "data_refreshed": "डेटा रिफ्रेस गरियो"
+    "data_refreshed": "डेटा रिफ्रेस गरियो",
+    "loading": "लोड हुँदैछ…",
+    "last_updated": "अन्तिम अपडेट: {time}",
+    "load_error": "डेटा लोड गर्न सकिएन।",
+    "popup_spiritual": "आध्यात्मिक",
+    "popup_discovery": "डिस्कभरी",
+    "popup_convos_type": "<br>{type} कुराकानीहरू: {n}",
+    "unknown_location": "अज्ञात स्थान"
   },
   "mawl": {
     "title": "MAWL चेकलिस्ट",

@@ -314,7 +314,9 @@
     "revoking": "Відкликання…",
     "revoke_confirm": "Відкликати це посилання-запрошення? Його більше не можна буде використати.",
     "revoke": "Відкликати",
-    "invite_history": "Історія запрошень"
+    "invite_history": "Історія запрошень",
+    "mawl_checklist": "Контрольний список MAWL",
+    "view_progress": "Переглянути прогрес"
   },
   "invite": {
     "page_title": "Запрошення лідера",
@@ -409,7 +411,7 @@
     "period_all": "За весь час",
     "period_7": "Останні 7 днів",
     "period_30": "Останні 30 днів",
-    "period_90": "Останні 90 днів",
+    "period_90": "Останні 3 місяці",
     "period_year": "Останній рік",
     "recent_activity": "Остання активність",
     "live": "Наживо",
@@ -425,7 +427,14 @@
     "popup_baptisms": "Хрещення:",
     "popup_generation": "Покоління:",
     "popup_convos": "Духовні/дослідницькі розмови: {n}",
-    "data_refreshed": "Дані оновлено"
+    "data_refreshed": "Дані оновлено",
+    "loading": "Завантаження…",
+    "last_updated": "Останнє оновлення: {time}",
+    "load_error": "Не вдалося завантажити дані.",
+    "popup_spiritual": "Духовний",
+    "popup_discovery": "Дослідницький",
+    "popup_convos_type": "<br>{type} розмови: {n}",
+    "unknown_location": "невідоме місце"
   },
   "mawl": {
     "title": "Контрольний список MAWL",

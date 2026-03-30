@@ -473,52 +473,53 @@
             }
         }
     </style>
+    <script type="module" src="/i18n.js"></script>
     <script src="/pwa.js" defer></script>
 </head>
 <body>
 
     <div style="display:flex; gap:10px; justify-content:center; padding:20px 16px 8px;">
-        <a href="index.html" style="display:inline-block; background:#000; color:#fff; font-family:-apple-system,BlinkMacSystemFont,sans-serif; font-weight:700; font-size:15px; padding:11px 22px; border-radius:50px; text-decoration:none; white-space:nowrap;">Home</a>
-        <a href="leader-tools.html" style="display:inline-block; background:#00D084; color:#fff; font-family:-apple-system,BlinkMacSystemFont,sans-serif; font-weight:700; font-size:15px; padding:11px 22px; border-radius:50px; text-decoration:none; white-space:nowrap;">← Leader Tools</a>
+        <a href="index.html" data-i18n="nav.home" style="display:inline-block; background:#000; color:#fff; font-family:-apple-system,BlinkMacSystemFont,sans-serif; font-weight:700; font-size:15px; padding:11px 22px; border-radius:50px; text-decoration:none; white-space:nowrap;">Home</a>
+        <a href="leader-tools.html" data-i18n="nav.back_leader" style="display:inline-block; background:#00D084; color:#fff; font-family:-apple-system,BlinkMacSystemFont,sans-serif; font-weight:700; font-size:15px; padding:11px 22px; border-radius:50px; text-decoration:none; white-space:nowrap;">← Leader Tools</a>
     </div>
 
     <div id="access-denied" class="access-denied">
-        <div class="access-denied-msg">Access restricted.</div>
-        <div class="access-denied-sub">Leader approval required.</div>
-        <a href="index.html" class="access-denied-btn">Go to Home</a>
+        <div class="access-denied-msg" data-i18n="access.restricted">Access restricted.</div>
+        <div class="access-denied-sub" data-i18n="access.leader_required">Leader approval required.</div>
+        <a href="index.html" class="access-denied-btn" data-i18n="access.go_home">Go to Home</a>
     </div>
 
     <div class="container" id="main-container">
 
         <div class="auth-section" id="auth-section">
             <div id="auth-form" style="display:none">
-                <input type="email" id="auth-email" placeholder="Email">
-                <input type="password" id="auth-password" placeholder="Password">
+                <input type="email" id="auth-email" placeholder="Email" data-i18n-placeholder="auth.email_placeholder">
+                <input type="password" id="auth-password" placeholder="Password" data-i18n-placeholder="auth.password_placeholder">
                 <div class="auth-buttons">
-                    <button class="auth-btn-primary" onclick="authSignUp()">Sign Up</button>
-                    <button class="auth-btn-secondary" onclick="authLogIn()">Log In</button>
+                    <button class="auth-btn-primary" onclick="authSignUp()" data-i18n="auth.sign_up">Sign Up</button>
+                    <button class="auth-btn-secondary" onclick="authLogIn()" data-i18n="auth.log_in">Log In</button>
                 </div>
             </div>
             <div class="auth-status" id="auth-status" style="display:none">
                 <span class="auth-status-text" id="auth-status-text">Not signed in</span>
-                <button class="auth-logout-btn" onclick="authLogOut()">Log Out</button>
+                <button class="auth-logout-btn" onclick="authLogOut()" data-i18n="auth.log_out">Log Out</button>
             </div>
         </div>
 
         <div class="header">
-            <h1>How We're Doing</h1>
-            <div class="subtitle">Movement health at a glance.</div>
+            <h1 data-i18n="how_were_doing.title">How We're Doing</h1>
+            <div class="subtitle" data-i18n="how_were_doing.subtitle">Movement health at a glance.</div>
         </div>
 
         <!-- ── ACTIVITY FEED ─────────────────────────────────────── -->
         <div class="activity-feed" id="activity-feed">
-            <div class="feed-title">Recent Activity</div>
-            <div class="feed-empty">Loading…</div>
+            <div class="feed-title" data-i18n="how_were_doing.recent_activity">Recent Activity</div>
+            <div class="feed-empty" data-i18n="how_were_doing.loading">Loading…</div>
         </div>
 
         <div class="tab-bar">
-            <button class="tab-btn active" id="tab-map" onclick="switchTab('map')">Map</button>
-            <button class="tab-btn" id="tab-metrics" onclick="switchTab('metrics')">Metrics</button>
+            <button class="tab-btn active" id="tab-map" onclick="switchTab('map')" data-i18n="how_were_doing.tab_map">Map</button>
+            <button class="tab-btn" id="tab-metrics" onclick="switchTab('metrics')" data-i18n="how_were_doing.tab_metrics">Metrics</button>
         </div>
 
         <!-- ── MAP VIEW ──────────────────────────────────────────── -->
@@ -526,28 +527,28 @@
             <div class="layer-toggles">
                 <label class="layer-toggle">
                     <input type="checkbox" id="toggle-churches" checked onchange="renderMap()">
-                    Churches
+                    <span data-i18n="how_were_doing.layer_churches">Churches</span>
                 </label>
                 <label class="layer-toggle">
                     <input type="checkbox" id="toggle-spiritual" onchange="renderMap()">
-                    Spiritual Convos
+                    <span data-i18n="how_were_doing.layer_spiritual">Spiritual Convos</span>
                 </label>
                 <label class="layer-toggle">
                     <input type="checkbox" id="toggle-discovery" onchange="renderMap()">
-                    Discovery Convos
+                    <span data-i18n="how_were_doing.layer_discovery">Discovery Convos</span>
                 </label>
             </div>
 
             <div class="filters">
                 <select class="filter-select" id="map-city" onchange="renderMap()">
-                    <option value="">All Cities</option>
+                    <option value="" data-i18n="how_were_doing.filter_all">All Cities</option>
                 </select>
                 <select class="filter-select" id="map-date" onchange="renderMap()">
-                    <option value="30">Last 30 Days</option>
-                    <option value="7">Last 7 Days</option>
-                    <option value="90">Last 3 Months</option>
-                    <option value="365">Last Year</option>
-                    <option value="0">All Time</option>
+                    <option value="30" data-i18n="how_were_doing.period_30">Last 30 Days</option>
+                    <option value="7" data-i18n="how_were_doing.period_7">Last 7 Days</option>
+                    <option value="90" data-i18n="how_were_doing.period_90">Last 3 Months</option>
+                    <option value="365" data-i18n="how_were_doing.period_year">Last Year</option>
+                    <option value="0" data-i18n="how_were_doing.period_all">All Time</option>
                 </select>
                 <button class="icon-btn" onclick="loadMapData(true)" title="Refresh">↺</button>
             </div>
@@ -555,22 +556,22 @@
             <div id="map-el"></div>
 
             <div class="map-legend">
-                <h4>Legend</h4>
+                <h4 data-i18n="how_were_doing.legend_title">Legend</h4>
                 <div class="legend-row">
                     <div class="legend-swatch" style="background:#3a3a3c;"></div>
-                    <span class="legend-label">Church</span>
+                    <span class="legend-label" data-i18n="how_were_doing.legend_church">Church</span>
                 </div>
                 <div class="legend-row">
                     <div class="legend-swatch" style="background:#add8e6; opacity:0.8;"></div>
-                    <span class="legend-label">Low conversation activity</span>
+                    <span class="legend-label" data-i18n="how_were_doing.legend_low">Low conversation activity</span>
                 </div>
                 <div class="legend-row">
                     <div class="legend-swatch" style="background:#0077b6; opacity:0.8;"></div>
-                    <span class="legend-label">Medium conversation activity</span>
+                    <span class="legend-label" data-i18n="how_were_doing.legend_medium">Medium conversation activity</span>
                 </div>
                 <div class="legend-row">
                     <div class="legend-swatch" style="background:#002f6c; opacity:0.9;"></div>
-                    <span class="legend-label">High conversation activity</span>
+                    <span class="legend-label" data-i18n="how_were_doing.legend_high">High conversation activity</span>
                 </div>
             </div>
 
@@ -581,15 +582,15 @@
         <div id="metrics-view" style="display:none">
             <div class="filters">
                 <select class="filter-select" id="metrics-date" onchange="loadMetrics()">
-                    <option value="30">Last 30 Days</option>
-                    <option value="7">Last 7 Days</option>
-                    <option value="90">Last 3 Months</option>
-                    <option value="365">Last Year</option>
-                    <option value="0">All Time</option>
+                    <option value="30" data-i18n="how_were_doing.period_30">Last 30 Days</option>
+                    <option value="7" data-i18n="how_were_doing.period_7">Last 7 Days</option>
+                    <option value="90" data-i18n="how_were_doing.period_90">Last 3 Months</option>
+                    <option value="365" data-i18n="how_were_doing.period_year">Last Year</option>
+                    <option value="0" data-i18n="how_were_doing.period_all">All Time</option>
                 </select>
             </div>
             <div class="stats-section" id="stats-section">
-                <div class="loading">Loading…</div>
+                <div class="loading" data-i18n="how_were_doing.loading">Loading…</div>
             </div>
         </div>
 
@@ -657,9 +658,9 @@
         renderMap()
 
         document.getElementById('map-last-updated').textContent =
-            'Last updated: ' + new Date().toLocaleTimeString()
+            window.t('how_were_doing.last_updated', { time: new Date().toLocaleTimeString() })
 
-        if (showMessage) notify('Data refreshed')
+        if (showMessage) notify(window.t('how_were_doing.data_refreshed'))
     }
 
     function populateCityDropdown() {
@@ -669,7 +670,7 @@
 
         const sel = document.getElementById('map-city')
         const prev = sel.value
-        sel.innerHTML = '<option value="">All Cities</option>'
+        sel.innerHTML = '<option value="">' + window.t('how_were_doing.filter_all') + '</option>'
         Array.from(cities).sort().forEach(city => {
             const opt = document.createElement('option')
             opt.value = city
@@ -707,10 +708,10 @@
                     weight: 2,
                     fillOpacity: 0.9
                 }).bindPopup(
-                    '<strong>' + (c.location_text || 'Church') + '</strong>' +
-                    (c.leader_name      ? '<br>Leader: '     + c.leader_name      : '') +
-                    '<br>Baptisms: '    + (c.baptism_count  || 0) +
-                    (c.church_generation ? '<br>Generation: ' + c.church_generation : '')
+                    '<strong>' + (c.location_text || window.t('how_were_doing.legend_church')) + '</strong>' +
+                    (c.leader_name      ? '<br>' + window.t('how_were_doing.popup_leader')     + ' ' + c.leader_name      : '') +
+                    '<br>' + window.t('how_were_doing.popup_baptisms') + ' ' + (c.baptism_count  || 0) +
+                    (c.church_generation ? '<br>' + window.t('how_were_doing.popup_generation') + ' ' + c.church_generation : '')
                 ).addTo(churchLayer)
             })
         }
@@ -746,9 +747,8 @@
             return L.circle([lat, lon], {
                 color, fillColor: color, fillOpacity: 0.55, radius, weight: 1
             }).bindPopup(
-                '<strong>' + (locationText || 'Location') + '</strong>' +
-                '<br>' + (type === 'spiritual' ? 'Spiritual' : 'Discovery') +
-                ' conversations: ' + n
+                '<strong>' + (locationText || window.t('how_were_doing.legend_church')) + '</strong>' +
+                window.t('how_were_doing.popup_convos_type', { type: window.t(type === 'spiritual' ? 'how_were_doing.popup_spiritual' : 'how_were_doing.popup_discovery'), n: n })
             )
         }
 
@@ -775,7 +775,7 @@
         if (!window.supabase) return
 
         const section = document.getElementById('stats-section')
-        section.innerHTML = '<div class="loading">Loading…</div>'
+        section.innerHTML = '<div class="loading">' + window.t('how_were_doing.loading') + '</div>'
 
         const days   = parseInt(document.getElementById('metrics-date').value)
         const cutoff = cutoffFromDays(days)
@@ -792,7 +792,7 @@
 
         if (error) {
             section.innerHTML =
-                '<div class="empty-state">Could not load data.<br><small>' + error.message + '</small></div>'
+                '<div class="empty-state">' + window.t('how_were_doing.load_error') + '<br><small>' + error.message + '</small></div>'
             return
         }
 
@@ -809,29 +809,29 @@
             .eq('event_type', 'spiritual')
         if (convData) spiritual = convData.reduce((s, r) => s + (r.count || 0), 0)
 
-        const label = days === 0 ? 'All Time' :
-                      days === 7  ? 'Last 7 Days' :
-                      days === 30 ? 'Last 30 Days' :
-                      days === 90 ? 'Last 3 Months' : 'Last Year'
+        const label = days === 0 ? window.t('how_were_doing.period_all') :
+                      days === 7  ? window.t('how_were_doing.period_7') :
+                      days === 30 ? window.t('how_were_doing.period_30') :
+                      days === 90 ? window.t('how_were_doing.period_90') : window.t('how_were_doing.period_year')
 
         section.innerHTML =
             '<div class="period-label">' + label + '</div>' +
             '<div class="stats-grid">' +
                 '<div class="stat-card accent">' +
                     '<div class="stat-value">' + spiritual.toLocaleString() + '</div>' +
-                    '<div class="stat-label">Spiritual Conversations</div>' +
+                    '<div class="stat-label">' + window.t('how_were_doing.metric_conversations') + '</div>' +
                 '</div>' +
                 '<div class="stat-card">' +
                     '<div class="stat-value">' + total.toLocaleString() + '</div>' +
-                    '<div class="stat-label">Churches</div>' +
+                    '<div class="stat-label">' + window.t('how_were_doing.metric_churches') + '</div>' +
                 '</div>' +
                 '<div class="stat-card">' +
                     '<div class="stat-value">' + baptisms.toLocaleString() + '</div>' +
-                    '<div class="stat-label">Baptisms</div>' +
+                    '<div class="stat-label">' + window.t('how_were_doing.metric_baptisms') + '</div>' +
                 '</div>' +
                 '<div class="stat-card wide">' +
                     '<div class="stat-value">' + gen2.toLocaleString() + '</div>' +
-                    '<div class="stat-label">2+ Generation Churches</div>' +
+                    '<div class="stat-label">' + window.t('how_were_doing.metric_gen_churches') + '</div>' +
                 '</div>' +
             '</div>'
     }
@@ -850,12 +850,12 @@
 
         const header =
             '<div class="feed-header">' +
-                '<div class="feed-title">Recent Activity</div>' +
-                '<div class="feed-live"><div class="feed-live-dot"></div>Live</div>' +
+                '<div class="feed-title">' + window.t('how_were_doing.recent_activity') + '</div>' +
+                '<div class="feed-live"><div class="feed-live-dot"></div>' + window.t('how_were_doing.live') + '</div>' +
             '</div>'
 
         if (!rows || rows.length === 0) {
-            el.innerHTML = header + '<div class="feed-empty">No activity yet.</div>'
+            el.innerHTML = header + '<div class="feed-empty">' + window.t('how_were_doing.no_activity') + '</div>'
             return
         }
 
@@ -865,11 +865,10 @@
             const badgeColor  = isSpiritual ? '#0077b6' : '#34c759'
             const badgeLetter = isSpiritual ? 'S' : 'D'
             const pillClass   = isSpiritual ? 'feed-pill--spiritual' : 'feed-pill--discovery'
-            const typeWord    = isSpiritual ? 'spiritual' : 'discovery'
-            const rawLoc      = ev.location_text ? ev.location_text.split(', ')[0] : (ev.city || 'an unknown location')
-            const loc         = rawLoc || 'an unknown location'
+            const typeWord    = window.t(isSpiritual ? 'how_were_doing.popup_spiritual' : 'how_were_doing.popup_discovery')
+            const rawLoc      = ev.location_text ? ev.location_text.split(', ')[0] : (ev.city || '')
+            const loc         = rawLoc || window.t('how_were_doing.unknown_location')
             const n           = ev.count || 1
-            const noun        = n === 1 ? 'conversation' : 'conversations'
 
             const d       = new Date(ev.created_at)
             const isToday = d.getFullYear() === today.getFullYear() &&
@@ -884,13 +883,14 @@
 
             const delay = (i * 60) + 'ms'
 
+            const primaryText = window.t('how_were_doing.activity_convos', { n: n, type: '<span class="feed-pill ' + pillClass + '">' + typeWord + '</span>', loc: loc })
+            const secondaryText = window.t('how_were_doing.activity_stamp', { stamp: stamp })
+
             return '<div class="feed-row" style="animation-delay:' + delay + '">' +
                 '<div class="feed-badge" style="background:' + badgeColor + '">' + badgeLetter + '</div>' +
                 '<div class="feed-body">' +
-                    '<div class="feed-primary">' +
-                        n + '\u00a0<span class="feed-pill ' + pillClass + '">' + typeWord + '</span>\u00a0' + noun + ' in ' + loc +
-                    '</div>' +
-                    '<div class="feed-secondary">Someone just recorded\u00a0·\u00a0' + stamp + '</div>' +
+                    '<div class="feed-primary">' + primaryText + '</div>' +
+                    '<div class="feed-secondary">' + secondaryText + '</div>' +
                 '</div>' +
             '</div>'
         })
