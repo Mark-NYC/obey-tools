@@ -227,7 +227,7 @@
         function updateProgress() { const total = document.querySelectorAll('.card').length; const completed = completedCards.length; document.getElementById('progress-fill').style.width = (completed / total * 100) + '%'; document.getElementById('progress-text').textContent = window.t('common.completed_of', { done: completed, total: total }); if (completed === total) showNotification(window.t('common.study_complete')); }
         function resetAll() { if (confirm(window.t('common.reset_confirm'))) { completedCards = []; localStorage.removeItem('hope-nonreligious-progress'); document.querySelectorAll('.card').forEach(card => card.classList.remove('completed')); updateProgress(); showNotification(window.t('common.progress_reset')); } }
         function showNotification(message) { const n = document.createElement('div'); n.className = 'notification'; n.textContent = message; document.body.appendChild(n); setTimeout(() => n.remove(), 3000); }
-        window.addEventListener('DOMContentLoaded', () => { completedCards.forEach(cardId => { const card = document.querySelector(`[data-card="${cardId}"]`); if (card) card.classList.add('completed'); }); updateProgress(); });
+        window.addEventListener('DOMContentLoaded', () => { completedCards.forEach(cardId => { const card = document.querySelector(`[data-card="${cardId}"]`); if (card) card.classList.add('completed'); }); window.addEventListener('i18n:ready', updateProgress, { once: true }); });
         function updateAuthUI(user) {
             window._supabaseUser = user;
             document.getElementById('auth-section').style.visibility = 'visible';

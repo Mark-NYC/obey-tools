@@ -519,7 +519,6 @@
       const el = document.querySelector('[data-id="' + id + '"]');
       if (el) el.classList.add('completed');
     });
-    updateProgress();
   }
   function updateProgress() {
     const completed = document.querySelectorAll('.section.completed').length;
@@ -570,6 +569,7 @@
   }
   window.addEventListener('DOMContentLoaded', function() {
     loadProgress();
+    window.addEventListener('i18n:ready', updateProgress, { once: true });
     var circlesImg = document.getElementById('circles-img');
     if (circlesImg && window.i18n && window.i18n.getLang() !== 'en') {
       circlesImg.src = 'assets/images/3 Circles Gospel Tool updated no words.webp';

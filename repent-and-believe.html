@@ -1016,7 +1016,7 @@
                     }
                 });
             });
-            updateProgress();
+            window.addEventListener('i18n:ready', updateProgress, { once: true });
         });
         document.addEventListener('click', function(e) {
             if (e.target.classList.contains('modal-overlay')) {
