@@ -129,58 +129,59 @@
         .bible-verse { font-size: 14px; line-height: 1.65; color: #3a3a3c; margin-bottom: 6px; }
         .verse-num { font-size: 11px; font-weight: 700; vertical-align: super; margin-right: 2px; opacity: 0.6; }
     </style>
+    <script type="module" src="/i18n.js"></script>
     <script src="/pwa.js" defer></script>
 </head>
 <body>
     <div style="display:flex; gap:10px; justify-content:center; padding:20px 16px 8px;">
-        <a href="index.html" style="display:inline-block; background:#000; color:#fff; font-weight:700; font-size:15px; padding:11px 22px; border-radius:50px; text-decoration:none; white-space:nowrap;">Home</a>
-        <a href="commands-of-christ.html" style="display:inline-block; background:#00D084; color:#fff; font-weight:700; font-size:15px; padding:11px 22px; border-radius:50px; text-decoration:none; white-space:nowrap;">← Commands of Christ</a>
+        <a href="index.html" style="display:inline-block; background:#000; color:#fff; font-weight:700; font-size:15px; padding:11px 22px; border-radius:50px; text-decoration:none; white-space:nowrap;" data-i18n="nav.home">Home</a>
+        <a href="commands-of-christ.html" style="display:inline-block; background:#00D084; color:#fff; font-weight:700; font-size:15px; padding:11px 22px; border-radius:50px; text-decoration:none; white-space:nowrap;" data-i18n="nav.back_commands">← Commands of Christ</a>
     </div>
     <div class="container">
         <div class="auth-section" id="auth-section">
             <div id="auth-form" style="display:none">
-                <input type="email" id="auth-email" placeholder="Email">
-                <input type="password" id="auth-password" placeholder="Password">
+                <input type="email" id="auth-email" placeholder="Email" data-i18n-placeholder="auth.email_placeholder">
+                <input type="password" id="auth-password" placeholder="Password" data-i18n-placeholder="auth.password_placeholder">
                 <div class="auth-buttons">
-                    <button class="auth-btn-primary" onclick="authSignUp()">Sign Up</button>
-                    <button class="auth-btn-secondary" onclick="authLogIn()">Log In</button>
+                    <button class="auth-btn-primary" onclick="authSignUp()" data-i18n="auth.sign_up">Sign Up</button>
+                    <button class="auth-btn-secondary" onclick="authLogIn()" data-i18n="auth.log_in">Log In</button>
                 </div>
             </div>
             <div class="auth-status" id="auth-status" style="display:none">
                 <span class="auth-status-text" id="auth-status-text">Not signed in</span>
-                <button class="auth-logout-btn" onclick="authLogOut()">Log Out</button>
+                <button class="auth-logout-btn" onclick="authLogOut()" data-i18n="auth.log_out">Log Out</button>
             </div>
         </div>
         <div class="header">
             <button class="settings-btn" onclick="openSettings()">⚙️</button>
             <img src="assets/images/header/word-header.webp" alt="Command Icon" class="header-icon">
-            <h1>The Word of God</h1>
-            <div class="scripture">Command: John 8:31–32 | Story: John 15:1–17</div>
+            <h1 data-i18n="the_word_of_god.title">The Word of God</h1>
+            <div class="scripture" data-i18n="the_word_of_god.scripture">Command: John 8:31–32 | Story: John 15:1–17</div>
         </div>
         <div class="progress-bar-container">
             <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
             <div class="progress-text" id="progressText">0 of 9 completed</div>
         </div>
         <div class="content">
-            <div class="section-divider"><div class="section-divider-line"></div><div class="section-divider-text">Look Back</div><div class="section-divider-line"></div></div>
-            <div class="card" onclick="toggleCard(this)" data-card="care" data-assignment-key="care" data-section="lookback"><div class="card-content"><div class="card-icon care-icon"></div><div class="card-text"><div class="card-title">Care &amp; Prayer</div><div class="card-description">Everyone shares briefly how they are doing. Pray if appropriate.</div><div class="assignment-badge-container"></div></div><div class="card-checkbox"></div></div></div>
-            <div class="card" onclick="toggleCard(this)" data-card="worship" data-assignment-key="worship" data-section="lookback"><div class="card-content"><div class="card-icon worship-icon"></div><div class="card-text"><div class="card-title">Worship</div><div class="card-description">Praise God • Give to Needs • Lord's Supper</div><div class="assignment-badge-container"></div></div><div class="card-checkbox"></div></div></div>
-            <div class="card" onclick="toggleCard(this)" data-card="accountability" data-assignment-key="accountability" data-section="lookback"><div class="card-content"><div class="card-icon accountability-icon"></div><div class="card-text"><div class="card-title">Loving Accountability</div><div class="card-description">Follow: Share how you obeyed. Fish: Share who you shared with.</div><div class="assignment-badge-container"></div></div><div class="card-checkbox"></div></div></div>
-            <div class="card" onclick="toggleCard(this)" data-card="vision" data-assignment-key="vision" data-section="lookback"><div class="card-content"><div class="card-icon vision-icon"></div><div class="card-text"><div class="card-title">Vision: Acts 2 Church Circle <span class="view-link" onclick="event.stopPropagation(); showVisionPopup()">(View)</span></div><div class="card-description">Acts 2:36-47</div><div class="assignment-badge-container"></div></div><div class="card-checkbox"></div></div></div>
-            <div class="section-divider"><div class="section-divider-line"></div><div class="section-divider-text">Look Up</div><div class="section-divider-line"></div></div>
+            <div class="section-divider"><div class="section-divider-line"></div><div class="section-divider-text" data-i18n="common.look_back">Look Back</div><div class="section-divider-line"></div></div>
+            <div class="card" onclick="toggleCard(this)" data-card="care" data-assignment-key="care" data-section="lookback"><div class="card-content"><div class="card-icon care-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.care_title">Care &amp; Prayer</div><div class="card-description" data-i18n="common.care_desc">Everyone shares briefly how they are doing. Pray if appropriate.</div><div class="assignment-badge-container"></div></div><div class="card-checkbox"></div></div></div>
+            <div class="card" onclick="toggleCard(this)" data-card="worship" data-assignment-key="worship" data-section="lookback"><div class="card-content"><div class="card-icon worship-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.worship_title">Worship</div><div class="card-description" data-i18n="common.worship_desc">Praise God • Give to Needs • Lord's Supper</div><div class="assignment-badge-container"></div></div><div class="card-checkbox"></div></div></div>
+            <div class="card" onclick="toggleCard(this)" data-card="accountability" data-assignment-key="accountability" data-section="lookback"><div class="card-content"><div class="card-icon accountability-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.accountability_title">Loving Accountability</div><div class="card-description" data-i18n="common.accountability_desc">Follow: Share how you obeyed. Fish: Share who you shared with.</div><div class="assignment-badge-container"></div></div><div class="card-checkbox"></div></div></div>
+            <div class="card" onclick="toggleCard(this)" data-card="vision" data-assignment-key="vision" data-section="lookback"><div class="card-content"><div class="card-icon vision-icon"></div><div class="card-text"><div class="card-title"><span data-i18n="common.vision_title">Vision: Acts 2 Church Circle</span> <span class="view-link" onclick="event.stopPropagation(); showVisionPopup()" data-i18n="common.vision_view">(View)</span></div><div class="card-description" data-i18n="common.vision_ref">Acts 2:36-47</div><div class="assignment-badge-container"></div></div><div class="card-checkbox"></div></div></div>
+            <div class="section-divider"><div class="section-divider-line"></div><div class="section-divider-text" data-i18n="common.look_up">Look Up</div><div class="section-divider-line"></div></div>
             <div class="card step-card" data-card="teaching" data-assignment-key="lookup" data-section="lookup">
                 <div class="card-content" style="flex-direction: column; align-items: stretch;">
-                    <div style="display: flex; align-items: center; gap: 16px;"><div class="card-icon discover-icon"></div><div class="card-text"><div class="card-title">New Teaching From Scripture</div><div class="card-description">John 8:31-32 | John 15:1-17</div><div class="assignment-badge-container"></div></div></div>
+                    <div style="display: flex; align-items: center; gap: 16px;"><div class="card-icon discover-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.new_teaching">New Teaching From Scripture</div><div class="card-description" data-i18n="the_word_of_god.teaching_ref">John 8:31-32 | John 15:1-17</div><div class="assignment-badge-container"></div></div></div>
                     <div class="step-indicators">
-                        <div style="flex: 1;"><div class="step-dot" data-step="1" onclick="event.stopPropagation(); toggleStep(this, 'teaching')">1</div><div class="step-label">Read Command &amp; Tell Story</div></div>
-                        <div style="flex: 1;"><div class="step-dot" data-step="2" onclick="event.stopPropagation(); toggleStep(this, 'teaching')">2</div><div class="step-label">Read Story Together</div></div>
-                        <div style="flex: 1;"><div class="step-dot" data-step="3" onclick="event.stopPropagation(); toggleStep(this, 'teaching')">3</div><div class="step-label">Retell Story</div></div>
+                        <div style="flex: 1;"><div class="step-dot" data-step="1" onclick="event.stopPropagation(); toggleStep(this, 'teaching')">1</div><div class="step-label" data-i18n="common.step_read_command">Read Command &amp; Tell Story</div></div>
+                        <div style="flex: 1;"><div class="step-dot" data-step="2" onclick="event.stopPropagation(); toggleStep(this, 'teaching')">2</div><div class="step-label" data-i18n="common.step_read_story_together">Read Story Together</div></div>
+                        <div style="flex: 1;"><div class="step-dot" data-step="3" onclick="event.stopPropagation(); toggleStep(this, 'teaching')">3</div><div class="step-label" data-i18n="common.step_retell_story">Retell Story</div></div>
                     </div>
                 </div>
-                <div class="bible-btn-mobile-wrap"><button class="bible-btn bible-btn-mobile" onclick="toggleBible(event)"><span>John 15:1–17 (CSB)</span><span class="bible-btn-icon">▼</span></button></div>
+                <div class="bible-btn-mobile-wrap"><button class="bible-btn bible-btn-mobile" onclick="toggleBible(event)"><span data-i18n="the_word_of_god.bible_btn">John 15:1–17 (CSB)</span><span class="bible-btn-icon">▼</span></button></div>
                 <div class="bible-accordion" id="bible-accordion">
                     <div class="bible-text">
-                        <div class="bible-translation">Christian Standard Bible</div>
+                        <div class="bible-translation" data-i18n="common.christian_standard_bible">Christian Standard Bible</div>
                         <p class="bible-verse"><span class="verse-num">1</span>"I am the true vine, and my Father is the gardener.</p>
                         <p class="bible-verse"><span class="verse-num">2</span>Every branch in me that does not produce fruit he removes, and he prunes every branch that produces fruit so that it will produce more fruit.</p>
                         <p class="bible-verse"><span class="verse-num">3</span>You are already clean because of the word I have spoken to you.</p>
@@ -201,19 +202,19 @@
                     </div>
                 </div>
             </div>
-            <div class="card" onclick="toggleCard(this)" data-card="discuss-god" data-assignment-key="lookup" data-section="lookup"><div class="card-content"><div class="card-icon discover-icon"></div><div class="card-text"><div class="card-title">What do we learn about God?</div><div class="assignment-badge-container"></div></div><div class="card-checkbox"></div></div></div>
-            <div class="card" onclick="toggleCard(this)" data-card="discuss-people" data-assignment-key="lookup" data-section="lookup"><div class="card-content"><div class="card-icon discover-icon"></div><div class="card-text"><div class="card-title">What do we learn about people?</div><div class="assignment-badge-container"></div></div><div class="card-checkbox"></div></div></div>
-            <div class="card" onclick="toggleCard(this)" data-card="pray-listen" data-assignment-key="lookup" data-section="lookup"><div class="card-content"><div class="card-icon discover-icon"></div><div class="card-text"><div class="card-title">Pause — Pray and Listen</div><div class="assignment-badge-container"></div></div><div class="card-checkbox"></div></div></div>
-            <div class="card" onclick="toggleCard(this)" data-card="discuss-obey" data-assignment-key="lookup" data-section="lookup"><div class="card-content"><div class="card-icon discover-icon"></div><div class="card-text"><div class="card-title">How will you obey the story?</div><div class="card-description">Share how you will obey.</div><div class="assignment-badge-container"></div></div><div class="card-checkbox"></div></div></div>
-            <div class="section-divider"><div class="section-divider-line"></div><div class="section-divider-text">Look Forward</div><div class="section-divider-line"></div></div>
-            <div class="card" onclick="toggleCard(this)" data-card="practice" data-assignment-key="practice" data-section="lookforward"><div class="card-content"><div class="card-icon practice-icon"></div><div class="card-text"><div class="card-title">Practice: 3 Circles</div><div class="card-description">Practice the 3 Circles gospel tool.</div><div class="assignment-badge-container"></div></div><div class="card-checkbox"></div></div></div>
-            <div class="card" onclick="toggleCard(this)" data-card="goals" data-assignment-key="goals" data-section="lookforward"><div class="card-content"><div class="card-icon accountability-icon"></div><div class="card-text"><div class="card-title">Set Goals</div><div class="card-description">Follow: What is Jesus asking you to obey? Fish: Who needs to hear this story?</div><div class="assignment-badge-container"></div></div><div class="card-checkbox"></div></div></div>
-            <div class="card" onclick="toggleCard(this)" data-card="commission" data-assignment-key="commission" data-section="lookforward"><div class="card-content"><div class="card-icon pray-icon"></div><div class="card-text"><div class="card-title">Commission with Prayer</div><div class="card-description">Pray together.</div><div class="assignment-badge-container"></div></div><div class="card-checkbox"></div></div></div>
+            <div class="card" onclick="toggleCard(this)" data-card="discuss-god" data-assignment-key="lookup" data-section="lookup"><div class="card-content"><div class="card-icon discover-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.discuss_god_title">What do we learn about God?</div><div class="assignment-badge-container"></div></div><div class="card-checkbox"></div></div></div>
+            <div class="card" onclick="toggleCard(this)" data-card="discuss-people" data-assignment-key="lookup" data-section="lookup"><div class="card-content"><div class="card-icon discover-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.discuss_people_title">What do we learn about people?</div><div class="assignment-badge-container"></div></div><div class="card-checkbox"></div></div></div>
+            <div class="card" onclick="toggleCard(this)" data-card="pray-listen" data-assignment-key="lookup" data-section="lookup"><div class="card-content"><div class="card-icon discover-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.pray_listen_title">Pause — Pray and Listen</div><div class="assignment-badge-container"></div></div><div class="card-checkbox"></div></div></div>
+            <div class="card" onclick="toggleCard(this)" data-card="discuss-obey" data-assignment-key="lookup" data-section="lookup"><div class="card-content"><div class="card-icon discover-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.how_obey_title">How will you obey the story?</div><div class="card-description" data-i18n="common.how_obey_desc">Share how you will obey.</div><div class="assignment-badge-container"></div></div><div class="card-checkbox"></div></div></div>
+            <div class="section-divider"><div class="section-divider-line"></div><div class="section-divider-text" data-i18n="common.look_forward">Look Forward</div><div class="section-divider-line"></div></div>
+            <div class="card" onclick="toggleCard(this)" data-card="practice" data-assignment-key="practice" data-section="lookforward"><div class="card-content"><div class="card-icon practice-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.practice_3circles_title">Practice: 3 Circles</div><div class="card-description" data-i18n="common.practice_3circles_desc">Practice the 3 Circles gospel tool.</div><div class="assignment-badge-container"></div></div><div class="card-checkbox"></div></div></div>
+            <div class="card" onclick="toggleCard(this)" data-card="goals" data-assignment-key="goals" data-section="lookforward"><div class="card-content"><div class="card-icon accountability-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.set_goals_title">Set Goals</div><div class="card-description" data-i18n="common.set_goals_desc">Follow: What is Jesus asking you to obey? Fish: Who needs to hear this story?</div><div class="assignment-badge-container"></div></div><div class="card-checkbox"></div></div></div>
+            <div class="card" onclick="toggleCard(this)" data-card="commission" data-assignment-key="commission" data-section="lookforward"><div class="card-content"><div class="card-icon pray-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.commission_title">Commission with Prayer</div><div class="card-description" data-i18n="common.commission_desc">Pray together.</div><div class="assignment-badge-container"></div></div><div class="card-checkbox"></div></div></div>
         </div>
-        <div class="reset-section"><button class="btn" onclick="resetAll()">RESET</button></div>
+        <div class="reset-section"><button class="btn" onclick="resetAll()" data-i18n="common.reset">RESET</button></div>
     </div>
-    <div class="popup-overlay" id="visionPopup" onclick="closeVisionPopup()"><div class="popup-content" onclick="event.stopPropagation()"><button class="popup-close" onclick="closeVisionPopup()">×</button><img src="assets/images/popups/vision-popup.jpg" alt="Church Circle" class="popup-image"><div class="popup-text">Read Acts 2:36-47. Be a part of a church and start a church</div></div></div>
-    <div class="modal-overlay" id="settingsModal"><div class="modal-content" onclick="event.stopPropagation()"><div class="modal-header">Assignment Settings</div><div class="modal-section"><label class="modal-label">Assignment Mode</label><div class="toggle-group"><button class="toggle-btn active" id="sectionBtn" onclick="setAssignmentMode('section')">By Section</button><button class="toggle-btn" id="componentBtn" onclick="setAssignmentMode('component')">By Component</button></div></div><div id="assignmentInputs"></div><button class="generate-btn" onclick="generateLink()">Generate Share Link</button><div class="link-display" id="linkDisplay"></div><button class="copy-btn" id="copyBtn" onclick="copyLink()">Copy Link</button><button class="btn" onclick="closeSettings()" style="margin-top: 16px;">Close</button></div></div>
+    <div class="popup-overlay" id="visionPopup" onclick="closeVisionPopup()"><div class="popup-content" onclick="event.stopPropagation()"><button class="popup-close" onclick="closeVisionPopup()">×</button><img src="assets/images/popups/vision-popup.jpg" alt="Church Circle" class="popup-image"><div class="popup-text" data-i18n="common.vision_popup_text">Read Acts 2:36-47. Be a part of a church and start a church</div></div></div>
+    <div class="modal-overlay" id="settingsModal"><div class="modal-content" onclick="event.stopPropagation()"><div class="modal-header" data-i18n="settings.title">Assignment Settings</div><div class="modal-section"><label class="modal-label" data-i18n="settings.mode_label">Assignment Mode</label><div class="toggle-group"><button class="toggle-btn active" id="sectionBtn" onclick="setAssignmentMode('section')" data-i18n="settings.section_mode">By Section</button><button class="toggle-btn" id="componentBtn" onclick="setAssignmentMode('component')" data-i18n="settings.component_mode">By Component</button></div></div><div id="assignmentInputs"></div><button class="generate-btn" onclick="generateLink()" data-i18n="settings.generate_link">Generate Share Link</button><div class="link-display" id="linkDisplay"></div><button class="copy-btn" id="copyBtn" onclick="copyLink()" data-i18n="settings.copy_link">Copy Link</button><button class="btn" onclick="closeSettings()" style="margin-top: 16px;" data-i18n="settings.close">Close</button></div></div>
     <script>
         let assignmentMode = 'section', assignments = {}, sessionId = '';
         let storageKey = 'command-word-of-god-progress';
@@ -225,15 +226,15 @@
         function openSettings() { document.getElementById('settingsModal').classList.add('active'); renderAssignmentInputs(); }
         function closeSettings() { document.getElementById('settingsModal').classList.remove('active'); }
         function setAssignmentMode(mode) { assignmentMode = mode; document.getElementById('sectionBtn').classList.toggle('active', mode === 'section'); document.getElementById('componentBtn').classList.toggle('active', mode === 'component'); renderAssignmentInputs(); }
-        function renderAssignmentInputs() { const c = document.getElementById('assignmentInputs'); const list = assignmentMode === 'section' ? sectionAssignments : componentAssignments; let html = '<div class="modal-section"><label class="modal-label">Assign Names</label>'; Object.keys(list).forEach(function(k) { html += '<input type="text" class="assignment-input" placeholder="' + list[k] + '" value="' + (assignments[k] || '') + '" onchange="updateAssignment(\'' + k + '\', this.value)">'; }); html += '</div>'; c.innerHTML = html; }
+        function renderAssignmentInputs() { const c = document.getElementById('assignmentInputs'); const list = assignmentMode === 'section' ? sectionAssignments : componentAssignments; let html = '<div class="modal-section"><label class="modal-label">' + window.t('settings.assign_names') + '</label>'; Object.keys(list).forEach(function(k) { html += '<input type="text" class="assignment-input" placeholder="' + list[k] + '" value="' + (assignments[k] || '') + '" onchange="updateAssignment(\'' + k + '\', this.value)">'; }); html += '</div>'; c.innerHTML = html; }
         function updateAssignment(key, value) { if (value.trim()) assignments[key] = value.trim(); else delete assignments[key]; }
         function generateLink() { if (!sessionId) sessionId = 'session-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9); const encoded = btoa(JSON.stringify({ mode: assignmentMode, assignments: assignments, sessionId: sessionId })); const url = window.location.origin + window.location.pathname + '#' + encoded; document.getElementById('linkDisplay').textContent = url; document.getElementById('linkDisplay').classList.add('show'); document.getElementById('copyBtn').classList.add('show'); storageKey = 'command-word-of-god-progress-' + sessionId; displayAssignments(); }
-        function copyLink() { navigator.clipboard.writeText(document.getElementById('linkDisplay').textContent).then(function() { showNotification('Link copied to clipboard!'); }); }
+        function copyLink() { navigator.clipboard.writeText(document.getElementById('linkDisplay').textContent).then(function() { showNotification(window.t('common.link_copied')); }); }
         function saveProgress() { localStorage.setItem(storageKey, JSON.stringify(completedCards)); localStorage.setItem(storageKey + '-steps', JSON.stringify(stepProgress)); updateProgress(); }
         function toggleCard(card) { const id = card.dataset.card; if (card.classList.contains('completed')) { card.classList.remove('completed'); completedCards = completedCards.filter(function(i) { return i !== id; }); } else { card.classList.add('completed'); completedCards.push(id); } saveProgress(); }
         function toggleStep(dot, cardId) { const step = dot.dataset.step, card = dot.closest('.card'); if (!stepProgress[cardId]) stepProgress[cardId] = []; if (stepProgress[cardId].includes(step)) { stepProgress[cardId] = stepProgress[cardId].filter(function(s) { return s !== step; }); dot.classList.remove('completed'); } else { stepProgress[cardId].push(step); dot.classList.add('completed'); } if (stepProgress[cardId].length === 3) { if (!completedCards.includes(cardId)) { completedCards.push(cardId); card.classList.add('completed'); } } else { completedCards = completedCards.filter(function(i) { return i !== cardId; }); card.classList.remove('completed'); } saveProgress(); }
-        function updateProgress() { const total = document.querySelectorAll('.card:not(.step-card)').length + 1, completed = completedCards.length; document.getElementById('progressFill').style.width = (completed / total * 100) + '%'; document.getElementById('progressText').textContent = completed + ' of ' + total + ' completed'; if (completed === total) showNotification('Study complete! 🎉'); }
-        function resetAll() { if (confirm('Reset all progress?')) { completedCards = []; stepProgress = {}; localStorage.removeItem(storageKey); localStorage.removeItem(storageKey + '-steps'); document.querySelectorAll('.card').forEach(function(c) { c.classList.remove('completed'); }); document.querySelectorAll('.step-dot').forEach(function(d) { d.classList.remove('completed'); }); updateProgress(); showNotification('Progress reset'); } }
+        function updateProgress() { const total = document.querySelectorAll('.card:not(.step-card)').length + 1, completed = completedCards.length; document.getElementById('progressFill').style.width = (completed / total * 100) + '%'; document.getElementById('progressText').textContent = window.t('common.completed_of', { done: completed, total: total }); if (completed === total) showNotification(window.t('common.study_complete')); }
+        function resetAll() { if (confirm(window.t('common.reset_confirm'))) { completedCards = []; stepProgress = {}; localStorage.removeItem(storageKey); localStorage.removeItem(storageKey + '-steps'); document.querySelectorAll('.card').forEach(function(c) { c.classList.remove('completed'); }); document.querySelectorAll('.step-dot').forEach(function(d) { d.classList.remove('completed'); }); updateProgress(); showNotification(window.t('common.progress_reset')); } }
         function showNotification(msg) { const n = document.createElement('div'); n.className = 'notification'; n.textContent = msg; document.body.appendChild(n); setTimeout(function() { n.remove(); }, 3000); }
         function showVisionPopup() { document.getElementById('visionPopup').classList.add('active'); }
         function closeVisionPopup() { document.getElementById('visionPopup').classList.remove('active'); }
@@ -246,14 +247,14 @@
             const form = document.getElementById('auth-form');
             const status = document.getElementById('auth-status');
             const text = document.getElementById('auth-status-text');
-            if (user) { form.style.display = 'none'; status.style.display = 'flex'; text.textContent = 'Signed in as ' + user.email; }
-            else { form.style.display = 'block'; status.style.display = 'none'; text.textContent = 'Not signed in'; }
+            if (user) { form.style.display = 'none'; status.style.display = 'flex'; text.textContent = window.t('auth.signed_in_as', { email: user.email }); }
+            else { form.style.display = 'block'; status.style.display = 'none'; text.textContent = window.t('auth.not_signed_in'); }
         }
         async function authSignUp() {
             const email = document.getElementById('auth-email').value.trim();
             const password = document.getElementById('auth-password').value;
             const { error } = await window.supabase.auth.signUp({ email, password });
-            if (error) showNotification(error.message); else showNotification('Check your email to confirm sign up.');
+            if (error) showNotification(error.message); else showNotification(window.t('auth.check_email'));
         }
         async function authLogIn() {
             const email = document.getElementById('auth-email').value.trim();
