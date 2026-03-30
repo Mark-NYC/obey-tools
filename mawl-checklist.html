@@ -17,6 +17,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap">
     <title>MAWL Checklist — OBEY.TOOLS</title>
+    <script type="module" src="/i18n.js"></script>
     <script type="module">
         import { supabase } from './supabase.js'
         import { authSignUp, authLogIn, authLogOut, initLeaderPage, showNotification } from './auth.js'
@@ -169,14 +170,14 @@
                 ? Array.from(networkSelect.options).filter(o => o.value !== '').map(o => o.textContent.trim().toLowerCase())
                 : []
             if (existingNames.includes(name.toLowerCase())) {
-                showNotification('A network with that name already exists.')
+                showNotification(window.t('mawl.network_exists'))
                 input.focus()
                 return
             }
 
             const btn = document.getElementById('create-network-submit')
             btn.disabled = true
-            btn.textContent = 'Creating…'
+            btn.textContent = window.t('mawl.creating')
 
             const { data: { session } } = await supabase.auth.getSession()
 
@@ -189,11 +190,11 @@
                 .insert({ name, created_by: session.user.id })
 
             btn.disabled = false
-            btn.textContent = 'Create'
+            btn.textContent = window.t('mawl.create')
 
             if (insertError) {
                 console.error('Network creation error:', insertError)
-                showNotification('Could not create network.')
+                showNotification(window.t('mawl.could_not_create'))
                 return
             }
 
@@ -237,7 +238,7 @@
 
             loading.style.display = 'block'
             empty.style.display   = 'none'
-            clSelect.innerHTML = '<option value="">— Select a person —</option>'
+            clSelect.innerHTML = `<option value="">${window.t('mawl.select_person')}</option>`
             document.getElementById('create-checklist-form').style.display = 'none'
             document.getElementById('create-checklist-input').value = ''
 
@@ -352,7 +353,7 @@
             if (_playbookSections.length === 0) {
                 const empty = document.createElement('div')
                 empty.className = 'manage-playbook-empty'
-                empty.textContent = 'No sections yet. Use "+ Add Section" to build the playbook.'
+                empty.textContent = window.t('mawl.no_sections')
                 list.appendChild(empty)
                 return
             }
@@ -375,22 +376,22 @@
                 secActions.className = 'manage-playbook-item-actions'
                 if (secIdx > 0) {
                     const up = document.createElement('button')
-                    up.className = 'manage-playbook-action-btn'; up.textContent = '↑'
+                    up.className = 'manage-playbook-action-btn'; up.textContent = window.t('mawl.move_up')
                     up.onclick = () => moveSection(sec.id, 'up')
                     secActions.appendChild(up)
                 }
                 if (secIdx < _playbookSections.length - 1) {
                     const down = document.createElement('button')
-                    down.className = 'manage-playbook-action-btn'; down.textContent = '↓'
+                    down.className = 'manage-playbook-action-btn'; down.textContent = window.t('mawl.move_down')
                     down.onclick = () => moveSection(sec.id, 'down')
                     secActions.appendChild(down)
                 }
                 const renameBtn = document.createElement('button')
-                renameBtn.className = 'manage-playbook-action-btn'; renameBtn.textContent = 'Rename'
+                renameBtn.className = 'manage-playbook-action-btn'; renameBtn.textContent = window.t('mawl.rename')
                 renameBtn.onclick = () => showRenameSection(sec.id, sec.title)
                 secActions.appendChild(renameBtn)
                 const archSecBtn = document.createElement('button')
-                archSecBtn.className = 'manage-playbook-action-btn manage-playbook-archive-btn'; archSecBtn.textContent = 'Archive'
+                archSecBtn.className = 'manage-playbook-action-btn manage-playbook-archive-btn'; archSecBtn.textContent = window.t('mawl.archive')
                 archSecBtn.onclick = () => archiveSection(sec.id)
                 secActions.appendChild(archSecBtn)
                 secHeader.appendChild(secActions)
@@ -415,12 +416,12 @@
                 const renameSaveBtn = document.createElement('button')
                 renameSaveBtn.type = 'button'
                 renameSaveBtn.className = 'create-network-submit'
-                renameSaveBtn.textContent = 'Save'
+                renameSaveBtn.textContent = window.t('mawl.save')
                 renameSaveBtn.addEventListener('click', () => submitRenameSection(sec.id))
                 const renameCancelBtn = document.createElement('button')
                 renameCancelBtn.type = 'button'
                 renameCancelBtn.className = 'create-network-cancel'
-                renameCancelBtn.textContent = 'Cancel'
+                renameCancelBtn.textContent = window.t('mawl.cancel')
                 renameCancelBtn.addEventListener('click', () => hideRenameSection(sec.id))
                 renameBtnRow.appendChild(renameSaveBtn)
                 renameBtnRow.appendChild(renameCancelBtn)
@@ -443,18 +444,18 @@
                     acts.className = 'manage-playbook-item-actions'
                     if (itemIdx > 0) {
                         const up = document.createElement('button')
-                        up.className = 'manage-playbook-action-btn'; up.textContent = '↑'
+                        up.className = 'manage-playbook-action-btn'; up.textContent = window.t('mawl.move_up')
                         up.onclick = () => movePlaybookItem(item.id, 'up', sec.id)
                         acts.appendChild(up)
                     }
                     if (itemIdx < itemsOfSec.length - 1) {
                         const down = document.createElement('button')
-                        down.className = 'manage-playbook-action-btn'; down.textContent = '↓'
+                        down.className = 'manage-playbook-action-btn'; down.textContent = window.t('mawl.move_down')
                         down.onclick = () => movePlaybookItem(item.id, 'down', sec.id)
                         acts.appendChild(down)
                     }
                     const archBtn = document.createElement('button')
-                    archBtn.className = 'manage-playbook-action-btn manage-playbook-archive-btn'; archBtn.textContent = 'Archive'
+                    archBtn.className = 'manage-playbook-action-btn manage-playbook-archive-btn'; archBtn.textContent = window.t('mawl.archive')
                     archBtn.onclick = () => archivePlaybookItem(item.id)
                     acts.appendChild(archBtn)
                     itemRow.appendChild(acts)
@@ -465,7 +466,7 @@
                 // Add item form for this section
                 const addItemBtn = document.createElement('button')
                 addItemBtn.className = 'add-section-item-btn'
-                addItemBtn.textContent = '+ Add Item'
+                addItemBtn.textContent = window.t('mawl.add_item')
                 addItemBtn.onclick = () => showAddItemToSection(sec.id)
                 secBlock.appendChild(addItemBtn)
 
@@ -477,7 +478,7 @@
                 addItemInput.type = 'text'
                 addItemInput.className = 'playbook-item-input'
                 addItemInput.id = 'add-item-input-' + sec.id
-                addItemInput.placeholder = 'Item title'
+                addItemInput.placeholder = window.t('mawl.item_placeholder')
                 addItemInput.maxLength = 200
                 addItemInput.addEventListener('keydown', e => {
                     if (e.key === 'Enter') submitAddItemToSection(sec.id)
@@ -488,12 +489,12 @@
                 const addItemSaveBtn = document.createElement('button')
                 addItemSaveBtn.type = 'button'
                 addItemSaveBtn.className = 'create-network-submit'
-                addItemSaveBtn.textContent = 'Add'
+                addItemSaveBtn.textContent = window.t('mawl.add')
                 addItemSaveBtn.addEventListener('click', () => submitAddItemToSection(sec.id))
                 const addItemCancelBtn = document.createElement('button')
                 addItemCancelBtn.type = 'button'
                 addItemCancelBtn.className = 'create-network-cancel'
-                addItemCancelBtn.textContent = 'Cancel'
+                addItemCancelBtn.textContent = window.t('mawl.cancel')
                 addItemCancelBtn.addEventListener('click', () => cancelAddItemToSection(sec.id))
                 addItemBtnRow.appendChild(addItemSaveBtn)
                 addItemBtnRow.appendChild(addItemCancelBtn)
@@ -509,7 +510,7 @@
             if (orphaned.length > 0) {
                 const otherHdr = document.createElement('div')
                 otherHdr.className = 'manage-section-title playbook-section-header-other'
-                otherHdr.textContent = 'Other'
+                otherHdr.textContent = window.t('mawl.other_section')
                 list.appendChild(otherHdr)
                 const otherList = document.createElement('div')
                 otherList.className = 'manage-section-items'
@@ -524,7 +525,7 @@
                     acts.className = 'manage-playbook-item-actions'
                     const archBtn = document.createElement('button')
                     archBtn.className = 'manage-playbook-action-btn manage-playbook-archive-btn'
-                    archBtn.textContent = 'Archive'
+                    archBtn.textContent = window.t('mawl.archive')
                     archBtn.onclick = () => archivePlaybookItem(item.id)
                     acts.appendChild(archBtn)
                     itemRow.appendChild(acts)
@@ -554,7 +555,7 @@
                 ? Math.max(..._playbookSections.map(s => s.sort_order)) + 1 : 0
             const { error } = await supabase.from('network_checklist_sections')
                 .insert({ network_id: networkId, title, sort_order: maxSort, created_by: session.user.id })
-            if (error) { console.error('[submitAddSection] insert error:', error); showNotification('Could not add section.'); return }
+            if (error) { console.error('[submitAddSection] insert error:', error); showNotification(window.t('mawl.could_not_add_section')); return }
             input.value = ''
             document.getElementById('add-section-form').style.display = 'none'
             await loadPlaybook(networkId)
@@ -576,7 +577,7 @@
             const networkId = document.getElementById('network-select').value
             const { error } = await supabase.from('network_checklist_sections')
                 .update({ title }).eq('id', secId)
-            if (error) { console.error('[submitRenameSection] update error:', error); showNotification('Could not rename section.'); return }
+            if (error) { console.error('[submitRenameSection] update error:', error); showNotification(window.t('mawl.could_not_rename_section')); return }
             await loadPlaybook(networkId)
             renderManagePlaybookList()
         }
@@ -591,7 +592,7 @@
                 supabase.from('network_checklist_sections').update({ sort_order: b.sort_order }).eq('id', a.id).then(r => r.error),
                 supabase.from('network_checklist_sections').update({ sort_order: a.sort_order }).eq('id', b.id).then(r => r.error),
             ])
-            if (eA || eB) { console.error('[moveSection] reorder error:', eA ?? eB); showNotification('Could not reorder sections.'); return }
+            if (eA || eB) { console.error('[moveSection] reorder error:', eA ?? eB); showNotification(window.t('mawl.could_not_reorder_sections')); return }
             await loadPlaybook(networkId)
             renderManagePlaybookList()
         }
@@ -599,7 +600,7 @@
             const networkId = document.getElementById('network-select').value
             const { error } = await supabase.from('network_checklist_sections')
                 .update({ is_archived: true }).eq('id', secId)
-            if (error) { console.error('[archiveSection] update error:', error); showNotification('Could not archive section.'); return }
+            if (error) { console.error('[archiveSection] update error:', error); showNotification(window.t('mawl.could_not_archive_section')); return }
             await loadPlaybook(networkId)
             renderManagePlaybookList()
         }
@@ -628,7 +629,7 @@
             if (error) {
                 const isRls = error.code === '42501' || String(error.message ?? '').toLowerCase().includes('policy')
                 console.error('[submitAddItemToSection] insert error' + (isRls ? ' — RLS policy violation' : '') + ':', error)
-                showNotification('Could not add item.')
+                showNotification(window.t('mawl.could_not_add_item'))
                 return
             }
             await loadPlaybook(networkId)
@@ -652,7 +653,7 @@
                 supabase.from('network_checklist_items').update({ sort_order: b.sort_order }).eq('id', a.id).then(r => r.error),
                 supabase.from('network_checklist_items').update({ sort_order: a.sort_order }).eq('id', b.id).then(r => r.error),
             ])
-            if (errA || errB) { console.error('[movePlaybookItem] reorder error:', errA ?? errB); showNotification('Could not reorder.'); return }
+            if (errA || errB) { console.error('[movePlaybookItem] reorder error:', errA ?? errB); showNotification(window.t('mawl.could_not_reorder')); return }
             await loadPlaybook(networkId)
             renderManagePlaybookList()
         }
@@ -663,7 +664,7 @@
                 .from('network_checklist_items')
                 .update({ is_archived: true })
                 .eq('id', itemId)
-            if (error) { console.error('[archivePlaybookItem] update error:', error); showNotification('Could not archive item.'); return }
+            if (error) { console.error('[archivePlaybookItem] update error:', error); showNotification(window.t('mawl.could_not_archive_item')); return }
             await loadPlaybook(networkId)
             renderManagePlaybookList()
         }
@@ -675,7 +676,7 @@
             const section = document.getElementById('mawl-grid-section')
             if (!checklistId) { section.style.display = 'none'; section.innerHTML = ''; return }
             section.style.display = 'block'
-            section.innerHTML = '<div class="mawl-grid-loading">Loading progress…</div>'
+            section.innerHTML = `<div class="mawl-grid-loading">${window.t('mawl.loading_progress')}</div>`
 
             const { data, error } = await supabase
                 .from('checklist_item_progress')
@@ -698,8 +699,8 @@
                 const emptyEl = document.createElement('div')
                 emptyEl.className = 'mawl-grid-loading'
                 emptyEl.textContent = (_networkRole === 'owner' || _networkRole === 'leader')
-                    ? 'No items in playbook yet. Use "Manage Playbook" above to add sections.'
-                    : 'No checklist items yet.'
+                    ? window.t('mawl.no_playbook_owner')
+                    : window.t('mawl.no_playbook_items')
                 section.appendChild(emptyEl)
             } else {
                 _playbookSections.forEach(sec => {
@@ -716,7 +717,7 @@
                 if (unsectioned.length > 0) {
                     const hdr = document.createElement('div')
                     hdr.className = 'playbook-section-header playbook-section-header-other'
-                    hdr.textContent = 'Other'
+                    hdr.textContent = window.t('mawl.other_section')
                     section.appendChild(hdr)
                     unsectioned.forEach(item => section.appendChild(buildPlaybookItemRow(item)))
                 }
@@ -769,7 +770,7 @@
                 .from('checklist_item_progress')
                 .upsert({ checklist_id: _activeChecklistId, item_id: itemId, mawl_stage: newStage },
                          { onConflict: 'checklist_id,item_id' })
-            if (error) { console.error('[setMawlStage] error:', error); showNotification('Could not save progress.'); return }
+            if (error) { console.error('[setMawlStage] error:', error); showNotification(window.t('mawl.could_not_save')); return }
             _playbookProgress[itemId] = { mawl_stage: newStage }
             refreshPlaybookItemRow(itemId)
         }
@@ -798,7 +799,7 @@
             const toggleLabel = document.createElement('span')
             toggleLabel.className = 'collab-label'
             toggleLabel.id = 'collab-toggle-label'
-            toggleLabel.textContent = 'Collaborators'
+            toggleLabel.textContent = window.t('mawl.collaborators')
             const toggleChevron = document.createElement('span')
             toggleChevron.className = 'collab-toggle-chevron'
             toggleChevron.textContent = '▸'
@@ -822,10 +823,10 @@
             form.className = 'collab-add-form'
             form.innerHTML = `
                 <input type="email" id="collab-email-input" class="collab-email-input"
-                       placeholder="Co-leader's email address" maxlength="200"
+                       placeholder="${window.t('mawl.collaborator_email')}" maxlength="200"
                        onkeydown="if(event.key==='Enter') submitAddCollaborator()">
                 <div class="collab-add-actions">
-                    <button type="button" class="collab-add-btn" id="collab-add-btn" onclick="submitAddCollaborator()">Add Leader</button>
+                    <button type="button" class="collab-add-btn" id="collab-add-btn" onclick="submitAddCollaborator()">${window.t('mawl.add_leader')}</button>
                 </div>`
             body.appendChild(form)
 
@@ -843,7 +844,7 @@
             const list = document.getElementById('collab-list')
             if (!list) return
 
-            list.innerHTML = '<div class="collab-loading">Loading…</div>'
+            list.innerHTML = `<div class="collab-loading">${window.t('mawl.loading')}</div>`
 
             const { data, error } = await supabase
                 .from('checklist_collaborators')
@@ -857,16 +858,16 @@
             // Update toggle label with collaborator count (cosmetic, no logic change)
             const count = !error && data ? data.length : 0
             const toggleLabel = document.getElementById('collab-toggle-label')
-            if (toggleLabel) toggleLabel.textContent = count > 0 ? `Collaborators (${count})` : 'Collaborators'
+            if (toggleLabel) toggleLabel.textContent = count > 0 ? window.t('mawl.collaborators_count', { count }) : window.t('mawl.collaborators')
 
             if (error) {
                 console.error('[loadCollaborators] error:', JSON.stringify(error))
-                list.innerHTML = '<div class="collab-empty">Error loading collaborators — see console.</div>'
+                list.innerHTML = `<div class="collab-empty">${window.t('mawl.collaborator_error')}</div>`
                 return
             }
 
             if (!data || data.length === 0) {
-                list.innerHTML = '<div class="collab-empty">No collaborators yet.</div>'
+                list.innerHTML = `<div class="collab-empty">${window.t('mawl.no_collaborators')}</div>`
                 return
             }
 
@@ -888,14 +889,14 @@
                 return
             }
             if (!_activeChecklistId) {
-                showNotification('Select a checklist first.')
+                showNotification(window.t('mawl.select_checklist'))
                 return
             }
 
             const btn = document.getElementById('collab-add-btn')
             if (!btn) return
             btn.disabled = true
-            btn.textContent = 'Adding…'
+            btn.textContent = window.t('mawl.adding')
 
             const { data: { session } } = await supabase.auth.getSession()
 
@@ -906,19 +907,19 @@
                 console.error('[submitAddCollaborator] RPC error (full):', lookupError)
                 showNotification('Lookup failed — see console. The RPC may not exist yet.')
                 btn.disabled = false
-                btn.textContent = 'Add Leader'
+                btn.textContent = window.t('mawl.add_leader')
                 return
             }
             if (!userId) {
-                showNotification('No leader account found with that email.')
+                showNotification(window.t('mawl.no_leader_found'))
                 btn.disabled = false
-                btn.textContent = 'Add Leader'
+                btn.textContent = window.t('mawl.add_leader')
                 return
             }
             if (userId === session.user.id) {
-                showNotification('That\'s your own email — you already have access.')
+                showNotification(window.t('mawl.own_email_error'))
                 btn.disabled = false
-                btn.textContent = 'Add Leader'
+                btn.textContent = window.t('mawl.add_leader')
                 return
             }
 
@@ -933,11 +934,11 @@
                 .insert(payload)
 
             btn.disabled = false
-            btn.textContent = 'Add Leader'
+            btn.textContent = window.t('mawl.add_leader')
 
             if (insertError) {
                 console.error('[submitAddCollaborator] insert error (full):', insertError)
-                if (insertError.code === '23505') showNotification('Already a collaborator.')
+                if (insertError.code === '23505') showNotification(window.t('mawl.already_collaborator'))
                 else showNotification('Insert failed — see console: ' + (insertError.message ?? ''))
                 return
             }
@@ -992,7 +993,7 @@
 
             const btn = document.getElementById('create-checklist-submit')
             btn.disabled = true
-            btn.textContent = 'Adding…'
+            btn.textContent = window.t('mawl.adding')
 
             const { data: { session } } = await supabase.auth.getSession()
 
@@ -1008,11 +1009,11 @@
                 .insert(payload)
 
             btn.disabled = false
-            btn.textContent = 'Add'
+            btn.textContent = window.t('mawl.add')
 
             if (insertError) {
                 console.error('[submitCreateChecklist] insert failed:', insertError)
-                showNotification('Could not add checklist.')
+                showNotification(window.t('mawl.could_not_add_checklist'))
                 return
             }
 
@@ -1221,70 +1222,70 @@
 <body>
 
     <div style="display:flex; gap:10px; justify-content:center; padding:20px 16px 8px;">
-        <a href="index.html" style="display:inline-block; background:#000; color:#fff; font-family:-apple-system,BlinkMacSystemFont,sans-serif; font-weight:700; font-size:15px; padding:11px 22px; border-radius:50px; text-decoration:none; white-space:nowrap;">Home</a>
-        <a href="leader-tools.html" style="display:inline-block; background:#00D084; color:#fff; font-family:-apple-system,BlinkMacSystemFont,sans-serif; font-weight:700; font-size:15px; padding:11px 22px; border-radius:50px; text-decoration:none; white-space:nowrap;">← Leader Tools</a>
+        <a href="index.html" data-i18n="nav.home" style="display:inline-block; background:#000; color:#fff; font-family:-apple-system,BlinkMacSystemFont,sans-serif; font-weight:700; font-size:15px; padding:11px 22px; border-radius:50px; text-decoration:none; white-space:nowrap;">Home</a>
+        <a href="leader-tools.html" data-i18n="nav.back_leader" style="display:inline-block; background:#00D084; color:#fff; font-family:-apple-system,BlinkMacSystemFont,sans-serif; font-weight:700; font-size:15px; padding:11px 22px; border-radius:50px; text-decoration:none; white-space:nowrap;">← Leader Tools</a>
     </div>
 
     <div id="access-denied" class="access-denied">
-        <div class="access-denied-msg">Access restricted.</div>
-        <div class="access-denied-sub">Leader approval required.</div>
-        <a href="index.html" class="access-denied-btn">Go to Home</a>
+        <div class="access-denied-msg" data-i18n="access.restricted">Access restricted.</div>
+        <div class="access-denied-sub" data-i18n="access.leader_required">Leader approval required.</div>
+        <a href="index.html" class="access-denied-btn" data-i18n="access.go_home">Go to Home</a>
     </div>
 
     <div class="container" id="main-container">
 
         <div class="auth-section" id="auth-section">
             <div id="auth-form" style="display:none">
-                <input type="email" id="auth-email" placeholder="Email">
-                <input type="password" id="auth-password" placeholder="Password">
+                <input type="email" id="auth-email" data-i18n-placeholder="auth.email_placeholder" placeholder="Email">
+                <input type="password" id="auth-password" data-i18n-placeholder="auth.password_placeholder" placeholder="Password">
                 <div class="auth-buttons">
-                    <button class="auth-btn-primary" onclick="authSignUp()">Sign Up</button>
-                    <button class="auth-btn-secondary" onclick="authLogIn()">Log In</button>
+                    <button class="auth-btn-primary" onclick="authSignUp()" data-i18n="auth.sign_up">Sign Up</button>
+                    <button class="auth-btn-secondary" onclick="authLogIn()" data-i18n="auth.log_in">Log In</button>
                 </div>
             </div>
             <div class="auth-status" id="auth-status" style="display:none">
-                <span class="auth-status-text" id="auth-status-text">Not signed in</span>
-                <button class="auth-logout-btn" onclick="authLogOut()">Log Out</button>
+                <span class="auth-status-text" id="auth-status-text" data-i18n="auth.not_signed_in">Not signed in</span>
+                <button class="auth-logout-btn" onclick="authLogOut()" data-i18n="auth.log_out">Log Out</button>
             </div>
         </div>
 
         <!-- Network header bar (above tabs, always visible) -->
         <div class="network-header-bar" id="network-section">
             <div class="network-display-row">
-                <span class="network-display-label">Network:</span>
+                <span class="network-display-label" data-i18n="mawl.network_label">Network:</span>
                 <span class="network-display-name" id="network-display-text">—</span>
                 <div class="network-display-actions">
-                    <button class="network-action-btn" onclick="showNetworkPicker()">Change</button>
-                    <button class="network-action-btn network-action-add" onclick="showCreateNetwork()">Add</button>
+                    <button class="network-action-btn" onclick="showNetworkPicker()" data-i18n="mawl.network_change">Change</button>
+                    <button class="network-action-btn network-action-add" onclick="showCreateNetwork()" data-i18n="mawl.network_add">Add</button>
                 </div>
             </div>
             <!-- Picker panel: hidden until Change/Add is clicked -->
             <div id="network-picker-panel" style="display:none">
-                <div class="network-loading" id="network-loading" style="display:none">Loading networks…</div>
+                <div class="network-loading" id="network-loading" data-i18n="mawl.loading_networks" style="display:none">Loading networks…</div>
                 <select class="network-select" id="network-select" style="display:none" onchange="onNetworkChange()">
-                    <option value="">— Choose a network —</option>
+                    <option value="" data-i18n="mawl.choose_network">— Choose a network —</option>
                 </select>
                 <div class="create-network-form" id="create-network-form" style="display:none">
                     <input type="text" class="create-network-input" id="create-network-input"
-                           placeholder="Network name" maxlength="80"
+                           data-i18n-placeholder="mawl.network_name_placeholder" placeholder="Network name" maxlength="80"
                            onkeydown="if(event.key==='Enter') submitCreateNetwork(); if(event.key==='Escape') cancelCreateNetwork()">
                     <div class="create-network-actions">
-                        <button class="create-network-submit" id="create-network-submit" onclick="submitCreateNetwork()">Create</button>
-                        <button type="button" class="create-network-cancel" onclick="cancelCreateNetwork()">Cancel</button>
+                        <button class="create-network-submit" id="create-network-submit" onclick="submitCreateNetwork()" data-i18n="mawl.create">Create</button>
+                        <button type="button" class="create-network-cancel" onclick="cancelCreateNetwork()" data-i18n="mawl.cancel">Cancel</button>
                     </div>
                 </div>
                 <div class="network-empty" id="network-empty" style="display:none">
                     <div class="network-empty-icon">🌐</div>
-                    <div class="network-empty-title">No networks yet</div>
-                    <div class="network-empty-sub">Use "Add" above to create one.</div>
+                    <div class="network-empty-title" data-i18n="mawl.no_networks">No networks yet</div>
+                    <div class="network-empty-sub" data-i18n="mawl.use_add">Use "Add" above to create one.</div>
                 </div>
             </div>
         </div>
 
         <!-- Tab bar -->
         <div class="tab-bar">
-            <button class="tab-btn active" id="tab-btn-people" onclick="switchTab('people')">People</button>
-            <button class="tab-btn" id="tab-btn-playbook" onclick="switchTab('playbook')">Playbook</button>
+            <button class="tab-btn active" id="tab-btn-people" onclick="switchTab('people')" data-i18n="mawl.tab_people">People</button>
+            <button class="tab-btn" id="tab-btn-playbook" onclick="switchTab('playbook')" data-i18n="mawl.tab_playbook">Playbook</button>
         </div>
 
         <!-- People tab -->
@@ -1292,19 +1293,19 @@
             <div class="checklist-section" id="checklist-section" style="display:none">
                 <div class="checklist-row">
                     <select class="checklist-select" id="checklist-select" onchange="selectChecklist(this.value)">
-                        <option value="">— Select a person —</option>
+                        <option value="" data-i18n="mawl.select_person">— Select a person —</option>
                     </select>
-                    <button class="add-checklist-btn" onclick="showCreateChecklist()">+ Add</button>
+                    <button class="add-checklist-btn" onclick="showCreateChecklist()" data-i18n="mawl.add_btn">+ Add</button>
                 </div>
-                <div class="checklist-loading" id="checklist-loading" style="display:none">Loading…</div>
-                <div class="checklist-empty" id="checklist-empty" style="display:none">No people yet. Use "+ Add" to create one.</div>
+                <div class="checklist-loading" id="checklist-loading" data-i18n="mawl.loading" style="display:none">Loading…</div>
+                <div class="checklist-empty" id="checklist-empty" data-i18n="mawl.no_people" style="display:none">No people yet. Use "+ Add" to create one.</div>
                 <div class="create-checklist-form" id="create-checklist-form" style="display:none">
                     <input type="text" class="create-checklist-input" id="create-checklist-input"
-                           placeholder="Coached leader's name" maxlength="80"
+                           data-i18n-placeholder="mawl.coached_leader_placeholder" placeholder="Coached leader's name" maxlength="80"
                            onkeydown="if(event.key==='Enter') submitCreateChecklist(); if(event.key==='Escape') cancelCreateChecklist()">
                     <div class="create-checklist-actions">
-                        <button class="create-checklist-submit" id="create-checklist-submit" onclick="submitCreateChecklist()">Add</button>
-                        <button type="button" class="create-checklist-cancel" onclick="cancelCreateChecklist()">Cancel</button>
+                        <button class="create-checklist-submit" id="create-checklist-submit" onclick="submitCreateChecklist()" data-i18n="mawl.add">Add</button>
+                        <button type="button" class="create-checklist-cancel" onclick="cancelCreateChecklist()" data-i18n="mawl.cancel">Cancel</button>
                     </div>
                 </div>
             </div>
@@ -1315,16 +1316,16 @@
         <div id="tab-playbook" class="tab-panel" style="display:none">
             <div id="manage-playbook-section" class="manage-playbook-section" style="display:none">
                 <div class="manage-playbook-header-row">
-                    <div class="manage-playbook-label">Manage Playbook</div>
-                    <button class="add-playbook-item-btn" onclick="showAddSection()">+ Add Section</button>
+                    <div class="manage-playbook-label" data-i18n="mawl.manage_playbook">Manage Playbook</div>
+                    <button class="add-playbook-item-btn" onclick="showAddSection()" data-i18n="mawl.add_section">+ Add Section</button>
                 </div>
                 <div id="add-section-form" class="add-playbook-form" style="display:none">
                     <input type="text" id="add-section-input" class="playbook-item-input"
-                           placeholder="Section title" maxlength="200"
+                           data-i18n-placeholder="mawl.section_title_placeholder" placeholder="Section title" maxlength="200"
                            onkeydown="if(event.key==='Enter') submitAddSection(); if(event.key==='Escape') cancelAddSection()">
                     <div class="playbook-item-form-actions">
-                        <button class="create-network-submit" onclick="submitAddSection()">Add</button>
-                        <button type="button" class="create-network-cancel" onclick="cancelAddSection()">Cancel</button>
+                        <button class="create-network-submit" onclick="submitAddSection()" data-i18n="mawl.add">Add</button>
+                        <button type="button" class="create-network-cancel" onclick="cancelAddSection()" data-i18n="mawl.cancel">Cancel</button>
                     </div>
                 </div>
                 <div id="manage-playbook-list"></div>
