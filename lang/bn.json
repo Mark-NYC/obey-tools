@@ -314,7 +314,9 @@
     "revoking": "বাতিল করা হচ্ছে…",
     "revoke_confirm": "এই আমন্ত্রণ লিংক বাতিল করবেন? এরপর আর এটি ব্যবহার করা যাবে না।",
     "revoke": "বাতিল করুন",
-    "invite_history": "আমন্ত্রণের ইতিহাস"
+    "invite_history": "আমন্ত্রণের ইতিহাস",
+    "mawl_checklist": "MAWL চেকলিস্ট",
+    "view_progress": "অগ্রগতি দেখুন"
   },
   "invite": {
     "page_title": "লিডার আমন্ত্রণ",
@@ -409,7 +411,7 @@
     "period_all": "সব সময়",
     "period_7": "গত ৭ দিন",
     "period_30": "গত ৩০ দিন",
-    "period_90": "গত ৯০ দিন",
+    "period_90": "গত ৩ মাস",
     "period_year": "গত এক বছর",
     "recent_activity": "সাম্প্রতিক কার্যকলাপ",
     "live": "লাইভ",
@@ -425,7 +427,14 @@
     "popup_baptisms": "বাপ্তিস্ম:",
     "popup_generation": "প্রজন্ম:",
     "popup_convos": "আত্মিক/আবিষ্কারমূলক কথোপকথন: {n}",
-    "data_refreshed": "ডেটা রিফ্রেশ হয়েছে"
+    "data_refreshed": "ডেটা রিফ্রেশ হয়েছে",
+    "loading": "লোড হচ্ছে…",
+    "last_updated": "সর্বশেষ আপডেট: {time}",
+    "load_error": "ডেটা লোড করা যায়নি।",
+    "popup_spiritual": "আত্মিক",
+    "popup_discovery": "আবিষ্কারমূলক",
+    "popup_convos_type": "<br>{type} কথোপকথন: {n}",
+    "unknown_location": "অজানা স্থান"
   },
   "mawl": {
     "title": "MAWL চেকলিস্ট",

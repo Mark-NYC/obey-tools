@@ -314,7 +314,9 @@
     "revoking": "Revocando…",
     "revoke_confirm": "¿Revocar este enlace de invitación? Ya no podrá canjearse.",
     "revoke": "Revocar",
-    "invite_history": "Historial de Invitaciones"
+    "invite_history": "Historial de Invitaciones",
+    "mawl_checklist": "Lista MAWL",
+    "view_progress": "Ver Progreso"
   },
   "invite": {
     "page_title": "Invitación de Líder",
@@ -409,7 +411,7 @@
     "period_all": "Todo el Tiempo",
     "period_7": "Últimos 7 días",
     "period_30": "Últimos 30 días",
-    "period_90": "Últimos 90 días",
+    "period_90": "Últimos 3 meses",
     "period_year": "Último Año",
     "recent_activity": "Actividad Reciente",
     "live": "En Vivo",
@@ -425,7 +427,14 @@
     "popup_baptisms": "Bautismos:",
     "popup_generation": "Generación:",
     "popup_convos": "Conversaciones espirituales/de descubrimiento: {n}",
-    "data_refreshed": "Datos actualizados"
+    "data_refreshed": "Datos actualizados",
+    "loading": "Cargando…",
+    "last_updated": "Última actualización: {time}",
+    "load_error": "No se pudieron cargar los datos.",
+    "popup_spiritual": "Espiritual",
+    "popup_discovery": "Descubrimiento",
+    "popup_convos_type": "<br>{type} conversaciones: {n}",
+    "unknown_location": "una ubicación desconocida"
   },
   "mawl": {
     "title": "Lista MAWL",
