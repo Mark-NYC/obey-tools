@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>3 Circles Gospel Tool</title>
+  <style>
+    :root {
+      --bg: #f7f3ea;
+      --card: #ffffff;
+      --text: #1f1f1f;
+      --muted: #666;
+      --border: #ded6c8;
+      --accent: #2c5b47;
+      --accent-hover: #234738;
+      --shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+      --radius: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 24px 16px 56px;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-bottom: 18px;
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .back-link:hover {
+      color: var(--accent-hover);
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      text-align: center;
+      font-size: 2rem;
+    }
+
+    .subtitle {
+      margin: 0 0 24px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .video-card,
+    .links-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .video-card {
+      overflow: hidden;
+      margin-bottom: 28px;
+    }
+
+    .video-frame {
+      position: relative;
+      width: 100%;
+      padding-top: 56.25%;
+      background: #000;
+    }
+
+    .video-frame iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+
+    .links-card {
+      padding: 22px;
+    }
+
+    h2 {
+      margin: 0 0 16px;
+      text-align: center;
+      font-size: 1.3rem;
+    }
+
+    .language-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .language-list a {
+      display: block;
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fcfbf8;
+      color: var(--text);
+      text-decoration: none;
+      transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+    }
+
+    .language-list a:hover {
+      border-color: var(--accent);
+      background: #f2f7f4;
+      transform: translateY(-1px);
+    }
+
+    @media (min-width: 720px) {
+      .language-list {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="index.html" class="back-link">← Back</a>
+
+    <h1>3 Circles Gospel Tool</h1>
+    <p class="subtitle">Watch the main video, then choose a language below.</p>
+
+    <div class="video-card">
+      <div class="video-frame">
+        <iframe
+          src="https://www.youtube.com/embed/5W8ynRMr59k"
+          title="3 Circles Gospel Tool"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen>
+        </iframe>
+      </div>
+    </div>
+
+    <div class="links-card">
+      <h2>Select Language</h2>
+
+      <ul class="language-list">
+        <li><a href="https://youtu.be/cxqmFSacr5k" target="_blank" rel="noopener noreferrer">🇸🇦 Arabic – ٣ دوائر</a></li>
+        <li><a href="https://youtu.be/-yQvLQXG9BU" target="_blank" rel="noopener noreferrer">🇦🇿 Azeri – Üç dairə</a></li>
+        <li><a href="https://youtu.be/6dT9G_VVpj8" target="_blank" rel="noopener noreferrer">🇨🇿 Czech – 3 Kruhy</a></li>
+        <li><a href="https://youtu.be/quZN8PBxXok" target="_blank" rel="noopener noreferrer">🇩🇪 Deutsch – 3 Kreise</a></li>
+        <li><a href="https://youtu.be/5W8ynRMr59k" target="_blank" rel="noopener noreferrer">🇺🇸 English – 3 Circles</a></li>
+        <li><a href="https://youtu.be/i3Ken_7k4xI" target="_blank" rel="noopener noreferrer">🇪🇸 Español – 3 Círculos</a></li>
+        <li><a href="https://youtu.be/XNI4AIUg9sM" target="_blank" rel="noopener noreferrer">🇮🇷 Farsi – سه دایره</a></li>
+        <li><a href="https://youtu.be/kR4IiL8Asac" target="_blank" rel="noopener noreferrer">🇫🇮 Finnish – Kolme Ympyrää</a></li>
+        <li><a href="https://youtu.be/kDnKU_hKz2M" target="_blank" rel="noopener noreferrer">🇫🇷 Français – 3 Cercles</a></li>
+        <li><a href="https://youtu.be/SGsT6l8cl1I" target="_blank" rel="noopener noreferrer">🇬🇷 Greek – 3 κύκλοι</a></li>
+        <li><a href="https://youtu.be/KFI5HPGl6E4" target="_blank" rel="noopener noreferrer">🇮🇳 Gujarati – ૩ વૃત્તો</a></li>
+        <li><a href="https://youtu.be/mIQy_akRkBA" target="_blank" rel="noopener noreferrer">🇮🇳 Hindi – तीन गोले</a></li>
+        <li><a href="https://youtu.be/6ngRFPDbVR8" target="_blank" rel="noopener noreferrer">🇮🇩 Indonesian (Bahasa) – 3 Lingkaran</a></li>
+        <li><a href="https://youtu.be/w_2qHO9sKY8" target="_blank" rel="noopener noreferrer">🇯🇵 Japanese – 3 つの円</a></li>
+        <li><a href="https://youtu.be/ONOuuBDStnE" target="_blank" rel="noopener noreferrer">🇮🇳 Kannada – ಮೂರು ವಲಯಗಳು</a></li>
+        <li><a href="https://youtu.be/xMc_ROiuY0Q" target="_blank" rel="noopener noreferrer">🇰🇭 Khmer – ៣ រង្វង់</a></li>
+        <li><a href="https://youtu.be/GvkKJCEmNiM" target="_blank" rel="noopener noreferrer">🇨🇳 Mandarin – 三圈福音</a></li>
+        <li><a href="https://youtu.be/oVnUiPR59U0" target="_blank" rel="noopener noreferrer">🇳🇵 Nepali – तीन सर्कल</a></li>
+        <li><a href="https://youtu.be/doJFJ_fts-Q" target="_blank" rel="noopener noreferrer">🇸🇸 Nuer – 3 Circles</a></li>
+        <li><a href="https://youtu.be/jwVkLmCef60" target="_blank" rel="noopener noreferrer">🇮🇳 Oriya – ତିନି ବୃତ୍ତ</a></li>
+        <li><a href="https://youtu.be/3V8U7T5vElU" target="_blank" rel="noopener noreferrer">🇵🇱 Polish – 3 Okręgi</a></li>
+        <li><a href="https://youtu.be/nNhCy-QBiis" target="_blank" rel="noopener noreferrer">🇵🇹 Portuguese – 3 Círculos</a></li>
+        <li><a href="https://youtu.be/BbvJS-AxqEI" target="_blank" rel="noopener noreferrer">🇷🇴 Română – 3 Cercuri</a></li>
+        <li><a href="https://youtu.be/Iqfy4YvVbp8" target="_blank" rel="noopener noreferrer">🇷🇺 Russian – Три круга</a></li>
+        <li><a href="https://youtu.be/-srCkSEx8vI" target="_blank" rel="noopener noreferrer">🇷🇸 Serbian – 3 Kruga</a></li>
+        <li><a href="https://youtu.be/O2RTjStCE5g" target="_blank" rel="noopener noreferrer">🇵🇭 Tagalog – Tatlong Sirkulo</a></li>
+        <li><a href="https://youtu.be/PJOc220tA0s" target="_blank" rel="noopener noreferrer">🇮🇳 Tamil – மூன்று வட்டங்கள்</a></li>
+        <li><a href="https://youtu.be/WWsw4zqu-NI" target="_blank" rel="noopener noreferrer">🇰🇭 Tampuan – 3 Circles</a></li>
+        <li><a href="https://youtu.be/8Hu_nsY9XHI" target="_blank" rel="noopener noreferrer">🇮🇳 Telugu – మూడు 3 Circles</a></li>
+        <li><a href="https://youtu.be/5bTD46Onb-E" target="_blank" rel="noopener noreferrer">🇹🇷 Turkish – Üç Daire</a></li>
+        <li><a href="https://youtu.be/4W-Wfs7x0lk" target="_blank" rel="noopener noreferrer">🇵🇰 Urdu – تین حلقے</a></li>
+        <li><a href="https://youtu.be/vHTKavU63K8" target="_blank" rel="noopener noreferrer">🇻🇳 Vietnamese – 3 Vòng tròn</a></li>
+      </ul>
+    </div>
+  </div>
+</body>
+</html>
