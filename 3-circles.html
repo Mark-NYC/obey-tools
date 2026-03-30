@@ -35,18 +35,6 @@
       padding: 24px 16px 56px;
     }
 
-    .back-link {
-      display: inline-block;
-      margin-bottom: 18px;
-      color: var(--accent);
-      text-decoration: none;
-      font-weight: 700;
-    }
-
-    .back-link:hover {
-      color: var(--accent-hover);
-    }
-
     h1 {
       margin: 0 0 8px;
       text-align: center;
@@ -60,6 +48,7 @@
     }
 
     .video-card,
+    .buttons-card,
     .links-card {
       background: var(--card);
       border: 1px solid var(--border);
@@ -69,7 +58,7 @@
 
     .video-card {
       overflow: hidden;
-      margin-bottom: 28px;
+      margin-bottom: 20px;
     }
 
     .video-frame {
@@ -85,6 +74,35 @@
       width: 100%;
       height: 100%;
       border: 0;
+    }
+
+    .buttons-card {
+      padding: 18px;
+      margin-bottom: 24px;
+    }
+
+    .button-row {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .tool-button {
+      display: inline-block;
+      text-align: center;
+      padding: 14px 18px;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: 700;
+      border: 1px solid var(--accent);
+      background: var(--accent);
+      color: #fff;
+      transition: background 0.15s ease, transform 0.15s ease;
+    }
+
+    .tool-button:hover {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
     }
 
     .links-card {
@@ -124,6 +142,10 @@
     }
 
     @media (min-width: 720px) {
+      .button-row {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
       .language-list {
         grid-template-columns: 1fr 1fr;
       }
@@ -132,8 +154,6 @@
 </head>
 <body>
   <div class="container">
-    <a href="index.html" class="back-link">← Back</a>
-
     <h1>3 Circles Gospel Tool</h1>
     <p class="subtitle">Watch the main video, then choose a language below.</p>
 
@@ -145,6 +165,14 @@
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
           allowfullscreen>
         </iframe>
+      </div>
+    </div>
+
+    <div class="buttons-card">
+      <div class="button-row">
+        <a class="tool-button" href="YOUR_TRAINING_LINK_HERE">Get Training</a>
+        <a class="tool-button" href="YOUR_COMMANDS_LINK_HERE">Commands of Christ</a>
+        <a class="tool-button" href="YOUR_STICKERS_LINK_HERE">Stickers</a>
       </div>
     </div>
 
