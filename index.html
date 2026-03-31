@@ -416,5 +416,46 @@
     })();
     </script>
 
+    <script>
+    // Ukraine detection: swap Stories of Hope → Signs of John for UA users.
+    // Country is fetched once via ip-api.com and cached in sessionStorage.
+    (function () {
+        var CACHE_KEY = 'obeytools_country';
+        var i18nReady = false;
+        var pendingSwap = false;
+
+        function applyUkraineSwap() {
+            var btn = document.querySelector('a.btn-stories');
+            if (!btn) return;
+            btn.href = 'signs-of-john.html';
+            btn.removeAttribute('data-i18n');
+            btn.textContent = (window.t && window.t('signs_of_john.title')) || 'Signs of John';
+        }
+
+        window.addEventListener('i18n:ready', function () {
+            i18nReady = true;
+            if (pendingSwap) applyUkraineSwap();
+        }, { once: true });
+
+        function onCountry(code) {
+            sessionStorage.setItem(CACHE_KEY, code || '');
+            if (code !== 'UA') return;
+            if (i18nReady) applyUkraineSwap();
+            else pendingSwap = true;
+        }
+
+        var cached = sessionStorage.getItem(CACHE_KEY);
+        if (cached !== null) {
+            onCountry(cached);
+            return;
+        }
+
+        fetch('https://ip-api.com/json?fields=countryCode')
+            .then(function (r) { return r.json(); })
+            .then(function (d) { onCountry(d.countryCode || ''); })
+            .catch(function () { sessionStorage.setItem(CACHE_KEY, ''); });
+    })();
+    </script>
+
 </body>
 </html>
