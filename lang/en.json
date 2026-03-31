@@ -13,7 +13,8 @@
     "home": "Home",
     "back_stories": "← Stories of Hope",
     "back_commands": "← Commands of Christ",
-    "back_leader": "← Leader Tools"
+    "back_leader": "← Leader Tools",
+    "back_john": "← Signs of John"
   },
   "access": {
     "restricted": "Access restricted.",
@@ -588,5 +589,89 @@
       "question_line2": "have a story",
       "question_line3": "like that?"
     }
+  },
+  "signs_of_john": {
+    "title": "Signs of John",
+    "subtitle": "Seven signs and one Way.",
+    "sign_1_title": "Water to Wine",
+    "sign_1_sub": "John 2:1–12",
+    "sign_2_title": "Royal Official's Son",
+    "sign_2_sub": "John 4:46–54",
+    "sign_3_title": "The Paralytic",
+    "sign_3_sub": "John 5:1–17",
+    "sign_4_title": "Feeding Five Thousand",
+    "sign_4_sub": "John 6:1–14",
+    "sign_5_title": "Walking on Water",
+    "sign_5_sub": "John 6:15–25",
+    "sign_6_title": "The Man Born Blind",
+    "sign_6_sub": "John 9:1–41",
+    "sign_7_title": "Raising Lazarus",
+    "sign_7_sub": "John 11:1–46",
+    "sign_8_title": "Jesus, the Only Way",
+    "sign_8_sub": "John 14:1–11"
+  },
+  "john_water_wine": {
+    "title": "Water to Wine",
+    "scripture": "John 2:1–12",
+    "tell_story_desc": "Tell the story of the Wedding at Cana from memory.",
+    "read_story_desc": "Read John 2:1–12 together.",
+    "bible_btn": "John 2:1–12 (CSB)",
+    "practice_desc": "Tell the story of the Wedding at Cana from memory."
+  },
+  "john_royal_official": {
+    "title": "Royal Official's Son",
+    "scripture": "John 4:46–54",
+    "tell_story_desc": "Tell the story of the Royal Official's Son from memory.",
+    "read_story_desc": "Read John 4:46–54 together.",
+    "bible_btn": "John 4:46–54 (CSB)",
+    "practice_desc": "Tell the story of the Royal Official's Son from memory."
+  },
+  "john_paralytic": {
+    "title": "The Paralytic",
+    "scripture": "John 5:1–17",
+    "tell_story_desc": "Tell the story of the Healing at the Pool from memory.",
+    "read_story_desc": "Read John 5:1–17 together.",
+    "bible_btn": "John 5:1–17 (CSB)",
+    "practice_desc": "Tell the story of the Healing at the Pool from memory."
+  },
+  "john_feeding_five": {
+    "title": "Feeding Five Thousand",
+    "scripture": "John 6:1–14",
+    "tell_story_desc": "Tell the story of the Feeding of the Five Thousand from memory.",
+    "read_story_desc": "Read John 6:1–14 together.",
+    "bible_btn": "John 6:1–14 (CSB)",
+    "practice_desc": "Tell the story of the Feeding of the Five Thousand from memory."
+  },
+  "john_walking_water": {
+    "title": "Walking on Water",
+    "scripture": "John 6:15–25",
+    "tell_story_desc": "Tell the story of Jesus Walking on Water from memory.",
+    "read_story_desc": "Read John 6:15–25 together.",
+    "bible_btn": "John 6:15–25 (CSB)",
+    "practice_desc": "Tell the story of Jesus Walking on Water from memory."
+  },
+  "john_man_blind": {
+    "title": "The Man Born Blind",
+    "scripture": "John 9:1–41",
+    "tell_story_desc": "Tell the story of the Man Born Blind from memory.",
+    "read_story_desc": "Read John 9:1–41 together.",
+    "bible_btn": "John 9:1–41 (CSB)",
+    "practice_desc": "Tell the story of the Man Born Blind from memory."
+  },
+  "john_lazarus": {
+    "title": "Raising Lazarus",
+    "scripture": "John 11:1–46",
+    "tell_story_desc": "Tell the story of the Raising of Lazarus from memory.",
+    "read_story_desc": "Read John 11:1–46 together.",
+    "bible_btn": "John 11:1–46 (CSB)",
+    "practice_desc": "Tell the story of the Raising of Lazarus from memory."
+  },
+  "john_only_way": {
+    "title": "Jesus, the Only Way",
+    "scripture": "John 14:1–11",
+    "tell_story_desc": "Tell the story of Jesus the Only Way from memory.",
+    "read_story_desc": "Read John 14:1–11 together.",
+    "bible_btn": "John 14:1–11 (CSB)",
+    "practice_desc": "Tell the story of Jesus the Only Way from memory."
   }
 }

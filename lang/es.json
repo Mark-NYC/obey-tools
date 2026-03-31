@@ -13,7 +13,8 @@
     "home": "Inicio",
     "back_stories": "← Historias de Esperanza",
     "back_commands": "← Mandamientos de Cristo",
-    "back_leader": "← Herramientas de Líder"
+    "back_leader": "← Herramientas de Líder",
+    "back_john": "← Señales de Juan"
   },
   "access": {
     "restricted": "Acceso restringido.",
@@ -588,5 +589,89 @@
       "question_line2": "una historia",
       "question_line3": "así?"
     }
+  },
+  "signs_of_john": {
+    "title": "Señales de Juan",
+    "subtitle": "Siete señales y un Camino.",
+    "sign_1_title": "Agua en Vino",
+    "sign_1_sub": "Juan 2:1–12",
+    "sign_2_title": "El Hijo del Noble",
+    "sign_2_sub": "Juan 4:46–54",
+    "sign_3_title": "El Paralítico",
+    "sign_3_sub": "Juan 5:1–17",
+    "sign_4_title": "Alimentación de los Cinco Mil",
+    "sign_4_sub": "Juan 6:1–14",
+    "sign_5_title": "Caminar sobre el Agua",
+    "sign_5_sub": "Juan 6:15–25",
+    "sign_6_title": "El Hombre Ciego de Nacimiento",
+    "sign_6_sub": "Juan 9:1–41",
+    "sign_7_title": "La Resurrección de Lázaro",
+    "sign_7_sub": "Juan 11:1–46",
+    "sign_8_title": "Jesús, el Único Camino",
+    "sign_8_sub": "Juan 14:1–11"
+  },
+  "john_water_wine": {
+    "title": "Agua en Vino",
+    "scripture": "Juan 2:1–12",
+    "tell_story_desc": "Cuenta la historia de las Bodas en Caná de memoria.",
+    "read_story_desc": "Lean Juan 2:1–12 juntos.",
+    "bible_btn": "Juan 2:1–12 (CSB)",
+    "practice_desc": "Cuenta la historia de las Bodas en Caná de memoria."
+  },
+  "john_royal_official": {
+    "title": "El Hijo del Noble",
+    "scripture": "Juan 4:46–54",
+    "tell_story_desc": "Cuenta la historia del Hijo del Noble de memoria.",
+    "read_story_desc": "Lean Juan 4:46–54 juntos.",
+    "bible_btn": "Juan 4:46–54 (CSB)",
+    "practice_desc": "Cuenta la historia del Hijo del Noble de memoria."
+  },
+  "john_paralytic": {
+    "title": "El Paralítico",
+    "scripture": "Juan 5:1–17",
+    "tell_story_desc": "Cuenta la historia de la Sanación en el Estanque de memoria.",
+    "read_story_desc": "Lean Juan 5:1–17 juntos.",
+    "bible_btn": "Juan 5:1–17 (CSB)",
+    "practice_desc": "Cuenta la historia de la Sanación en el Estanque de memoria."
+  },
+  "john_feeding_five": {
+    "title": "Alimentación de los Cinco Mil",
+    "scripture": "Juan 6:1–14",
+    "tell_story_desc": "Cuenta la historia de la Alimentación de los Cinco Mil de memoria.",
+    "read_story_desc": "Lean Juan 6:1–14 juntos.",
+    "bible_btn": "Juan 6:1–14 (CSB)",
+    "practice_desc": "Cuenta la historia de la Alimentación de los Cinco Mil de memoria."
+  },
+  "john_walking_water": {
+    "title": "Caminar sobre el Agua",
+    "scripture": "Juan 6:15–25",
+    "tell_story_desc": "Cuenta la historia de Jesús caminando sobre el agua de memoria.",
+    "read_story_desc": "Lean Juan 6:15–25 juntos.",
+    "bible_btn": "Juan 6:15–25 (CSB)",
+    "practice_desc": "Cuenta la historia de Jesús caminando sobre el agua de memoria."
+  },
+  "john_man_blind": {
+    "title": "El Hombre Ciego de Nacimiento",
+    "scripture": "Juan 9:1–41",
+    "tell_story_desc": "Cuenta la historia del Ciego de Nacimiento de memoria.",
+    "read_story_desc": "Lean Juan 9:1–41 juntos.",
+    "bible_btn": "Juan 9:1–41 (CSB)",
+    "practice_desc": "Cuenta la historia del Ciego de Nacimiento de memoria."
+  },
+  "john_lazarus": {
+    "title": "La Resurrección de Lázaro",
+    "scripture": "Juan 11:1–46",
+    "tell_story_desc": "Cuenta la historia de la Resurrección de Lázaro de memoria.",
+    "read_story_desc": "Lean Juan 11:1–46 juntos.",
+    "bible_btn": "Juan 11:1–46 (CSB)",
+    "practice_desc": "Cuenta la historia de la Resurrección de Lázaro de memoria."
+  },
+  "john_only_way": {
+    "title": "Jesús, el Único Camino",
+    "scripture": "Juan 14:1–11",
+    "tell_story_desc": "Cuenta la historia de Jesús el Único Camino de memoria.",
+    "read_story_desc": "Lean Juan 14:1–11 juntos.",
+    "bible_btn": "Juan 14:1–11 (CSB)",
+    "practice_desc": "Cuenta la historia de Jesús el Único Camino de memoria."
   }
 }

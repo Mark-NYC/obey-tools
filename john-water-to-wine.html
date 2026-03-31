@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/x-icon" href="assets/images/favicons/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/images/favicons/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/images/favicons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/images/favicons/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="assets/images/favicons/android-chrome-512x512.png">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#000000">
+    <meta name="apple-mobile-web-app-title" content="Obey Tools">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap">
+    <script type="module">
+        import { supabase } from './supabase.js';
+        window.supabase = supabase;
+    </script>
+    <title>Water Into Wine — John 2:1–12</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif; background: #f2f2f7; min-height: 100vh; color: #000; line-height: 1.5; padding-bottom: 100px; }
+        .container { max-width: 375px; margin: 0 auto; background: #ffffff; min-height: 100vh; }
+        .header { padding: 30px 20px 20px; background: #f2f2f7; border-bottom: 0.5px solid #c6c6c8; text-align: center; }
+        .header h1 { font-family: 'Bebas Neue', cursive; font-size: 42px; font-weight: 400; margin-bottom: 8px; letter-spacing: 2px; color: #2196F3; -webkit-text-stroke: 2px #000; }
+        .header .scripture { font-size: 15px; color: #8e8e93; font-weight: 500; }
+        .progress-bar-container { padding: 16px 20px; background: #fff; border-bottom: 0.5px solid #c6c6c8; }
+        .progress-bar { height: 8px; background: #e5e5ea; border-radius: 4px; overflow: hidden; }
+        .progress-fill { height: 100%; background: #2196F3; width: 0%; transition: width 0.5s ease; }
+        .progress-text { margin-top: 8px; font-size: 13px; color: #8e8e93; text-align: center; font-weight: 500; }
+        .content { padding: 16px; }
+        .section-divider { display: flex; align-items: center; gap: 12px; margin: 24px 0 12px; padding: 0 4px; }
+        .section-divider-line { flex: 1; height: 1px; background: #c6c6c8; }
+        .section-divider-text { font-size: 13px; font-weight: 600; color: #8e8e93; text-transform: uppercase; letter-spacing: 0.5px; }
+        .card { background: #fff; margin-bottom: 12px; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); user-select: none; }
+        .card-main { cursor: pointer; transition: all 0.3s ease; }
+        .card-main:active { transform: scale(0.98); }
+        .card.completed .card-main { background: #2196F3; }
+        .card-content { padding: 18px 20px; display: flex; align-items: center; gap: 16px; }
+        .card-icon { width: 48px; height: 48px; border-radius: 10px; background-size: cover; background-position: center; flex-shrink: 0; transition: all 0.3s ease; }
+        .card.completed .card-icon { box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+        .card-icon.care-icon { background-image: url('assets/images/icons/care-icon.jpg'); }
+        .card-icon.accountability-icon { background-image: url('assets/images/icons/accountability-icon.jpg'); }
+        .card-icon.discover-icon { background-image: url('assets/images/icons/discover-icon.jpg'); }
+        .card-icon.practice-icon { background-image: url('assets/images/icons/practice-icon.jpg'); }
+        .card-icon.pray-icon { background-image: url('assets/images/icons/pray-icon.jpg'); }
+        .card-text { flex: 1; }
+        .card-title { font-size: 17px; font-weight: 700; color: #3a3a3c; margin-bottom: 4px; letter-spacing: -0.2px; transition: color 0.3s ease; }
+        .card.completed .card-main .card-title { color: #fff; }
+        .card-description { font-size: 14px; color: #8e8e93; line-height: 1.4; transition: color 0.3s ease; }
+        .card.completed .card-main .card-description { color: rgba(255,255,255,0.9); }
+        .card-checkbox { width: 28px; height: 28px; border: 2px solid #c6c6c8; border-radius: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.3s ease; }
+        .card.completed .card-main .card-checkbox { background: #fff; border-color: #fff; }
+        .card-checkbox::after { content: '✓'; color: #2196F3; font-size: 18px; font-weight: 700; opacity: 0; transform: scale(0); transition: all 0.2s ease; }
+        .card.completed .card-main .card-checkbox::after { opacity: 1; transform: scale(1); }
+        .bible-btn { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 7px 12px; background: #f2f2f7; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; color: #3a3a3c; transition: background 0.2s ease; white-space: nowrap; flex-shrink: 0; }
+        .card.completed .card-main .bible-btn { background: rgba(255,255,255,0.25); color: #fff; }
+        .bible-btn:active { background: #e5e5ea; }
+        .bible-btn-desktop { display: none; }
+        .bible-btn-mobile-wrap { display: flex; justify-content: center; padding: 0 20px 14px; }
+        .bible-btn-mobile { width: 100%; }
+        @media (min-width: 768px) { .bible-btn-desktop { display: flex; } .bible-btn-mobile-wrap { display: none; } }
+        .bible-btn-icon { font-size: 11px; transition: transform 0.25s ease; }
+        .bible-btn.open .bible-btn-icon { transform: rotate(180deg); }
+        .bible-accordion { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
+        .bible-accordion.open { max-height: 2000px; }
+        .bible-text { padding: 0 20px 18px; border-top: 0.5px solid #e5e5ea; }
+        .bible-translation { font-size: 11px; font-weight: 700; color: #8e8e93; text-transform: uppercase; letter-spacing: 0.8px; margin-top: 14px; margin-bottom: 10px; }
+        .bible-verse { font-size: 14px; line-height: 1.65; color: #3a3a3c; margin-bottom: 6px; }
+        .verse-num { font-size: 11px; font-weight: 700; vertical-align: super; margin-right: 2px; opacity: 0.6; }
+        .reset-section { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 375px; background: #fff; border-top: 0.5px solid #c6c6c8; padding: 16px; padding-bottom: calc(16px + env(safe-area-inset-bottom)); }
+        .btn { width: 100%; padding: 14px; border: none; border-radius: 8px; font-weight: 600; font-size: 15px; cursor: pointer; background: #f2f2f7; color: #3a3a3c; transition: all 0.2s ease; }
+        .btn:active { background: #e5e5ea; transform: scale(0.98); }
+        .notification { position: fixed; top: 60px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: white; padding: 12px 20px; border-radius: 8px; font-size: 15px; font-weight: 500; z-index: 1000; opacity: 0; animation: notificationSlide 3s ease; }
+        @keyframes notificationSlide { 0% { opacity: 0; transform: translateX(-50%) translateY(-20px); } 10% { opacity: 1; transform: translateX(-50%) translateY(0); } 90% { opacity: 1; transform: translateX(-50%) translateY(0); } 100% { opacity: 0; transform: translateX(-50%) translateY(-20px); } }
+        @media (min-width: 768px) { .container { max-width: 768px; border-radius: 12px; margin: 20px auto; box-shadow: 0 4px 20px rgba(0,0,0,0.1); overflow: hidden; } .content { padding: 20px; } .reset-section { position: static; transform: none; width: auto; max-width: none; border-top: 0.5px solid #c6c6c8; border-radius: 0; } }
+        .auth-section { padding: 12px 16px; background: #f2f2f7; border-bottom: 0.5px solid #c6c6c8; visibility: hidden; }
+        .auth-section input { width: 100%; padding: 10px 14px; border: 1px solid #c6c6c8; border-radius: 8px; font-size: 15px; background: #fff; outline: none; margin-bottom: 8px; font-family: inherit; }
+        .auth-section input:focus { border-color: #3a3a3c; }
+        .auth-buttons { display: flex; gap: 8px; }
+        .auth-buttons button { flex: 1; padding: 10px; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; }
+        .auth-btn-primary { background: #3a3a3c; color: #fff; }
+        .auth-btn-secondary { background: #e5e5ea; color: #3a3a3c; }
+        .auth-status { display: flex; align-items: center; justify-content: space-between; }
+        .auth-status-text { font-size: 13px; color: #8e8e93; }
+        .auth-logout-btn { padding: 6px 14px; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; background: #e5e5ea; color: #3a3a3c; font-family: inherit; }
+    </style>
+    <script type="module" src="/i18n.js"></script>
+    <script src="/pwa.js" defer></script>
+</head>
+<body>
+    <div style="display:flex; gap:10px; justify-content:center; padding:20px 16px 8px;">
+        <a href="index.html" data-i18n="nav.home" style="display:inline-block; background:#000; color:#fff; font-weight:700; font-size:15px; padding:11px 22px; border-radius:50px; text-decoration:none; white-space:nowrap;">Home</a>
+        <a href="signs-of-john.html" data-i18n="nav.back_john" style="display:inline-block; background:#2196F3; color:#fff; font-weight:700; font-size:15px; padding:11px 22px; border-radius:50px; text-decoration:none; white-space:nowrap;">← Signs of John</a>
+    </div>
+    <div class="container">
+        <div class="auth-section" id="auth-section">
+            <div id="auth-form" style="display:none">
+                <input type="email" id="auth-email" data-i18n-placeholder="auth.email_placeholder" placeholder="Email">
+                <input type="password" id="auth-password" data-i18n-placeholder="auth.password_placeholder" placeholder="Password">
+                <div class="auth-buttons">
+                    <button class="auth-btn-primary" data-i18n="auth.sign_up" onclick="authSignUp()">Sign Up</button>
+                    <button class="auth-btn-secondary" data-i18n="auth.log_in" onclick="authLogIn()">Log In</button>
+                </div>
+            </div>
+            <div class="auth-status" id="auth-status" style="display:none">
+                <span class="auth-status-text" id="auth-status-text">Not signed in</span>
+                <button class="auth-logout-btn" data-i18n="auth.log_out" onclick="authLogOut()">Log Out</button>
+            </div>
+        </div>
+        <div class="header">
+            <h1 data-i18n="john_water_wine.title">Water Into Wine</h1>
+            <div class="scripture" data-i18n="john_water_wine.scripture">John 2:1–12</div>
+        </div>
+        <div class="progress-bar-container">
+            <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+            <div class="progress-text" id="progress-text">0 of 13 completed</div>
+        </div>
+        <div class="content">
+            <div class="section-divider"><div class="section-divider-line"></div><div class="section-divider-text" data-i18n="common.look_back">Look Back</div><div class="section-divider-line"></div></div>
+            <div class="card" data-card="care">
+                <div class="card-main" onclick="toggleCard(this.closest('.card'))">
+                    <div class="card-content"><div class="card-icon care-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.care_story_title">Care</div><div class="card-description" data-i18n="common.care_desc">Everyone shares briefly how they are doing. Pray if appropriate.</div></div><div class="card-checkbox"></div></div>
+                </div>
+            </div>
+            <div class="card" data-card="accountability">
+                <div class="card-main" onclick="toggleCard(this.closest('.card'))">
+                    <div class="card-content"><div class="card-icon accountability-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.accountability_title">Loving Accountability</div><div class="card-description" data-i18n="common.accountability_desc_story">Follow: Share how you obeyed Jesus. Fish: Share who you shared the story with.</div></div><div class="card-checkbox"></div></div>
+                </div>
+            </div>
+            <div class="section-divider"><div class="section-divider-line"></div><div class="section-divider-text" data-i18n="common.look_up">Look Up</div><div class="section-divider-line"></div></div>
+            <div class="card" data-card="tell-story">
+                <div class="card-main" onclick="toggleCard(this.closest('.card'))">
+                    <div class="card-content"><div class="card-icon discover-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.tell_story_title">Tell the Story</div><div class="card-description" data-i18n="john_water_wine.tell_story_desc">Tell the story of the Water Into Wine from memory.</div></div><div class="card-checkbox"></div></div>
+                </div>
+            </div>
+            <div class="card" data-card="read-story">
+                <div class="card-main" onclick="toggleCard(this.closest('.card'))">
+                    <div class="card-content">
+                        <div class="card-icon discover-icon"></div>
+                        <div class="card-text"><div class="card-title" data-i18n="common.read_story_title">Read the Story</div><div class="card-description" data-i18n="john_water_wine.read_story_desc">Read John 2:1–12 together.</div></div>
+                        <button class="bible-btn bible-btn-desktop" onclick="toggleBible(event)"><span data-i18n="john_water_wine.bible_btn">John 2:1–12 (CSB)</span><span class="bible-btn-icon">▼</span></button>
+                        <div class="card-checkbox"></div>
+                    </div>
+                </div>
+                <div class="bible-btn-mobile-wrap"><button class="bible-btn bible-btn-mobile" onclick="toggleBible(event)"><span data-i18n="john_water_wine.bible_btn">John 2:1–12 (CSB)</span><span class="bible-btn-icon">▼</span></button></div>
+                <div class="bible-accordion" id="bible-accordion">
+                    <div class="bible-text">
+                        <div class="bible-translation" data-i18n="common.christian_standard_bible">Christian Standard Bible</div>
+                        <p class="bible-verse"><span class="verse-num">1</span>On the third day a wedding took place in Cana of Galilee. Jesus's mother was there,</p>
+                        <p class="bible-verse"><span class="verse-num">2</span>and Jesus and his disciples were invited to the wedding as well.</p>
+                        <p class="bible-verse"><span class="verse-num">3</span>When the wine ran out, Jesus's mother told him, "They don't have any wine."</p>
+                        <p class="bible-verse"><span class="verse-num">4</span>"What does that have to do with you and me, woman?" Jesus asked. "My hour has not yet come."</p>
+                        <p class="bible-verse"><span class="verse-num">5</span>"Do whatever he tells you," his mother told the servants.</p>
+                        <p class="bible-verse"><span class="verse-num">6</span>Now six stone water jars had been set there for Jewish purification. Each contained twenty or thirty gallons.</p>
+                        <p class="bible-verse"><span class="verse-num">7</span>"Fill the jars with water," Jesus told them. So they filled them to the brim.</p>
+                        <p class="bible-verse"><span class="verse-num">8</span>Then he said to them, "Now draw some out and take it to the chief servant." And they did.</p>
+                        <p class="bible-verse"><span class="verse-num">9</span>When the chief servant tasted the water (after it had become wine), he did not know where it came from—though the servants who had drawn the water knew. He called the groom</p>
+                        <p class="bible-verse"><span class="verse-num">10</span>and told him, "Everyone sets out the fine wine first, then, after people are drunk, the inferior wine. But you have kept the fine wine until now."</p>
+                        <p class="bible-verse"><span class="verse-num">11</span>Jesus performed this first sign in Cana of Galilee. He revealed his glory, and his disciples believed in him.</p>
+                        <p class="bible-verse"><span class="verse-num">12</span>After this, he went down to Capernaum, together with his mother, his brothers, and his disciples, and they stayed there only a few days.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="card" data-card="retell-story">
+                <div class="card-main" onclick="toggleCard(this.closest('.card'))">
+                    <div class="card-content"><div class="card-icon discover-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.retell_story_title">Retell the Story</div></div><div class="card-checkbox"></div></div>
+                </div>
+            </div>
+            <div class="card" data-card="discuss-god">
+                <div class="card-main" onclick="toggleCard(this.closest('.card'))">
+                    <div class="card-content"><div class="card-icon discover-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.discuss_god_title">What do we learn about God?</div></div><div class="card-checkbox"></div></div>
+                </div>
+            </div>
+            <div class="card" data-card="discuss-people">
+                <div class="card-main" onclick="toggleCard(this.closest('.card'))">
+                    <div class="card-content"><div class="card-icon discover-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.discuss_people_title">What do we learn about people?</div></div><div class="card-checkbox"></div></div>
+                </div>
+            </div>
+            <div class="card" data-card="discuss-identify">
+                <div class="card-main" onclick="toggleCard(this.closest('.card'))">
+                    <div class="card-content"><div class="card-icon discover-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.pray_listen_title_story">Pray and Listen</div></div><div class="card-checkbox"></div></div>
+                </div>
+            </div>
+            <div class="card" data-card="discuss-obey">
+                <div class="card-main" onclick="toggleCard(this.closest('.card'))">
+                    <div class="card-content"><div class="card-icon discover-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.how_obey_title">How will you obey?</div></div><div class="card-checkbox"></div></div>
+                </div>
+            </div>
+            <div class="section-divider"><div class="section-divider-line"></div><div class="section-divider-text" data-i18n="common.look_forward">Look Forward</div><div class="section-divider-line"></div></div>
+            <div class="card" data-card="practice">
+                <div class="card-main" onclick="toggleCard(this.closest('.card'))">
+                    <div class="card-content"><div class="card-icon practice-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.practice_title">Practice</div><div class="card-description" data-i18n="john_water_wine.practice_desc">Tell the story of the Water Into Wine from memory.</div></div><div class="card-checkbox"></div></div>
+                </div>
+            </div>
+            <div class="card" data-card="follow-goal">
+                <div class="card-main" onclick="toggleCard(this.closest('.card'))">
+                    <div class="card-content"><div class="card-icon accountability-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.follow_goal_title">Follow Goal</div><div class="card-description" data-i18n="common.follow_goal_desc">What is Jesus asking you to obey this week?</div></div><div class="card-checkbox"></div></div>
+                </div>
+            </div>
+            <div class="card" data-card="fish-goal">
+                <div class="card-main" onclick="toggleCard(this.closest('.card'))">
+                    <div class="card-content"><div class="card-icon accountability-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.fish_goal_title">Fish Goal</div><div class="card-description" data-i18n="common.fish_goal_desc">Who needs to hear this story? Plan to share with them.</div></div><div class="card-checkbox"></div></div>
+                </div>
+            </div>
+            <div class="card" data-card="pray">
+                <div class="card-main" onclick="toggleCard(this.closest('.card'))">
+                    <div class="card-content"><div class="card-icon pray-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.pray_title">Pray</div><div class="card-description" data-i18n="common.pray_desc">Close with prayer.</div></div><div class="card-checkbox"></div></div>
+                </div>
+            </div>
+        </div>
+        <div class="reset-section"><button class="btn" onclick="resetAll()" data-i18n="common.reset">RESET</button></div>
+    </div>
+    <script>
+        let completedCards = JSON.parse(localStorage.getItem('john-water-to-wine-progress')) || [];
+        function saveProgress() { localStorage.setItem('john-water-to-wine-progress', JSON.stringify(completedCards)); updateProgress(); }
+        function toggleCard(card) { const cardId = card.dataset.card; if (card.classList.contains('completed')) { card.classList.remove('completed'); completedCards = completedCards.filter(id => id !== cardId); } else { card.classList.add('completed'); completedCards.push(cardId); } saveProgress(); }
+        function toggleBible(e) { e.stopPropagation(); const accordion = document.getElementById('bible-accordion'); const isOpen = accordion.classList.toggle('open'); document.querySelectorAll('.bible-btn').forEach(btn => btn.classList.toggle('open', isOpen)); }
+        function updateProgress() { const total = document.querySelectorAll('.card').length; const completed = completedCards.length; document.getElementById('progress-fill').style.width = (completed / total * 100) + '%'; document.getElementById('progress-text').textContent = window.t('common.completed_of', { done: completed, total: total }); if (completed === total) showNotification(window.t('common.study_complete')); }
+        function resetAll() { if (confirm(window.t('common.reset_confirm'))) { completedCards = []; localStorage.removeItem('john-water-to-wine-progress'); document.querySelectorAll('.card').forEach(card => card.classList.remove('completed')); updateProgress(); showNotification(window.t('common.progress_reset')); } }
+        function showNotification(message) { const n = document.createElement('div'); n.className = 'notification'; n.textContent = message; document.body.appendChild(n); setTimeout(() => n.remove(), 3000); }
+        window.addEventListener('DOMContentLoaded', () => { completedCards.forEach(cardId => { const card = document.querySelector(`[data-card="${cardId}"]`); if (card) card.classList.add('completed'); }); window.addEventListener('i18n:ready', updateProgress, { once: true }); });
+        function updateAuthUI(user) {
+            window._supabaseUser = user;
+            document.getElementById('auth-section').style.visibility = 'visible';
+            const form = document.getElementById('auth-form');
+            const status = document.getElementById('auth-status');
+            const text = document.getElementById('auth-status-text');
+            if (user) { form.style.display = 'none'; status.style.display = 'flex'; text.textContent = window.t('auth.signed_in_as', { email: user.email }); }
+            else { form.style.display = 'block'; status.style.display = 'none'; text.textContent = window.t('auth.not_signed_in'); }
+        }
+        async function authSignUp() {
+            const email = document.getElementById('auth-email').value.trim();
+            const password = document.getElementById('auth-password').value;
+            const { error } = await window.supabase.auth.signUp({ email, password });
+            if (error) showNotification(error.message); else showNotification(window.t('auth.check_email'));
+        }
+        async function authLogIn() {
+            const email = document.getElementById('auth-email').value.trim();
+            const password = document.getElementById('auth-password').value;
+            const { error } = await window.supabase.auth.signInWithPassword({ email, password });
+            if (error) showNotification(error.message);
+        }
+        async function authLogOut() {
+            const { error } = await window.supabase.auth.signOut();
+            if (error) showNotification(error.message);
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.supabase) {
+                window.supabase.auth.getSession().then(({ data: { session } }) => { updateAuthUI(session?.user ?? null); });
+                window.supabase.auth.onAuthStateChange((_event, session) => { updateAuthUI(session?.user ?? null); });
+            }
+        });
+    </script>
+</body>
+</html>

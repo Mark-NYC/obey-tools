@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/x-icon" href="assets/images/favicons/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/images/favicons/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/images/favicons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/images/favicons/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="assets/images/favicons/android-chrome-512x512.png">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#000000">
+    <meta name="apple-mobile-web-app-title" content="Obey Tools">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap">
+    <title>Signs of John — OBEY.TOOLS</title>
+    <script type="module">
+        import { supabase } from './supabase.js';
+        window.supabase = supabase;
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif; background: #f2f2f7; min-height: 100vh; color: #000; line-height: 1.4; }
+        .container { max-width: 375px; margin: 0 auto; background: #fff; min-height: 100vh; }
+
+        /* Auth section */
+        .auth-section { padding: 12px 16px; background: #f2f2f7; border-bottom: 0.5px solid #c6c6c8; visibility: hidden; }
+        .auth-section input { width: 100%; padding: 10px 14px; border: 1px solid #c6c6c8; border-radius: 8px; font-size: 15px; background: #fff; outline: none; margin-bottom: 8px; font-family: inherit; }
+        .auth-section input:focus { border-color: #3a3a3c; }
+        .auth-buttons { display: flex; gap: 8px; }
+        .auth-buttons button { flex: 1; padding: 10px; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; }
+        .auth-btn-primary { background: #3a3a3c; color: #fff; }
+        .auth-btn-secondary { background: #e5e5ea; color: #3a3a3c; }
+        .auth-status { display: flex; align-items: center; justify-content: space-between; }
+        .auth-status-text { font-size: 13px; color: #8e8e93; }
+        .auth-logout-btn { padding: 6px 14px; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; background: #e5e5ea; color: #3a3a3c; font-family: inherit; }
+
+        /* Page header */
+        .page-header { padding: 28px 16px 20px; background: #fff; text-align: center; border-bottom: 0.5px solid #c6c6c8; }
+        .page-title { font-family: 'Bebas Neue', cursive; font-size: 52px; font-weight: 400; letter-spacing: 2px; color: #2196F3; -webkit-text-stroke: 2px #000; }
+        .page-subtitle { font-size: 14px; color: #8e8e93; margin-top: 4px; }
+        .accent-bar { width: 48px; height: 5px; background: #1565C0; border-radius: 3px; margin: 12px auto 0; }
+
+        /* Story list */
+        .story-item { display: flex; align-items: center; padding: 16px; border-bottom: 0.5px solid #c6c6c8; text-decoration: none; color: #000; background: #fff; transition: background 0.15s; }
+        .story-item:active { background: #f2f2f7; }
+        .story-num { font-size: 15px; font-weight: 700; color: #8e8e93; width: 24px; flex-shrink: 0; }
+        .story-text { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+        .story-title { font-size: 17px; font-weight: 600; }
+        .story-subtitle { font-size: 13px; color: #8e8e93; font-weight: 400; }
+        .story-arrow { font-size: 22px; color: #c6c6c8; }
+
+        /* Sync indicator */
+        .sync-indicator { position: fixed; top: 10px; left: 10px; background: rgba(52,199,89,0.9); color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; z-index: 9999; display: none; }
+        .sync-indicator.syncing { background: rgba(255,149,0,0.9); display: block; }
+        .sync-indicator.synced  { background: rgba(52,199,89,0.9); display: block; }
+
+        /* Notification */
+        .notification { position: fixed; top: 60px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: white; padding: 12px 20px; border-radius: 8px; font-size: 15px; font-weight: 500; z-index: 1000; opacity: 0; animation: notificationSlide 3s ease; }
+        @keyframes notificationSlide { 0% { opacity:0; transform:translateX(-50%) translateY(-20px); } 10% { opacity:1; transform:translateX(-50%) translateY(0); } 90% { opacity:1; transform:translateX(-50%) translateY(0); } 100% { opacity:0; transform:translateX(-50%) translateY(-20px); } }
+
+        @media (min-width: 768px) {
+            .container { max-width: 768px; border-radius: 12px; margin: 20px auto; box-shadow: 0 4px 20px rgba(0,0,0,0.1); overflow: hidden; }
+        }
+    </style>
+    <script type="module" src="/i18n.js"></script>
+    <script src="/pwa.js" defer></script>
+</head>
+<body>
+
+    <div class="sync-indicator" id="sync-indicator" data-i18n="sync.syncing">Syncing...</div>
+
+    <div style="text-align:center; padding:20px 0 8px;">
+        <a href="index.html" style="display:inline-block; background:#000; color:#fff; font-weight:700; font-size:17px; padding:12px 28px; border-radius:50px; text-decoration:none;" data-i18n="nav.home">Home</a>
+    </div>
+
+    <div class="container">
+
+        <div class="auth-section" id="auth-section">
+            <div id="auth-form" style="display:none">
+                <input type="email" id="auth-email" placeholder="Email" data-i18n-placeholder="auth.email_placeholder">
+                <input type="password" id="auth-password" placeholder="Password" data-i18n-placeholder="auth.password_placeholder">
+                <div class="auth-buttons">
+                    <button class="auth-btn-primary" onclick="authSignUp()" data-i18n="auth.sign_up">Sign Up</button>
+                    <button class="auth-btn-secondary" onclick="authLogIn()" data-i18n="auth.log_in">Log In</button>
+                </div>
+            </div>
+            <div class="auth-status" id="auth-status" style="display:none">
+                <span class="auth-status-text" id="auth-status-text">Not signed in</span>
+                <button class="auth-logout-btn" onclick="authLogOut()" data-i18n="auth.log_out">Log Out</button>
+            </div>
+        </div>
+
+        <div class="page-header">
+            <div class="page-title" data-i18n="signs_of_john.title">Signs of John</div>
+            <div class="page-subtitle" data-i18n="signs_of_john.subtitle">Signs that reveal who Jesus is.</div>
+            <div class="accent-bar"></div>
+        </div>
+
+        <div class="story-list">
+            <a href="john-water-to-wine.html" class="story-item">
+                <span class="story-num">1</span>
+                <div class="story-text">
+                    <span class="story-title" data-i18n="signs_of_john.sign_1_title">Water Into Wine</span>
+                    <span class="story-subtitle" data-i18n="signs_of_john.sign_1_sub">First Sign — John 2:1–12</span>
+                </div>
+                <span class="story-arrow">›</span>
+            </a>
+            <a href="john-royal-official-son.html" class="story-item">
+                <span class="story-num">2</span>
+                <div class="story-text">
+                    <span class="story-title" data-i18n="signs_of_john.sign_2_title">The Royal Official's Son</span>
+                    <span class="story-subtitle" data-i18n="signs_of_john.sign_2_sub">Second Sign — John 4:46–54</span>
+                </div>
+                <span class="story-arrow">›</span>
+            </a>
+            <a href="john-paralytic.html" class="story-item">
+                <span class="story-num">3</span>
+                <div class="story-text">
+                    <span class="story-title" data-i18n="signs_of_john.sign_3_title">The Paralytic at Bethesda</span>
+                    <span class="story-subtitle" data-i18n="signs_of_john.sign_3_sub">Third Sign — John 5:1–17</span>
+                </div>
+                <span class="story-arrow">›</span>
+            </a>
+            <a href="john-feeding-five-thousand.html" class="story-item">
+                <span class="story-num">4</span>
+                <div class="story-text">
+                    <span class="story-title" data-i18n="signs_of_john.sign_4_title">Feeding Five Thousand</span>
+                    <span class="story-subtitle" data-i18n="signs_of_john.sign_4_sub">Fourth Sign — John 6:1–14</span>
+                </div>
+                <span class="story-arrow">›</span>
+            </a>
+            <a href="john-walking-on-water.html" class="story-item">
+                <span class="story-num">5</span>
+                <div class="story-text">
+                    <span class="story-title" data-i18n="signs_of_john.sign_5_title">Walking on Water</span>
+                    <span class="story-subtitle" data-i18n="signs_of_john.sign_5_sub">Fifth Sign — John 6:15–25</span>
+                </div>
+                <span class="story-arrow">›</span>
+            </a>
+            <a href="john-man-born-blind.html" class="story-item">
+                <span class="story-num">6</span>
+                <div class="story-text">
+                    <span class="story-title" data-i18n="signs_of_john.sign_6_title">The Man Born Blind</span>
+                    <span class="story-subtitle" data-i18n="signs_of_john.sign_6_sub">Sixth Sign — John 9:1–41</span>
+                </div>
+                <span class="story-arrow">›</span>
+            </a>
+            <a href="john-lazarus.html" class="story-item">
+                <span class="story-num">7</span>
+                <div class="story-text">
+                    <span class="story-title" data-i18n="signs_of_john.sign_7_title">Raising Lazarus</span>
+                    <span class="story-subtitle" data-i18n="signs_of_john.sign_7_sub">Seventh Sign — John 11:1–46</span>
+                </div>
+                <span class="story-arrow">›</span>
+            </a>
+            <a href="john-only-way.html" class="story-item">
+                <span class="story-num">8</span>
+                <div class="story-text">
+                    <span class="story-title" data-i18n="signs_of_john.sign_8_title">Jesus, the Only Way</span>
+                    <span class="story-subtitle" data-i18n="signs_of_john.sign_8_sub">Eighth Sign — John 14:1–11</span>
+                </div>
+                <span class="story-arrow">›</span>
+            </a>
+        </div>
+
+    </div>
+
+    <script>
+        function showSyncIndicator(status) {
+            const indicator = document.getElementById('sync-indicator');
+            indicator.className = 'sync-indicator ' + status;
+            if (status === 'synced') {
+                setTimeout(() => { indicator.style.display = 'none'; }, 2000);
+            }
+        }
+
+        function showNotification(message) {
+            const el = document.createElement('div');
+            el.className = 'notification';
+            el.textContent = message;
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 3000);
+        }
+
+        function updateAuthUI(user) {
+            window._supabaseUser = user;
+            document.getElementById('auth-section').style.visibility = 'visible';
+
+            const form   = document.getElementById('auth-form');
+            const status = document.getElementById('auth-status');
+            const text   = document.getElementById('auth-status-text');
+
+            if (user) {
+                form.style.display   = 'none';
+                status.style.display = 'flex';
+                text.textContent     = window.t('auth.signed_in_as', { email: user.email });
+            } else {
+                form.style.display   = 'block';
+                status.style.display = 'none';
+                text.textContent     = window.t('auth.not_signed_in');
+            }
+        }
+
+        async function authSignUp() {
+            const email    = document.getElementById('auth-email').value.trim();
+            const password = document.getElementById('auth-password').value;
+            const { error } = await window.supabase.auth.signUp({ email, password });
+            if (error) showNotification(error.message);
+            else        showNotification(window.t('auth.check_email'));
+        }
+
+        async function authLogIn() {
+            const email    = document.getElementById('auth-email').value.trim();
+            const password = document.getElementById('auth-password').value;
+            const { error } = await window.supabase.auth.signInWithPassword({ email, password });
+            if (error) showNotification(error.message);
+        }
+
+        async function authLogOut() {
+            const { error } = await window.supabase.auth.signOut();
+            if (error) showNotification(error.message);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            window.supabase.auth.getSession().then(({ data: { session } }) => {
+                updateAuthUI(session?.user ?? null);
+            });
+
+            window.supabase.auth.onAuthStateChange((_event, session) => {
+                updateAuthUI(session?.user ?? null);
+            });
+        });
+    </script>
+
+</body>
+</html>
