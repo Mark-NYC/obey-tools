@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/x-icon" href="assets/images/favicons/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/images/favicons/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/images/favicons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/images/favicons/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="assets/images/favicons/android-chrome-512x512.png">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#000000">
+    <meta name="apple-mobile-web-app-title" content="Obey Tools">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap">
+    <title>View Progress — OBEY.TOOLS</title>
+    <script type="module">
+        import { supabase } from './supabase.js'
+        import { authSignUp, authLogIn, authLogOut, initLeaderPage } from './auth.js'
+        window.authSignUp = authSignUp
+        window.authLogIn  = authLogIn
+        window.authLogOut = authLogOut
+        window.supabase   = supabase
+        initLeaderPage()
+    </script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        /* ── Base / mobile default ────────────────────────────────── */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+            color: #000;
+            line-height: 1.4;
+            background: #f2f2f7;
+            padding-bottom: 60px;
+        }
+
+        /* The map fills a fixed height on mobile */
+        #map-el {
+            width: 100%;
+            height: 340px;
+            display: block;
+        }
+
+        /* On mobile the overlay panel is a centred content column */
+        .overlay-panel {
+            max-width: 500px;
+            margin: 0 auto;
+            background: #fff;
+        }
+
+        /* ── Desktop: full-screen map + floating overlay ─────────── */
+        @media (min-width: 768px) {
+            html, body {
+                height: 100%;
+                overflow: hidden;
+                padding-bottom: 0;
+            }
+
+            /* Full-viewport positioning context */
+            .page-shell {
+                position: relative;
+                width: 100%;
+                height: 100vh;
+                overflow: hidden;
+            }
+
+            /* Map fills every pixel of .page-shell */
+            #map-el {
+                position: absolute;
+                inset: 0;
+                width: 100%;
+                height: 100%;
+                z-index: 0;
+            }
+
+            /* Floating control panel — direct child of .page-shell */
+            .overlay-panel {
+                position: absolute;
+                top: 16px;
+                left: 16px;
+                width: 320px;
+                max-width: 320px;
+                margin: 0;
+                max-height: calc(100vh - 32px);
+                overflow-y: auto;
+                z-index: 500;
+                background: rgba(255, 255, 255, 0.97);
+                border-radius: 14px;
+                box-shadow: 0 4px 24px rgba(0, 0, 0, 0.18);
+                scrollbar-width: thin;
+                scrollbar-color: #c6c6c8 transparent;
+            }
+
+            .overlay-panel::-webkit-scrollbar { width: 4px; }
+            .overlay-panel::-webkit-scrollbar-thumb { background: #c6c6c8; border-radius: 4px; }
+        }
+
+        /* ── Nav ──────────────────────────────────────────────────── */
+        .nav-bar {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            padding: 20px 16px 8px;
+        }
+
+        .nav-bar a {
+            display: inline-block;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            font-weight: 700;
+            font-size: 15px;
+            padding: 11px 22px;
+            border-radius: 50px;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .nav-home { background: #000; color: #fff; }
+        .nav-leader { background: #00D084; color: #fff; }
+
+        /* ── Auth ──────────────────────────────────────────────────── */
+        .auth-section {
+            padding: 12px 16px;
+            background: #f2f2f7;
+            border-bottom: 0.5px solid #c6c6c8;
+            visibility: hidden;
+        }
+        .auth-section input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #c6c6c8;
+            border-radius: 8px;
+            font-size: 15px;
+            background: #fff;
+            outline: none;
+            margin-bottom: 8px;
+            font-family: inherit;
+        }
+        .auth-section input:focus { border-color: #3a3a3c; }
+        .auth-buttons { display: flex; gap: 8px; }
+        .auth-buttons button {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .auth-btn-primary  { background: #3a3a3c; color: #fff; }
+        .auth-btn-secondary { background: #e5e5ea; color: #3a3a3c; }
+        .auth-status { display: flex; align-items: center; justify-content: space-between; }
+        .auth-status-text { font-size: 13px; color: #8e8e93; }
+        .auth-logout-btn {
+            padding: 6px 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            background: #e5e5ea;
+            color: #3a3a3c;
+            font-family: inherit;
+        }
+
+        /* ── Header ────────────────────────────────────────────────── */
+        .header {
+            padding: 24px 20px 16px;
+            text-align: center;
+            border-bottom: 0.5px solid #e5e5ea;
+        }
+        .header h1 {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 42px;
+            font-weight: 400;
+            letter-spacing: 2px;
+            color: #00D084;
+            -webkit-text-stroke: 2px #000;
+            margin-bottom: 4px;
+        }
+        .header .subtitle { font-size: 14px; color: #8e8e93; }
+
+        /* ── Tabs ──────────────────────────────────────────────────── */
+        .tab-bar {
+            display: flex;
+            gap: 8px;
+            padding: 12px 16px;
+            background: #f2f2f7;
+            border-bottom: 0.5px solid #e5e5ea;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 9px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            background: #e5e5ea;
+            color: #8e8e93;
+            transition: background 0.15s, color 0.15s;
+        }
+        .tab-btn.active { background: #3a3a3c; color: #fff; }
+
+        /* ── Layer toggles ─────────────────────────────────────────── */
+        .layer-toggles {
+            padding: 10px 16px;
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+            border-bottom: 0.5px solid #e5e5ea;
+            background: #fafafa;
+        }
+        .layer-toggle {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #3a3a3c;
+            cursor: pointer;
+            user-select: none;
+        }
+        .layer-toggle input[type=checkbox] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            accent-color: #3a3a3c;
+        }
+
+        /* ── Filter bar ────────────────────────────────────────────── */
+        .filters {
+            padding: 10px 16px;
+            background: #f2f2f7;
+            border-bottom: 0.5px solid #e5e5ea;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .filter-select {
+            flex: 1;
+            min-width: 100px;
+            padding: 8px 10px;
+            border: 1px solid #c6c6c8;
+            border-radius: 8px;
+            font-size: 14px;
+            background: #fff;
+            font-family: inherit;
+            color: #3a3a3c;
+            outline: none;
+            cursor: pointer;
+        }
+        .filter-select:focus { border-color: #3a3a3c; }
+        .icon-btn {
+            padding: 8px 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            background: #3a3a3c;
+            color: #fff;
+            cursor: pointer;
+            line-height: 1;
+        }
+        .icon-btn:active { opacity: 0.75; }
+
+        /* ── Map legend ────────────────────────────────────────────── */
+        .map-legend {
+            padding: 12px 16px;
+            border-top: 0.5px solid #e5e5ea;
+        }
+        .map-legend h4 {
+            font-size: 13px;
+            font-weight: 600;
+            color: #3a3a3c;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+        .legend-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 5px;
+        }
+        .legend-swatch {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .legend-label { font-size: 13px; color: #3a3a3c; }
+
+        .map-footer {
+            padding: 8px 16px 12px;
+            font-size: 12px;
+            color: #8e8e93;
+            text-align: center;
+            border-top: 0.5px solid #e5e5ea;
+        }
+
+        /* ── Metrics view ──────────────────────────────────────────── */
+        .stats-section { padding: 16px; }
+        .period-label {
+            text-align: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: #8e8e93;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 12px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .stat-card {
+            background: #f2f2f7;
+            border-radius: 14px;
+            padding: 18px 12px;
+            text-align: center;
+        }
+        .stat-card.accent {
+            background: linear-gradient(135deg, #4A90E2, #5BA3F5);
+            grid-column: span 2;
+        }
+        .stat-card.wide { grid-column: span 2; }
+        .stat-value {
+            font-size: 44px;
+            font-weight: 700;
+            color: #3a3a3c;
+            line-height: 1;
+            margin-bottom: 6px;
+        }
+        .stat-card.accent .stat-value { color: #fff; }
+        .stat-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #8e8e93;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .stat-card.accent .stat-label { color: rgba(255,255,255,0.85); }
+
+        /* ── Shared ────────────────────────────────────────────────── */
+        .loading {
+            padding: 48px 24px;
+            text-align: center;
+            color: #8e8e93;
+            font-size: 15px;
+        }
+        .empty-state {
+            padding: 48px 24px;
+            text-align: center;
+            color: #8e8e93;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* ── Access denied ─────────────────────────────────────────── */
+        .access-denied {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 60vh;
+            padding: 40px 24px;
+            text-align: center;
+        }
+        .access-denied-msg { font-size: 17px; font-weight: 600; color: #3a3a3c; margin-bottom: 6px; }
+        .access-denied-sub { font-size: 14px; color: #8e8e93; margin-bottom: 28px; }
+        .access-denied-btn {
+            display: inline-block;
+            background: #000;
+            color: #fff;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            font-weight: 700;
+            font-size: 15px;
+            padding: 11px 28px;
+            border-radius: 50px;
+            text-decoration: none;
+        }
+
+        /* ── Notification ──────────────────────────────────────────── */
+        .notification {
+            position: fixed;
+            top: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 500;
+            z-index: 9999;
+            opacity: 0;
+            animation: notificationSlide 3s ease;
+            white-space: nowrap;
+        }
+        @keyframes notificationSlide {
+            0%   { opacity:0; transform:translateX(-50%) translateY(-20px); }
+            10%  { opacity:1; transform:translateX(-50%) translateY(0); }
+            90%  { opacity:1; transform:translateX(-50%) translateY(0); }
+            100% { opacity:0; transform:translateX(-50%) translateY(-20px); }
+        }
+    </style>
+    <script type="module" src="/i18n.js"></script>
+    <script src="/pwa.js" defer></script>
+</head>
+<body>
+
+    <div id="access-denied" class="access-denied">
+        <div class="access-denied-msg" data-i18n="access.restricted">Access restricted.</div>
+        <div class="access-denied-sub" data-i18n="access.leader_required">Leader approval required.</div>
+        <a href="index.html" class="access-denied-btn" data-i18n="access.go_home">Go to Home</a>
+    </div>
+
+    <!-- Full-screen map lives here on desktop; hidden behind overlay on mobile -->
+    <div class="page-shell" id="main-container">
+
+        <!-- map-el: fills page-shell on desktop (absolute inset:0), 340px block on mobile -->
+        <div id="map-el"></div>
+
+        <!-- overlay-panel: direct child of page-shell → absolutely positioned over map on desktop -->
+        <div class="overlay-panel">
+
+            <div class="nav-bar">
+                <a href="index.html" class="nav-home" data-i18n="nav.home">Home</a>
+                <a href="leader-tools.html" class="nav-leader" data-i18n="nav.back_leader">← Leader Tools</a>
+            </div>
+
+            <div class="auth-section" id="auth-section">
+                <div id="auth-form" style="display:none">
+                    <input type="email" id="auth-email" placeholder="Email" data-i18n-placeholder="auth.email_placeholder">
+                    <input type="password" id="auth-password" placeholder="Password" data-i18n-placeholder="auth.password_placeholder">
+                    <div class="auth-buttons">
+                        <button class="auth-btn-primary" onclick="authSignUp()" data-i18n="auth.sign_up">Sign Up</button>
+                        <button class="auth-btn-secondary" onclick="authLogIn()" data-i18n="auth.log_in">Log In</button>
+                    </div>
+                </div>
+                <div class="auth-status" id="auth-status" style="display:none">
+                    <span class="auth-status-text" id="auth-status-text">Not signed in</span>
+                    <button class="auth-logout-btn" onclick="authLogOut()" data-i18n="auth.log_out">Log Out</button>
+                </div>
+            </div>
+
+            <div class="header">
+                <h1 data-i18n="view_progress.title">View Progress</h1>
+                <div class="subtitle" data-i18n="view_progress.subtitle">Track discipleship progress.</div>
+            </div>
+
+            <div class="tab-bar">
+                <button class="tab-btn active" id="tab-map" onclick="switchTab('map')" data-i18n="how_were_doing.tab_map">Map</button>
+                <button class="tab-btn" id="tab-metrics" onclick="switchTab('metrics')" data-i18n="how_were_doing.tab_metrics">Metrics</button>
+            </div>
+
+            <!-- ── MAP CONTROLS (shown on Map tab) ─────────────────── -->
+            <div id="map-controls">
+                <div class="layer-toggles">
+                    <label class="layer-toggle">
+                        <input type="checkbox" id="toggle-churches" checked onchange="renderMap()">
+                        <span data-i18n="how_were_doing.layer_churches">Churches</span>
+                    </label>
+                    <label class="layer-toggle">
+                        <input type="checkbox" id="toggle-spiritual" onchange="renderMap()">
+                        <span data-i18n="how_were_doing.layer_spiritual">Spiritual Convos</span>
+                    </label>
+                    <label class="layer-toggle">
+                        <input type="checkbox" id="toggle-discovery" onchange="renderMap()">
+                        <span data-i18n="how_were_doing.layer_discovery">Discovery Convos</span>
+                    </label>
+                </div>
+
+                <div class="filters">
+                    <select class="filter-select" id="map-city" onchange="renderMap()">
+                        <option value="" data-i18n="how_were_doing.filter_all">All Cities</option>
+                    </select>
+                    <select class="filter-select" id="map-date" onchange="renderMap()">
+                        <option value="30" data-i18n="how_were_doing.period_30">Last 30 Days</option>
+                        <option value="7" data-i18n="how_were_doing.period_7">Last 7 Days</option>
+                        <option value="90" data-i18n="how_were_doing.period_90">Last 3 Months</option>
+                        <option value="365" data-i18n="how_were_doing.period_year">Last Year</option>
+                        <option value="0" data-i18n="how_were_doing.period_all">All Time</option>
+                    </select>
+                    <button class="icon-btn" onclick="loadMapData(true)" title="Refresh">↺</button>
+                </div>
+
+                <div class="map-legend">
+                    <h4 data-i18n="how_were_doing.legend_title">Legend</h4>
+                    <div class="legend-row">
+                        <div class="legend-swatch" style="background:#3a3a3c;"></div>
+                        <span class="legend-label" data-i18n="how_were_doing.legend_church">Church</span>
+                    </div>
+                    <div class="legend-row">
+                        <div class="legend-swatch" style="background:#add8e6; opacity:0.8;"></div>
+                        <span class="legend-label" data-i18n="how_were_doing.legend_low">Low conversation activity</span>
+                    </div>
+                    <div class="legend-row">
+                        <div class="legend-swatch" style="background:#0077b6; opacity:0.8;"></div>
+                        <span class="legend-label" data-i18n="how_were_doing.legend_medium">Medium conversation activity</span>
+                    </div>
+                    <div class="legend-row">
+                        <div class="legend-swatch" style="background:#002f6c; opacity:0.9;"></div>
+                        <span class="legend-label" data-i18n="how_were_doing.legend_high">High conversation activity</span>
+                    </div>
+                </div>
+
+                <div class="map-footer" id="map-last-updated"></div>
+            </div>
+
+            <!-- ── METRICS VIEW ────────────────────────────────────── -->
+            <div id="metrics-view" style="display:none">
+                <div class="filters">
+                    <select class="filter-select" id="metrics-date" onchange="loadMetrics()">
+                        <option value="30" data-i18n="how_were_doing.period_30">Last 30 Days</option>
+                        <option value="7" data-i18n="how_were_doing.period_7">Last 7 Days</option>
+                        <option value="90" data-i18n="how_were_doing.period_90">Last 3 Months</option>
+                        <option value="365" data-i18n="how_were_doing.period_year">Last Year</option>
+                        <option value="0" data-i18n="how_were_doing.period_all">All Time</option>
+                    </select>
+                </div>
+                <div class="stats-section" id="stats-section">
+                    <div class="loading" data-i18n="how_were_doing.loading">Loading…</div>
+                </div>
+            </div>
+
+        </div><!-- /.overlay-panel -->
+
+    </div><!-- /.page-shell / #main-container -->
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+    // ── Map state ────────────────────────────────────────────────────────────
+    let map = null
+    let churchLayer    = null
+    let spiritualLayer = null
+    let discoveryLayer = null
+    let mapData = { churches: [], conversations: [] }
+
+    // ── Location helpers ─────────────────────────────────────────────────────
+
+    function getBrowserLocation() {
+        return new Promise((resolve, reject) => {
+            if (!navigator.geolocation) {
+                reject(new Error('geolocation not supported'))
+                return
+            }
+            navigator.geolocation.getCurrentPosition(
+                pos => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+                err => reject(err),
+                { timeout: 8000, maximumAge: 60000 }
+            )
+        })
+    }
+
+    async function getIpLocation() {
+        const res = await fetch('https://ipapi.co/json/')
+        if (!res.ok) throw new Error('IP lookup failed')
+        const data = await res.json()
+        if (!data.latitude || !data.longitude) throw new Error('no coordinates in IP response')
+        return { lat: data.latitude, lng: data.longitude }
+    }
+
+    async function getBestUserLocation() {
+        try {
+            return await getBrowserLocation()
+        } catch (_) {
+            try {
+                return await getIpLocation()
+            } catch (_) {
+                return null
+            }
+        }
+    }
+
+    // ── Layout hardening ───────────────────────────────────────────────────────
+    function applyDesktopMapLayout() {
+        const shell   = document.querySelector('.page-shell')
+        const mapEl   = document.getElementById('map-el')
+        const overlay = document.querySelector('.overlay-panel')
+        if (!shell || !mapEl || !overlay) return
+
+        if (window.innerWidth >= 768) {
+            document.documentElement.style.height = '100%'
+            document.body.style.height = '100%'
+            document.body.style.overflow = 'hidden'
+            document.body.style.paddingBottom = '0'
+
+            shell.style.position = 'relative'
+            shell.style.width = '100%'
+            shell.style.height = `${window.innerHeight}px`
+            shell.style.overflow = 'hidden'
+
+            mapEl.style.position = 'absolute'
+            mapEl.style.top = '0'
+            mapEl.style.right = '0'
+            mapEl.style.bottom = '0'
+            mapEl.style.left = '0'
+            mapEl.style.width = '100%'
+            mapEl.style.height = '100%'
+            mapEl.style.display = 'block'
+            mapEl.style.zIndex = '0'
+
+            overlay.style.position = 'absolute'
+            overlay.style.top = '16px'
+            overlay.style.left = '16px'
+            overlay.style.width = '320px'
+            overlay.style.maxWidth = '320px'
+            overlay.style.maxHeight = 'calc(100vh - 32px)'
+            overlay.style.margin = '0'
+            overlay.style.overflowY = 'auto'
+            overlay.style.zIndex = '500'
+            overlay.style.background = 'rgba(255,255,255,0.97)'
+            overlay.style.borderRadius = '14px'
+            overlay.style.boxShadow = '0 4px 24px rgba(0,0,0,0.18)'
+        } else {
+            document.documentElement.style.height = ''
+            document.body.style.height = ''
+            document.body.style.overflow = ''
+            document.body.style.paddingBottom = '60px'
+
+            shell.style.position = ''
+            shell.style.width = ''
+            shell.style.height = ''
+            shell.style.overflow = ''
+
+            mapEl.style.position = ''
+            mapEl.style.top = ''
+            mapEl.style.right = ''
+            mapEl.style.bottom = ''
+            mapEl.style.left = ''
+            mapEl.style.width = ''
+            mapEl.style.height = ''
+            mapEl.style.display = ''
+            mapEl.style.zIndex = ''
+
+            overlay.style.position = ''
+            overlay.style.top = ''
+            overlay.style.left = ''
+            overlay.style.width = ''
+            overlay.style.maxWidth = ''
+            overlay.style.maxHeight = ''
+            overlay.style.margin = ''
+            overlay.style.overflowY = ''
+            overlay.style.zIndex = ''
+            overlay.style.background = ''
+            overlay.style.borderRadius = ''
+            overlay.style.boxShadow = ''
+        }
+
+        if (map) {
+            setTimeout(() => map.invalidateSize(), 0)
+            setTimeout(() => map.invalidateSize(), 120)
+        }
+    }
+
+    // ── Tab switching ────────────────────────────────────────────────────────
+    function switchTab(tab) {
+        const isMap = tab === 'map'
+        document.getElementById('tab-map').classList.toggle('active', isMap)
+        document.getElementById('tab-metrics').classList.toggle('active', !isMap)
+        document.getElementById('map-controls').style.display  = isMap ? '' : 'none'
+        document.getElementById('metrics-view').style.display  = isMap ? 'none' : 'block'
+
+        if (isMap) {
+            if (map) map.invalidateSize()
+        } else {
+            loadMetrics()
+        }
+    }
+
+    // ── Map setup ────────────────────────────────────────────────────────────
+    async function ensureMap() {
+        applyDesktopMapLayout()
+
+        if (map) {
+            map.invalidateSize()
+            return
+        }
+
+        // Let layout settle before Leaflet snapshots container dimensions.
+        await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))
+
+        // Start with a neutral view; we'll reposition to user location below
+        map = L.map('map-el', { zoomControl: true }).setView([39.8283, -98.5795], 4)
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 19
+        }).addTo(map)
+
+        churchLayer    = L.layerGroup().addTo(map)
+        spiritualLayer = L.layerGroup()
+        discoveryLayer = L.layerGroup()
+
+        setTimeout(() => map.invalidateSize(), 0)
+        setTimeout(() => map.invalidateSize(), 150)
+
+        // Center on user location (~10 mile radius) before loading markers
+        await centerOnUserLocation()
+
+        setTimeout(() => map.invalidateSize(), 300)
+
+        // Load markers after the viewport is already set; renderMap() must NOT
+        // call fitBounds / setView, so the user-centered viewport is preserved.
+        loadMapData(false)
+    }
+
+    // NYC fallback coordinates
+    const NYC = { lat: 40.7128, lng: -74.0060 }
+
+    async function centerOnUserLocation() {
+        const loc = await getBestUserLocation() || NYC
+
+        // Use a 10-mile (~16 093 m) radius circle to derive fitBounds target
+        const circle = L.circle([loc.lat, loc.lng], { radius: 16093 })
+        const bounds = circle.getBounds()
+        map.fitBounds(bounds, { padding: [20, 20] })
+        // Let Leaflet re-measure after fitBounds repositions tiles
+        setTimeout(() => map.invalidateSize(), 100)
+
+        // Visual marker for the resolved user location
+        L.circleMarker([loc.lat, loc.lng], {
+            radius: 8,
+            fillColor: '#007AFF',
+            color: '#fff',
+            weight: 2,
+            fillOpacity: 0.9,
+            pane: 'markerPane'
+        }).bindPopup('Your location').addTo(map)
+    }
+
+    // ── Data loading ─────────────────────────────────────────────────────────
+    async function loadMapData(showMessage) {
+        if (!window.supabase) return
+
+        const { data: churches } = await window.supabase
+            .from('church_assessments')
+            .select('latitude, longitude, location_text, city, leader_name, baptism_count, church_generation, updated_at')
+            .eq('is_church', true)
+
+        const { data: convos } = await window.supabase
+            .from('conversation_events')
+            .select('latitude, longitude, location_text, city, event_type, count, created_at')
+
+        mapData.churches      = (churches || []).filter(c => c.latitude && c.longitude)
+        mapData.conversations = (convos   || []).filter(c => c.latitude && c.longitude)
+
+        populateCityDropdown()
+        renderMap()
+
+        document.getElementById('map-last-updated').textContent =
+            window.t ? window.t('how_were_doing.last_updated', { time: new Date().toLocaleTimeString() }) :
+                       'Updated ' + new Date().toLocaleTimeString()
+
+        if (showMessage) notify(window.t ? window.t('how_were_doing.data_refreshed') : 'Data refreshed')
+    }
+
+    function populateCityDropdown() {
+        const cities = new Set()
+        mapData.churches.forEach(c => { if (c.city) cities.add(c.city) })
+        mapData.conversations.forEach(c => { if (c.city) cities.add(c.city) })
+
+        const sel = document.getElementById('map-city')
+        const prev = sel.value
+        sel.innerHTML = '<option value="">' + (window.t ? window.t('how_were_doing.filter_all') : 'All Cities') + '</option>'
+        Array.from(cities).sort().forEach(city => {
+            const opt = document.createElement('option')
+            opt.value = city
+            opt.textContent = city
+            sel.appendChild(opt)
+        })
+        if (prev) sel.value = prev
+    }
+
+    function cutoffFromDays(days) {
+        return days > 0 ? new Date(Date.now() - days * 86400000).toISOString() : null
+    }
+
+    // renderMap() NEVER calls map.fitBounds / map.setView so the initial
+    // user-centered viewport is not overridden by marker rendering.
+    function renderMap() {
+        if (!map) return
+
+        const showChurches  = document.getElementById('toggle-churches').checked
+        const showSpiritual = document.getElementById('toggle-spiritual').checked
+        const showDiscovery = document.getElementById('toggle-discovery').checked
+        const city   = document.getElementById('map-city').value
+        const days   = parseInt(document.getElementById('map-date').value)
+        const cutoff = cutoffFromDays(days)
+
+        // ── Churches ──
+        churchLayer.clearLayers()
+        if (showChurches) {
+            mapData.churches.forEach(c => {
+                if (city   && c.city       !== city)  return
+                if (cutoff && c.updated_at <  cutoff) return
+
+                L.circleMarker([c.latitude, c.longitude], {
+                    radius: 9,
+                    fillColor: '#3a3a3c',
+                    color: '#fff',
+                    weight: 2,
+                    fillOpacity: 0.9
+                }).bindPopup(
+                    '<strong>' + (c.location_text || 'Church') + '</strong>' +
+                    (c.leader_name      ? '<br>Leader: ' + c.leader_name          : '') +
+                    '<br>Baptisms: '    + (c.baptism_count  || 0) +
+                    (c.church_generation ? '<br>Generation: ' + c.church_generation : '')
+                ).addTo(churchLayer)
+            })
+        }
+
+        // ── Conversation heatmap circles ──
+        spiritualLayer.clearLayers()
+        discoveryLayer.clearLayers()
+
+        const buckets = {}
+        mapData.conversations.forEach(ev => {
+            if (city   && ev.city       !== city)  return
+            if (cutoff && ev.created_at <  cutoff) return
+            const lat2 = +ev.latitude.toFixed(2)
+            const lon2 = +ev.longitude.toFixed(2)
+            const key  = lat2 + ',' + lon2
+            if (!buckets[key]) {
+                buckets[key] = { lat: lat2, lon: lon2, locationText: null, spiritualCount: 0, discoveryCount: 0 }
+            }
+            if (!buckets[key].locationText && ev.location_text) buckets[key].locationText = ev.location_text
+            if (ev.event_type === 'spiritual') buckets[key].spiritualCount += (ev.count || 1)
+            else                               buckets[key].discoveryCount += (ev.count || 1)
+        })
+
+        function convoRadius(n) { return Math.min(400 + n * 300, 8000) }
+
+        function makeCircle(lat, lon, n, type, locationText) {
+            const color  = n <= 3 ? '#add8e6' : n <= 10 ? '#0077b6' : '#002f6c'
+            const radius = convoRadius(n)
+            const typeLabel = type === 'spiritual' ? 'Spiritual' : 'Discovery'
+            return L.circle([lat, lon], {
+                color, fillColor: color, fillOpacity: 0.55, radius, weight: 1
+            }).bindPopup(
+                '<strong>' + (locationText || 'Location') + '</strong>' +
+                '<br>' + typeLabel + ' conversations: ' + n
+            )
+        }
+
+        Object.values(buckets).forEach(b => {
+            const sn = b.spiritualCount
+            const dn = b.discoveryCount
+            if (sn >= dn) {
+                if (sn > 0) spiritualLayer.addLayer(makeCircle(b.lat, b.lon, sn, 'spiritual', b.locationText))
+                if (dn > 0) discoveryLayer.addLayer(makeCircle(b.lat, b.lon, dn, 'discovery', b.locationText))
+            } else {
+                if (dn > 0) discoveryLayer.addLayer(makeCircle(b.lat, b.lon, dn, 'discovery', b.locationText))
+                if (sn > 0) spiritualLayer.addLayer(makeCircle(b.lat, b.lon, sn, 'spiritual', b.locationText))
+            }
+        })
+
+        if (showSpiritual) spiritualLayer.addTo(map); else spiritualLayer.remove()
+        if (showDiscovery) discoveryLayer.addTo(map); else discoveryLayer.remove()
+    }
+
+    // ── Metrics ──────────────────────────────────────────────────────────────
+    async function loadMetrics() {
+        if (!window.supabase) return
+
+        const section = document.getElementById('stats-section')
+        section.innerHTML = '<div class="loading">Loading…</div>'
+
+        const days   = parseInt(document.getElementById('metrics-date').value)
+        const cutoff = cutoffFromDays(days)
+
+        let query = window.supabase
+            .from('church_assessments')
+            .select('baptism_count, church_generation')
+            .eq('is_church', true)
+
+        if (cutoff) query = query.gte('updated_at', cutoff)
+
+        const { data: churches, error } = await query
+
+        if (error) {
+            section.innerHTML = '<div class="empty-state">Error loading data.<br><small>' + error.message + '</small></div>'
+            return
+        }
+
+        const rows     = churches || []
+        const total    = rows.length
+        const baptisms = rows.reduce((s, r) => s + (r.baptism_count || 0), 0)
+        const gen2     = rows.filter(r => r.church_generation === 'gen2+').length
+
+        let spiritual = 0
+        const { data: convData } = await window.supabase
+            .from('conversation_events')
+            .select('count')
+            .eq('event_type', 'spiritual')
+        if (convData) spiritual = convData.reduce((s, r) => s + (r.count || 0), 0)
+
+        const label = days === 0 ? 'All Time' :
+                      days === 7  ? 'Last 7 Days' :
+                      days === 30 ? 'Last 30 Days' :
+                      days === 90 ? 'Last 3 Months' : 'Last Year'
+
+        section.innerHTML =
+            '<div class="period-label">' + label + '</div>' +
+            '<div class="stats-grid">' +
+                '<div class="stat-card accent">' +
+                    '<div class="stat-value">' + spiritual.toLocaleString() + '</div>' +
+                    '<div class="stat-label">Spiritual Conversations</div>' +
+                '</div>' +
+                '<div class="stat-card">' +
+                    '<div class="stat-value">' + total.toLocaleString() + '</div>' +
+                    '<div class="stat-label">Churches</div>' +
+                '</div>' +
+                '<div class="stat-card">' +
+                    '<div class="stat-value">' + baptisms.toLocaleString() + '</div>' +
+                    '<div class="stat-label">Baptisms</div>' +
+                '</div>' +
+                '<div class="stat-card wide">' +
+                    '<div class="stat-value">' + gen2.toLocaleString() + '</div>' +
+                    '<div class="stat-label">Gen 2+ Churches</div>' +
+                '</div>' +
+            '</div>'
+    }
+
+    // ── Notification ─────────────────────────────────────────────────────────
+    function notify(msg) {
+        const el = document.createElement('div')
+        el.className = 'notification'
+        el.textContent = msg
+        document.body.appendChild(el)
+        setTimeout(() => el.remove(), 3200)
+    }
+
+    // ── Boot ─────────────────────────────────────────────────────────────────
+    applyDesktopMapLayout()
+    window.addEventListener('resize', applyDesktopMapLayout)
+
+    // Wait for Supabase auth + leader role before loading data.
+    ;(function waitForAuth() {
+        const interval = setInterval(() => {
+            if (!window.supabase) return
+            window.supabase.auth.getSession().then(({ data: { session } }) => {
+                if (!session) return
+                clearInterval(interval)
+                ensureMap()
+            })
+        }, 150)
+    })()
+    </script>
+</body>
+</html>
