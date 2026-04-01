@@ -342,12 +342,14 @@
         </div>
     </div>
 
-    <script>
+    <script type="module">
+        import { supabase } from './supabase.js';
+
         let cities = [];
         let currentCity = null;
         let currentCityIndex = -1;
         let lastSyncTimestamp = null;
-        let syncInterval = null;
+        let realtimeChannel = null;
         let isLiveMeetingMode = false;
         let pendingSave = false;
         let saveQueue = [];
@@ -366,13 +368,6 @@
                 });
             });
             return citiesArr;
-        }
-
-        function getAjaxUrl() {
-            return typeof band_ajax !== 'undefined' ? band_ajax.ajax_url : '/wp-admin/admin-ajax.php';
-        }
-        function getNonce() {
-            return typeof band_ajax !== 'undefined' ? band_ajax.nonce : '';
         }
 
         function getNthSundayOfMonth(year, month, n) {
@@ -575,35 +570,29 @@
         }
 
         function startLiveSync() {
-            if (syncInterval) return;
-            syncInterval = setInterval(checkForUpdates, 5000);
-        }
-
-        function stopLiveSync() {
-            if (syncInterval) { clearInterval(syncInterval); syncInterval = null; }
-        }
-
-        async function checkForUpdates() {
-            if (pendingSave) return;
-            try {
-                const r = await fetch(getAjaxUrl(), {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: new URLSearchParams({ action: 'kingdom_check_updates', nonce: getNonce(), last_sync: lastSyncTimestamp })
-                });
-                const result = await r.json();
-                if (result.success && result.data.needsUpdate) {
-                    showNotification('Data updated by ' + result.data.modifiedBy);
+            if (realtimeChannel) return;
+            realtimeChannel = supabase
+                .channel('band_data_changes')
+                .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'band_data', filter: 'id=eq.main' }, (payload) => {
+                    if (pendingSave) return;
+                    const incoming = payload.new;
+                    if (incoming.last_modified === lastSyncTimestamp) return;
+                    const modifiedBy = incoming.modified_by || 'another device';
                     if (saveQueue.length > 0) {
-                        await handleConflict(result.data);
+                        handleConflict({ data: { cities: incoming.cities }, lastModified: incoming.last_modified });
                     } else {
-                        cities = sanitizeLeaders(result.data.data.cities || []);
-                        lastSyncTimestamp = result.data.lastModified;
+                        showNotification('Data updated by ' + modifiedBy);
+                        cities = sanitizeLeaders(incoming.cities || []);
+                        lastSyncTimestamp = incoming.last_modified;
                         updateOverview();
                         if (currentCityIndex >= 0) renderCityView();
                     }
-                }
-            } catch(e) { console.error('❌ Sync check failed:', e); }
+                })
+                .subscribe();
+        }
+
+        function stopLiveSync() {
+            if (realtimeChannel) { supabase.removeChannel(realtimeChannel); realtimeChannel = null; }
         }
 
         function showNotification(msg) {
@@ -627,26 +616,27 @@
         }
 
         async function loadData() {
-            console.log('📥 Loading data from server...');
-            console.log('Using AJAX URL:', getAjaxUrl());
-            console.log('Using nonce:', getNonce() ? 'Present' : 'MISSING');
+            console.log('📥 Loading data from Supabase...');
             try {
-                const r = await fetch(getAjaxUrl(), {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: new URLSearchParams({ action: 'kingdom_load_data', nonce: getNonce() })
-                });
-                const result = await r.json();
-                console.log('📥 Load result:', result);
-                if (result.success) {
-                    cities = sanitizeLeaders(result.data.data.cities || []); // ✅ sanitize on load
-                    lastSyncTimestamp = result.data.lastModified || new Date().toISOString();
-                    console.log('✅ Loaded from server');
-                    console.log('📊 Loaded cities:', cities.length);
-                } else {
-                    console.error('❌ Load failed:', result);
+                const { data, error } = await supabase
+                    .from('band_data')
+                    .select('cities, last_modified')
+                    .eq('id', 'main')
+                    .single();
+                if (error && error.code === 'PGRST116') {
+                    // No row yet — seed it
+                    const { error: insertError } = await supabase
+                        .from('band_data')
+                        .insert({ id: 'main', cities: [], last_modified: new Date().toISOString() });
+                    if (insertError) console.error('❌ Seed error:', insertError);
                     cities = [];
                     lastSyncTimestamp = new Date().toISOString();
+                } else if (error) {
+                    throw error;
+                } else {
+                    cities = sanitizeLeaders(data.cities || []);
+                    lastSyncTimestamp = data.last_modified;
+                    console.log('✅ Loaded from Supabase, cities:', cities.length);
                 }
             } catch(e) {
                 console.error('❌ Load error:', e);
@@ -667,36 +657,35 @@
             if (pendingSave || saveQueue.length === 0) return;
             pendingSave = true;
             showSaveIndicator('saving');
-            const data = { cities: JSON.parse(JSON.stringify(cities)) };
-            console.log('💾 Saving cities:', data.cities.length);
+            const citiesSnapshot = JSON.parse(JSON.stringify(cities));
+            console.log('💾 Saving cities:', citiesSnapshot.length);
             try {
-                const r = await fetch(getAjaxUrl(), {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: new URLSearchParams({
-                        action: 'kingdom_save_data',
-                        nonce: getNonce(),
-                        network_data: JSON.stringify(data),
-                        last_known_timestamp: lastSyncTimestamp
-                    })
-                });
-                const result = await r.json();
-                console.log('💾 Save result:', result);
-                if (result.success) {
-                    lastSyncTimestamp = result.data.lastModified;
-                    console.log('✅ Saved successfully');
-                    showSaveIndicator('saved');
-                    updateOverview();
+                // Optimistic conflict check: read current last_modified before writing
+                const { data: current, error: readError } = await supabase
+                    .from('band_data')
+                    .select('last_modified, cities')
+                    .eq('id', 'main')
+                    .single();
+
+                if (!readError && current && current.last_modified !== lastSyncTimestamp) {
+                    console.warn('⚠️ Conflict detected, merging...');
+                    await handleConflict({ data: { cities: current.cities }, lastModified: current.last_modified });
                     while (saveQueue.length > 0) { const { resolve } = saveQueue.shift(); resolve(); }
-                } else if (result.data && result.data.conflict) {
-                    console.warn('⚠️ Conflict, merging...');
-                    await handleConflict(result.data.serverData);
-                    while (saveQueue.length > 0) { const { resolve } = saveQueue.shift(); resolve(); }
-                } else {
-                    console.error('❌ Save failed:', result);
-                    showSaveIndicator('error');
-                    while (saveQueue.length > 0) { const { reject } = saveQueue.shift(); reject(new Error('Save failed')); }
+                    return;
                 }
+
+                const newTimestamp = new Date().toISOString();
+                const { error } = await supabase
+                    .from('band_data')
+                    .upsert({ id: 'main', cities: citiesSnapshot, last_modified: newTimestamp, modified_by: getDeviceId() });
+
+                if (error) throw error;
+
+                lastSyncTimestamp = newTimestamp;
+                console.log('✅ Saved to Supabase');
+                showSaveIndicator('saved');
+                updateOverview();
+                while (saveQueue.length > 0) { const { resolve } = saveQueue.shift(); resolve(); }
             } catch(e) {
                 console.error('❌ Save error:', e);
                 showSaveIndicator('error');
@@ -705,6 +694,12 @@
                 pendingSave = false;
                 if (saveQueue.length > 0) setTimeout(processSaveQueue, 100);
             }
+        }
+
+        function getDeviceId() {
+            let id = localStorage.getItem('band_device_id');
+            if (!id) { id = 'device_' + Math.random().toString(36).slice(2, 9); localStorage.setItem('band_device_id', id); }
+            return id;
         }
 
         function updateOverview() {
@@ -961,6 +956,21 @@
                 try { await saveData(); } catch(e) { console.error('Failed to save after delete:', e); }
             }
         }
+
+        // Expose handlers to global scope (required for inline onclick with type="module")
+        window.toggleLiveMeetingMode = toggleLiveMeetingMode;
+        window.openSettings = openSettings;
+        window.closeSettings = closeSettings;
+        window.backToOverview = backToOverview;
+        window.openCity = openCity;
+        window.toggleAddLeaderForm = toggleAddLeaderForm;
+        window.addLeader = addLeader;
+        window.removeLeader = removeLeader;
+        window.togglePostStatus = togglePostStatus;
+        window.updateCityCounter = updateCityCounter;
+        window.updateCityStreamDepth = updateCityStreamDepth;
+        window.addCity = addCity;
+        window.deleteCity = deleteCity;
 
         // Initialize
         loadData();
