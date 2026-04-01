@@ -583,6 +583,87 @@
         }
     }
 
+    // ── Layout hardening ───────────────────────────────────────────────────────
+    function applyDesktopMapLayout() {
+        const shell   = document.querySelector('.page-shell')
+        const mapEl   = document.getElementById('map-el')
+        const overlay = document.querySelector('.overlay-panel')
+        if (!shell || !mapEl || !overlay) return
+
+        if (window.innerWidth >= 768) {
+            document.documentElement.style.height = '100%'
+            document.body.style.height = '100%'
+            document.body.style.overflow = 'hidden'
+            document.body.style.paddingBottom = '0'
+
+            shell.style.position = 'relative'
+            shell.style.width = '100%'
+            shell.style.height = `${window.innerHeight}px`
+            shell.style.overflow = 'hidden'
+
+            mapEl.style.position = 'absolute'
+            mapEl.style.top = '0'
+            mapEl.style.right = '0'
+            mapEl.style.bottom = '0'
+            mapEl.style.left = '0'
+            mapEl.style.width = '100%'
+            mapEl.style.height = '100%'
+            mapEl.style.display = 'block'
+            mapEl.style.zIndex = '0'
+
+            overlay.style.position = 'absolute'
+            overlay.style.top = '16px'
+            overlay.style.left = '16px'
+            overlay.style.width = '320px'
+            overlay.style.maxWidth = '320px'
+            overlay.style.maxHeight = 'calc(100vh - 32px)'
+            overlay.style.margin = '0'
+            overlay.style.overflowY = 'auto'
+            overlay.style.zIndex = '500'
+            overlay.style.background = 'rgba(255,255,255,0.97)'
+            overlay.style.borderRadius = '14px'
+            overlay.style.boxShadow = '0 4px 24px rgba(0,0,0,0.18)'
+        } else {
+            document.documentElement.style.height = ''
+            document.body.style.height = ''
+            document.body.style.overflow = ''
+            document.body.style.paddingBottom = '60px'
+
+            shell.style.position = ''
+            shell.style.width = ''
+            shell.style.height = ''
+            shell.style.overflow = ''
+
+            mapEl.style.position = ''
+            mapEl.style.top = ''
+            mapEl.style.right = ''
+            mapEl.style.bottom = ''
+            mapEl.style.left = ''
+            mapEl.style.width = ''
+            mapEl.style.height = ''
+            mapEl.style.display = ''
+            mapEl.style.zIndex = ''
+
+            overlay.style.position = ''
+            overlay.style.top = ''
+            overlay.style.left = ''
+            overlay.style.width = ''
+            overlay.style.maxWidth = ''
+            overlay.style.maxHeight = ''
+            overlay.style.margin = ''
+            overlay.style.overflowY = ''
+            overlay.style.zIndex = ''
+            overlay.style.background = ''
+            overlay.style.borderRadius = ''
+            overlay.style.boxShadow = ''
+        }
+
+        if (map) {
+            setTimeout(() => map.invalidateSize(), 0)
+            setTimeout(() => map.invalidateSize(), 120)
+        }
+    }
+
     // ── Tab switching ────────────────────────────────────────────────────────
     function switchTab(tab) {
         const isMap = tab === 'map'
@@ -600,69 +681,38 @@
 
     // ── Map setup ────────────────────────────────────────────────────────────
     async function ensureMap() {
-        // Fast path: map already up
+        applyDesktopMapLayout()
+
         if (map) {
-            console.log('ensureMap: map already exists, skipping init')
             map.invalidateSize()
-            return map
+            return
         }
 
-        // Concurrent-call guard: if a previous call is still in progress,
-        // wait for it instead of starting a second L.map() on the same element.
-        if (mapInitPromise) {
-            console.log('ensureMap: init already in progress, waiting for it')
-            return mapInitPromise
-        }
+        // Let layout settle before Leaflet snapshots container dimensions.
+        await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))
 
-        mapInitPromise = (async () => {
-            const mapEl = document.getElementById('map-el')
-            if (!mapEl) {
-                console.error('ensureMap: #map-el not found')
-                return null
-            }
+        // Start with a neutral view; we'll reposition to user location below
+        map = L.map('map-el', { zoomControl: true }).setView([39.8283, -98.5795], 4)
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 19
+        }).addTo(map)
 
-            // Leaflet stamps _leaflet_id on the container once initialised.
-            // If it's already set, a prior L.map() ran (e.g. HMR) — bail out.
-            if (mapEl._leaflet_id) {
-                console.warn('ensureMap: container already has _leaflet_id — skipping L.map()')
-                return map
-            }
+        churchLayer    = L.layerGroup().addTo(map)
+        spiritualLayer = L.layerGroup()
+        discoveryLayer = L.layerGroup()
 
-            // Wait two animation frames so the browser has fully applied the
-            // position:absolute / inset:0 layout before Leaflet measures the container.
-            // This is what prevents the "renders as a tiny box" issue.
-            await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))
+        setTimeout(() => map.invalidateSize(), 0)
+        setTimeout(() => map.invalidateSize(), 150)
 
-            console.log('ensureMap: calling L.map() — container size is',
-                mapEl.offsetWidth, '×', mapEl.offsetHeight)
+        // Center on user location (~10 mile radius) before loading markers
+        await centerOnUserLocation()
 
-            map = L.map('map-el', { zoomControl: true }).setView([39.8283, -98.5795], 4)
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors',
-                maxZoom: 19
-            }).addTo(map)
+        setTimeout(() => map.invalidateSize(), 300)
 
-            setTimeout(() => map.invalidateSize(), 0)
-            setTimeout(() => map.invalidateSize(), 150)
-
-            churchLayer    = L.layerGroup().addTo(map)
-            spiritualLayer = L.layerGroup()
-            discoveryLayer = L.layerGroup()
-
-            await centerOnUserLocation()
-
-            setTimeout(() => map.invalidateSize(), 300)
-
-            await loadMapData(false)
-
-            return map
-        })()
-
-        try {
-            return await mapInitPromise
-        } finally {
-            mapInitPromise = null   // release lock so future tab-switch calls go through the fast path
-        }
+        // Load markers after the viewport is already set; renderMap() must NOT
+        // call fitBounds / setView, so the user-centered viewport is preserved.
+        loadMapData(false)
     }
 
     // NYC fallback coordinates
@@ -917,6 +967,9 @@
     }
 
     // ── Boot ─────────────────────────────────────────────────────────────────
+    applyDesktopMapLayout()
+    window.addEventListener('resize', applyDesktopMapLayout)
+
     // Wait for Supabase auth + leader role before loading data.
     ;(function waitForAuth() {
         const interval = setInterval(() => {
