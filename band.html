@@ -663,30 +663,51 @@
             console.log('[saveQueue] processSaveQueue started — queue length:', saveQueue.length, 'pendingSave: true');
             showSaveIndicator('saving');
             try {
-                // Optimistic conflict check: read current last_modified before writing
-                const { data: current, error: readError } = await supabase
-                    .from('band_data')
-                    .select('last_modified, cities')
-                    .eq('id', 'main')
-                    .single();
+                // CAS (Compare-And-Swap) write loop.
+                // Only writes if last_modified still matches our lastSyncTimestamp, making
+                // conflict detection atomic at the DB level. Eliminates the race window that
+                // existed between the old two-step SELECT-then-upsert approach.
+                const MAX_RETRIES = 4;
+                let saved = false;
 
-                if (!readError && current && current.last_modified !== lastSyncTimestamp) {
-                    console.warn('[saveQueue] ⚠️ Conflict detected — merging before save');
-                    await handleConflict({ data: { cities: current.cities }, lastModified: current.last_modified });
-                    // fall through to save the merged result — do NOT return here
+                for (let attempt = 1; attempt <= MAX_RETRIES && !saved; attempt++) {
+                    // Snapshot AFTER any merge so we always write the freshest local state
+                    const citiesSnapshot = JSON.parse(JSON.stringify(cities));
+                    const newTimestamp = new Date().toISOString();
+                    console.log(`💾 CAS attempt ${attempt}/${MAX_RETRIES} — lastSyncTimestamp: ${lastSyncTimestamp}`);
+
+                    const { data: updated, error: writeError } = await supabase
+                        .from('band_data')
+                        .update({ cities: citiesSnapshot, last_modified: newTimestamp, modified_by: getDeviceId() })
+                        .eq('id', 'main')
+                        .eq('last_modified', lastSyncTimestamp)  // atomic condition
+                        .select('id');
+
+                    if (writeError) throw writeError;
+
+                    if (updated && updated.length > 0) {
+                        // CAS succeeded — our write landed cleanly
+                        lastSyncTimestamp = newTimestamp;
+                        saved = true;
+                    } else {
+                        // CAS missed — another device wrote between our last sync and now.
+                        // Re-read the current server state, merge it with our local changes,
+                        // then retry. On each retry the snapshot above captures the merged state.
+                        console.warn(`[saveQueue] CAS miss on attempt ${attempt} — re-reading server state`);
+                        const { data: fresh, error: readError } = await supabase
+                            .from('band_data')
+                            .select('last_modified, cities')
+                            .eq('id', 'main')
+                            .single();
+                        if (readError) throw readError;
+                        // handleConflict merges and updates lastSyncTimestamp so next CAS targets the right row
+                        await handleConflict({ data: { cities: fresh.cities }, lastModified: fresh.last_modified });
+                        if (attempt < MAX_RETRIES) await new Promise(r => setTimeout(r, 100 * attempt));
+                    }
                 }
 
-                // Snapshot cities AFTER any conflict merge so we write the merged state
-                const citiesSnapshot = JSON.parse(JSON.stringify(cities));
-                console.log('💾 Saving cities:', citiesSnapshot.length);
-                const newTimestamp = new Date().toISOString();
-                const { error } = await supabase
-                    .from('band_data')
-                    .upsert({ id: 'main', cities: citiesSnapshot, last_modified: newTimestamp, modified_by: getDeviceId() });
+                if (!saved) throw new Error(`CAS failed after ${MAX_RETRIES} attempts — too many concurrent writers`);
 
-                if (error) throw error;
-
-                lastSyncTimestamp = newTimestamp;
                 clearDraft();
                 console.log('✅ Saved to Supabase');
                 showSaveIndicator('saved');
