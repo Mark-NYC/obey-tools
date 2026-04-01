@@ -515,6 +515,8 @@
         }
 
         function showSaveIndicator(state) {
+            console.log('[saveIndicator]', state);
+            return; // UI notification suppressed
             const el = document.getElementById('saveIndicator');
             el.className = 'save-indicator ' + state;
             if (state === 'saving') { el.textContent = 'Saving...'; }
@@ -566,7 +568,6 @@
             cities = sanitizeLeaders(merged);
             lastSyncTimestamp = serverData.lastModified;
             console.log('[conflict] Merge complete — cities:', cities.length, 'lastSyncTimestamp:', lastSyncTimestamp, '(caller will save)');
-            showNotification('Changes merged from other device');
         }
 
         function startLiveSync() {
@@ -583,7 +584,7 @@
                         console.log('[realtime] Queue non-empty — merging incoming data into local state');
                         handleConflict({ data: { cities: incoming.cities }, lastModified: incoming.last_modified });
                     } else {
-                        showNotification('Data updated by ' + modifiedBy);
+                        console.log('[realtime] Data updated by', modifiedBy);
                         cities = sanitizeLeaders(incoming.cities || []);
                         lastSyncTimestamp = incoming.last_modified;
                         updateOverview();
@@ -840,7 +841,7 @@
             document.getElementById('leaderNameInput').value = '';
             toggleAddLeaderForm();
             renderCityView();
-            try { await saveData(); } catch(e) { console.error('Failed to save leader:', e); alert('Failed to save. Try again.'); }
+            try { await saveData(); } catch(e) { console.error('Failed to save leader:', e); }
         }
 
         async function removeLeader(index) {
@@ -884,7 +885,6 @@
                 console.log('✅ Post status saved successfully');
             } catch(e) {
                 console.error('❌ Failed to save post status:', e);
-                alert('Failed to save. Try again.');
                 leader.postHistory[cm.key] = prev;
                 renderCityView();
             } finally {
