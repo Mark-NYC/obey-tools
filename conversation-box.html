@@ -224,8 +224,8 @@
         <!-- Auth section: shown at top, collapses to status row when signed in -->
         <div class="auth-section" id="auth-section">
             <div id="auth-collapsed">
-                <span class="auth-collapsed-text">Sign in to save across devices</span>
-                <button class="auth-collapsed-btn" onclick="toggleAuthForm()">Sign in</button>
+                <span class="auth-collapsed-text" data-i18n="conversation_box.auth_save_hint">Sign in to save across devices</span>
+                <button class="auth-collapsed-btn" onclick="toggleAuthForm()" data-i18n="conversation_box.auth_sign_in_btn">Sign in</button>
             </div>
             <div id="auth-form" style="display:none">
                 <input type="email" id="auth-email" placeholder="Email" data-i18n-placeholder="auth.email_placeholder">
@@ -246,12 +246,12 @@
         </div>
         <div class="controls">
             <div class="btn-group">
-                <button class="btn btn-secondary" onclick="showOnboarding()">How it works</button>
+                <button class="btn btn-secondary" onclick="showOnboarding()" data-i18n="conversation_box.how_it_works">How it works</button>
                 <button class="btn btn-secondary" onclick="captureSnapshot()" data-i18n="conversation_box.share_btn">Share</button>
             </div>
         </div>
         <div class="content-wrapper">
-            <p class="explainer">Track where each person is right now, then move them as conversations deepen.</p>
+            <p class="explainer" data-i18n="conversation_box.explainer">Track where each person is right now, then move them as conversations deepen.</p>
             <div class="conversation-grid">
                 <div class="conversation-box casual">
                     <div class="box-header"><div class="box-title" data-i18n="conversation_box.box_casual">Casual</div></div>
@@ -360,7 +360,7 @@
                 <!-- Correct layout: TL=Casual, TR=Meaningful, BL=Discovery, BR=Spiritual -->
                 <div class="ob-quad">
                     <div class="ob-quad-box">
-                        <div class="ob-quad-label">Casual</div>
+                        <div class="ob-quad-label" data-i18n="conversation_box.box_casual">Casual</div>
                         <div class="ob-chip-row">
                             <span class="ob-chip-name">Maria</span>
                             <button class="ob-mini-btn ob-mini-move" tabindex="-1">→</button>
@@ -368,54 +368,54 @@
                         </div>
                     </div>
                     <div class="ob-quad-box">
-                        <div class="ob-quad-label">Meaningful</div>
+                        <div class="ob-quad-label" data-i18n="conversation_box.box_meaningful">Meaningful</div>
                     </div>
                     <div class="ob-quad-box">
-                        <div class="ob-quad-label">Discovery</div>
+                        <div class="ob-quad-label" data-i18n="conversation_box.box_discovery">Discovery</div>
                     </div>
                     <div class="ob-quad-box">
-                        <div class="ob-quad-label">Spiritual</div>
+                        <div class="ob-quad-label" data-i18n="conversation_box.box_spiritual">Spiritual</div>
                     </div>
                 </div>
-                <h3>Track spiritual conversations simply</h3>
-                <p>Add a person to the box that matches where the conversation is right now.</p>
+                <h3 data-i18n="conversation_box.ob_step1_title">Track spiritual conversations simply</h3>
+                <p data-i18n="conversation_box.ob_step1_body">Add a person to the box that matches where the conversation is right now.</p>
             </div>
             <div class="onboarding-step" id="ob-step-2">
                 <!-- Chips cycle clockwise: Casual→Meaningful→Spiritual→Discovery -->
-                <div class="ob-cw-hint">↻ moves clockwise as conversations deepen</div>
+                <div class="ob-cw-hint" data-i18n="conversation_box.ob_clockwise_hint">↻ moves clockwise as conversations deepen</div>
                 <div class="ob-quad">
                     <div class="ob-quad-box ob-fb-1">
-                        <div class="ob-quad-label">Casual</div>
+                        <div class="ob-quad-label" data-i18n="conversation_box.box_casual">Casual</div>
                         <div class="ob-chip-row ob-anim-chip ob-fc-1">
                             <span class="ob-chip-name">Maria</span>
                         </div>
                     </div>
                     <div class="ob-quad-box ob-fb-2">
-                        <div class="ob-quad-label">Meaningful</div>
+                        <div class="ob-quad-label" data-i18n="conversation_box.box_meaningful">Meaningful</div>
                         <div class="ob-chip-row ob-anim-chip ob-fc-2">
                             <span class="ob-chip-name">Maria</span>
                         </div>
                     </div>
                     <div class="ob-quad-box ob-fb-4">
-                        <div class="ob-quad-label">Discovery</div>
+                        <div class="ob-quad-label" data-i18n="conversation_box.box_discovery">Discovery</div>
                         <div class="ob-chip-row ob-anim-chip ob-fc-4">
                             <span class="ob-chip-name">Maria</span>
                         </div>
                     </div>
                     <div class="ob-quad-box ob-fb-3">
-                        <div class="ob-quad-label">Spiritual</div>
+                        <div class="ob-quad-label" data-i18n="conversation_box.box_spiritual">Spiritual</div>
                         <div class="ob-chip-row ob-anim-chip ob-fc-3">
                             <span class="ob-chip-name">Maria</span>
                         </div>
                     </div>
                 </div>
-                <h3>Move people as conversations grow</h3>
-                <p>Move someone forward as conversations deepen toward Discovery Bible Study.</p>
+                <h3 data-i18n="conversation_box.ob_step2_title">Move people as conversations grow</h3>
+                <p data-i18n="conversation_box.ob_step2_body">Move someone forward as conversations deepen toward Discovery Bible Study.</p>
             </div>
             <div class="onboarding-step" id="ob-step-3">
                 <div class="ob-quad">
                     <div class="ob-quad-box">
-                        <div class="ob-quad-label">Casual</div>
+                        <div class="ob-quad-label" data-i18n="conversation_box.box_casual">Casual</div>
                         <div class="ob-chip-row">
                             <span class="ob-chip-name">James</span>
                             <button class="ob-mini-btn ob-mini-move" tabindex="-1">→</button>
@@ -428,7 +428,7 @@
                         </div>
                     </div>
                     <div class="ob-quad-box">
-                        <div class="ob-quad-label">Meaningful</div>
+                        <div class="ob-quad-label" data-i18n="conversation_box.box_meaningful">Meaningful</div>
                         <div class="ob-chip-row">
                             <span class="ob-chip-name">Lena</span>
                             <button class="ob-mini-btn ob-mini-move" tabindex="-1">→</button>
@@ -436,7 +436,7 @@
                         </div>
                     </div>
                     <div class="ob-quad-box ob-quad-discovery">
-                        <div class="ob-quad-label">Discovery</div>
+                        <div class="ob-quad-label" data-i18n="conversation_box.box_discovery">Discovery</div>
                         <div class="ob-chip-row">
                             <span class="ob-chip-name">Maria</span>
                             <button class="ob-mini-btn ob-mini-move" tabindex="-1">→</button>
@@ -444,7 +444,7 @@
                         </div>
                     </div>
                     <div class="ob-quad-box">
-                        <div class="ob-quad-label">Spiritual</div>
+                        <div class="ob-quad-label" data-i18n="conversation_box.box_spiritual">Spiritual</div>
                         <div class="ob-chip-row">
                             <span class="ob-chip-name">David</span>
                             <button class="ob-mini-btn ob-mini-move" tabindex="-1">→</button>
@@ -452,8 +452,8 @@
                         </div>
                     </div>
                 </div>
-                <h3>Keep track of what matters</h3>
-                <p>Use this to remember people, pray intentionally, and help move toward Discovery Bible Study.</p>
+                <h3 data-i18n="conversation_box.ob_step3_title">Keep track of what matters</h3>
+                <p data-i18n="conversation_box.ob_step3_body">Use this to remember people, pray intentionally, and help move toward Discovery Bible Study.</p>
             </div>
             <div class="onboarding-dots">
                 <div class="onboarding-dot active" id="ob-dot-1"></div>
@@ -461,8 +461,8 @@
                 <div class="onboarding-dot" id="ob-dot-3"></div>
             </div>
             <div class="onboarding-actions">
-                <button class="onboarding-skip" onclick="closeOnboarding()">Skip</button>
-                <button class="onboarding-next" id="ob-next-btn" onclick="nextOnboardingStep()">Next</button>
+                <button class="onboarding-skip" onclick="closeOnboarding()" data-i18n="conversation_box.ob_skip">Skip</button>
+                <button class="onboarding-next" id="ob-next-btn" onclick="nextOnboardingStep()" data-i18n="conversation_box.ob_next">Next</button>
             </div>
         </div>
     </div>
@@ -1251,7 +1251,7 @@ function saveConversations() {
                     emptyEl.className = 'empty-state';
                     const allEmpty = !Object.values(conversations).some(a => a.length > 0);
                     emptyEl.textContent = (box === 'casual' && allEmpty)
-                        ? 'Start by adding one person you connected with this week.'
+                        ? window.t('conversation_box.ob_empty_hint_casual')
                         : window.t('conversation_box.no_conversations');
                     listElement.appendChild(emptyEl);
                 } else {
@@ -1358,7 +1358,7 @@ function saveConversations() {
                 document.getElementById(`ob-step-${i}`).classList.toggle('active', i === n);
                 document.getElementById(`ob-dot-${i}`).classList.toggle('active', i === n);
             }
-            document.getElementById('ob-next-btn').textContent = n < OB_STEPS ? 'Next' : 'Start tracking';
+            document.getElementById('ob-next-btn').textContent = n < OB_STEPS ? window.t('conversation_box.ob_next') : window.t('conversation_box.ob_start_tracking');
             if (n === 2) {
                 document.querySelectorAll('.ob-fc-1,.ob-fc-2,.ob-fc-3,.ob-fc-4,.ob-fb-1,.ob-fb-2,.ob-fb-3,.ob-fb-4').forEach(el => {
                     el.style.animation = 'none'; void el.offsetWidth; el.style.animation = '';

@@ -405,7 +405,22 @@
     "reset_complete": "Reset complete",
     "no_conversations": "No conversations",
     "snapshot_error": "Error capturing snapshot",
-    "confirm_remove": "Remove {name}?"
+    "confirm_remove": "Remove {name}?",
+    "how_it_works": "How it works",
+    "explainer": "Track where each person is right now, then move them as conversations deepen.",
+    "auth_save_hint": "Sign in to save across devices",
+    "auth_sign_in_btn": "Sign in",
+    "ob_step1_title": "Track spiritual conversations simply",
+    "ob_step1_body": "Add a person to the box that matches where the conversation is right now.",
+    "ob_clockwise_hint": "↻ moves clockwise as conversations deepen",
+    "ob_step2_title": "Move people as conversations grow",
+    "ob_step2_body": "Move someone forward as conversations deepen toward Discovery Bible Study.",
+    "ob_step3_title": "Keep track of what matters",
+    "ob_step3_body": "Use this to remember people, pray intentionally, and help move toward Discovery Bible Study.",
+    "ob_skip": "Skip",
+    "ob_next": "Next",
+    "ob_start_tracking": "Start tracking",
+    "ob_empty_hint_casual": "Start by adding one person you connected with this week."
   },
   "how_were_doing": {
     "title": "ང་ཚོའི་གནས་ཚུལ།",
