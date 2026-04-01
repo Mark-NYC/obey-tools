@@ -565,7 +565,7 @@
             Object.values(serverMap).forEach(sc => merged.push(sc));
             cities = sanitizeLeaders(merged);
             lastSyncTimestamp = serverData.lastModified;
-            await saveData();
+            console.log('[conflict] Merge complete — cities:', cities.length, 'lastSyncTimestamp:', lastSyncTimestamp, '(caller will save)');
             showNotification('Changes merged from other device');
         }
 
@@ -574,11 +574,13 @@
             realtimeChannel = supabase
                 .channel('band_data_changes')
                 .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'band_data', filter: 'id=eq.main' }, (payload) => {
+                    console.log('[realtime] UPDATE received — pendingSave:', pendingSave, 'queue length:', saveQueue.length);
                     if (pendingSave) return;
                     const incoming = payload.new;
                     if (incoming.last_modified === lastSyncTimestamp) return;
                     const modifiedBy = incoming.modified_by || 'another device';
                     if (saveQueue.length > 0) {
+                        console.log('[realtime] Queue non-empty — merging incoming data into local state');
                         handleConflict({ data: { cities: incoming.cities }, lastModified: incoming.last_modified });
                     } else {
                         showNotification('Data updated by ' + modifiedBy);
@@ -656,9 +658,8 @@
         async function processSaveQueue() {
             if (pendingSave || saveQueue.length === 0) return;
             pendingSave = true;
+            console.log('[saveQueue] processSaveQueue started — queue length:', saveQueue.length, 'pendingSave: true');
             showSaveIndicator('saving');
-            const citiesSnapshot = JSON.parse(JSON.stringify(cities));
-            console.log('💾 Saving cities:', citiesSnapshot.length);
             try {
                 // Optimistic conflict check: read current last_modified before writing
                 const { data: current, error: readError } = await supabase
@@ -668,12 +669,14 @@
                     .single();
 
                 if (!readError && current && current.last_modified !== lastSyncTimestamp) {
-                    console.warn('⚠️ Conflict detected, merging...');
+                    console.warn('[saveQueue] ⚠️ Conflict detected — merging before save');
                     await handleConflict({ data: { cities: current.cities }, lastModified: current.last_modified });
-                    while (saveQueue.length > 0) { const { resolve } = saveQueue.shift(); resolve(); }
-                    return;
+                    // fall through to save the merged result — do NOT return here
                 }
 
+                // Snapshot cities AFTER any conflict merge so we write the merged state
+                const citiesSnapshot = JSON.parse(JSON.stringify(cities));
+                console.log('💾 Saving cities:', citiesSnapshot.length);
                 const newTimestamp = new Date().toISOString();
                 const { error } = await supabase
                     .from('band_data')
@@ -692,6 +695,7 @@
                 while (saveQueue.length > 0) { const { reject } = saveQueue.shift(); reject(e); }
             } finally {
                 pendingSave = false;
+                console.log('[saveQueue] pendingSave cleared — remaining queue:', saveQueue.length);
                 if (saveQueue.length > 0) setTimeout(processSaveQueue, 100);
             }
         }
