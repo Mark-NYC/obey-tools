@@ -82,7 +82,8 @@
             .overlay-panel {
                 position: absolute;
                 top: 16px;
-                left: 16px;
+                right: 16px;
+                left: auto;
                 width: 320px;
                 max-width: 320px;
                 margin: 0;
@@ -739,19 +740,39 @@
 
     // ── Data loading ─────────────────────────────────────────────────────────
     async function loadMapData(showMessage) {
-        if (!window.supabase) return
+        if (!window.supabase) {
+            console.error('loadMapData: Supabase client missing')
+            document.getElementById('map-last-updated').textContent = 'Error: Supabase client missing'
+            notify('Supabase client missing')
+            return
+        }
 
-        const { data: churches } = await window.supabase
-            .from('church_assessments')
-            .select('latitude, longitude, location_text, city, leader_name, baptism_count, church_generation, updated_at')
-            .eq('is_church', true)
+        const [
+            { data: churches, error: churchError },
+            { data: convos,   error: convoError }
+        ] = await Promise.all([
+            window.supabase
+                .from('church_assessments')
+                .select('latitude, longitude, location_text, city, leader_name, baptism_count, church_generation, updated_at')
+                .eq('is_church', true),
+            window.supabase
+                .from('conversation_events')
+                .select('latitude, longitude, location_text, city, event_type, count, created_at')
+        ])
 
-        const { data: convos } = await window.supabase
-            .from('conversation_events')
-            .select('latitude, longitude, location_text, city, event_type, count, created_at')
+        if (churchError || convoError) {
+            console.error('church_assessments error:', churchError)
+            console.error('conversation_events error:', convoError)
+            const msg = churchError?.message || convoError?.message || 'Error loading map data'
+            document.getElementById('map-last-updated').textContent = 'Error loading data: ' + msg
+            notify('Error loading data')
+            return
+        }
 
         mapData.churches      = (churches || []).filter(c => c.latitude && c.longitude)
         mapData.conversations = (convos   || []).filter(c => c.latitude && c.longitude)
+
+        console.log('loadMapData: churches=' + mapData.churches.length + ' conversations=' + mapData.conversations.length)
 
         populateCityDropdown()
         renderMap()
@@ -946,9 +967,20 @@
     // Wait for Supabase auth + leader role before loading data.
     ;(function waitForAuth() {
         const interval = setInterval(() => {
-            if (!window.supabase) return
-            window.supabase.auth.getSession().then(({ data: { session } }) => {
-                if (!session) return
+            if (!window.supabase) {
+                console.warn('waitForAuth: Supabase not ready yet')
+                return
+            }
+            window.supabase.auth.getSession().then(({ data: { session }, error }) => {
+                if (error) {
+                    console.error('waitForAuth: session error:', error)
+                    return
+                }
+                if (!session) {
+                    console.warn('waitForAuth: no session yet')
+                    return
+                }
+                console.log('waitForAuth: session found for', session.user?.email, '— calling ensureMap()')
                 clearInterval(interval)
                 ensureMap()
             })
