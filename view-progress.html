@@ -540,7 +540,8 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
     // ── Map state ────────────────────────────────────────────────────────────
-    let map = null
+    let map            = null
+    let mapInitPromise = null   // init lock — prevents concurrent L.map() calls
     let churchLayer    = null
     let spiritualLayer = null
     let discoveryLayer = null
@@ -718,13 +719,18 @@
     const NYC = { lat: 40.7128, lng: -74.0060 }
 
     async function centerOnUserLocation() {
+        if (!map) {
+            console.error('centerOnUserLocation: map is not initialised yet')
+            return
+        }
+
         const loc = await getBestUserLocation() || NYC
+        console.log('centerOnUserLocation: resolved to', loc.lat, loc.lng)
 
         // Use a 10-mile (~16 093 m) radius circle to derive fitBounds target
         const circle = L.circle([loc.lat, loc.lng], { radius: 16093 })
         const bounds = circle.getBounds()
         map.fitBounds(bounds, { padding: [20, 20] })
-        // Let Leaflet re-measure after fitBounds repositions tiles
         setTimeout(() => map.invalidateSize(), 100)
 
         // Visual marker for the resolved user location
