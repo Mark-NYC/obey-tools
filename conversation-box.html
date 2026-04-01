@@ -32,8 +32,8 @@
         .reset-section { padding: 20px 16px; background: #f2f2f7; display: flex; justify-content: center; }
         .reset-section .btn { width: auto; padding: 11px 24px; }
         .btn { flex: 1; padding: 11px 16px; border: none; border-radius: 8px; font-weight: 600; font-size: 15px; cursor: pointer; transition: all 0.2s ease; }
-        .btn-primary { background: #3a3a3c; color: white; }
-        .btn-primary:active { background: #2c2c2e; transform: scale(0.98); }
+        .btn-primary { background: #ff9500; color: white; }
+        .btn-primary:active { background: #ff9500; transform: scale(0.98); }
         .btn-secondary { background: #f2f2f7; color: #3a3a3c; }
         .btn-secondary:active { background: #e5e5ea; transform: scale(0.98); }
         .conversation-grid { padding: 20px 16px; display: flex; flex-direction: column; gap: 16px; }
@@ -127,6 +127,10 @@
         .auth-status { display: flex; align-items: center; justify-content: space-between; }
         .auth-status-text { font-size: 13px; color: #8e8e93; }
         .auth-logout-btn { padding: 6px 14px; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; background: #e5e5ea; color: #3a3a3c; font-family: inherit; }
+        /* Collapsed auth banner — mobile only, logged-out state */
+        #auth-collapsed { display: none; align-items: center; gap: 8px; }
+        .auth-collapsed-text { font-size: 13px; color: #8e8e93; flex: 1; }
+        .auth-collapsed-btn { padding: 6px 14px; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; background: #3a3a3c; color: #fff; font-family: inherit; flex-shrink: 0; }
         @media (max-width: 767px) {
             .auth-section input { font-size: 16px; }
             .action-btn { width: 36px; height: 36px; border-radius: 18px; font-size: 16px; }
@@ -152,7 +156,61 @@
             .conversation-box.collapsed .box-count { background: #e5e5ea; }
             .share-indicator { display: none; }
             .auth-section { padding: 8px 16px; }
+            /* Stronger add-person bar on mobile */
+            .add-person-section { border-top: 2px solid #3a3a3c; box-shadow: 0 -4px 20px rgba(0,0,0,0.09); }
+            .add-person-input input { background: #fff; }
+            /* Logged-out mobile: show collapsed banner, hide form until expanded */
+            .auth-section.auth-logged-out:not(.auth-expanded) #auth-form { display: none !important; }
+            .auth-section.auth-logged-out:not(.auth-expanded) #auth-collapsed { display: flex !important; }
+            .auth-section.auth-expanded #auth-collapsed { display: none !important; }
+            /* Logged-in mobile: hide everything except status row */
+            .auth-section.auth-logged-in #auth-collapsed { display: none !important; }
+            .auth-section.auth-logged-in #auth-form { display: none !important; }
+            .auth-section.auth-logged-in #auth-status { display: flex !important; }
         }
+        /* ── Onboarding ── */
+        .onboarding-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; display: none; align-items: center; justify-content: center; }
+        .onboarding-overlay.visible { display: flex; }
+        .onboarding-card { background: #fff; border-radius: 16px; padding: 28px 24px 22px; width: 88%; max-width: 320px; display: flex; flex-direction: column; gap: 18px; }
+        .onboarding-step { display: none; }
+        .onboarding-step.active { display: block; }
+        .onboarding-step h3 { font-size: 17px; font-weight: 700; color: #000; margin-bottom: 8px; line-height: 1.3; }
+        .onboarding-step p { font-size: 15px; color: #3a3a3c; line-height: 1.5; }
+        .onboarding-dots { display: flex; gap: 6px; justify-content: center; }
+        .onboarding-dot { width: 8px; height: 8px; border-radius: 4px; background: #c6c6c8; transition: background 0.2s; }
+        .onboarding-dot.active { background: #3a3a3c; }
+        .onboarding-actions { display: flex; gap: 8px; align-items: center; }
+        .onboarding-skip { padding: 10px 12px; border: none; background: transparent; color: #8e8e93; font-size: 15px; font-weight: 500; cursor: pointer; font-family: inherit; }
+        .onboarding-next { flex: 1; padding: 11px; border: none; border-radius: 8px; background: #3a3a3c; color: #fff; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; }
+        .onboarding-next:active { background: #2c2c2e; }
+        /* ── Onboarding visuals ── */
+        .ob-quad { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: 12px; }
+        .ob-quad-box { border: 1px solid #e5e5ea; border-radius: 7px; padding: 7px 8px 7px; min-height: 46px; }
+        .ob-quad-label { font-size: 9px; font-weight: 700; color: #8e8e93; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 5px; line-height: 1; }
+        .ob-chip-row { display: flex; align-items: center; gap: 3px; background: #f2f2f7; border-radius: 4px; padding: 3px 3px 3px 6px; margin-bottom: 3px; }
+        .ob-chip-name { flex: 1; font-size: 11px; font-weight: 500; color: #3a3a3c; }
+        .ob-mini-btn { width: 15px; height: 15px; border-radius: 50%; border: none; font-size: 9px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; cursor: default; line-height: 1; }
+        .ob-mini-move { background: #ff9500; color: #fff; }
+        .ob-mini-del { background: #ff3b30; color: #fff; }
+        .ob-quad-discovery .ob-chip-row { background: #d4f5d4; }
+        .ob-quad-discovery .ob-chip-name { color: #1e6b1e; }
+        .ob-cw-hint { font-size: 10px; color: #8e8e93; text-align: center; margin-bottom: 5px; }
+        /* Step 2 animation — chips hidden until animated in */
+        .ob-anim-chip { opacity: 0; background: #ff9500; }
+        .ob-anim-chip .ob-chip-name { color: #fff; }
+        @keyframes ob-chip-on { 0%, 18% { opacity: 1; } 23%, 100% { opacity: 0; } }
+        @keyframes ob-box-on { 0%, 20% { border-color: #3a3a3c; background: #f5f5f5; } 25%, 100% { border-color: #e5e5ea; background: #fff; } }
+        /* Clockwise: 1=Casual TL, 2=Meaningful TR, 3=Spiritual BR, 4=Discovery BL */
+        .ob-fc-1 { animation: ob-chip-on 6s 0s   infinite; }
+        .ob-fc-2 { animation: ob-chip-on 6s 1.5s infinite; }
+        .ob-fc-3 { animation: ob-chip-on 6s 3s   infinite; }
+        .ob-fc-4 { animation: ob-chip-on 6s 4.5s infinite; }
+        .ob-fb-1 { animation: ob-box-on  6s 0s   infinite; }
+        .ob-fb-2 { animation: ob-box-on  6s 1.5s infinite; }
+        .ob-fb-3 { animation: ob-box-on  6s 3s   infinite; }
+        .ob-fb-4 { animation: ob-box-on  6s 4.5s infinite; }
+        /* ── Explainer ── */
+        .explainer { padding: 14px 16px 4px; color: #8e8e93; font-size: 13px; text-align: center; line-height: 1.4; }
     </style>
     <script type="module" src="/i18n.js"></script>
     <script src="/pwa.js" defer></script>
@@ -165,6 +223,10 @@
     <div class="container">
         <!-- Auth section: shown at top, collapses to status row when signed in -->
         <div class="auth-section" id="auth-section">
+            <div id="auth-collapsed">
+                <span class="auth-collapsed-text">Sign in to save across devices</span>
+                <button class="auth-collapsed-btn" onclick="toggleAuthForm()">Sign in</button>
+            </div>
             <div id="auth-form" style="display:none">
                 <input type="email" id="auth-email" placeholder="Email" data-i18n-placeholder="auth.email_placeholder">
                 <input type="password" id="auth-password" placeholder="Password" data-i18n-placeholder="auth.password_placeholder">
@@ -184,11 +246,12 @@
         </div>
         <div class="controls">
             <div class="btn-group">
-                <button class="btn btn-primary" onclick="startHere()" data-i18n="conversation_box.start_here">START HERE</button>
-                <button class="btn btn-secondary" onclick="captureSnapshot()" data-i18n="conversation_box.share_btn">SHARE</button>
+                <button class="btn btn-secondary" onclick="showOnboarding()">How it works</button>
+                <button class="btn btn-secondary" onclick="captureSnapshot()" data-i18n="conversation_box.share_btn">Share</button>
             </div>
         </div>
         <div class="content-wrapper">
+            <p class="explainer">Track where each person is right now, then move them as conversations deepen.</p>
             <div class="conversation-grid">
                 <div class="conversation-box casual">
                     <div class="box-header"><div class="box-title" data-i18n="conversation_box.box_casual">Casual</div></div>
@@ -288,6 +351,119 @@
                 <li data-i18n="conversation_box.tutorial_step3"><b>Click the share button</b> to share progress with other disciples.</li>
             </ol>
             <button class="btn btn-primary" onclick="closeTutorial()" data-i18n="conversation_box.got_it">Got it!</button>
+        </div>
+    </div>
+    <!-- Onboarding overlay -->
+    <div class="onboarding-overlay" id="onboarding-overlay">
+        <div class="onboarding-card">
+            <div class="onboarding-step active" id="ob-step-1">
+                <!-- Correct layout: TL=Casual, TR=Meaningful, BL=Discovery, BR=Spiritual -->
+                <div class="ob-quad">
+                    <div class="ob-quad-box">
+                        <div class="ob-quad-label">Casual</div>
+                        <div class="ob-chip-row">
+                            <span class="ob-chip-name">Maria</span>
+                            <button class="ob-mini-btn ob-mini-move" tabindex="-1">→</button>
+                            <button class="ob-mini-btn ob-mini-del" tabindex="-1">×</button>
+                        </div>
+                    </div>
+                    <div class="ob-quad-box">
+                        <div class="ob-quad-label">Meaningful</div>
+                    </div>
+                    <div class="ob-quad-box">
+                        <div class="ob-quad-label">Discovery</div>
+                    </div>
+                    <div class="ob-quad-box">
+                        <div class="ob-quad-label">Spiritual</div>
+                    </div>
+                </div>
+                <h3>Track spiritual conversations simply</h3>
+                <p>Add a person to the box that matches where the conversation is right now.</p>
+            </div>
+            <div class="onboarding-step" id="ob-step-2">
+                <!-- Chips cycle clockwise: Casual→Meaningful→Spiritual→Discovery -->
+                <div class="ob-cw-hint">↻ moves clockwise as conversations deepen</div>
+                <div class="ob-quad">
+                    <div class="ob-quad-box ob-fb-1">
+                        <div class="ob-quad-label">Casual</div>
+                        <div class="ob-chip-row ob-anim-chip ob-fc-1">
+                            <span class="ob-chip-name">Maria</span>
+                        </div>
+                    </div>
+                    <div class="ob-quad-box ob-fb-2">
+                        <div class="ob-quad-label">Meaningful</div>
+                        <div class="ob-chip-row ob-anim-chip ob-fc-2">
+                            <span class="ob-chip-name">Maria</span>
+                        </div>
+                    </div>
+                    <div class="ob-quad-box ob-fb-4">
+                        <div class="ob-quad-label">Discovery</div>
+                        <div class="ob-chip-row ob-anim-chip ob-fc-4">
+                            <span class="ob-chip-name">Maria</span>
+                        </div>
+                    </div>
+                    <div class="ob-quad-box ob-fb-3">
+                        <div class="ob-quad-label">Spiritual</div>
+                        <div class="ob-chip-row ob-anim-chip ob-fc-3">
+                            <span class="ob-chip-name">Maria</span>
+                        </div>
+                    </div>
+                </div>
+                <h3>Move people as conversations grow</h3>
+                <p>Move someone forward as conversations deepen toward Discovery Bible Study.</p>
+            </div>
+            <div class="onboarding-step" id="ob-step-3">
+                <div class="ob-quad">
+                    <div class="ob-quad-box">
+                        <div class="ob-quad-label">Casual</div>
+                        <div class="ob-chip-row">
+                            <span class="ob-chip-name">James</span>
+                            <button class="ob-mini-btn ob-mini-move" tabindex="-1">→</button>
+                            <button class="ob-mini-btn ob-mini-del" tabindex="-1">×</button>
+                        </div>
+                        <div class="ob-chip-row">
+                            <span class="ob-chip-name">Priya</span>
+                            <button class="ob-mini-btn ob-mini-move" tabindex="-1">→</button>
+                            <button class="ob-mini-btn ob-mini-del" tabindex="-1">×</button>
+                        </div>
+                    </div>
+                    <div class="ob-quad-box">
+                        <div class="ob-quad-label">Meaningful</div>
+                        <div class="ob-chip-row">
+                            <span class="ob-chip-name">Lena</span>
+                            <button class="ob-mini-btn ob-mini-move" tabindex="-1">→</button>
+                            <button class="ob-mini-btn ob-mini-del" tabindex="-1">×</button>
+                        </div>
+                    </div>
+                    <div class="ob-quad-box ob-quad-discovery">
+                        <div class="ob-quad-label">Discovery</div>
+                        <div class="ob-chip-row">
+                            <span class="ob-chip-name">Maria</span>
+                            <button class="ob-mini-btn ob-mini-move" tabindex="-1">→</button>
+                            <button class="ob-mini-btn ob-mini-del" tabindex="-1">×</button>
+                        </div>
+                    </div>
+                    <div class="ob-quad-box">
+                        <div class="ob-quad-label">Spiritual</div>
+                        <div class="ob-chip-row">
+                            <span class="ob-chip-name">David</span>
+                            <button class="ob-mini-btn ob-mini-move" tabindex="-1">→</button>
+                            <button class="ob-mini-btn ob-mini-del" tabindex="-1">×</button>
+                        </div>
+                    </div>
+                </div>
+                <h3>Keep track of what matters</h3>
+                <p>Use this to remember people, pray intentionally, and help move toward Discovery Bible Study.</p>
+            </div>
+            <div class="onboarding-dots">
+                <div class="onboarding-dot active" id="ob-dot-1"></div>
+                <div class="onboarding-dot" id="ob-dot-2"></div>
+                <div class="onboarding-dot" id="ob-dot-3"></div>
+            </div>
+            <div class="onboarding-actions">
+                <button class="onboarding-skip" onclick="closeOnboarding()">Skip</button>
+                <button class="onboarding-next" id="ob-next-btn" onclick="nextOnboardingStep()">Next</button>
+            </div>
         </div>
     </div>
     <script>
@@ -542,6 +718,7 @@ function saveConversations() {
             updateDisplay();
             preloadImages();
             appInitialized = true;
+            if (!localStorage.getItem('onboarding-seen')) showOnboarding();
         }
 
         // Wait for WordPress progress system to load
@@ -1072,7 +1249,10 @@ function saveConversations() {
                 if (conversations[box].length === 0) {
                     const emptyEl = document.createElement('div');
                     emptyEl.className = 'empty-state';
-                    emptyEl.textContent = window.t('conversation_box.no_conversations');
+                    const allEmpty = !Object.values(conversations).some(a => a.length > 0);
+                    emptyEl.textContent = (box === 'casual' && allEmpty)
+                        ? 'Start by adding one person you connected with this week.'
+                        : window.t('conversation_box.no_conversations');
                     listElement.appendChild(emptyEl);
                 } else {
                     conversations[box].forEach(person => {
@@ -1149,9 +1329,47 @@ function saveConversations() {
             return item;
         }
 
+        // ── Onboarding ────────────────────────────────────────────────────────
+        let _obStep = 1;
+        const OB_STEPS = 3;
+
+        function showOnboarding() {
+            _obStep = 1;
+            _setObStep(1);
+            document.getElementById('onboarding-overlay').classList.add('visible');
+        }
+
+        function closeOnboarding() {
+            document.getElementById('onboarding-overlay').classList.remove('visible');
+            localStorage.setItem('onboarding-seen', '1');
+        }
+
+        function nextOnboardingStep() {
+            if (_obStep < OB_STEPS) {
+                _obStep++;
+                _setObStep(_obStep);
+            } else {
+                closeOnboarding();
+            }
+        }
+
+        function _setObStep(n) {
+            for (let i = 1; i <= OB_STEPS; i++) {
+                document.getElementById(`ob-step-${i}`).classList.toggle('active', i === n);
+                document.getElementById(`ob-dot-${i}`).classList.toggle('active', i === n);
+            }
+            document.getElementById('ob-next-btn').textContent = n < OB_STEPS ? 'Next' : 'Start tracking';
+            if (n === 2) {
+                document.querySelectorAll('.ob-fc-1,.ob-fc-2,.ob-fc-3,.ob-fc-4,.ob-fb-1,.ob-fb-2,.ob-fb-3,.ob-fb-4').forEach(el => {
+                    el.style.animation = 'none'; void el.offsetWidth; el.style.animation = '';
+                });
+            }
+        }
+        // ─────────────────────────────────────────────────────────────────────
+
         function showNotification(message) {
-            const notification = document.createElement('div'); 
-            notification.className = 'notification'; 
+            const notification = document.createElement('div');
+            notification.className = 'notification';
             notification.textContent = message;
             document.body.appendChild(notification);
             setTimeout(() => notification.remove(), 3000);
@@ -1266,18 +1484,27 @@ function saveConversations() {
         // ── Supabase Auth ──────────────────────────────────────────────────────
 
         // Update the auth UI and reload data whenever auth state changes.
+        function toggleAuthForm() {
+            document.getElementById('auth-section').classList.toggle('auth-expanded');
+        }
+
         function updateAuthUI(user) {
             window._supabaseUser = user; // keep getCurrentUser() in sync
-            document.getElementById('auth-section').style.visibility = 'visible';
+            const authSection = document.getElementById('auth-section');
+            authSection.style.visibility = 'visible';
+            authSection.classList.remove('auth-expanded', 'auth-logged-in', 'auth-logged-out');
+            authSection.classList.add(user ? 'auth-logged-in' : 'auth-logged-out');
 
-            const form   = document.getElementById('auth-form');
-            const status = document.getElementById('auth-status');
-            const text   = document.getElementById('auth-status-text');
+            const form      = document.getElementById('auth-form');
+            const status    = document.getElementById('auth-status');
+            const text      = document.getElementById('auth-status-text');
+            const collapsed = document.getElementById('auth-collapsed');
 
             if (user) {
-                form.style.display   = 'none';
-                status.style.display = 'flex';
-                text.textContent     = window.t('auth.signed_in_as', { email: user.email });
+                collapsed.style.display = 'none';
+                form.style.display      = 'none';
+                status.style.display    = 'flex';
+                text.textContent        = window.t('auth.signed_in_as', { email: user.email });
 
                 // Reload from Supabase when auth state changes to a new user.
                 // Skip if initializeApp already loaded this user to avoid a double-load race.
@@ -1288,9 +1515,10 @@ function saveConversations() {
                     });
                 }
             } else {
-                form.style.display   = 'block';
-                status.style.display = 'none';
-                text.textContent     = window.t('auth.not_signed_in');
+                collapsed.style.display = '';
+                form.style.display      = 'block';
+                status.style.display    = 'none';
+                text.textContent        = window.t('auth.not_signed_in');
 
                 // Revert to localStorage when signed out
                 if (appInitialized) {
