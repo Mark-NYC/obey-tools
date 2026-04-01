@@ -613,7 +613,8 @@
 
             overlay.style.position = 'absolute'
             overlay.style.top = '16px'
-            overlay.style.left = '16px'
+            overlay.style.right = '16px'
+            overlay.style.left = 'auto'
             overlay.style.width = '320px'
             overlay.style.maxWidth = '320px'
             overlay.style.maxHeight = 'calc(100vh - 32px)'
@@ -646,6 +647,7 @@
 
             overlay.style.position = ''
             overlay.style.top = ''
+            overlay.style.right = ''
             overlay.style.left = ''
             overlay.style.width = ''
             overlay.style.maxWidth = ''
@@ -685,34 +687,60 @@
 
         if (map) {
             map.invalidateSize()
-            return
+            return map
         }
 
-        // Let layout settle before Leaflet snapshots container dimensions.
-        await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))
+        // Concurrent-call guard: waitForAuth fires every 150ms and two overlapping
+        // getSession() promises can both see map===null before either reaches L.map().
+        // Store the in-flight promise so the second caller waits instead of
+        // starting a second L.map() on the same container.
+        if (mapInitPromise) {
+            return mapInitPromise
+        }
 
-        // Start with a neutral view; we'll reposition to user location below
-        map = L.map('map-el', { zoomControl: true }).setView([39.8283, -98.5795], 4)
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors',
-            maxZoom: 19
-        }).addTo(map)
+        mapInitPromise = (async () => {
+            const mapEl = document.getElementById('map-el')
+            if (!mapEl) {
+                console.error('ensureMap: #map-el not found')
+                return null
+            }
 
-        churchLayer    = L.layerGroup().addTo(map)
-        spiritualLayer = L.layerGroup()
-        discoveryLayer = L.layerGroup()
+            // Bail if Leaflet already stamped this container (e.g. hot-reload).
+            if (mapEl._leaflet_id) {
+                console.warn('ensureMap: container already has _leaflet_id — skipping L.map()')
+                return map
+            }
 
-        setTimeout(() => map.invalidateSize(), 0)
-        setTimeout(() => map.invalidateSize(), 150)
+            // Let layout settle before Leaflet snapshots container dimensions.
+            await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))
 
-        // Center on user location (~10 mile radius) before loading markers
-        await centerOnUserLocation()
+            map = L.map('map-el', { zoomControl: true }).setView([39.8283, -98.5795], 4)
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors',
+                maxZoom: 19
+            }).addTo(map)
 
-        setTimeout(() => map.invalidateSize(), 300)
+            churchLayer    = L.layerGroup().addTo(map)
+            spiritualLayer = L.layerGroup()
+            discoveryLayer = L.layerGroup()
 
-        // Load markers after the viewport is already set; renderMap() must NOT
-        // call fitBounds / setView, so the user-centered viewport is preserved.
-        loadMapData(false)
+            setTimeout(() => map.invalidateSize(), 0)
+            setTimeout(() => map.invalidateSize(), 150)
+
+            await centerOnUserLocation()
+
+            setTimeout(() => map.invalidateSize(), 300)
+
+            await loadMapData(false)
+
+            return map
+        })()
+
+        try {
+            return await mapInitPromise
+        } finally {
+            mapInitPromise = null
+        }
     }
 
     // NYC fallback coordinates
