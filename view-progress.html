@@ -607,12 +607,21 @@
             maxZoom: 19
         }).addTo(map)
 
+        // Force Leaflet to measure the container now that the DOM is settled.
+        // Two passes: one on the next tick (clears any paint-before-layout issue)
+        // and one after a short delay (covers CSS transitions / font-swap reflow).
+        setTimeout(() => map.invalidateSize(), 0)
+        setTimeout(() => map.invalidateSize(), 150)
+
         churchLayer    = L.layerGroup().addTo(map)
         spiritualLayer = L.layerGroup()
         discoveryLayer = L.layerGroup()
 
         // Center on user location (~10 mile radius) before loading markers
         await centerOnUserLocation()
+
+        // Final size sync after the async location resolve + fitBounds have both run
+        setTimeout(() => map.invalidateSize(), 300)
 
         // Load markers after the viewport is already set; renderMap() must NOT
         // call fitBounds / setView, so the user-centered viewport is preserved.
@@ -629,6 +638,8 @@
         const circle = L.circle([loc.lat, loc.lng], { radius: 16093 })
         const bounds = circle.getBounds()
         map.fitBounds(bounds, { padding: [20, 20] })
+        // Let Leaflet re-measure after fitBounds repositions tiles
+        setTimeout(() => map.invalidateSize(), 100)
 
         // Visual marker for the resolved user location
         L.circleMarker([loc.lat, loc.lng], {
