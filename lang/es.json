@@ -394,7 +394,22 @@
     "reset_complete": "Reinicio completo",
     "no_conversations": "Sin conversaciones",
     "snapshot_error": "Error al capturar la pantalla",
-    "confirm_remove": "¿Eliminar a {name}?"
+    "confirm_remove": "¿Eliminar a {name}?",
+    "how_it_works": "Cómo funciona",
+    "explainer": "Rastrea dónde está cada persona ahora mismo y muévelos a medida que las conversaciones se profundizan.",
+    "auth_save_hint": "Inicia sesión para guardar en todos los dispositivos",
+    "auth_sign_in_btn": "Iniciar sesión",
+    "ob_step1_title": "Rastrea conversaciones espirituales de forma sencilla",
+    "ob_step1_body": "Agrega a una persona en el cuadro que corresponde al estado actual de la conversación.",
+    "ob_clockwise_hint": "↻ avanza en el sentido de las agujas del reloj a medida que las conversaciones profundizan",
+    "ob_step2_title": "Mueve a las personas a medida que las conversaciones crecen",
+    "ob_step2_body": "Mueve a alguien hacia adelante a medida que las conversaciones se profundizan hacia el Estudio Bíblico de Descubrimiento.",
+    "ob_step3_title": "Lleva el registro de lo que importa",
+    "ob_step3_body": "Úsalo para recordar a las personas, orar intencionalmente y ayudar a avanzar hacia el Estudio Bíblico de Descubrimiento.",
+    "ob_skip": "Saltar",
+    "ob_next": "Siguiente",
+    "ob_start_tracking": "Comenzar seguimiento",
+    "ob_empty_hint_casual": "Comienza agregando a una persona con la que te conectaste esta semana."
   },
   "how_were_doing": {
     "title": "Cómo Vamos",
