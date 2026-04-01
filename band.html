@@ -640,6 +640,7 @@
                     cities = sanitizeLeaders(data.cities || []);
                     lastSyncTimestamp = data.last_modified;
                     console.log('✅ Loaded from Supabase, cities:', cities.length);
+                    recoverDraftIfNewer(data.last_modified);
                 }
             } catch(e) {
                 console.error('❌ Load error:', e);
@@ -686,6 +687,7 @@
                 if (error) throw error;
 
                 lastSyncTimestamp = newTimestamp;
+                clearDraft();
                 console.log('✅ Saved to Supabase');
                 showSaveIndicator('saved');
                 updateOverview();
@@ -706,6 +708,50 @@
             if (!id) { id = 'device_' + Math.random().toString(36).slice(2, 9); localStorage.setItem('band_device_id', id); }
             return id;
         }
+
+        // ---- local draft helpers (data-loss protection) ----
+        function writeDraft() {
+            try {
+                localStorage.setItem('band_draft', JSON.stringify({
+                    cities: JSON.parse(JSON.stringify(cities)),
+                    ts: new Date().toISOString()
+                }));
+            } catch(e) {}
+        }
+
+        function clearDraft() {
+            try { localStorage.removeItem('band_draft'); } catch(e) {}
+        }
+
+        function recoverDraftIfNewer(serverTs) {
+            try {
+                const raw = localStorage.getItem('band_draft');
+                if (!raw) return;
+                const draft = JSON.parse(raw);
+                if (!draft.ts || !Array.isArray(draft.cities)) { clearDraft(); return; }
+                if (new Date(draft.ts) > new Date(serverTs || 0)) {
+                    console.warn('[draft] Recovering unsaved local draft from', draft.ts, '— queueing save');
+                    cities = sanitizeLeaders(draft.cities);
+                    saveData().catch(e => console.error('[draft] Recovery save failed:', e));
+                } else {
+                    clearDraft();
+                }
+            } catch(e) { console.error('[draft] Recovery error:', e); }
+        }
+
+        // Flush draft on page hide so the latest mutation survives navigation
+        window.addEventListener('pagehide', () => {
+            if (pendingSave || saveQueue.length > 0) {
+                writeDraft();
+                console.log('[pagehide] Page hiding with pending save — draft written to localStorage');
+            }
+        });
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden && (pendingSave || saveQueue.length > 0)) {
+                writeDraft();
+                console.log('[visibilitychange] Tab hidden with pending save — draft written to localStorage');
+            }
+        });
 
         function updateOverview() {
             let totalLeaders = 0, totalActive = 0, totalBaptisms = 0, totalChurches = 0, cities3rdPlus = 0;
@@ -769,7 +815,21 @@
             renderCityView();
         }
 
-        function backToOverview() {
+        async function backToOverview() {
+            // Wait for any in-flight save before navigating (max 3 s)
+            if (pendingSave || saveQueue.length > 0) {
+                console.log('[backToOverview] Waiting for pending save before navigating...');
+                await new Promise(resolve => {
+                    const timeout = setTimeout(resolve, 3000);
+                    const check = setInterval(() => {
+                        if (!pendingSave && saveQueue.length === 0) {
+                            clearInterval(check);
+                            clearTimeout(timeout);
+                            resolve();
+                        }
+                    }, 50);
+                });
+            }
             document.getElementById('overviewSection').style.display = 'block';
             document.getElementById('citySection').classList.remove('active');
             currentCity = null;
@@ -841,6 +901,7 @@
             document.getElementById('leaderNameInput').value = '';
             toggleAddLeaderForm();
             renderCityView();
+            writeDraft();
             try { await saveData(); } catch(e) { console.error('Failed to save leader:', e); }
         }
 
@@ -848,6 +909,7 @@
             if (confirm(`Remove ${cities[currentCityIndex].leaders[index].name}?`)) {
                 cities[currentCityIndex].leaders.splice(index, 1);
                 renderCityView();
+                writeDraft();
                 try { await saveData(); } catch(e) { console.error('Failed to save:', e); }
             }
         }
@@ -869,6 +931,7 @@
             }
 
             leader.postHistory[cm.key] = !prev;
+            writeDraft();
 
             console.log('✏️ Toggling post status:', {
                 leader: leader.name,
@@ -899,6 +962,7 @@
             city[field] = Math.max(0, city[field] + change);
             if (field === 'churchesYTD') city.totalChurches = city[field];
             renderCityView();
+            writeDraft();
             try { await saveData(); } catch(e) { console.error('Failed to save counter:', e); }
         }
 
@@ -910,6 +974,7 @@
             city.streamDepth = streamLevels[newIdx];
             city.totalStreamDepth = streamLevels[newIdx];
             renderCityView();
+            writeDraft();
             try { await saveData(); } catch(e) { console.error('Failed to save stream depth:', e); }
         }
 
@@ -948,6 +1013,7 @@
             document.getElementById('streamDepthInput').value = '1st Gen';
             updateOverview();
             updateCityList();
+            writeDraft();
             try { await saveData(); } catch(e) { console.error('Failed to save city:', e); }
         }
 
@@ -956,6 +1022,7 @@
                 cities.splice(index, 1);
                 updateOverview();
                 updateCityList();
+                writeDraft();
                 backToOverview();
                 try { await saveData(); } catch(e) { console.error('Failed to save after delete:', e); }
             }
