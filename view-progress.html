@@ -30,25 +30,13 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        /* ── Base ─────────────────────────────────────────────────── */
+        /* ── Base / mobile default ────────────────────────────────── */
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
             color: #000;
             line-height: 1.4;
             background: #f2f2f7;
-        }
-
-        /* ── Mobile default: normal stacked layout ───────────────── */
-        .page-shell {
-            min-height: 100vh;
             padding-bottom: 60px;
-        }
-
-        .mobile-container {
-            max-width: 500px;
-            margin: 0 auto;
-            background: #fff;
-            min-height: 100vh;
         }
 
         /* The map fills a fixed height on mobile */
@@ -58,27 +46,30 @@
             display: block;
         }
 
-        /* Overlay panel is just a normal stacked block on mobile */
+        /* On mobile the overlay panel is a centred content column */
         .overlay-panel {
+            max-width: 500px;
+            margin: 0 auto;
             background: #fff;
         }
 
         /* ── Desktop: full-screen map + floating overlay ─────────── */
         @media (min-width: 768px) {
-            body {
+            html, body {
+                height: 100%;
                 overflow: hidden;
-                height: 100vh;
+                padding-bottom: 0;
             }
 
+            /* Full-viewport positioning context */
             .page-shell {
                 position: relative;
                 width: 100%;
                 height: 100vh;
-                padding-bottom: 0;
-                background: transparent;
+                overflow: hidden;
             }
 
-            /* Map fills the entire viewport */
+            /* Map fills every pixel of .page-shell */
             #map-el {
                 position: absolute;
                 inset: 0;
@@ -87,20 +78,14 @@
                 z-index: 0;
             }
 
-            /* Mobile-only wrapper hides on desktop; map + overlay are direct children of page-shell */
-            .mobile-container {
-                display: contents; /* let children participate in page-shell stacking */
-                max-width: none;
-                background: transparent;
-                min-height: auto;
-            }
-
-            /* Floating overlay panel */
+            /* Floating control panel — direct child of .page-shell */
             .overlay-panel {
                 position: absolute;
                 top: 16px;
                 left: 16px;
                 width: 320px;
+                max-width: 320px;
+                margin: 0;
                 max-height: calc(100vh - 32px);
                 overflow-y: auto;
                 z-index: 500;
@@ -441,11 +426,10 @@
     <!-- Full-screen map lives here on desktop; hidden behind overlay on mobile -->
     <div class="page-shell" id="main-container">
 
-        <!-- The map element is a direct child of page-shell so it can fill 100vh on desktop -->
+        <!-- map-el: fills page-shell on desktop (absolute inset:0), 340px block on mobile -->
         <div id="map-el"></div>
 
-        <!-- Everything else lives inside the overlay panel -->
-        <div class="mobile-container">
+        <!-- overlay-panel: direct child of page-shell → absolutely positioned over map on desktop -->
         <div class="overlay-panel">
 
             <div class="nav-bar">
@@ -549,9 +533,8 @@
             </div>
 
         </div><!-- /.overlay-panel -->
-        </div><!-- /.mobile-container -->
 
-    </div><!-- /#main-container -->
+    </div><!-- /.page-shell / #main-container -->
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
