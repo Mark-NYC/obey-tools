@@ -345,6 +345,9 @@
     <script type="module">
         import { supabase } from './supabase.js';
 
+        // All writes go through this Edge Function — the anon key cannot write directly.
+        const BAND_WRITE_URL = 'https://mjiswwujcsmayuytoaul.supabase.co/functions/v1/band-write';
+
         let cities = [];
         let currentCity = null;
         let currentCityIndex = -1;
@@ -353,6 +356,7 @@
         let isLiveMeetingMode = false;
         let pendingSave = false;
         let saveQueue = [];
+        let bandPassword = null; // held in memory for the session only, never persisted
         const streamLevels = ['1st Gen', '2nd Gen', '3rd Gen', '4th Gen'];
 
         // ============================================================
@@ -660,40 +664,62 @@
             const citiesSnapshot = JSON.parse(JSON.stringify(cities));
             console.log('💾 Saving cities:', citiesSnapshot.length);
             try {
-                // Optimistic conflict check: read current last_modified before writing
-                const { data: current, error: readError } = await supabase
-                    .from('band_data')
-                    .select('last_modified, cities')
-                    .eq('id', 'main')
-                    .single();
+                const password = await getPassword();
+                const r = await fetch(BAND_WRITE_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        password,
+                        cities: citiesSnapshot,
+                        last_known_timestamp: lastSyncTimestamp,
+                        device_id: getDeviceId()
+                    })
+                });
 
-                if (!readError && current && current.last_modified !== lastSyncTimestamp) {
+                if (r.status === 401) {
+                    bandPassword = null;
+                    showSaveIndicator('error');
+                    alert('Incorrect password. Please try again.');
+                    while (saveQueue.length > 0) { const { reject } = saveQueue.shift(); reject(new Error('Unauthorized')); }
+                    return;
+                }
+
+                if (r.status === 409) {
+                    const body = await r.json();
                     console.warn('⚠️ Conflict detected, merging...');
-                    await handleConflict({ data: { cities: current.cities }, lastModified: current.last_modified });
+                    await handleConflict(body.serverData);
                     while (saveQueue.length > 0) { const { resolve } = saveQueue.shift(); resolve(); }
                     return;
                 }
 
-                const newTimestamp = new Date().toISOString();
-                const { error } = await supabase
-                    .from('band_data')
-                    .upsert({ id: 'main', cities: citiesSnapshot, last_modified: newTimestamp, modified_by: getDeviceId() });
+                if (!r.ok) throw new Error(`Save failed: ${r.status}`);
 
-                if (error) throw error;
-
-                lastSyncTimestamp = newTimestamp;
-                console.log('✅ Saved to Supabase');
+                const result = await r.json();
+                lastSyncTimestamp = result.last_modified;
+                console.log('✅ Saved via Edge Function');
                 showSaveIndicator('saved');
                 updateOverview();
                 while (saveQueue.length > 0) { const { resolve } = saveQueue.shift(); resolve(); }
             } catch(e) {
-                console.error('❌ Save error:', e);
-                showSaveIndicator('error');
+                if (e.message !== 'Cancelled') {
+                    console.error('❌ Save error:', e);
+                    showSaveIndicator('error');
+                }
                 while (saveQueue.length > 0) { const { reject } = saveQueue.shift(); reject(e); }
             } finally {
                 pendingSave = false;
                 if (saveQueue.length > 0) setTimeout(processSaveQueue, 100);
             }
+        }
+
+        // Password is held in memory for the session — never written to localStorage or the DOM.
+        // The Edge Function validates it server-side on every write.
+        async function getPassword() {
+            if (bandPassword) return bandPassword;
+            const pw = prompt('Enter password to save changes:');
+            if (pw === null) throw new Error('Cancelled');
+            bandPassword = pw;
+            return pw;
         }
 
         function getDeviceId() {
@@ -909,13 +935,13 @@
             try { await saveData(); } catch(e) { console.error('Failed to save stream depth:', e); }
         }
 
-        function openSettings() {
-            const pw = prompt('Enter password to access settings:');
-            if (pw === 'Matthew28!') {
+        async function openSettings() {
+            try {
+                await getPassword(); // stores it in session; validated on first write
                 document.getElementById('settingsModal').classList.add('active');
                 updateCityList();
-            } else if (pw !== null) {
-                alert('Incorrect password');
+            } catch(e) {
+                // User cancelled the prompt — do nothing
             }
         }
 
