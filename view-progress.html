@@ -851,9 +851,16 @@
         const loc = await getBestUserLocation() || NYC
         console.log('centerOnUserLocation: resolved to', loc.lat, loc.lng)
 
-        // Use a 10-mile (~16 093 m) radius circle to derive fitBounds target
-        const circle = L.circle([loc.lat, loc.lng], { radius: 16093 })
-        const bounds = circle.getBounds()
+        // Compute a ~10-mile bounding box with plain math.
+        // L.circle.getBounds() requires the layer to be on a map (needs projection);
+        // computing the box directly avoids that dependency.
+        const R_M       = 16093                              // 10 miles in metres
+        const latDelta  = R_M / 111320                      // degrees lat per metre
+        const lngDelta  = R_M / (111320 * Math.cos(loc.lat * Math.PI / 180))
+        const bounds = L.latLngBounds(
+            [loc.lat - latDelta, loc.lng - lngDelta],
+            [loc.lat + latDelta, loc.lng + lngDelta]
+        )
         map.fitBounds(bounds, { padding: [20, 20] })
         setTimeout(() => map.invalidateSize(), 100)
 
