@@ -446,20 +446,30 @@
         /* Hide the scrollable body content when collapsed */
         .overlay-panel.compact .overlay-body { display: none; }
 
-        /* ── Compact-mode floating legend (lower-right corner) ─────── */
-        #compact-legend {
-            display: none;          /* shown via JS when overlayCompact=true */
+        /* ── Bottom-right HUD stack (compact legend + ticker) ──────── */
+        /* Both elements live here; they stack upward via column-reverse. */
+        #map-bottom-right {
             position: fixed;
             bottom: 16px;
             right: 16px;
-            z-index: 490;           /* below overlay (500), above map (0) */
+            z-index: 490;
+            display: flex;
+            flex-direction: column-reverse; /* first child = bottom of stack */
+            align-items: flex-end;
+            gap: 10px;
+            pointer-events: none;           /* children opt-in individually */
+        }
+
+        /* ── Compact-mode floating legend ────────────────────────────── */
+        #compact-legend {
+            display: none;          /* shown via JS when overlayCompact=true */
             background: rgba(255, 255, 255, 0.72);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
             border-radius: 10px;
             padding: 10px 14px;
             box-shadow: 0 2px 14px rgba(0, 0, 0, 0.16);
-            pointer-events: none;   /* let map interact underneath */
+            pointer-events: none;
         }
         #compact-legend h4 {
             font-size: 11px;
@@ -482,6 +492,80 @@
             flex-shrink: 0;
         }
         #compact-legend .legend-label { font-size: 12px; color: #3a3a3c; }
+
+        /* ── Live updates ticker (desktop only) ──────────────────────── */
+        #updates-ticker {
+            display: none;              /* shown by initRecentUpdatesTicker() on desktop */
+            width: 220px;
+            border-radius: 12px;
+            overflow: hidden;
+            background: rgba(18, 18, 26, 0.70);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.10);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.30);
+            pointer-events: auto;       /* allow scroll + button clicks */
+            color: rgba(255, 255, 255, 0.88);
+            font-size: 12px;
+        }
+        .ticker-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 7px 10px 6px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+            flex-shrink: 0;
+        }
+        .ticker-title {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            opacity: 0.55;
+        }
+        .ticker-minimize-btn {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.55);
+            cursor: pointer;
+            font-size: 15px;
+            line-height: 1;
+            padding: 0 2px;
+            font-family: inherit;
+        }
+        .ticker-minimize-btn:hover { color: rgba(255, 255, 255, 0.9); }
+        #ticker-feed {
+            max-height: 148px;
+            overflow-y: auto;
+            scrollbar-width: none;
+            overscroll-behavior: contain;
+        }
+        #ticker-feed::-webkit-scrollbar { display: none; }
+        #updates-ticker.minimized #ticker-feed { display: none; }
+        #updates-ticker.minimized { border-radius: 10px; }
+        .ticker-row {
+            padding: 5px 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            line-height: 1.4;
+        }
+        .ticker-row:last-child { border-bottom: none; }
+        .ticker-time {
+            font-size: 10px;
+            opacity: 0.42;
+            margin-right: 3px;
+        }
+        .ticker-city {
+            font-weight: 600;
+            font-size: 11px;
+        }
+        .ticker-sep { opacity: 0.35; margin: 0 2px; }
+        .ticker-desc { font-size: 11px; opacity: 0.70; }
+        .ticker-empty {
+            padding: 14px 10px;
+            font-size: 11px;
+            opacity: 0.40;
+            text-align: center;
+        }
     </style>
     <script type="module" src="/i18n.js"></script>
     <script src="/pwa.js" defer></script>
@@ -618,26 +702,42 @@
 
     </div><!-- /.page-shell / #main-container -->
 
-    <!-- Compact-mode legend: fixed lower-right, shown by JS when overlayCompact=true -->
-    <div id="compact-legend" aria-hidden="true">
-        <h4>Legend</h4>
-        <div class="legend-row">
-            <div class="legend-swatch" style="background:#3a3a3c;"></div>
-            <span class="legend-label">Church</span>
+    <!-- Bottom-right HUD: compact legend + live ticker stacked upward from corner -->
+    <div id="map-bottom-right">
+
+        <!-- Compact-mode legend (first child = sits at bottom of stack) -->
+        <div id="compact-legend" aria-hidden="true">
+            <h4>Legend</h4>
+            <div class="legend-row">
+                <div class="legend-swatch" style="background:#3a3a3c;"></div>
+                <span class="legend-label">Church</span>
+            </div>
+            <div class="legend-row">
+                <div class="legend-swatch" style="background:#add8e6; opacity:0.8;"></div>
+                <span class="legend-label">Low activity</span>
+            </div>
+            <div class="legend-row">
+                <div class="legend-swatch" style="background:#0077b6; opacity:0.8;"></div>
+                <span class="legend-label">Medium activity</span>
+            </div>
+            <div class="legend-row">
+                <div class="legend-swatch" style="background:#002f6c; opacity:0.9;"></div>
+                <span class="legend-label">High activity</span>
+            </div>
         </div>
-        <div class="legend-row">
-            <div class="legend-swatch" style="background:#add8e6; opacity:0.8;"></div>
-            <span class="legend-label">Low activity</span>
+
+        <!-- Live updates ticker (second child = stacks above legend) — desktop only -->
+        <div id="updates-ticker">
+            <div class="ticker-header">
+                <span class="ticker-title">Live Updates</span>
+                <button class="ticker-minimize-btn" onclick="setTickerMinimized(!tickerMinimized)" title="Minimize">−</button>
+            </div>
+            <div id="ticker-feed">
+                <div class="ticker-empty">No recent updates.</div>
+            </div>
         </div>
-        <div class="legend-row">
-            <div class="legend-swatch" style="background:#0077b6; opacity:0.8;"></div>
-            <span class="legend-label">Medium activity</span>
-        </div>
-        <div class="legend-row">
-            <div class="legend-swatch" style="background:#002f6c; opacity:0.9;"></div>
-            <span class="legend-label">High activity</span>
-        </div>
-    </div>
+
+    </div><!-- /#map-bottom-right -->
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
@@ -996,6 +1096,7 @@
 
         populateCityDropdown()
         renderMap()
+        initRecentUpdatesTicker()   // no-op after first call; seeds from loaded data
 
         document.getElementById('map-last-updated').textContent =
             window.t ? window.t('how_were_doing.last_updated', { time: new Date().toLocaleTimeString() }) :
@@ -1181,11 +1282,183 @@
         setTimeout(() => el.remove(), 3200)
     }
 
+    // ── Live updates ticker ───────────────────────────────────────────────────
+
+    const TICKER_MAX = 40
+    let tickerItems        = []       // newest first
+    let tickerInitialized  = false
+    let tickerSubscription = null
+    let tickerScrollTimer  = null
+    let tickerMinimized    = localStorage.getItem('vp_ticker_minimized') === 'true'
+
+    function initRecentUpdatesTicker() {
+        if (tickerInitialized) return
+        tickerInitialized = true
+
+        // Desktop only
+        if (window.innerWidth < 768) return
+
+        const ticker = document.getElementById('updates-ticker')
+        if (!ticker) return
+        ticker.style.display = 'block'
+
+        // Restore minimized state without re-saving
+        setTickerMinimized(tickerMinimized, false)
+
+        // Pause scroll on hover; resume on leave
+        const feed = document.getElementById('ticker-feed')
+        feed.addEventListener('mouseenter', stopTickerScroll)
+        feed.addEventListener('mouseleave', () => { if (!tickerMinimized) startTickerScroll() })
+        // Also pause if user manually scrolls; resume after 3s idle
+        let resumeTimer = null
+        feed.addEventListener('scroll', () => {
+            stopTickerScroll()
+            clearTimeout(resumeTimer)
+            resumeTimer = setTimeout(() => { if (!tickerMinimized) startTickerScroll() }, 3000)
+        }, { passive: true })
+
+        seedTickerFromMapData()
+        subscribeToRecentUpdates()
+        startTickerScroll()
+    }
+
+    // Seed from already-loaded mapData so feed is populated immediately
+    function seedTickerFromMapData() {
+        const sorted = [...mapData.conversations]
+            .filter(ev => ev.created_at)
+            .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+            .slice(0, TICKER_MAX)
+
+        tickerItems = sorted.map(ev => ({
+            ts:    ev.created_at,
+            city:  ev.city   || '',
+            type:  ev.event_type || 'update',
+            count: ev.count  || 1
+        }))
+        renderTickerFeed()
+    }
+
+    function subscribeToRecentUpdates() {
+        if (!window.supabase || tickerSubscription) return
+
+        tickerSubscription = window.supabase
+            .channel('vp-ticker-v1')
+            .on('postgres_changes', {
+                event: 'INSERT', schema: 'public', table: 'conversation_events'
+            }, payload => {
+                appendRecentUpdate(payload.new)
+            })
+            .on('postgres_changes', {
+                event: 'INSERT', schema: 'public', table: 'church_assessments'
+            }, payload => {
+                if (payload.new && payload.new.is_church) {
+                    appendRecentUpdate(payload.new, 'church')
+                }
+            })
+            .subscribe(status => {
+                console.log('ticker subscription status:', status)
+            })
+    }
+
+    function appendRecentUpdate(row, forceType) {
+        if (!row) return
+        tickerItems.unshift({
+            ts:    row.created_at || row.updated_at || new Date().toISOString(),
+            city:  row.city      || '',
+            type:  forceType     || row.event_type || 'update',
+            count: row.count     || 1
+        })
+        if (tickerItems.length > TICKER_MAX) tickerItems.length = TICKER_MAX
+        renderTickerFeed()
+    }
+
+    function renderTickerFeed() {
+        const feed = document.getElementById('ticker-feed')
+        if (!feed) return
+
+        if (tickerItems.length === 0) {
+            feed.innerHTML = '<div class="ticker-empty">No recent updates.</div>'
+            return
+        }
+
+        const rows = tickerItems.map(item => {
+            const rel  = tickerRelTime(item.ts)
+            const type = item.type === 'spiritual' ? 'Spiritual convo'
+                       : item.type === 'discovery' ? 'Discovery convo'
+                       : item.type === 'church'    ? 'Church added'
+                       : 'Update'
+            const desc = item.count > 1 ? type + ' ×' + item.count : type
+            const city = item.city ? '<span class="ticker-city">' + escHtml(item.city) + '</span><span class="ticker-sep">·</span>' : ''
+            return '<div class="ticker-row">' +
+                '<span class="ticker-time">' + rel + '</span>' +
+                city +
+                '<span class="ticker-desc">' + escHtml(desc) + '</span>' +
+                '</div>'
+        })
+        feed.innerHTML = rows.join('')
+    }
+
+    function tickerRelTime(iso) {
+        if (!iso) return ''
+        const ms = Date.now() - new Date(iso).getTime()
+        if (ms < 60000)    return 'just now'
+        if (ms < 3600000)  return Math.floor(ms / 60000)    + 'm ago'
+        if (ms < 86400000) return Math.floor(ms / 3600000)  + 'h ago'
+        return                    Math.floor(ms / 86400000) + 'd ago'
+    }
+
+    function escHtml(s) {
+        return String(s)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+    }
+
+    // Slow scroll: 1px every 80ms ≈ 12px/sec — gentle enough to read
+    function startTickerScroll() {
+        stopTickerScroll()
+        if (tickerMinimized) return
+        const feed = document.getElementById('ticker-feed')
+        if (!feed || tickerItems.length < 4) return   // not enough to need scrolling
+
+        tickerScrollTimer = setInterval(() => {
+            if (!feed) return
+            const atBottom = feed.scrollTop + feed.clientHeight >= feed.scrollHeight - 2
+            feed.scrollTop = atBottom ? 0 : feed.scrollTop + 1
+        }, 80)
+    }
+
+    function stopTickerScroll() {
+        clearInterval(tickerScrollTimer)
+        tickerScrollTimer = null
+    }
+
+    function setTickerMinimized(isMin, save = true) {
+        tickerMinimized = isMin
+        if (save) localStorage.setItem('vp_ticker_minimized', tickerMinimized)
+
+        const ticker = document.getElementById('updates-ticker')
+        const btn    = document.querySelector('.ticker-minimize-btn')
+        if (ticker) ticker.classList.toggle('minimized', tickerMinimized)
+        if (btn)    btn.textContent = tickerMinimized ? '+' : '−'
+
+        if (tickerMinimized) stopTickerScroll()
+        else                 startTickerScroll()
+    }
+
     // ── Boot ─────────────────────────────────────────────────────────────────
     applyDesktopMapLayout()
     applyOverlayCompact()   // restore compact/expanded from localStorage
     initLayerToggles()      // restore layer state from localStorage (defaults: all checked)
     window.addEventListener('resize', applyDesktopMapLayout)
+
+    // Clean up realtime subscription and scroll timer on navigate away
+    window.addEventListener('beforeunload', () => {
+        stopTickerScroll()
+        if (tickerSubscription && window.supabase) {
+            window.supabase.removeChannel(tickerSubscription)
+        }
+    })
 
     // Wait for Supabase auth + leader role before loading data.
     ;(function waitForAuth() {
