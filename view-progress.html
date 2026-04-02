@@ -412,6 +412,39 @@
             90%  { opacity:1; transform:translateX(-50%) translateY(0); }
             100% { opacity:0; transform:translateX(-50%) translateY(-20px); }
         }
+
+        /* ── Compact overlay toggle ────────────────────────────────── */
+        .overlay-compact-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            border-bottom: 0.5px solid #e5e5ea;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+        .compact-bar-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #3a3a3c;
+            white-space: nowrap;
+        }
+        .compact-toggle-btn {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            background: #e5e5ea;
+            color: #3a3a3c;
+            cursor: pointer;
+            white-space: nowrap;
+            font-family: inherit;
+            flex-shrink: 0;
+        }
+        .compact-toggle-btn:active { opacity: 0.75; }
+        /* Hide the scrollable body content when collapsed */
+        .overlay-panel.compact .overlay-body { display: none; }
     </style>
     <script type="module" src="/i18n.js"></script>
     <script src="/pwa.js" defer></script>
@@ -432,6 +465,15 @@
 
         <!-- overlay-panel: direct child of page-shell → absolutely positioned over map on desktop -->
         <div class="overlay-panel">
+
+            <!-- Always-visible strip: shown even in compact mode -->
+            <div class="overlay-compact-bar">
+                <span class="compact-bar-title">View Progress</span>
+                <button class="compact-toggle-btn" onclick="toggleOverlayCompact()">Compact view</button>
+            </div>
+
+            <!-- Full panel body — hidden when overlay is compact -->
+            <div class="overlay-body">
 
             <div class="nav-bar">
                 <a href="index.html" class="nav-home" data-i18n="nav.home">Home</a>
@@ -471,11 +513,11 @@
                         <span data-i18n="how_were_doing.layer_churches">Churches</span>
                     </label>
                     <label class="layer-toggle">
-                        <input type="checkbox" id="toggle-spiritual" onchange="renderMap()">
+                        <input type="checkbox" id="toggle-spiritual" checked onchange="renderMap()">
                         <span data-i18n="how_were_doing.layer_spiritual">Spiritual Convos</span>
                     </label>
                     <label class="layer-toggle">
-                        <input type="checkbox" id="toggle-discovery" onchange="renderMap()">
+                        <input type="checkbox" id="toggle-discovery" checked onchange="renderMap()">
                         <span data-i18n="how_were_doing.layer_discovery">Discovery Convos</span>
                     </label>
                 </div>
@@ -533,6 +575,8 @@
                 </div>
             </div>
 
+            </div><!-- /.overlay-body -->
+
         </div><!-- /.overlay-panel -->
 
     </div><!-- /.page-shell / #main-container -->
@@ -547,6 +591,50 @@
     let discoveryLayer = null
     let mapData = { churches: [], conversations: [] }
 
+    // Persist across page loads via localStorage
+    let overlayCompact = localStorage.getItem('vp_overlay_compact') === 'true'
+
+    // ── Overlay compact toggle ────────────────────────────────────────────────
+
+    function applyOverlayCompact() {
+        const overlay = document.querySelector('.overlay-panel')
+        const btn     = document.querySelector('.compact-toggle-btn')
+        if (!overlay || !btn) return
+        overlay.classList.toggle('compact', overlayCompact)
+        btn.textContent = overlayCompact ? 'Expand' : 'Compact view'
+    }
+
+    function toggleOverlayCompact() {
+        overlayCompact = !overlayCompact
+        localStorage.setItem('vp_overlay_compact', overlayCompact)
+        applyOverlayCompact()
+        applyDesktopMapLayout()
+        if (map) setTimeout(() => map.invalidateSize(), 50)
+    }
+
+    // ── Layer-toggle state persistence ────────────────────────────────────────
+
+    function initLayerToggles() {
+        const saved = localStorage.getItem('vp_layer_state')
+        if (saved) {
+            try {
+                const s = JSON.parse(saved)
+                if (typeof s.churches  === 'boolean') document.getElementById('toggle-churches').checked  = s.churches
+                if (typeof s.spiritual === 'boolean') document.getElementById('toggle-spiritual').checked = s.spiritual
+                if (typeof s.discovery === 'boolean') document.getElementById('toggle-discovery').checked = s.discovery
+            } catch (_) { /* bad JSON — keep HTML defaults (all checked) */ }
+        }
+        // No saved state → HTML defaults (all three checked) apply as-is
+    }
+
+    function saveLayerState() {
+        localStorage.setItem('vp_layer_state', JSON.stringify({
+            churches:  document.getElementById('toggle-churches').checked,
+            spiritual: document.getElementById('toggle-spiritual').checked,
+            discovery: document.getElementById('toggle-discovery').checked
+        }))
+    }
+
     // ── Location helpers ─────────────────────────────────────────────────────
 
     function getBrowserLocation() {
@@ -558,7 +646,7 @@
             navigator.geolocation.getCurrentPosition(
                 pos => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
                 err => reject(err),
-                { timeout: 8000, maximumAge: 60000 }
+                { enableHighAccuracy: false, timeout: 5000, maximumAge: 60000 }
             )
         })
     }
@@ -615,11 +703,12 @@
             overlay.style.top = '16px'
             overlay.style.right = '16px'
             overlay.style.left = 'auto'
-            overlay.style.width = '320px'
-            overlay.style.maxWidth = '320px'
-            overlay.style.maxHeight = 'calc(100vh - 32px)'
+            overlay.style.width     = overlayCompact ? 'auto'               : '320px'
+            overlay.style.maxWidth  = overlayCompact ? ''                   : '320px'
+            overlay.style.minWidth  = overlayCompact ? '150px'              : ''
+            overlay.style.maxHeight = overlayCompact ? 'none'               : 'calc(100vh - 32px)'
             overlay.style.margin = '0'
-            overlay.style.overflowY = 'auto'
+            overlay.style.overflowY = overlayCompact ? 'visible'            : 'auto'
             overlay.style.zIndex = '500'
             overlay.style.background = 'rgba(255,255,255,0.97)'
             overlay.style.borderRadius = '14px'
@@ -651,6 +740,7 @@
             overlay.style.left = ''
             overlay.style.width = ''
             overlay.style.maxWidth = ''
+            overlay.style.minWidth = ''
             overlay.style.maxHeight = ''
             overlay.style.margin = ''
             overlay.style.overflowY = ''
@@ -858,6 +948,7 @@
     // user-centered viewport is not overridden by marker rendering.
     function renderMap() {
         if (!map) return
+        saveLayerState()
 
         const showChurches  = document.getElementById('toggle-churches').checked
         const showSpiritual = document.getElementById('toggle-spiritual').checked
@@ -1011,6 +1102,8 @@
 
     // ── Boot ─────────────────────────────────────────────────────────────────
     applyDesktopMapLayout()
+    applyOverlayCompact()   // restore compact/expanded from localStorage
+    initLayerToggles()      // restore layer state from localStorage (defaults: all checked)
     window.addEventListener('resize', applyDesktopMapLayout)
 
     // Wait for Supabase auth + leader role before loading data.
