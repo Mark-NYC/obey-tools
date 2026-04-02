@@ -570,6 +570,39 @@
             opacity: 0.40;
             text-align: center;
         }
+
+        /* ── Mobile layout overrides ──────────────────────────────── */
+        /* Desktop behavior is in applyDesktopMapLayout() + the @media (min-width:768px)
+           block above. Everything here is intentional mobile-first design. */
+        @media (max-width: 767px) {
+            /* Safe-area-aware bottom padding; base 60px for browser chrome */
+            body {
+                padding-bottom: max(60px, calc(env(safe-area-inset-bottom) + 40px));
+            }
+
+            /* Compact bar is a desktop-only concept; hide it on mobile */
+            .overlay-compact-bar { display: none; }
+            /* Always show full panel body on mobile regardless of compact state */
+            .overlay-panel.compact .overlay-body { display: block !important; }
+
+            /* Tighter nav — less vertical burn before content */
+            .nav-bar { padding: 10px 16px 4px; gap: 8px; }
+            .nav-bar a { font-size: 13px; padding: 7px 14px; }
+
+            /* Compact header */
+            .header { padding: 10px 16px 8px; }
+            .header h1 { font-size: 28px; }
+
+            /* Map sits below controls; give it a clean separator and sensible height */
+            #map-el {
+                height: 260px;
+                border-top: 0.5px solid #e5e5ea;
+            }
+
+            /* Ticker and compact legend are desktop-only features; hide on mobile */
+            #updates-ticker { display: none !important; }
+            #map-bottom-right { display: none !important; }
+        }
     </style>
     <script type="module" src="/i18n.js"></script>
     <script src="/pwa.js" defer></script>
@@ -582,22 +615,20 @@
         <a href="index.html" class="access-denied-btn" data-i18n="access.go_home">Go to Home</a>
     </div>
 
-    <!-- Full-screen map lives here on desktop; hidden behind overlay on mobile -->
+    <!-- On desktop: map fills shell, overlay floats over it.
+         On mobile: overlay (controls) flows first, map sits below it. -->
     <div class="page-shell" id="main-container">
 
-        <!-- map-el: fills page-shell on desktop (absolute inset:0), 340px block on mobile -->
-        <div id="map-el"></div>
-
-        <!-- overlay-panel: direct child of page-shell → absolutely positioned over map on desktop -->
+        <!-- overlay-panel: absolute over map on desktop; block column above map on mobile -->
         <div class="overlay-panel">
 
-            <!-- Always-visible strip: shown even in compact mode -->
+            <!-- Always-visible strip: shown even in compact mode (desktop only) -->
             <div class="overlay-compact-bar">
                 <span class="compact-bar-title">View Progress</span>
                 <button class="compact-toggle-btn" onclick="toggleOverlayCompact()">Compact view</button>
             </div>
 
-            <!-- Full panel body — hidden when overlay is compact -->
+            <!-- Full panel body — hidden when overlay is compact (desktop only) -->
             <div class="overlay-body">
 
             <div class="nav-bar">
@@ -703,6 +734,9 @@
             </div><!-- /.overlay-body -->
 
         </div><!-- /.overlay-panel -->
+
+        <!-- map-el: absolute inset:0 on desktop (behind overlay); in-flow block below controls on mobile -->
+        <div id="map-el"></div>
 
     </div><!-- /.page-shell / #main-container -->
 
@@ -878,7 +912,7 @@
             document.documentElement.style.height = ''
             document.body.style.height = ''
             document.body.style.overflow = ''
-            document.body.style.paddingBottom = '60px'
+            document.body.style.paddingBottom = ''   // let CSS handle safe-area-aware padding
 
             shell.style.position = ''
             shell.style.width = ''
@@ -924,6 +958,12 @@
         document.getElementById('tab-metrics').classList.toggle('active', !isMap)
         document.getElementById('map-controls').style.display  = isMap ? '' : 'none'
         document.getElementById('metrics-view').style.display  = isMap ? 'none' : 'block'
+
+        // On mobile, hide the map element when showing metrics so it doesn't
+        // sit as an empty block below the stats content.
+        if (window.innerWidth < 768) {
+            document.getElementById('map-el').style.display = isMap ? '' : 'none'
+        }
 
         if (isMap) {
             if (map) map.invalidateSize()
