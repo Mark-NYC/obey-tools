@@ -676,6 +676,11 @@
 
         if (isMap) {
             if (map) map.invalidateSize()
+            // Retry data load if empty — covers the case where initial load
+            // failed silently or was still in-flight when the tab was first shown.
+            if (mapData.churches.length === 0 && mapData.conversations.length === 0) {
+                loadMapData(false)
+            }
         } else {
             loadMetrics()
         }
@@ -727,11 +732,12 @@
             setTimeout(() => map.invalidateSize(), 0)
             setTimeout(() => map.invalidateSize(), 150)
 
-            await centerOnUserLocation()
+            await Promise.all([
+                centerOnUserLocation(),
+                loadMapData(false)
+            ])
 
             setTimeout(() => map.invalidateSize(), 300)
-
-            await loadMapData(false)
 
             return map
         })()
@@ -803,10 +809,19 @@
             return
         }
 
+        console.log('church rows raw:', churches?.length ?? 0, '  convo rows raw:', convos?.length ?? 0)
+
         mapData.churches      = (churches || []).filter(c => c.latitude && c.longitude)
         mapData.conversations = (convos   || []).filter(c => c.latitude && c.longitude)
 
-        console.log('loadMapData: churches=' + mapData.churches.length + ' conversations=' + mapData.conversations.length)
+        const uniqueCities = new Set([
+            ...mapData.churches.map(c => c.city).filter(Boolean),
+            ...mapData.conversations.map(c => c.city).filter(Boolean)
+        ])
+        console.log('loadMapData filtered: churches=' + mapData.churches.length
+            + ' conversations=' + mapData.conversations.length
+            + ' unique cities=' + uniqueCities.size)
+        console.log('loadMapData: calling populateCityDropdown + renderMap')
 
         populateCityDropdown()
         renderMap()
