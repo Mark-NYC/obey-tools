@@ -1287,9 +1287,11 @@
 
     const TICKER_MAX = 40
     let tickerItems        = []       // newest first
+    let tickerSeenKeys     = new Set() // deduplication — composite ts|city|type keys
     let tickerInitialized  = false
     let tickerSubscription = null
     let tickerScrollTimer  = null
+    let tickerPollTimer    = null     // 10s safety-sync interval
     let tickerMinimized    = localStorage.getItem('vp_ticker_minimized') === 'true'
 
     function initRecentUpdatesTicker() {
@@ -1320,10 +1322,12 @@
 
         seedTickerFromMapData()
         subscribeToRecentUpdates()
+        startRecentUpdatesPolling()   // 10s safety sync on top of realtime
         startTickerScroll()
     }
 
-    // Seed from already-loaded mapData so feed is populated immediately
+    // Seed from already-loaded mapData so feed is populated immediately.
+    // Also primes tickerSeenKeys so duplicates from the first poll are dropped.
     function seedTickerFromMapData() {
         const sorted = [...mapData.conversations]
             .filter(ev => ev.created_at)
@@ -1332,10 +1336,11 @@
 
         tickerItems = sorted.map(ev => ({
             ts:    ev.created_at,
-            city:  ev.city   || '',
+            city:  ev.city       || '',
             type:  ev.event_type || 'update',
-            count: ev.count  || 1
+            count: ev.count      || 1
         }))
+        tickerSeenKeys = new Set(tickerItems.map(tickerKey))
         renderTickerFeed()
     }
 
@@ -1361,14 +1366,75 @@
             })
     }
 
+    // Stable composite key used for deduplication across seed, realtime, and poll paths.
+    // ts|city|type is unique enough for display within a session; avoids needing row IDs
+    // (which aren't included in the existing mapData select queries).
+    function tickerKey(item) {
+        return (item.ts || '') + '|' + (item.city || '') + '|' + (item.type || '')
+    }
+
+    // Prepend only genuinely new items; re-renders only when at least one passes dedup.
+    function mergeRecentUpdates(newItems) {
+        const fresh = newItems.filter(item => {
+            const key = tickerKey(item)
+            if (tickerSeenKeys.has(key)) return false
+            tickerSeenKeys.add(key)
+            return true
+        })
+        if (fresh.length === 0) return          // nothing new — skip re-render
+        tickerItems.unshift(...fresh)
+        if (tickerItems.length > TICKER_MAX) tickerItems.length = TICKER_MAX
+        renderTickerFeed()
+    }
+
+    // Fetch conversation_events newer than `since` and merge them into the feed.
+    async function fetchRecentUpdatesSince(since) {
+        if (!window.supabase) return
+        try {
+            const { data, error } = await window.supabase
+                .from('conversation_events')
+                .select('created_at, city, event_type, count')
+                .gt('created_at', since)
+                .order('created_at', { ascending: false })
+                .limit(20)
+            if (error) { console.warn('ticker poll error:', error.message); return }
+            if (!data || data.length === 0) return
+            mergeRecentUpdates(data.map(ev => ({
+                ts:    ev.created_at,
+                city:  ev.city       || '',
+                type:  ev.event_type || 'update',
+                count: ev.count      || 1
+            })))
+        } catch (err) {
+            console.warn('ticker poll exception:', err)
+        }
+    }
+
+    // Start the 10s safety-sync interval. Guard prevents a second interval if called twice.
+    function startRecentUpdatesPolling() {
+        if (tickerPollTimer) return
+        tickerPollTimer = setInterval(async () => {
+            if (!window.supabase || !tickerInitialized) return
+            // Use the newest item's ts as the lower bound; fall back to 60s ago.
+            const since = tickerItems.length > 0
+                ? tickerItems[0].ts
+                : new Date(Date.now() - 60000).toISOString()
+            await fetchRecentUpdatesSince(since)
+        }, 10000)
+    }
+
     function appendRecentUpdate(row, forceType) {
         if (!row) return
-        tickerItems.unshift({
+        const item = {
             ts:    row.created_at || row.updated_at || new Date().toISOString(),
             city:  row.city      || '',
             type:  forceType     || row.event_type || 'update',
             count: row.count     || 1
-        })
+        }
+        const key = tickerKey(item)
+        if (tickerSeenKeys.has(key)) return   // already shown — skip
+        tickerSeenKeys.add(key)
+        tickerItems.unshift(item)
         if (tickerItems.length > TICKER_MAX) tickerItems.length = TICKER_MAX
         renderTickerFeed()
     }
@@ -1460,6 +1526,7 @@
     // Clean up realtime subscription and scroll timer on navigate away
     window.addEventListener('beforeunload', () => {
         stopTickerScroll()
+        clearInterval(tickerPollTimer)
         if (tickerSubscription && window.supabase) {
             window.supabase.removeChannel(tickerSubscription)
         }
