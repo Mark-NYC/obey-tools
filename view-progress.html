@@ -1,1 +1,1672 @@
-VIEW_PROGRESS_CONTENT_PLACEHOLDER
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/x-icon" href="assets/images/favicons/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/images/favicons/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/images/favicons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/images/favicons/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="assets/images/favicons/android-chrome-512x512.png">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#000000">
+    <meta name="apple-mobile-web-app-title" content="Obey Tools">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap">
+    <title>View Progress — OBEY.TOOLS</title>
+    <script type="module">
+        import { supabase } from './supabase.js'
+        import { authSignUp, authLogIn, authLogOut, initUserPage } from './auth.js'
+        window.authSignUp = authSignUp
+        window.authLogIn  = authLogIn
+        window.authLogOut = authLogOut
+        window.supabase   = supabase
+        initUserPage()
+    </script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        /* ── Base / mobile default ────────────────────────────────── */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+            color: #000;
+            line-height: 1.4;
+            background: #f2f2f7;
+            padding-bottom: 60px;
+        }
+
+        /* The map fills a fixed height on mobile */
+        #map-el {
+            width: 100%;
+            height: 340px;
+            display: block;
+        }
+
+        /* On mobile the overlay panel is a centred content column */
+        .overlay-panel {
+            max-width: 500px;
+            margin: 0 auto;
+            background: #fff;
+        }
+
+        /* Mobile-only topbar — hidden by default; shown in mobile breakpoint */
+        #mobile-topbar { display: none; }
+
+        /* ── Desktop: full-screen map + floating overlay ─────────── */
+        @media (min-width: 768px) {
+            html, body {
+                height: 100%;
+                overflow: hidden;
+                padding-bottom: 0;
+            }
+
+            /* Full-viewport positioning context */
+            .page-shell {
+                position: relative;
+                width: 100%;
+                height: 100vh;
+                overflow: hidden;
+            }
+
+            /* Map fills every pixel of .page-shell */
+            #map-el {
+                position: absolute;
+                inset: 0;
+                width: 100%;
+                height: 100%;
+                z-index: 0;
+            }
+
+            /* Floating control panel — direct child of .page-shell */
+            .overlay-panel {
+                position: absolute;
+                top: 16px;
+                right: 16px;
+                left: auto;
+                width: 320px;
+                max-width: 320px;
+                margin: 0;
+                max-height: calc(100vh - 32px);
+                overflow-y: auto;
+                z-index: 500;
+                background: rgba(255, 255, 255, 0.97);
+                border-radius: 14px;
+                box-shadow: 0 4px 24px rgba(0, 0, 0, 0.18);
+                scrollbar-width: thin;
+                scrollbar-color: #c6c6c8 transparent;
+            }
+
+            .overlay-panel::-webkit-scrollbar { width: 4px; }
+            .overlay-panel::-webkit-scrollbar-thumb { background: #c6c6c8; border-radius: 4px; }
+        }
+
+        /* ── Nav ──────────────────────────────────────────────────── */
+        .nav-bar {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            padding: 20px 16px 8px;
+        }
+
+        .nav-bar a {
+            display: inline-block;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            font-weight: 700;
+            font-size: 15px;
+            padding: 11px 22px;
+            border-radius: 50px;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .nav-home { background: #000; color: #fff; }
+        .nav-leader { background: #00D084; color: #fff; }
+
+        /* ── Auth ──────────────────────────────────────────────────── */
+        .auth-section {
+            padding: 12px 16px;
+            background: #f2f2f7;
+            border-bottom: 0.5px solid #c6c6c8;
+            visibility: hidden;
+        }
+        .auth-section input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #c6c6c8;
+            border-radius: 8px;
+            font-size: 15px;
+            background: #fff;
+            outline: none;
+            margin-bottom: 8px;
+            font-family: inherit;
+        }
+        .auth-section input:focus { border-color: #3a3a3c; }
+        .auth-buttons { display: flex; gap: 8px; }
+        .auth-buttons button {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .auth-btn-primary  { background: #3a3a3c; color: #fff; }
+        .auth-btn-secondary { background: #e5e5ea; color: #3a3a3c; }
+        .auth-status { display: flex; align-items: center; justify-content: space-between; }
+        .auth-status-text { font-size: 13px; color: #8e8e93; }
+        .auth-logout-btn {
+            padding: 6px 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            background: #e5e5ea;
+            color: #3a3a3c;
+            font-family: inherit;
+        }
+
+        /* ── Header ────────────────────────────────────────────────── */
+        .header {
+            padding: 24px 20px 16px;
+            text-align: center;
+            border-bottom: 0.5px solid #e5e5ea;
+        }
+        .header h1 {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 42px;
+            font-weight: 400;
+            letter-spacing: 2px;
+            color: #00D084;
+            -webkit-text-stroke: 2px #000;
+            margin-bottom: 4px;
+        }
+        .header .subtitle { font-size: 14px; color: #8e8e93; }
+
+        /* ── Tabs ──────────────────────────────────────────────────── */
+        .tab-bar {
+            display: flex;
+            gap: 8px;
+            padding: 12px 16px;
+            background: #f2f2f7;
+            border-bottom: 0.5px solid #e5e5ea;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 9px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            background: #e5e5ea;
+            color: #8e8e93;
+            transition: background 0.15s, color 0.15s;
+        }
+        .tab-btn.active { background: #3a3a3c; color: #fff; }
+
+        /* ── Layer toggles ─────────────────────────────────────────── */
+        .layer-toggles {
+            padding: 10px 16px;
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+            border-bottom: 0.5px solid #e5e5ea;
+            background: #fafafa;
+        }
+        .layer-toggle {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #3a3a3c;
+            cursor: pointer;
+            user-select: none;
+        }
+        .layer-toggle input[type=checkbox] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            accent-color: #3a3a3c;
+        }
+
+        /* ── Filter bar ────────────────────────────────────────────── */
+        .filters {
+            padding: 10px 16px;
+            background: #f2f2f7;
+            border-bottom: 0.5px solid #e5e5ea;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .filter-select {
+            flex: 1;
+            min-width: 100px;
+            padding: 8px 10px;
+            border: 1px solid #c6c6c8;
+            border-radius: 8px;
+            font-size: 14px;
+            background: #fff;
+            font-family: inherit;
+            color: #3a3a3c;
+            outline: none;
+            cursor: pointer;
+        }
+        .filter-select:focus { border-color: #3a3a3c; }
+        .icon-btn {
+            padding: 8px 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            background: #3a3a3c;
+            color: #fff;
+            cursor: pointer;
+            line-height: 1;
+        }
+        .icon-btn:active { opacity: 0.75; }
+
+        /* ── Map legend ────────────────────────────────────────────── */
+        .map-legend {
+            padding: 12px 16px;
+            border-top: 0.5px solid #e5e5ea;
+        }
+        .map-legend h4 {
+            font-size: 13px;
+            font-weight: 600;
+            color: #3a3a3c;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+        .legend-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 5px;
+        }
+        .legend-swatch {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .legend-label { font-size: 13px; color: #3a3a3c; }
+
+        .map-footer {
+            padding: 8px 16px 12px;
+            font-size: 12px;
+            color: #8e8e93;
+            text-align: center;
+            border-top: 0.5px solid #e5e5ea;
+        }
+
+        /* ── Metrics view ──────────────────────────────────────────── */
+        .stats-section { padding: 16px; }
+        .period-label {
+            text-align: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: #8e8e93;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 12px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .stat-card {
+            background: #f2f2f7;
+            border-radius: 14px;
+            padding: 18px 12px;
+            text-align: center;
+        }
+        .stat-card.accent {
+            background: linear-gradient(135deg, #4A90E2, #5BA3F5);
+            grid-column: span 2;
+        }
+        .stat-card.wide { grid-column: span 2; }
+        .stat-value {
+            font-size: 44px;
+            font-weight: 700;
+            color: #3a3a3c;
+            line-height: 1;
+            margin-bottom: 6px;
+        }
+        .stat-card.accent .stat-value { color: #fff; }
+        .stat-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #8e8e93;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .stat-card.accent .stat-label { color: rgba(255,255,255,0.85); }
+
+        /* ── Shared ────────────────────────────────────────────────── */
+        .loading {
+            padding: 48px 24px;
+            text-align: center;
+            color: #8e8e93;
+            font-size: 15px;
+        }
+        .empty-state {
+            padding: 48px 24px;
+            text-align: center;
+            color: #8e8e93;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* ── Access denied ─────────────────────────────────────────── */
+        .access-denied {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 60vh;
+            padding: 40px 24px;
+            text-align: center;
+        }
+        .access-denied-msg { font-size: 17px; font-weight: 600; color: #3a3a3c; margin-bottom: 6px; }
+        .access-denied-sub { font-size: 14px; color: #8e8e93; margin-bottom: 28px; }
+        .access-denied-btn {
+            display: inline-block;
+            background: #000;
+            color: #fff;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            font-weight: 700;
+            font-size: 15px;
+            padding: 11px 28px;
+            border-radius: 50px;
+            text-decoration: none;
+        }
+
+        /* ── Notification ──────────────────────────────────────────── */
+        .notification {
+            position: fixed;
+            top: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 500;
+            z-index: 9999;
+            opacity: 0;
+            animation: notificationSlide 3s ease;
+            white-space: nowrap;
+        }
+        @keyframes notificationSlide {
+            0%   { opacity:0; transform:translateX(-50%) translateY(-20px); }
+            10%  { opacity:1; transform:translateX(-50%) translateY(0); }
+            90%  { opacity:1; transform:translateX(-50%) translateY(0); }
+            100% { opacity:0; transform:translateX(-50%) translateY(-20px); }
+        }
+
+        /* ── Compact overlay toggle ────────────────────────────────── */
+        .overlay-compact-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            border-bottom: 0.5px solid #e5e5ea;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+        .compact-bar-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #3a3a3c;
+            white-space: nowrap;
+        }
+        .compact-toggle-btn {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            background: #e5e5ea;
+            color: #3a3a3c;
+            cursor: pointer;
+            white-space: nowrap;
+            font-family: inherit;
+            flex-shrink: 0;
+        }
+        .compact-toggle-btn:active { opacity: 0.75; }
+        /* Hide the scrollable body content when collapsed */
+        .overlay-panel.compact .overlay-body { display: none; }
+
+        /* ── Bottom-right HUD stack (compact legend only) ───────────── */
+        /* Ticker has moved to lower-left; this stack holds only the legend. */
+        #map-bottom-right {
+            position: fixed;
+            bottom: 16px;
+            right: 16px;
+            z-index: 490;
+            display: flex;
+            flex-direction: column-reverse;
+            align-items: flex-end;
+            gap: 10px;
+            pointer-events: none;
+        }
+
+        /* ── Compact-mode floating legend ────────────────────────────── */
+        #compact-legend {
+            display: none;          /* shown via JS when overlayCompact=true */
+            background: rgba(255, 255, 255, 0.72);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 10px;
+            padding: 10px 14px;
+            box-shadow: 0 2px 14px rgba(0, 0, 0, 0.16);
+            pointer-events: none;
+        }
+        #compact-legend h4 {
+            font-size: 11px;
+            font-weight: 600;
+            color: #3a3a3c;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        #compact-legend .legend-row {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            margin-bottom: 4px;
+        }
+        #compact-legend .legend-swatch {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        #compact-legend .legend-label { font-size: 12px; color: #3a3a3c; }
+
+        /* ── Live updates ticker (desktop only, lower-left) ─────────── */
+        #updates-ticker {
+            display: none;              /* shown by initRecentUpdatesTicker() on desktop */
+            position: fixed;
+            bottom: 16px;
+            left: 16px;
+            z-index: 490;
+            width: 220px;
+            border-radius: 12px;
+            overflow: hidden;
+            background: rgba(18, 18, 26, 0.70);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.10);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.30);
+            pointer-events: auto;       /* allow scroll + button clicks */
+            color: rgba(255, 255, 255, 0.88);
+            font-size: 12px;
+        }
+        .ticker-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 7px 10px 6px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+            flex-shrink: 0;
+        }
+        .ticker-title {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            opacity: 0.55;
+        }
+        .ticker-minimize-btn {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.55);
+            cursor: pointer;
+            font-size: 15px;
+            line-height: 1;
+            padding: 0 2px;
+            font-family: inherit;
+        }
+        .ticker-minimize-btn:hover { color: rgba(255, 255, 255, 0.9); }
+        #ticker-feed {
+            max-height: 148px;
+            overflow-y: auto;
+            scrollbar-width: none;
+            overscroll-behavior: contain;
+        }
+        #ticker-feed::-webkit-scrollbar { display: none; }
+        #updates-ticker.minimized #ticker-feed { display: none; }
+        #updates-ticker.minimized { border-radius: 10px; }
+        .ticker-row {
+            padding: 5px 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            line-height: 1.4;
+        }
+        .ticker-row:last-child { border-bottom: none; }
+        .ticker-time {
+            font-size: 10px;
+            opacity: 0.42;
+            margin-right: 3px;
+        }
+        .ticker-city {
+            font-weight: 600;
+            font-size: 11px;
+        }
+        .ticker-sep { opacity: 0.35; margin: 0 2px; }
+        .ticker-desc { font-size: 11px; opacity: 0.70; }
+        .ticker-empty {
+            padding: 14px 10px;
+            font-size: 11px;
+            opacity: 0.40;
+            text-align: center;
+        }
+
+        /* ── Mobile layout overrides ──────────────────────────────── */
+        @media (max-width: 767px) {
+            /* Safe-area-aware bottom padding for iOS home indicator */
+            body {
+                padding-bottom: max(60px, calc(env(safe-area-inset-bottom) + 40px));
+            }
+
+            /* Feature 1 – Nuclear position reset: !important beats any stale JS
+               inline styles that survive a desktop→mobile resize or fast initial
+               paint before applyDesktopMapLayout() clears them. */
+            .page-shell {
+                position: static !important;
+                height: auto !important;
+                overflow: visible !important;
+            }
+            .overlay-panel {
+                position: static !important;
+                top: auto !important;
+                right: auto !important;
+                transform: none !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                max-height: none !important;
+                overflow-y: visible !important;
+                box-shadow: none !important;
+                border-radius: 0 !important;
+                background: #fff !important;
+            }
+
+            /* Compact bar is desktop-only — hide on mobile */
+            .overlay-compact-bar { display: none; }
+            /* Always show full overlay body on mobile regardless of compact state */
+            .overlay-panel.compact .overlay-body { display: block !important; }
+
+            /* Feature 2+4 – Hide full nav bar; replaced by #mobile-topbar */
+            .nav-bar { display: none; }
+
+            /* Feature 4 – Hide auth section; replaced by #mobile-topbar */
+            .auth-section { display: none !important; }
+
+            /* Feature 4 – Compact topbar: back arrow · Signed in · Log Out */
+            #mobile-topbar {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 8px 14px;
+                background: #f2f2f7;
+                border-bottom: 0.5px solid #e5e5ea;
+            }
+            .mobile-back-btn {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 34px;
+                height: 34px;
+                background: #00D084;
+                color: #fff;
+                border-radius: 50%;
+                text-decoration: none;
+                font-size: 18px;
+                line-height: 1;
+                flex-shrink: 0;
+            }
+            .mobile-signin-text {
+                flex: 1;
+                font-size: 13px;
+                color: #8e8e93;
+            }
+            .mobile-logout-btn {
+                padding: 6px 12px;
+                border: none;
+                border-radius: 8px;
+                font-size: 12px;
+                font-weight: 600;
+                background: #e5e5ea;
+                color: #3a3a3c;
+                cursor: pointer;
+                font-family: inherit;
+                flex-shrink: 0;
+            }
+
+            /* Compact header */
+            .header { padding: 10px 16px 8px; }
+            .header h1 { font-size: 28px; }
+
+            /* Feature 5 – Hide subtitle on mobile; !important beats base specificity */
+            .header .subtitle { display: none !important; }
+            /* Collapse the h1 bottom margin so no gap lingers where subtitle was */
+            .header h1 { margin-bottom: 0; }
+
+            /* Map sits in normal flow below controls */
+            #map-el {
+                height: 260px;
+                border-top: 0.5px solid #e5e5ea;
+            }
+
+            /* Ticker and compact legend are desktop-only; never on mobile */
+            #updates-ticker  { display: none !important; }
+            #map-bottom-right { display: none !important; }
+        }
+    </style>
+    <script type="module" src="/i18n.js"></script>
+    <script src="/pwa.js" defer></script>
+</head>
+<body>
+
+    <div id="access-denied" class="access-denied">
+        <div class="access-denied-msg">Sign in to view the map.</div>
+        <div class="access-denied-sub">You need to be signed in to see progress.</div>
+        <a href="index.html" class="access-denied-btn">Go to Home</a>
+    </div>
+
+    <!-- On desktop: map fills shell, overlay floats over it.
+         On mobile: overlay (controls) flows first, map sits below it. -->
+    <div class="page-shell" id="main-container">
+
+        <!-- overlay-panel: absolute over map on desktop; block column above map on mobile -->
+        <div class="overlay-panel">
+
+            <!-- Always-visible strip: shown even in compact mode (desktop only) -->
+            <div class="overlay-compact-bar">
+                
+                <button class="compact-toggle-btn" onclick="toggleOverlayCompact()">Compact view</button>
+            </div>
+
+            <!-- Full panel body — hidden when overlay is compact (desktop only) -->
+            <div class="overlay-body">
+
+            <!-- Mobile-only compact topbar: back arrow · Signed in · Log Out -->
+            <div id="mobile-topbar">
+                <span class="mobile-signin-text">Signed in</span>
+                <button class="mobile-logout-btn" onclick="authLogOut()">Log Out</button>
+            </div>
+
+            <div class="nav-bar">
+                <a href="index.html" class="nav-home" data-i18n="nav.home">Home</a>
+            </div>
+
+            <div class="auth-section" id="auth-section">
+                <div id="auth-form" style="display:none">
+                    <input type="email" id="auth-email" placeholder="Email" data-i18n-placeholder="auth.email_placeholder">
+                    <input type="password" id="auth-password" placeholder="Password" data-i18n-placeholder="auth.password_placeholder">
+                    <div class="auth-buttons">
+                        <button class="auth-btn-primary" onclick="authSignUp()" data-i18n="auth.sign_up">Sign Up</button>
+                        <button class="auth-btn-secondary" onclick="authLogIn()" data-i18n="auth.log_in">Log In</button>
+                    </div>
+                </div>
+                <div class="auth-status" id="auth-status" style="display:none">
+                    <span class="auth-status-text" id="auth-status-text">Not signed in</span>
+                    <button class="auth-logout-btn" onclick="authLogOut()" data-i18n="auth.log_out">Log Out</button>
+                </div>
+            </div>
+
+
+
+            <div class="tab-bar">
+                <button class="tab-btn active" id="tab-map" onclick="switchTab('map')" data-i18n="how_were_doing.tab_map">Map</button>
+                <button class="tab-btn" id="tab-metrics" onclick="switchTab('metrics')" data-i18n="how_were_doing.tab_metrics">Metrics</button>
+            </div>
+
+            <!-- ── MAP CONTROLS (shown on Map tab) ─────────────────── -->
+            <div id="map-controls">
+                <div class="layer-toggles">
+                    <label class="layer-toggle">
+                        <input type="checkbox" id="toggle-churches" checked onchange="renderMap()">
+                        <span data-i18n="how_were_doing.layer_churches">Churches</span>
+                    </label>
+                    <label class="layer-toggle">
+                        <input type="checkbox" id="toggle-spiritual" checked onchange="renderMap()">
+                        <span data-i18n="how_were_doing.layer_spiritual">Spiritual Convos</span>
+                    </label>
+                    <label class="layer-toggle">
+                        <input type="checkbox" id="toggle-discovery" checked onchange="renderMap()">
+                        <span data-i18n="how_were_doing.layer_discovery">Discovery Convos</span>
+                    </label>
+                </div>
+
+                <div class="filters">
+                    <select class="filter-select" id="map-city" onchange="handleCitySelectionZoom(this.value); renderMap()">
+                        <option value="" data-i18n="how_were_doing.filter_all">All Cities</option>
+                    </select>
+                    <select class="filter-select" id="map-date" onchange="renderMap()">
+                        <option value="30" data-i18n="how_were_doing.period_30">Last 30 Days</option>
+                        <option value="7" data-i18n="how_were_doing.period_7">Last 7 Days</option>
+                        <option value="90" data-i18n="how_were_doing.period_90">Last 3 Months</option>
+                        <option value="365" data-i18n="how_were_doing.period_year">Last Year</option>
+                        <option value="0" data-i18n="how_were_doing.period_all">All Time</option>
+                    </select>
+                    <button class="icon-btn" onclick="loadMapData(true)" title="Refresh">↺</button>
+                </div>
+
+                <div class="map-legend">
+                    <h4 data-i18n="how_were_doing.legend_title">Legend</h4>
+                    <div class="legend-row">
+                        <div class="legend-swatch" style="background:#3a3a3c;"></div>
+                        <span class="legend-label" data-i18n="how_were_doing.legend_church">Church</span>
+                    </div>
+                    <div class="legend-row">
+                        <div class="legend-swatch" style="background:#add8e6; opacity:0.8;"></div>
+                        <span class="legend-label" data-i18n="how_were_doing.legend_low">Low conversation activity</span>
+                    </div>
+                    <div class="legend-row">
+                        <div class="legend-swatch" style="background:#0077b6; opacity:0.8;"></div>
+                        <span class="legend-label" data-i18n="how_were_doing.legend_medium">Medium conversation activity</span>
+                    </div>
+                    <div class="legend-row">
+                        <div class="legend-swatch" style="background:#002f6c; opacity:0.9;"></div>
+                        <span class="legend-label" data-i18n="how_were_doing.legend_high">High conversation activity</span>
+                    </div>
+                </div>
+
+                <div class="map-footer" id="map-last-updated"></div>
+            </div>
+
+            <!-- ── METRICS VIEW ────────────────────────────────────── -->
+            <div id="metrics-view" style="display:none">
+                <div class="filters">
+                    <select class="filter-select" id="metrics-date" onchange="loadMetrics()">
+                        <option value="30" data-i18n="how_were_doing.period_30">Last 30 Days</option>
+                        <option value="7" data-i18n="how_were_doing.period_7">Last 7 Days</option>
+                        <option value="90" data-i18n="how_were_doing.period_90">Last 3 Months</option>
+                        <option value="365" data-i18n="how_were_doing.period_year">Last Year</option>
+                        <option value="0" data-i18n="how_were_doing.period_all">All Time</option>
+                    </select>
+                </div>
+                <div class="stats-section" id="stats-section">
+                    <div class="loading" data-i18n="how_were_doing.loading">Loading…</div>
+                </div>
+            </div>
+
+            </div><!-- /.overlay-body -->
+
+        </div><!-- /.overlay-panel -->
+
+        <!-- map-el: absolute inset:0 on desktop (behind overlay); in-flow block below controls on mobile -->
+        <div id="map-el"></div>
+
+    </div><!-- /.page-shell / #main-container -->
+
+    <!-- Bottom-right HUD: compact legend only -->
+    <div id="map-bottom-right">
+        <div id="compact-legend" aria-hidden="true">
+            <h4>Legend</h4>
+            <div class="legend-row">
+                <div class="legend-swatch" style="background:#3a3a3c;"></div>
+                <span class="legend-label">Church</span>
+            </div>
+            <div class="legend-row">
+                <div class="legend-swatch" style="background:#add8e6; opacity:0.8;"></div>
+                <span class="legend-label">Low activity</span>
+            </div>
+            <div class="legend-row">
+                <div class="legend-swatch" style="background:#0077b6; opacity:0.8;"></div>
+                <span class="legend-label">Medium activity</span>
+            </div>
+            <div class="legend-row">
+                <div class="legend-swatch" style="background:#002f6c; opacity:0.9;"></div>
+                <span class="legend-label">High activity</span>
+            </div>
+        </div>
+    </div><!-- /#map-bottom-right -->
+
+    <!-- Live updates ticker — desktop only, lower-left corner, independent of legend -->
+    <div id="updates-ticker">
+        <div class="ticker-header">
+            <span class="ticker-title">Live Updates</span>
+            <button class="ticker-minimize-btn" onclick="setTickerMinimized(!tickerMinimized)" title="Minimize">−</button>
+        </div>
+        <div id="ticker-feed">
+            <div class="ticker-empty">No recent updates.</div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+    // ── Map state ────────────────────────────────────────────────────────────
+    let map            = null
+    let mapInitPromise = null   // init lock — prevents concurrent L.map() calls
+    let churchLayer    = null
+    let spiritualLayer = null
+    let discoveryLayer = null
+    let mapData = { churches: [], conversations: [] }
+
+    // Persist across page loads via localStorage
+    let overlayCompact = localStorage.getItem('vp_overlay_compact') === 'true'
+
+    // ── Overlay compact toggle ────────────────────────────────────────────────
+
+    function applyOverlayCompact() {
+        const overlay       = document.querySelector('.overlay-panel')
+        const btn           = document.querySelector('.compact-toggle-btn')
+        const compactLegend = document.getElementById('compact-legend')
+        if (!overlay || !btn) return
+        overlay.classList.toggle('compact', overlayCompact)
+        btn.textContent = overlayCompact ? 'Expand' : 'Compact view'
+        if (compactLegend) compactLegend.style.display = overlayCompact ? 'block' : 'none'
+    }
+
+    function toggleOverlayCompact() {
+        overlayCompact = !overlayCompact
+        localStorage.setItem('vp_overlay_compact', overlayCompact)
+        applyOverlayCompact()
+        applyDesktopMapLayout()
+        if (map) setTimeout(() => map.invalidateSize(), 50)
+    }
+
+    // ── Layer-toggle state persistence ────────────────────────────────────────
+
+    function initLayerToggles() {
+        const saved = localStorage.getItem('vp_layer_state')
+        if (saved) {
+            try {
+                const s = JSON.parse(saved)
+                if (typeof s.churches  === 'boolean') document.getElementById('toggle-churches').checked  = s.churches
+                if (typeof s.spiritual === 'boolean') document.getElementById('toggle-spiritual').checked = s.spiritual
+                if (typeof s.discovery === 'boolean') document.getElementById('toggle-discovery').checked = s.discovery
+            } catch (_) { /* bad JSON — keep HTML defaults (all checked) */ }
+        }
+        // No saved state → HTML defaults (all three checked) apply as-is
+    }
+
+    function saveLayerState() {
+        localStorage.setItem('vp_layer_state', JSON.stringify({
+            churches:  document.getElementById('toggle-churches').checked,
+            spiritual: document.getElementById('toggle-spiritual').checked,
+            discovery: document.getElementById('toggle-discovery').checked
+        }))
+    }
+
+    // ── Location helpers ─────────────────────────────────────────────────────
+
+    function getBrowserLocation() {
+        return new Promise((resolve, reject) => {
+            if (!navigator.geolocation) {
+                reject(new Error('geolocation not supported'))
+                return
+            }
+            navigator.geolocation.getCurrentPosition(
+                pos => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+                err => reject(err),
+                { enableHighAccuracy: false, timeout: 5000, maximumAge: 60000 }
+            )
+        })
+    }
+
+    async function getIpLocation() {
+        const res = await fetch('https://ipapi.co/json/')
+        if (!res.ok) throw new Error('IP lookup failed')
+        const data = await res.json()
+        if (!data.latitude || !data.longitude) throw new Error('no coordinates in IP response')
+        return { lat: data.latitude, lng: data.longitude }
+    }
+
+    async function getBestUserLocation() {
+        try {
+            return await getBrowserLocation()
+        } catch (_) {
+            try {
+                return await getIpLocation()
+            } catch (_) {
+                return null
+            }
+        }
+    }
+
+    // ── Layout hardening ───────────────────────────────────────────────────────
+    function applyDesktopMapLayout() {
+        const shell   = document.querySelector('.page-shell')
+        const mapEl   = document.getElementById('map-el')
+        const overlay = document.querySelector('.overlay-panel')
+        if (!shell || !mapEl || !overlay) return
+
+        if (window.innerWidth >= 768) {
+            document.documentElement.style.height = '100%'
+            document.body.style.height = '100%'
+            document.body.style.overflow = 'hidden'
+            document.body.style.paddingBottom = '0'
+
+            shell.style.position = 'relative'
+            shell.style.width = '100%'
+            shell.style.height = `${window.innerHeight}px`
+            shell.style.overflow = 'hidden'
+
+            mapEl.style.position = 'absolute'
+            mapEl.style.top = '0'
+            mapEl.style.right = '0'
+            mapEl.style.bottom = '0'
+            mapEl.style.left = '0'
+            mapEl.style.width = '100%'
+            mapEl.style.height = '100%'
+            mapEl.style.display = 'block'
+            mapEl.style.zIndex = '0'
+
+            overlay.style.position = 'absolute'
+            overlay.style.top = '16px'
+            overlay.style.right = '16px'
+            overlay.style.left = 'auto'
+            overlay.style.width     = overlayCompact ? 'auto'               : '320px'
+            overlay.style.maxWidth  = overlayCompact ? ''                   : '320px'
+            overlay.style.minWidth  = overlayCompact ? '150px'              : ''
+            overlay.style.maxHeight = overlayCompact ? 'none'               : 'calc(100vh - 32px)'
+            overlay.style.margin = '0'
+            overlay.style.overflowY = overlayCompact ? 'visible'            : 'auto'
+            overlay.style.zIndex = '500'
+            overlay.style.background = 'rgba(255,255,255,0.97)'
+            overlay.style.borderRadius = '14px'
+            overlay.style.boxShadow = '0 4px 24px rgba(0,0,0,0.18)'
+        } else {
+            document.documentElement.style.height = ''
+            document.body.style.height = ''
+            document.body.style.overflow = ''
+            document.body.style.paddingBottom = ''   // let CSS handle safe-area-aware padding
+
+            shell.style.position = ''
+            shell.style.width = ''
+            shell.style.height = ''
+            shell.style.overflow = ''
+
+            mapEl.style.position = ''
+            mapEl.style.top = ''
+            mapEl.style.right = ''
+            mapEl.style.bottom = ''
+            mapEl.style.left = ''
+            mapEl.style.width = ''
+            mapEl.style.height = ''
+            mapEl.style.display = ''
+            mapEl.style.zIndex = ''
+
+            overlay.style.position = ''
+            overlay.style.top = ''
+            overlay.style.right = ''
+            overlay.style.left = ''
+            overlay.style.width = ''
+            overlay.style.maxWidth = ''
+            overlay.style.minWidth = ''
+            overlay.style.maxHeight = ''
+            overlay.style.margin = ''
+            overlay.style.overflowY = ''
+            overlay.style.zIndex = ''
+            overlay.style.background = ''
+            overlay.style.borderRadius = ''
+            overlay.style.boxShadow = ''
+        }
+
+        if (map) {
+            setTimeout(() => map.invalidateSize(), 0)
+            setTimeout(() => map.invalidateSize(), 120)
+        }
+    }
+
+    // ── Tab switching ────────────────────────────────────────────────────────
+    function switchTab(tab) {
+        const isMap = tab === 'map'
+        document.getElementById('tab-map').classList.toggle('active', isMap)
+        document.getElementById('tab-metrics').classList.toggle('active', !isMap)
+        document.getElementById('map-controls').style.display  = isMap ? '' : 'none'
+        document.getElementById('metrics-view').style.display  = isMap ? 'none' : 'block'
+
+        // On mobile, hide the map element when showing metrics so it doesn't
+        // sit as an empty block below the stats content.
+        if (window.innerWidth < 768) {
+            document.getElementById('map-el').style.display = isMap ? '' : 'none'
+        }
+
+        if (isMap) {
+            if (map) map.invalidateSize()
+            // Retry data load if empty — covers the case where initial load
+            // failed silently or was still in-flight when the tab was first shown.
+            if (mapData.churches.length === 0 && mapData.conversations.length === 0) {
+                loadMapData(false)
+            }
+        } else {
+            loadMetrics()
+        }
+    }
+
+    // ── Map setup ────────────────────────────────────────────────────────────
+    async function ensureMap() {
+        applyDesktopMapLayout()
+
+        if (map) {
+            map.invalidateSize()
+            return map
+        }
+
+        // Concurrent-call guard: waitForAuth fires every 150ms and two overlapping
+        // getSession() promises can both see map===null before either reaches L.map().
+        // Store the in-flight promise so the second caller waits instead of
+        // starting a second L.map() on the same container.
+        if (mapInitPromise) {
+            return mapInitPromise
+        }
+
+        mapInitPromise = (async () => {
+            const mapEl = document.getElementById('map-el')
+            if (!mapEl) {
+                console.error('ensureMap: #map-el not found')
+                return null
+            }
+
+            // Bail if Leaflet already stamped this container (e.g. hot-reload).
+            if (mapEl._leaflet_id) {
+                console.warn('ensureMap: container already has _leaflet_id — skipping L.map()')
+                return map
+            }
+
+            // Let layout settle before Leaflet snapshots container dimensions.
+            await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))
+
+            map = L.map('map-el', { zoomControl: true }).setView([39.8283, -98.5795], 4)
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors',
+                maxZoom: 19
+            }).addTo(map)
+
+            churchLayer    = L.layerGroup().addTo(map)
+            spiritualLayer = L.layerGroup()
+            discoveryLayer = L.layerGroup()
+
+            setTimeout(() => map.invalidateSize(), 0)
+            setTimeout(() => map.invalidateSize(), 150)
+
+            await Promise.all([
+                centerOnUserLocation(),
+                loadMapData(false)
+            ])
+
+            setTimeout(() => map.invalidateSize(), 300)
+
+            return map
+        })()
+
+        try {
+            return await mapInitPromise
+        } finally {
+            mapInitPromise = null
+        }
+    }
+
+    // NYC fallback coordinates
+    const NYC = { lat: 40.7128, lng: -74.0060 }
+
+    // Shared: zoom map to a ~N-mile radius bounding box around (lat, lng).
+    // Uses direct degree math so no Leaflet projection is needed (L.circle.getBounds()
+    // requires the layer to be on a map; this does not).
+    function zoomToRadius(lat, lng, miles) {
+        if (!map) return
+        const R_M      = miles * 1609.34
+        const latDelta = R_M / 111320
+        const lngDelta = R_M / (111320 * Math.cos(lat * Math.PI / 180))
+        map.fitBounds(
+            L.latLngBounds([lat - latDelta, lng - lngDelta], [lat + latDelta, lng + lngDelta]),
+            { padding: [20, 20] }
+        )
+    }
+
+    async function centerOnUserLocation() {
+        if (!map) {
+            console.error('centerOnUserLocation: map is not initialised yet')
+            return
+        }
+
+        const loc = await getBestUserLocation() || NYC
+        console.log('centerOnUserLocation: resolved to', loc.lat, loc.lng)
+
+        zoomToRadius(loc.lat, loc.lng, 10)
+        setTimeout(() => map.invalidateSize(), 100)
+
+        // Visual marker for the resolved user location
+        L.circleMarker([loc.lat, loc.lng], {
+            radius: 8,
+            fillColor: '#007AFF',
+            color: '#fff',
+            weight: 2,
+            fillOpacity: 0.9,
+            pane: 'markerPane'
+        }).bindPopup('Your location').addTo(map)
+    }
+
+    // Zoom to selected city using the first matching row's coordinates.
+    // Called before renderMap() so filtering and zoom happen together.
+    function handleCitySelectionZoom(city) {
+        if (!city || !map) return
+        const match = mapData.churches.find(c => c.city === city && c.latitude && c.longitude)
+                   || mapData.conversations.find(c => c.city === city && c.latitude && c.longitude)
+        if (!match) { console.warn('handleCitySelectionZoom: no coordinates found for city', city); return }
+        zoomToRadius(+match.latitude, +match.longitude, 10)
+    }
+
+    // ── Data loading ─────────────────────────────────────────────────────────
+    async function loadMapData(showMessage) {
+        if (!window.supabase) {
+            console.error('loadMapData: Supabase client missing')
+            document.getElementById('map-last-updated').textContent = 'Error: Supabase client missing'
+            notify('Supabase client missing')
+            return
+        }
+
+        const [
+            { data: churches, error: churchError },
+            { data: convos,   error: convoError }
+        ] = await Promise.all([
+            window.supabase
+                .from('church_assessments')
+                .select('latitude, longitude, location_text, city, leader_name, baptism_count, church_generation, updated_at')
+                .eq('is_church', true),
+            window.supabase
+                .from('conversation_events')
+                .select('latitude, longitude, location_text, city, event_type, count, created_at')
+        ])
+
+        if (churchError || convoError) {
+            console.error('church_assessments error:', churchError)
+            console.error('conversation_events error:', convoError)
+            const msg = churchError?.message || convoError?.message || 'Error loading map data'
+            document.getElementById('map-last-updated').textContent = 'Error loading data: ' + msg
+            notify('Error loading data')
+            return
+        }
+
+        console.log('church rows raw:', churches?.length ?? 0, '  convo rows raw:', convos?.length ?? 0)
+
+        mapData.churches      = (churches || []).filter(c => c.latitude && c.longitude)
+        mapData.conversations = (convos   || []).filter(c => c.latitude && c.longitude)
+
+        const uniqueCities = new Set([
+            ...mapData.churches.map(c => c.city).filter(Boolean),
+            ...mapData.conversations.map(c => c.city).filter(Boolean)
+        ])
+        console.log('loadMapData filtered: churches=' + mapData.churches.length
+            + ' conversations=' + mapData.conversations.length
+            + ' unique cities=' + uniqueCities.size)
+        console.log('loadMapData: calling populateCityDropdown + renderMap')
+
+        populateCityDropdown()
+        renderMap()
+        initRecentUpdatesTicker()   // no-op after first call; seeds from loaded data
+
+        document.getElementById('map-last-updated').textContent =
+            window.t ? window.t('how_were_doing.last_updated', { time: new Date().toLocaleTimeString() }) :
+                       'Updated ' + new Date().toLocaleTimeString()
+
+        if (showMessage) notify(window.t ? window.t('how_were_doing.data_refreshed') : 'Data refreshed')
+    }
+
+    function populateCityDropdown() {
+        const cities = new Set()
+        mapData.churches.forEach(c => { if (c.city) cities.add(c.city) })
+        mapData.conversations.forEach(c => { if (c.city) cities.add(c.city) })
+
+        const sel = document.getElementById('map-city')
+        const prev = sel.value
+        sel.innerHTML = '<option value="">' + (window.t ? window.t('how_were_doing.filter_all') : 'All Cities') + '</option>'
+        Array.from(cities).sort().forEach(city => {
+            const opt = document.createElement('option')
+            opt.value = city
+            opt.textContent = city
+            sel.appendChild(opt)
+        })
+        if (prev) sel.value = prev
+    }
+
+    function cutoffFromDays(days) {
+        return days > 0 ? new Date(Date.now() - days * 86400000).toISOString() : null
+    }
+
+    // renderMap() NEVER calls map.fitBounds / map.setView so the initial
+    // user-centered viewport is not overridden by marker rendering.
+    function renderMap() {
+        if (!map) return
+        saveLayerState()
+
+        const showChurches  = document.getElementById('toggle-churches').checked
+        const showSpiritual = document.getElementById('toggle-spiritual').checked
+        const showDiscovery = document.getElementById('toggle-discovery').checked
+        const city   = document.getElementById('map-city').value
+        const days   = parseInt(document.getElementById('map-date').value)
+        const cutoff = cutoffFromDays(days)
+
+        // ── Churches ──
+        churchLayer.clearLayers()
+        if (showChurches) {
+            mapData.churches.forEach(c => {
+                if (city   && c.city       !== city)  return
+                if (cutoff && c.updated_at <  cutoff) return
+
+                L.circleMarker([c.latitude, c.longitude], {
+                    radius: 9,
+                    fillColor: '#3a3a3c',
+                    color: '#fff',
+                    weight: 2,
+                    fillOpacity: 0.9
+                }).bindPopup(
+                    '<strong>' + (c.location_text || 'Church') + '</strong>' +
+                    (c.leader_name      ? '<br>Leader: ' + c.leader_name          : '') +
+                    '<br>Baptisms: '    + (c.baptism_count  || 0) +
+                    (c.church_generation ? '<br>Generation: ' + c.church_generation : '')
+                ).addTo(churchLayer)
+            })
+        }
+
+        // ── Conversation heatmap circles ──
+        spiritualLayer.clearLayers()
+        discoveryLayer.clearLayers()
+
+        const buckets = {}
+        mapData.conversations.forEach(ev => {
+            if (city   && ev.city       !== city)  return
+            if (cutoff && ev.created_at <  cutoff) return
+            const lat2 = +ev.latitude.toFixed(2)
+            const lon2 = +ev.longitude.toFixed(2)
+            const key  = lat2 + ',' + lon2
+            if (!buckets[key]) {
+                buckets[key] = { lat: lat2, lon: lon2, locationText: null, spiritualCount: 0, discoveryCount: 0 }
+            }
+            if (!buckets[key].locationText && ev.location_text) buckets[key].locationText = ev.location_text
+            if (ev.event_type === 'spiritual') buckets[key].spiritualCount += (ev.count || 1)
+            else                               buckets[key].discoveryCount += (ev.count || 1)
+        })
+
+        function convoRadius(n) { return Math.min(400 + n * 300, 8000) }
+
+        function makeCircle(lat, lon, n, type, locationText) {
+            const color  = n <= 3 ? '#add8e6' : n <= 10 ? '#0077b6' : '#002f6c'
+            const radius = convoRadius(n)
+            const typeLabel = type === 'spiritual' ? 'Spiritual' : 'Discovery'
+            return L.circle([lat, lon], {
+                color, fillColor: color, fillOpacity: 0.55, radius, weight: 1
+            }).bindPopup(
+                '<strong>' + (locationText || 'Location') + '</strong>' +
+                '<br>' + typeLabel + ' conversations: ' + n
+            )
+        }
+
+        Object.values(buckets).forEach(b => {
+            const sn = b.spiritualCount
+            const dn = b.discoveryCount
+            if (sn >= dn) {
+                if (sn > 0) spiritualLayer.addLayer(makeCircle(b.lat, b.lon, sn, 'spiritual', b.locationText))
+                if (dn > 0) discoveryLayer.addLayer(makeCircle(b.lat, b.lon, dn, 'discovery', b.locationText))
+            } else {
+                if (dn > 0) discoveryLayer.addLayer(makeCircle(b.lat, b.lon, dn, 'discovery', b.locationText))
+                if (sn > 0) spiritualLayer.addLayer(makeCircle(b.lat, b.lon, sn, 'spiritual', b.locationText))
+            }
+        })
+
+        if (showSpiritual) spiritualLayer.addTo(map); else spiritualLayer.remove()
+        if (showDiscovery) discoveryLayer.addTo(map); else discoveryLayer.remove()
+    }
+
+    // ── Metrics ──────────────────────────────────────────────────────────────
+    async function loadMetrics() {
+        if (!window.supabase) return
+
+        const section = document.getElementById('stats-section')
+        section.innerHTML = '<div class="loading">Loading…</div>'
+
+        const days   = parseInt(document.getElementById('metrics-date').value)
+        const cutoff = cutoffFromDays(days)
+
+        let query = window.supabase
+            .from('church_assessments')
+            .select('baptism_count, church_generation')
+            .eq('is_church', true)
+
+        if (cutoff) query = query.gte('updated_at', cutoff)
+
+        const { data: churches, error } = await query
+
+        if (error) {
+            section.innerHTML = '<div class="empty-state">Error loading data.<br><small>' + error.message + '</small></div>'
+            return
+        }
+
+        const rows     = churches || []
+        const total    = rows.length
+        const baptisms = rows.reduce((s, r) => s + (r.baptism_count || 0), 0)
+        const gen2     = rows.filter(r => r.church_generation === 'gen2+').length
+
+        let spiritual = 0
+        const { data: convData } = await window.supabase
+            .from('conversation_events')
+            .select('count')
+            .eq('event_type', 'spiritual')
+        if (convData) spiritual = convData.reduce((s, r) => s + (r.count || 0), 0)
+
+        const label = days === 0 ? 'All Time' :
+                      days === 7  ? 'Last 7 Days' :
+                      days === 30 ? 'Last 30 Days' :
+                      days === 90 ? 'Last 3 Months' : 'Last Year'
+
+        section.innerHTML =
+            '<div class="period-label">' + label + '</div>' +
+            '<div class="stats-grid">' +
+                '<div class="stat-card accent">' +
+                    '<div class="stat-value">' + spiritual.toLocaleString() + '</div>' +
+                    '<div class="stat-label">Spiritual Conversations</div>' +
+                '</div>' +
+                '<div class="stat-card">' +
+                    '<div class="stat-value">' + total.toLocaleString() + '</div>' +
+                    '<div class="stat-label">Churches</div>' +
+                '</div>' +
+                '<div class="stat-card">' +
+                    '<div class="stat-value">' + baptisms.toLocaleString() + '</div>' +
+                    '<div class="stat-label">Baptisms</div>' +
+                '</div>' +
+                '<div class="stat-card wide">' +
+                    '<div class="stat-value">' + gen2.toLocaleString() + '</div>' +
+                    '<div class="stat-label">Gen 2+ Churches</div>' +
+                '</div>' +
+            '</div>'
+    }
+
+    // ── Notification ─────────────────────────────────────────────────────────
+    function notify(msg) {
+        const el = document.createElement('div')
+        el.className = 'notification'
+        el.textContent = msg
+        document.body.appendChild(el)
+        setTimeout(() => el.remove(), 3200)
+    }
+
+    // ── Live updates ticker ───────────────────────────────────────────────────
+
+    const TICKER_MAX = 40
+    let tickerItems        = []       // newest first
+    let tickerSeenKeys     = new Set() // deduplication — composite ts|city|type keys
+    let tickerInitialized  = false
+    let tickerSubscription = null
+    let tickerScrollTimer  = null
+    let tickerPollTimer    = null     // 10s safety-sync interval
+    let tickerMinimized    = localStorage.getItem('vp_ticker_minimized') === 'true'
+
+    function initRecentUpdatesTicker() {
+        if (tickerInitialized) return
+        tickerInitialized = true
+
+        // Desktop only
+        if (window.innerWidth < 768) return
+
+        const ticker = document.getElementById('updates-ticker')
+        if (!ticker) return
+        ticker.style.display = 'block'
+
+        // Restore minimized state without re-saving
+        setTickerMinimized(tickerMinimized, false)
+
+        // Pause scroll on hover; resume on leave
+        const feed = document.getElementById('ticker-feed')
+        feed.addEventListener('mouseenter', stopTickerScroll)
+        feed.addEventListener('mouseleave', () => { if (!tickerMinimized) startTickerScroll() })
+        // Also pause if user manually scrolls; resume after 3s idle
+        let resumeTimer = null
+        feed.addEventListener('scroll', () => {
+            stopTickerScroll()
+            clearTimeout(resumeTimer)
+            resumeTimer = setTimeout(() => { if (!tickerMinimized) startTickerScroll() }, 3000)
+        }, { passive: true })
+
+        seedTickerFromMapData()
+        subscribeToRecentUpdates()
+        startRecentUpdatesPolling()   // 10s safety sync on top of realtime
+        startTickerScroll()
+    }
+
+    // Seed from already-loaded mapData so feed is populated immediately.
+    // Also primes tickerSeenKeys so duplicates from the first poll are dropped.
+    function seedTickerFromMapData() {
+        const sorted = [...mapData.conversations]
+            .filter(ev => ev.created_at)
+            .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+            .slice(0, TICKER_MAX)
+
+        tickerItems = sorted.map(ev => ({
+            ts:    ev.created_at,
+            city:  ev.city       || '',
+            type:  ev.event_type || 'update',
+            count: ev.count      || 1
+        }))
+        tickerSeenKeys = new Set(tickerItems.map(tickerKey))
+        renderTickerFeed()
+    }
+
+    function subscribeToRecentUpdates() {
+        if (!window.supabase || tickerSubscription) return
+
+        tickerSubscription = window.supabase
+            .channel('vp-ticker-v1')
+            .on('postgres_changes', {
+                event: 'INSERT', schema: 'public', table: 'conversation_events'
+            }, payload => {
+                appendRecentUpdate(payload.new)
+            })
+            .on('postgres_changes', {
+                event: 'INSERT', schema: 'public', table: 'church_assessments'
+            }, payload => {
+                if (payload.new && payload.new.is_church) {
+                    appendRecentUpdate(payload.new, 'church')
+                }
+            })
+            .subscribe(status => {
+                console.log('ticker subscription status:', status)
+            })
+    }
+
+    // Stable composite key used for deduplication across seed, realtime, and poll paths.
+    // ts|city|type is unique enough for display within a session; avoids needing row IDs
+    // (which aren't included in the existing mapData select queries).
+    function tickerKey(item) {
+        return (item.ts || '') + '|' + (item.city || '') + '|' + (item.type || '')
+    }
+
+    // Prepend only genuinely new items; re-renders only when at least one passes dedup.
+    function mergeRecentUpdates(newItems) {
+        const fresh = newItems.filter(item => {
+            const key = tickerKey(item)
+            if (tickerSeenKeys.has(key)) return false
+            tickerSeenKeys.add(key)
+            return true
+        })
+        if (fresh.length === 0) return          // nothing new — skip re-render
+        tickerItems.unshift(...fresh)
+        if (tickerItems.length > TICKER_MAX) tickerItems.length = TICKER_MAX
+        renderTickerFeed()
+    }
+
+    // Fetch conversation_events newer than `since` and merge them into the feed.
+    async function fetchRecentUpdatesSince(since) {
+        if (!window.supabase) return
+        try {
+            const { data, error } = await window.supabase
+                .from('conversation_events')
+                .select('created_at, city, event_type, count')
+                .gt('created_at', since)
+                .order('created_at', { ascending: false })
+                .limit(20)
+            if (error) { console.warn('ticker poll error:', error.message); return }
+            if (!data || data.length === 0) return
+            mergeRecentUpdates(data.map(ev => ({
+                ts:    ev.created_at,
+                city:  ev.city       || '',
+                type:  ev.event_type || 'update',
+                count: ev.count      || 1
+            })))
+        } catch (err) {
+            console.warn('ticker poll exception:', err)
+        }
+    }
+
+    // Start the 10s safety-sync interval. Guard prevents a second interval if called twice.
+    function startRecentUpdatesPolling() {
+        if (tickerPollTimer) return
+        tickerPollTimer = setInterval(async () => {
+            if (!window.supabase || !tickerInitialized) return
+            // Use the newest item's ts as the lower bound; fall back to 60s ago.
+            const since = tickerItems.length > 0
+                ? tickerItems[0].ts
+                : new Date(Date.now() - 60000).toISOString()
+            await fetchRecentUpdatesSince(since)
+        }, 10000)
+    }
+
+    function appendRecentUpdate(row, forceType) {
+        if (!row) return
+        const item = {
+            ts:    row.created_at || row.updated_at || new Date().toISOString(),
+            city:  row.city      || '',
+            type:  forceType     || row.event_type || 'update',
+            count: row.count     || 1
+        }
+        const key = tickerKey(item)
+        if (tickerSeenKeys.has(key)) return   // already shown — skip
+        tickerSeenKeys.add(key)
+        tickerItems.unshift(item)
+        if (tickerItems.length > TICKER_MAX) tickerItems.length = TICKER_MAX
+        renderTickerFeed()
+    }
+
+    function renderTickerFeed() {
+        const feed = document.getElementById('ticker-feed')
+        if (!feed) return
+
+        if (tickerItems.length === 0) {
+            feed.innerHTML = '<div class="ticker-empty">No recent updates.</div>'
+            return
+        }
+
+        const rows = tickerItems.map(item => {
+            const timeStr = tickerLocalTime(item.ts)
+            const type = item.type === 'spiritual' ? 'Spiritual convo'
+                       : item.type === 'discovery' ? 'Discovery convo'
+                       : item.type === 'church'    ? 'Church added'
+                       : 'Update'
+            const desc = item.count > 1 ? type + ' ×' + item.count : type
+            const city = item.city ? '<span class="ticker-city">' + escHtml(item.city) + '</span><span class="ticker-sep">·</span>' : ''
+            const time = timeStr ? '<span class="ticker-time">' + timeStr + '</span>' : ''
+            return '<div class="ticker-row">' +
+                time +
+                city +
+                '<span class="ticker-desc">' + escHtml(desc) + '</span>' +
+                '</div>'
+        })
+        feed.innerHTML = rows.join('')
+    }
+
+    // Returns local browser time like "3:42 PM"; returns '' on invalid input.
+    function tickerLocalTime(iso) {
+        if (!iso) return ''
+        try {
+            const d = new Date(iso)
+            if (isNaN(d.getTime())) return ''
+            return d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+        } catch (_) {
+            return ''
+        }
+    }
+
+    function escHtml(s) {
+        return String(s)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+    }
+
+    // Slow scroll: 1px every 80ms ≈ 12px/sec — gentle enough to read
+    function startTickerScroll() {
+        stopTickerScroll()
+        if (tickerMinimized) return
+        const feed = document.getElementById('ticker-feed')
+        if (!feed || tickerItems.length < 4) return   // not enough to need scrolling
+
+        tickerScrollTimer = setInterval(() => {
+            if (!feed) return
+            const atBottom = feed.scrollTop + feed.clientHeight >= feed.scrollHeight - 2
+            feed.scrollTop = atBottom ? 0 : feed.scrollTop + 1
+        }, 80)
+    }
+
+    function stopTickerScroll() {
+        clearInterval(tickerScrollTimer)
+        tickerScrollTimer = null
+    }
+
+    function setTickerMinimized(isMin, save = true) {
+        tickerMinimized = isMin
+        if (save) localStorage.setItem('vp_ticker_minimized', tickerMinimized)
+
+        const ticker = document.getElementById('updates-ticker')
+        const btn    = document.querySelector('.ticker-minimize-btn')
+        if (ticker) ticker.classList.toggle('minimized', tickerMinimized)
+        if (btn)    btn.textContent = tickerMinimized ? '+' : '−'
+
+        if (tickerMinimized) stopTickerScroll()
+        else                 startTickerScroll()
+    }
+
+    // ── Boot ─────────────────────────────────────────────────────────────────
+    applyDesktopMapLayout()
+    applyOverlayCompact()   // restore compact/expanded from localStorage
+    initLayerToggles()      // restore layer state from localStorage (defaults: all checked)
+    window.addEventListener('resize', applyDesktopMapLayout)
+
+    // Clean up realtime subscription and scroll timer on navigate away
+    window.addEventListener('beforeunload', () => {
+        stopTickerScroll()
+        clearInterval(tickerPollTimer)
+        if (tickerSubscription && window.supabase) {
+            window.supabase.removeChannel(tickerSubscription)
+        }
+    })
+
+    // Wait for Supabase auth + leader role before loading data.
+    ;(function waitForAuth() {
+        const interval = setInterval(() => {
+            if (!window.supabase) {
+                console.warn('waitForAuth: Supabase not ready yet')
+                return
+            }
+            window.supabase.auth.getSession().then(({ data: { session }, error }) => {
+                if (error) {
+                    console.error('waitForAuth: session error:', error)
+                    return
+                }
+                if (!session) {
+                    console.warn('waitForAuth: no session yet')
+                    return
+                }
+                console.log('waitForAuth: session found for', session.user?.email, '— calling ensureMap()')
+                clearInterval(interval)
+                ensureMap()
+            })
+        }, 150)
+    })()
+    </script>
+</body>
+</html>
