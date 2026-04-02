@@ -445,6 +445,43 @@
         .compact-toggle-btn:active { opacity: 0.75; }
         /* Hide the scrollable body content when collapsed */
         .overlay-panel.compact .overlay-body { display: none; }
+
+        /* ── Compact-mode floating legend (lower-right corner) ─────── */
+        #compact-legend {
+            display: none;          /* shown via JS when overlayCompact=true */
+            position: fixed;
+            bottom: 16px;
+            right: 16px;
+            z-index: 490;           /* below overlay (500), above map (0) */
+            background: rgba(255, 255, 255, 0.72);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 10px;
+            padding: 10px 14px;
+            box-shadow: 0 2px 14px rgba(0, 0, 0, 0.16);
+            pointer-events: none;   /* let map interact underneath */
+        }
+        #compact-legend h4 {
+            font-size: 11px;
+            font-weight: 600;
+            color: #3a3a3c;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        #compact-legend .legend-row {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            margin-bottom: 4px;
+        }
+        #compact-legend .legend-swatch {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        #compact-legend .legend-label { font-size: 12px; color: #3a3a3c; }
     </style>
     <script type="module" src="/i18n.js"></script>
     <script src="/pwa.js" defer></script>
@@ -523,7 +560,7 @@
                 </div>
 
                 <div class="filters">
-                    <select class="filter-select" id="map-city" onchange="renderMap()">
+                    <select class="filter-select" id="map-city" onchange="handleCitySelectionZoom(this.value); renderMap()">
                         <option value="" data-i18n="how_were_doing.filter_all">All Cities</option>
                     </select>
                     <select class="filter-select" id="map-date" onchange="renderMap()">
@@ -581,6 +618,27 @@
 
     </div><!-- /.page-shell / #main-container -->
 
+    <!-- Compact-mode legend: fixed lower-right, shown by JS when overlayCompact=true -->
+    <div id="compact-legend" aria-hidden="true">
+        <h4>Legend</h4>
+        <div class="legend-row">
+            <div class="legend-swatch" style="background:#3a3a3c;"></div>
+            <span class="legend-label">Church</span>
+        </div>
+        <div class="legend-row">
+            <div class="legend-swatch" style="background:#add8e6; opacity:0.8;"></div>
+            <span class="legend-label">Low activity</span>
+        </div>
+        <div class="legend-row">
+            <div class="legend-swatch" style="background:#0077b6; opacity:0.8;"></div>
+            <span class="legend-label">Medium activity</span>
+        </div>
+        <div class="legend-row">
+            <div class="legend-swatch" style="background:#002f6c; opacity:0.9;"></div>
+            <span class="legend-label">High activity</span>
+        </div>
+    </div>
+
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
     // ── Map state ────────────────────────────────────────────────────────────
@@ -597,11 +655,13 @@
     // ── Overlay compact toggle ────────────────────────────────────────────────
 
     function applyOverlayCompact() {
-        const overlay = document.querySelector('.overlay-panel')
-        const btn     = document.querySelector('.compact-toggle-btn')
+        const overlay       = document.querySelector('.overlay-panel')
+        const btn           = document.querySelector('.compact-toggle-btn')
+        const compactLegend = document.getElementById('compact-legend')
         if (!overlay || !btn) return
         overlay.classList.toggle('compact', overlayCompact)
         btn.textContent = overlayCompact ? 'Expand' : 'Compact view'
+        if (compactLegend) compactLegend.style.display = overlayCompact ? 'block' : 'none'
     }
 
     function toggleOverlayCompact() {
@@ -842,6 +902,20 @@
     // NYC fallback coordinates
     const NYC = { lat: 40.7128, lng: -74.0060 }
 
+    // Shared: zoom map to a ~N-mile radius bounding box around (lat, lng).
+    // Uses direct degree math so no Leaflet projection is needed (L.circle.getBounds()
+    // requires the layer to be on a map; this does not).
+    function zoomToRadius(lat, lng, miles) {
+        if (!map) return
+        const R_M      = miles * 1609.34
+        const latDelta = R_M / 111320
+        const lngDelta = R_M / (111320 * Math.cos(lat * Math.PI / 180))
+        map.fitBounds(
+            L.latLngBounds([lat - latDelta, lng - lngDelta], [lat + latDelta, lng + lngDelta]),
+            { padding: [20, 20] }
+        )
+    }
+
     async function centerOnUserLocation() {
         if (!map) {
             console.error('centerOnUserLocation: map is not initialised yet')
@@ -851,17 +925,7 @@
         const loc = await getBestUserLocation() || NYC
         console.log('centerOnUserLocation: resolved to', loc.lat, loc.lng)
 
-        // Compute a ~10-mile bounding box with plain math.
-        // L.circle.getBounds() requires the layer to be on a map (needs projection);
-        // computing the box directly avoids that dependency.
-        const R_M       = 16093                              // 10 miles in metres
-        const latDelta  = R_M / 111320                      // degrees lat per metre
-        const lngDelta  = R_M / (111320 * Math.cos(loc.lat * Math.PI / 180))
-        const bounds = L.latLngBounds(
-            [loc.lat - latDelta, loc.lng - lngDelta],
-            [loc.lat + latDelta, loc.lng + lngDelta]
-        )
-        map.fitBounds(bounds, { padding: [20, 20] })
+        zoomToRadius(loc.lat, loc.lng, 10)
         setTimeout(() => map.invalidateSize(), 100)
 
         // Visual marker for the resolved user location
@@ -873,6 +937,16 @@
             fillOpacity: 0.9,
             pane: 'markerPane'
         }).bindPopup('Your location').addTo(map)
+    }
+
+    // Zoom to selected city using the first matching row's coordinates.
+    // Called before renderMap() so filtering and zoom happen together.
+    function handleCitySelectionZoom(city) {
+        if (!city || !map) return
+        const match = mapData.churches.find(c => c.city === city && c.latitude && c.longitude)
+                   || mapData.conversations.find(c => c.city === city && c.latitude && c.longitude)
+        if (!match) { console.warn('handleCitySelectionZoom: no coordinates found for city', city); return }
+        zoomToRadius(+match.latitude, +match.longitude, 10)
     }
 
     // ── Data loading ─────────────────────────────────────────────────────────
