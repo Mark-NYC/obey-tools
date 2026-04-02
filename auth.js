@@ -95,3 +95,28 @@ export function initLeaderPage() {
         checkLeaderAccess(session)
     })
 }
+
+// Called once per user-gated page. Requires sign-in only (not leader role).
+// If not signed in, shows the access-denied panel with a login prompt.
+// If signed in, shows main content.
+async function checkUserAccess(session) {
+    const denied = document.getElementById('access-denied')
+    const main   = document.getElementById('main-container')
+    if (!session?.user) {
+        denied.style.display = 'flex'
+        main.style.display   = 'none'
+        return
+    }
+    denied.style.display = 'none'
+    main.style.display   = ''
+    updateAuthUI(session.user)
+}
+
+export function initUserPage() {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+        checkUserAccess(session)
+    })
+    supabase.auth.onAuthStateChange((_event, session) => {
+        checkUserAccess(session)
+    })
+}
