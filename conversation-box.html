@@ -217,8 +217,9 @@
 </head>
 <body>
     <div class="sync-indicator" id="sync-indicator" data-i18n="sync.syncing">Syncing...</div>
-    <div style="text-align:center; padding:20px 0 8px;">
-        <a href="index.html" style="display:inline-block; background:#000; color:#fff; font-weight:700; font-size:17px; padding:12px 28px; border-radius:50px; text-decoration:none;" data-i18n="nav.home">Home</a>
+    <div style="text-align:center; padding:20px 0 8px; display:flex; justify-content:center; align-items:center; gap:16px;">
+        <a href="index.html" style="font-size:13px; color:#666; text-decoration:none;">Home</a>
+        <a href="view-progress.html" style="font-size:13px; color:#666; text-decoration:none;">View Map →</a>
     </div>
     <div class="container">
         <!-- Auth section: shown at top, collapses to status row when signed in -->
@@ -353,7 +354,22 @@
             <button class="btn btn-primary" onclick="closeTutorial()" data-i18n="conversation_box.got_it">Got it!</button>
         </div>
     </div>
-    <!-- Onboarding overlay -->
+    <!-- Location permission popup -->
+    <div class="onboarding-overlay" id="loc-permission-overlay">
+        <div class="onboarding-card">
+            <div class="onboarding-step active">
+                <h3>See local progress on the map</h3>
+                <p>Share your approximate location so your conversations appear in the right area. You'll be able to see what's happening near you and how your updates fit into the bigger picture.</p>
+                <p style="font-size:12px; color:#8e8e93; margin-top:8px;">Approximate location only. Not your exact address.</p>
+            </div>
+            <div class="onboarding-actions">
+                <button class="onboarding-skip" onclick="denyLocation()">Skip</button>
+                <button class="onboarding-next" onclick="allowLocation()">Allow location</button>
+            </div>
+        </div>
+    </div>
+
+        <!-- Onboarding overlay -->
     <div class="onboarding-overlay" id="onboarding-overlay">
         <div class="onboarding-card">
             <div class="onboarding-step active" id="ob-step-1">
@@ -718,7 +734,11 @@ function saveConversations() {
             updateDisplay();
             preloadImages();
             appInitialized = true;
-            if (!localStorage.getItem('onboarding-seen')) showOnboarding();
+            if (!localStorage.getItem('onboarding-seen')) {
+                showOnboarding();
+            } else if (!localStorage.getItem('loc-permission-seen')) {
+                showLocPermission();
+            }
         }
 
         // Wait for WordPress progress system to load
@@ -1342,6 +1362,24 @@ function saveConversations() {
         function closeOnboarding() {
             document.getElementById('onboarding-overlay').classList.remove('visible');
             localStorage.setItem('onboarding-seen', '1');
+            if (!localStorage.getItem('loc-permission-seen')) showLocPermission();
+        }
+
+        function showLocPermission() {
+            document.getElementById('loc-permission-overlay').classList.add('visible');
+        }
+
+        function allowLocation() {
+            localStorage.setItem('loc-permission-seen', 'allowed');
+            document.getElementById('loc-permission-overlay').classList.remove('visible');
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(() => {}, () => {});
+            }
+        }
+
+        function denyLocation() {
+            localStorage.setItem('loc-permission-seen', 'skipped');
+            document.getElementById('loc-permission-overlay').classList.remove('visible');
         }
 
         function nextOnboardingStep() {
