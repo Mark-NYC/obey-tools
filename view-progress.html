@@ -629,7 +629,7 @@
                 justify-content: center;
                 width: 34px;
                 height: 34px;
-                background: #000;
+                background: #00D084;
                 color: #fff;
                 border-radius: 50%;
                 text-decoration: none;
@@ -659,8 +659,10 @@
             .header { padding: 10px 16px 8px; }
             .header h1 { font-size: 28px; }
 
-            /* Feature 5 – Hide subtitle on mobile */
-            .header .subtitle { display: none; }
+            /* Feature 5 – Hide subtitle on mobile; !important beats base specificity */
+            .header .subtitle { display: none !important; }
+            /* Collapse the h1 bottom margin so no gap lingers where subtitle was */
+            .header h1 { margin-bottom: 0; }
 
             /* Map sits in normal flow below controls */
             #map-el {
