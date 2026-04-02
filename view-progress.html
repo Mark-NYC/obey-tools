@@ -53,6 +53,9 @@
             background: #fff;
         }
 
+        /* Mobile-only topbar — hidden by default; shown in mobile breakpoint */
+        #mobile-topbar { display: none; }
+
         /* ── Desktop: full-screen map + floating overlay ─────────── */
         @media (min-width: 768px) {
             html, body {
@@ -572,35 +575,101 @@
         }
 
         /* ── Mobile layout overrides ──────────────────────────────── */
-        /* Desktop behavior is in applyDesktopMapLayout() + the @media (min-width:768px)
-           block above. Everything here is intentional mobile-first design. */
         @media (max-width: 767px) {
-            /* Safe-area-aware bottom padding; base 60px for browser chrome */
+            /* Safe-area-aware bottom padding for iOS home indicator */
             body {
                 padding-bottom: max(60px, calc(env(safe-area-inset-bottom) + 40px));
             }
 
-            /* Compact bar is a desktop-only concept; hide it on mobile */
+            /* Feature 1 – Nuclear position reset: !important beats any stale JS
+               inline styles that survive a desktop→mobile resize or fast initial
+               paint before applyDesktopMapLayout() clears them. */
+            .page-shell {
+                position: static !important;
+                height: auto !important;
+                overflow: visible !important;
+            }
+            .overlay-panel {
+                position: static !important;
+                top: auto !important;
+                right: auto !important;
+                transform: none !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                max-height: none !important;
+                overflow-y: visible !important;
+                box-shadow: none !important;
+                border-radius: 0 !important;
+                background: #fff !important;
+            }
+
+            /* Compact bar is desktop-only — hide on mobile */
             .overlay-compact-bar { display: none; }
-            /* Always show full panel body on mobile regardless of compact state */
+            /* Always show full overlay body on mobile regardless of compact state */
             .overlay-panel.compact .overlay-body { display: block !important; }
 
-            /* Tighter nav — less vertical burn before content */
-            .nav-bar { padding: 10px 16px 4px; gap: 8px; }
-            .nav-bar a { font-size: 13px; padding: 7px 14px; }
+            /* Feature 2+4 – Hide full nav bar; replaced by #mobile-topbar */
+            .nav-bar { display: none; }
+
+            /* Feature 4 – Hide auth section; replaced by #mobile-topbar */
+            .auth-section { display: none !important; }
+
+            /* Feature 4 – Compact topbar: back arrow · Signed in · Log Out */
+            #mobile-topbar {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 8px 14px;
+                background: #f2f2f7;
+                border-bottom: 0.5px solid #e5e5ea;
+            }
+            .mobile-back-btn {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 34px;
+                height: 34px;
+                background: #000;
+                color: #fff;
+                border-radius: 50%;
+                text-decoration: none;
+                font-size: 18px;
+                line-height: 1;
+                flex-shrink: 0;
+            }
+            .mobile-signin-text {
+                flex: 1;
+                font-size: 13px;
+                color: #8e8e93;
+            }
+            .mobile-logout-btn {
+                padding: 6px 12px;
+                border: none;
+                border-radius: 8px;
+                font-size: 12px;
+                font-weight: 600;
+                background: #e5e5ea;
+                color: #3a3a3c;
+                cursor: pointer;
+                font-family: inherit;
+                flex-shrink: 0;
+            }
 
             /* Compact header */
             .header { padding: 10px 16px 8px; }
             .header h1 { font-size: 28px; }
 
-            /* Map sits below controls; give it a clean separator and sensible height */
+            /* Feature 5 – Hide subtitle on mobile */
+            .header .subtitle { display: none; }
+
+            /* Map sits in normal flow below controls */
             #map-el {
                 height: 260px;
                 border-top: 0.5px solid #e5e5ea;
             }
 
-            /* Ticker and compact legend are desktop-only features; hide on mobile */
-            #updates-ticker { display: none !important; }
+            /* Ticker and compact legend are desktop-only; never on mobile */
+            #updates-ticker  { display: none !important; }
             #map-bottom-right { display: none !important; }
         }
     </style>
@@ -630,6 +699,13 @@
 
             <!-- Full panel body — hidden when overlay is compact (desktop only) -->
             <div class="overlay-body">
+
+            <!-- Mobile-only compact topbar: back arrow · Signed in · Log Out -->
+            <div id="mobile-topbar">
+                <a href="leader-tools.html" class="mobile-back-btn" aria-label="Back to Leader Tools">←</a>
+                <span class="mobile-signin-text">Signed in</span>
+                <button class="mobile-logout-btn" onclick="authLogOut()">Log Out</button>
+            </div>
 
             <div class="nav-bar">
                 <a href="index.html" class="nav-home" data-i18n="nav.home">Home</a>
