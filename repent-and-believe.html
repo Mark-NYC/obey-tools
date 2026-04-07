@@ -656,7 +656,7 @@
                 <div class="card-content">
                     <div class="card-icon vision-icon"></div>
                     <div class="card-text">
-                        <div class="card-title">Vision: Acts 2 Church Circle <span class="view-link" onclick="event.stopPropagation(); showVisionPopup()">(View)</span></div>
+                        <div class="card-title"><span data-i18n="common.vision_title">Vision: Acts 2 Church Circle</span> <span class="view-link" onclick="event.stopPropagation(); showVisionPopup()" data-i18n="common.vision_view">(View)</span></div>
                         <div class="card-description" data-i18n="common.vision_ref">Acts 2:36-47</div>
                         <div class="assignment-badge-container"></div>
                     </div>
@@ -825,8 +825,8 @@
         let storageKey = 'command-repent-believe-progress';
         let completedCards = [];
         let stepProgress = {};
-        const sectionAssignments = { 'lookback': 'Look Back', 'lookup': 'Look Up', 'lookforward': 'Look Forward' };
-        const componentAssignments = { 'care': 'Care & Prayer', 'worship': 'Worship', 'accountability': 'Loving Accountability', 'vision': 'Vision', 'lookup': 'Look Up Section', 'practice': 'Practice', 'goals': 'Set Goals', 'commission': 'Commission' };
+        const sectionAssignments = { 'lookback': 'section_keys.lookback', 'lookup': 'section_keys.lookup', 'lookforward': 'section_keys.lookforward' };
+        const componentAssignments = { 'care': 'component_keys.care', 'worship': 'component_keys.worship', 'accountability': 'component_keys.accountability', 'vision': 'component_keys.vision', 'lookup': 'component_keys.lookup', 'practice': 'component_keys.practice', 'goals': 'component_keys.goals', 'commission': 'component_keys.commission' };
         function initializeFromURL() {
             const hash = window.location.hash.substring(1);
             if (hash) {
@@ -883,10 +883,10 @@
         function renderAssignmentInputs() {
             const container = document.getElementById('assignmentInputs');
             const assignmentList = assignmentMode === 'section' ? sectionAssignments : componentAssignments;
-            let html = '<div class="modal-section"><label class="modal-label">Assign Names</label>';
+            let html = '<div class="modal-section"><label class="modal-label">' + window.t('settings.assign_names') + '</label>';
             Object.keys(assignmentList).forEach(function(key) {
                 const value = assignments[key] || '';
-                html += '<input type="text" class="assignment-input" placeholder="' + assignmentList[key] + '" value="' + value + '" data-key="' + key + '" onchange="updateAssignment(\'' + key + '\', this.value)">';
+                html += '<input type="text" class="assignment-input" placeholder="' + window.t(assignmentList[key]) + '" value="' + value + '" data-key="' + key + '" onchange="updateAssignment(\'' + key + '\', this.value)">';
             });
             html += '</div>';
             container.innerHTML = html;
