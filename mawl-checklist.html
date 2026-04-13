@@ -1048,6 +1048,45 @@
             loadNetworks()
         })
 
+        // ── Share checklist ───────────────────────────────────────────────────
+        window.shareChecklist = async function () {
+            const url  = window.location.origin + window.location.pathname
+            const text = `Here's the MAWL Checklist I'm using to track ministry rhythms. You can check it out here: ${url}`
+
+            // 1. Native Web Share API — best on mobile (iOS/Android)
+            if (navigator.share) {
+                try {
+                    await navigator.share({ title: 'MAWL Checklist', text, url })
+                    return
+                } catch (err) {
+                    if (err.name === 'AbortError') return  // user dismissed sheet — do nothing
+                    // Other errors (e.g. DataError on some browsers) fall through
+                }
+            }
+
+            // 2. SMS fallback — pre-fills native Messages app on mobile
+            if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+                window.open(`sms:?body=${encodeURIComponent(text)}`, '_self')
+                return
+            }
+
+            // 3. Clipboard fallback — desktop
+            try {
+                await navigator.clipboard.writeText(text)
+                showNotification('Link copied to clipboard!')
+            } catch {
+                // Legacy execCommand fallback for older browsers
+                const ta = document.createElement('textarea')
+                ta.value = text
+                ta.style.cssText = 'position:fixed;left:-9999px;top:-9999px;opacity:0;'
+                document.body.appendChild(ta)
+                ta.select()
+                try { document.execCommand('copy') } catch {}
+                document.body.removeChild(ta)
+                showNotification('Link copied to clipboard!')
+            }
+        }
+
         initLeaderPage()
     </script>
     <style>
@@ -1296,6 +1335,7 @@
                         <option value="" data-i18n="mawl.select_person">— Select a person —</option>
                     </select>
                     <button class="add-checklist-btn" onclick="showCreateChecklist()" data-i18n="mawl.add_btn">+ Add</button>
+                    <button class="add-checklist-btn share-checklist-btn" onclick="shareChecklist()" data-i18n="mawl.share_btn">Share</button>
                 </div>
                 <div class="checklist-loading" id="checklist-loading" data-i18n="mawl.loading" style="display:none">Loading…</div>
                 <div class="checklist-empty" id="checklist-empty" data-i18n="mawl.no_people" style="display:none">No people yet. Use "+ Add" to create one.</div>

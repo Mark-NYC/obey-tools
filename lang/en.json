@@ -491,6 +491,7 @@
     "other_section": "Other",
     "add": "Add",
     "add_btn": "+ Add",
+    "share_btn": "Share",
     "network_name_placeholder": "Network name",
     "coached_leader_placeholder": "Coached leader's name",
     "no_people": "No people yet. Use \"+ Add\" to create one.",
