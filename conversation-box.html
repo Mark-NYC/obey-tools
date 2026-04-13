@@ -23,19 +23,20 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif; background: #f2f2f7; min-height: 100vh; color: #000; line-height: 1.4; }
         .container { max-width: 375px; margin: 0 auto; background: #fff; min-height: 100vh; }
-        .status-bar { height: 44px; background: #fff; display: flex; justify-content: center; align-items: center; font-weight: 600; font-size: 17px; border-bottom: 0.5px solid #c6c6c8; }
-        .header { padding: 20px 16px 16px; background: #fff; }
-        .date-info { color: #8e8e93; font-size: 13px; margin-bottom: 4px; }
-        .users-info { color: #8e8e93; font-size: 13px; }
-        .controls { padding: 0 16px 20px; background: #fff; border-bottom: 0.5px solid #c6c6c8; }
-        .btn-group { display: flex; gap: 8px; }
-        .reset-section { padding: 20px 16px; background: #f2f2f7; display: flex; justify-content: center; }
-        .reset-section .btn { width: auto; padding: 11px 24px; }
         .btn { flex: 1; padding: 11px 16px; border: none; border-radius: 8px; font-weight: 600; font-size: 15px; cursor: pointer; transition: all 0.2s ease; }
         .btn-primary { background: #ff9500; color: white; }
         .btn-primary:active { background: #ff9500; transform: scale(0.98); }
         .btn-secondary { background: #f2f2f7; color: #3a3a3c; }
         .btn-secondary:active { background: #e5e5ea; transform: scale(0.98); }
+        .btn-share { background: #6e6e73; color: white; }
+        .btn-share:active { background: #5a5a5f; transform: scale(0.98); }
+        /* Post-grid actions: Reset, Share, View Map */
+        .post-grid-actions { padding: 8px 16px 20px; background: #f2f2f7; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+        .action-row { width: 100%; max-width: 420px; display: flex; gap: 10px; }
+        .action-row .btn { flex: 1; }
+        .view-map-row { width: 100%; max-width: 420px; }
+        .btn-view-map { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; padding: 11px 16px; border: 1px solid #c6c6c8; border-radius: 8px; background: #f2f2f7; color: #3a3a3c; font-weight: 600; font-size: 15px; text-decoration: none; cursor: pointer; transition: all 0.2s ease; min-height: 44px; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif; }
+        .btn-view-map:active { background: #e5e5ea; transform: scale(0.98); }
         .conversation-grid { padding: 20px 16px; display: flex; flex-direction: column; gap: 16px; }
         .conversation-box { background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
         .box-header { padding: 16px; border-bottom: 0.5px solid #c6c6c8; background: #fff; position: relative; }
@@ -49,10 +50,10 @@
         .conversation-actions { display: flex; gap: 12px; }
         .action-btn { width: 28px; height: 28px; border: none; border-radius: 14px; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; }
         .action-btn:active { transform: scale(0.9); }
-        .move-btn { background: #ff9500; color: white; }
+        .move-btn { background: #6e6e73; color: white; }
         .back-btn { background: #8e8e93; color: white; }
         .delete-btn { background: #ff3b30; color: white; }
-        .down-btn { background: #ff9500; color: white; }
+        .down-btn { background: #6e6e73; color: white; }
         .empty-state { padding: 32px 16px; text-align: center; color: #8e8e93; font-size: 15px; }
         .add-person-section { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 375px; background: #fff; border-top: 0.5px solid #c6c6c8; padding: 16px; padding-bottom: calc(16px + env(safe-area-inset-bottom)); }
         .add-person-input { display: flex; gap: 8px; }
@@ -100,14 +101,22 @@
         .share-popup .close-btn { padding: 10px; border: none; border-radius: 8px; background: #8e8e93; color: white; font-weight: 600; cursor: pointer; margin-top: 12px; }
         .share-popup .close-btn:active { background: #6b6b70; }
         @media (min-width: 768px) {
-            .container { max-width: 768px; border-radius: 12px; margin: 20px auto; box-shadow: 0 4px 20px rgba(0,0,0,0.1); overflow: hidden; }
-            .conversation-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 20px; }
+            body { background: linear-gradient(180deg, #f7f7fa 0%, #efeff4 100%); }
+            .container { max-width: 900px; border-radius: 20px; margin: 0 auto 28px; box-shadow: 0 12px 34px rgba(0,0,0,0.08); overflow: hidden; display: flex; flex-direction: column; }
+            .auth-section { padding: 16px 28px 18px; background: #fff; border-bottom: 0.5px solid #e5e5ea; }
+            .conversation-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; padding: 26px 28px; background: #f7f7fa; }
+            .conversation-box { border-radius: 16px; box-shadow: 0 4px 14px rgba(0,0,0,0.06); }
             .conversation-box.casual { order: 1; }
             .conversation-box.meaningful { order: 2; }
             .conversation-box.discovery { order: 3; }
             .conversation-box.spiritual { order: 4; }
-            .add-person-section { position: static; transform: none; width: auto; max-width: none; border-top: 0.5px solid #c6c6c8; border-radius: 0; }
-            .content-wrapper { padding-bottom: 0; }
+            .box-header { padding: 18px 20px; }
+            .box-title { font-size: 18px; }
+            .content-wrapper { padding-bottom: 0; order: 1; }
+            .post-grid-actions { padding: 0 28px 28px; background: #f7f7fa; align-items: flex-start; }
+            .action-row { max-width: 360px; }
+            .view-map-row { max-width: 360px; }
+            .add-person-section { position: static; transform: none; width: auto; max-width: none; border-top: 0.5px solid #e5e5ea; border-radius: 0; order: 2; padding: 20px 28px; }
         }
         .notification { position: fixed; top: 60px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: white; padding: 12px 20px; border-radius: 8px; font-size: 15px; font-weight: 500; z-index: 1000; opacity: 0; animation: notificationSlide 3s ease; }
         @keyframes notificationSlide { 0% { opacity: 0; transform: translateX(-50%) translateY(-20px); } 10% { opacity: 1; transform: translateX(-50%) translateY(0); } 90% { opacity: 1; transform: translateX(-50%) translateY(0); } 100% { opacity: 0; transform: translateX(-50%) translateY(-20px); } }
@@ -122,7 +131,7 @@
         .auth-section input:focus { border-color: #3a3a3c; }
         .auth-buttons { display: flex; gap: 8px; margin-bottom: 0; }
         .auth-buttons button { flex: 1; padding: 10px; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; }
-        .auth-btn-primary { background: #3a3a3c; color: #fff; }
+        .auth-btn-primary { background: #6e6e73; color: #fff; }
         .auth-btn-secondary { background: #e5e5ea; color: #3a3a3c; }
         .auth-status { display: flex; align-items: center; justify-content: space-between; }
         .auth-status-text { font-size: 13px; color: #8e8e93; }
@@ -209,6 +218,26 @@
         .ob-fb-2 { animation: ob-box-on  6s 1.5s infinite; }
         .ob-fb-3 { animation: ob-box-on  6s 3s   infinite; }
         .ob-fb-4 { animation: ob-box-on  6s 4.5s infinite; }
+        /* ── Person Details Modal ── */
+        #person-details-overlay { align-items: flex-end; }
+        @media (min-width: 768px) { #person-details-overlay { align-items: center; } }
+        .person-details-sheet { background: #fff; width: 100%; max-width: 480px; border-radius: 16px 16px 0 0; padding: 16px 20px 36px; display: flex; flex-direction: column; gap: 16px; max-height: 88vh; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+        @supports (height: 1dvh) { .person-details-sheet { max-height: 88dvh; } }
+        @media (min-width: 768px) { .person-details-sheet { border-radius: 16px; max-height: 70vh; padding: 24px; } }
+        .details-drag-handle { width: 36px; height: 4px; background: #c6c6c8; border-radius: 2px; margin: 0 auto -4px; flex-shrink: 0; }
+        @media (min-width: 768px) { .details-drag-handle { display: none; } }
+        .details-name-hint { font-size: 11px; color: #c6c6c8; margin-top: 2px; }
+        .details-person-name { font-size: 20px; font-weight: 700; color: #000; line-height: 1.2; width: 100%; border: none; border-bottom: 1.5px solid transparent; background: transparent; padding: 0 0 2px; outline: none; font-family: inherit; transition: border-bottom-color 0.15s; }
+        .details-person-name:focus { border-bottom-color: #ff9500; }
+        .details-quadrant { font-size: 12px; font-weight: 600; color: #8e8e93; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 3px; }
+        .details-field { display: flex; flex-direction: column; gap: 5px; }
+        .details-field label { font-size: 12px; font-weight: 600; color: #3a3a3c; text-transform: uppercase; letter-spacing: 0.4px; }
+        .details-field input, .details-field textarea { width: 100%; padding: 10px 12px; border: 1px solid #c6c6c8; border-radius: 8px; font-size: 16px; font-family: inherit; color: #000; background: #f2f2f7; box-sizing: border-box; outline: none; -webkit-appearance: none; }
+        .details-field input:focus, .details-field textarea:focus { border-color: #ff9500; background: #fff; }
+        .details-field textarea { resize: none; min-height: 70px; }
+        .details-actions { display: flex; gap: 10px; padding-top: 2px; }
+        .details-actions .btn { flex: 1; min-height: 44px; }
+        .details-dot { width: 6px; height: 6px; border-radius: 50%; background: #8e8e93; display: inline-block; flex-shrink: 0; align-self: center; margin-left: 5px; }
         /* ── Explainer ── */
         .explainer { padding: 14px 16px 4px; color: #8e8e93; font-size: 13px; text-align: center; line-height: 1.4; }
     </style>
@@ -217,10 +246,6 @@
 </head>
 <body>
     <div class="sync-indicator" id="sync-indicator" data-i18n="sync.syncing">Syncing...</div>
-    <div style="text-align:center; padding:20px 0 8px; display:flex; justify-content:center; align-items:center; gap:16px;">
-        <a href="index.html" style="font-size:13px; color:#666; text-decoration:none;">Home</a>
-        <a href="view-progress.html" style="font-size:13px; color:#666; text-decoration:none;">View Map →</a>
-    </div>
     <div class="container">
         <!-- Auth section: shown at top, collapses to status row when signed in -->
         <div class="auth-section" id="auth-section">
@@ -239,16 +264,6 @@
             <div class="auth-status" id="auth-status" style="display:none">
                 <span class="auth-status-text" id="auth-status-text">Not signed in</span>
                 <button class="auth-logout-btn" onclick="authLogOut()" data-i18n="auth.log_out">Log Out</button>
-            </div>
-        </div>
-        <div class="header">
-            <div class="date-info"></div>
-            <div class="users-info"></div>
-        </div>
-        <div class="controls">
-            <div class="btn-group">
-                <button class="btn btn-secondary" onclick="showOnboarding()" data-i18n="conversation_box.how_it_works">How it works</button>
-                <button class="btn btn-secondary" onclick="captureSnapshot()" data-i18n="conversation_box.share_btn">Share</button>
             </div>
         </div>
         <div class="content-wrapper">
@@ -274,8 +289,17 @@
                     <div class="conversation-list" id="discovery-list"></div>
                 </div>
             </div>
-            <div class="reset-section">
-                <button class="btn btn-secondary" onclick="showResetPrompt()" data-i18n="common.reset">RESET</button>
+            <div class="post-grid-actions">
+                <div class="action-row">
+                    <button class="btn btn-secondary" onclick="showResetPrompt()" data-i18n="common.reset">RESET</button>
+                    <button class="btn btn-share" onclick="captureSnapshot()" data-i18n="conversation_box.share_btn">Share</button>
+                </div>
+                <div class="view-map-row">
+                    <a href="view-progress.html" class="btn-view-map">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>
+                        View Map
+                    </a>
+                </div>
             </div>
         </div>
         <div class="add-person-section">
@@ -352,6 +376,33 @@
                 <li data-i18n="conversation_box.tutorial_step3"><b>Click the share button</b> to share progress with other disciples.</li>
             </ol>
             <button class="btn btn-primary" onclick="closeTutorial()" data-i18n="conversation_box.got_it">Got it!</button>
+        </div>
+    </div>
+    <!-- Person details bottom sheet -->
+    <div class="onboarding-overlay" id="person-details-overlay" onclick="handleDetailsOverlayClick(event)">
+        <div class="person-details-sheet" id="person-details-sheet">
+            <div class="details-drag-handle"></div>
+            <div>
+                <input type="text" class="details-person-name" id="details-person-name" placeholder="Name">
+                <div class="details-name-hint">Tap to rename</div>
+                <div class="details-quadrant" id="details-quadrant"></div>
+            </div>
+            <div class="details-field">
+                <label for="details-next-step">Next step</label>
+                <input type="text" id="details-next-step" placeholder="What's the next step?">
+            </div>
+            <div class="details-field">
+                <label for="details-note">Note</label>
+                <textarea id="details-note" placeholder="Optional note..."></textarea>
+            </div>
+            <div class="details-field">
+                <label for="details-follow-up-date">Follow-up date</label>
+                <input type="date" id="details-follow-up-date">
+            </div>
+            <div class="details-actions">
+                <button class="btn btn-secondary" onclick="closePersonDetails()">Cancel</button>
+                <button class="btn btn-primary" onclick="savePersonDetails()">Save</button>
+            </div>
         </div>
     </div>
     <!-- Location permission popup -->
@@ -599,7 +650,7 @@ function saveConversations() {
             try {
                 const { data: people, error } = await window.supabase
                     .from('conversation_people')
-                    .select('person_name, box_name, color')
+                    .select('person_name, box_name, color, next_step, person_note, follow_up_date')
                     .eq('user_id', userId);
 
                 if (error) throw error;
@@ -608,8 +659,7 @@ function saveConversations() {
                 conversations = { casual: [], meaningful: [], spiritual: [], discovery: [] };
                 people.forEach(row => {
                     if (conversations[row.box_name]) {
-                        // schema has no date column; use empty string as placeholder
-                        conversations[row.box_name].push({ name: row.person_name, date: '', color: row.color });
+                        conversations[row.box_name].push({ name: row.person_name, date: '', color: row.color, next_step: row.next_step || null, person_note: row.person_note || null, follow_up_date: row.follow_up_date || null });
                     }
                 });
                 // Deduplicate by name within each box (guards against prior save-race doubles in DB)
@@ -674,7 +724,7 @@ function saveConversations() {
                 const peopleRows = [];
                 ['casual', 'meaningful', 'spiritual', 'discovery'].forEach(box => {
                     (conversations[box] || []).forEach(p => {
-                        peopleRows.push({ user_id: userId, person_name: p.name, box_name: box, color: p.color || null });
+                        peopleRows.push({ user_id: userId, person_name: p.name, box_name: box, color: p.color || null, next_step: p.next_step || null, person_note: p.person_note || null, follow_up_date: p.follow_up_date || null });
                     });
                 });
                 if (peopleRows.length > 0) await window.supabase.from('conversation_people').insert(peopleRows);
@@ -1256,10 +1306,62 @@ function saveConversations() {
 
         function deleteConversation(name, fromBox) {
             if (confirm(window.t('conversation_box.confirm_remove', { name }))) {
-                conversations[fromBox] = conversations[fromBox].filter(p => p.name !== name); 
+                conversations[fromBox] = conversations[fromBox].filter(p => p.name !== name);
                 saveConversations();
                 updateDisplay();
             }
+        }
+
+        // ── Per-person details ────────────────────────────────────────────────
+
+        let _detailsPerson = null;
+
+        function hasPersonDetails(name, box) {
+            const person = (conversations[box] || []).find(p => p.name === name);
+            if (!person) return false;
+            return !!(person.next_step || person.person_note || person.follow_up_date);
+        }
+
+        function openPersonDetails(name, box) {
+            _detailsPerson = { name, box };
+            const person = (conversations[box] || []).find(p => p.name === name);
+            document.getElementById('details-person-name').value = name;
+            document.getElementById('details-quadrant').textContent = box.charAt(0).toUpperCase() + box.slice(1);
+            document.getElementById('details-next-step').value = (person && person.next_step) || '';
+            document.getElementById('details-note').value = (person && person.person_note) || '';
+            document.getElementById('details-follow-up-date').value = (person && person.follow_up_date) || '';
+            document.getElementById('person-details-overlay').classList.add('visible');
+        }
+
+        function closePersonDetails() {
+            _detailsPerson = null;
+            document.getElementById('person-details-overlay').classList.remove('visible');
+        }
+
+        function savePersonDetails() {
+            if (!_detailsPerson) return;
+            const { name, box } = _detailsPerson;
+            const person = (conversations[box] || []).find(p => p.name === name);
+            if (person) {
+                const newName = document.getElementById('details-person-name').value.trim();
+                if (!newName) { showNotification(window.t('conversation_box.enter_name')); return; }
+                if (newName !== name) {
+                    if (Object.values(conversations).flat().some(p => p.name === newName)) {
+                        showNotification(window.t('conversation_box.name_exists')); return;
+                    }
+                    person.name = newName;
+                }
+                person.next_step = document.getElementById('details-next-step').value.trim() || null;
+                person.person_note = document.getElementById('details-note').value.trim() || null;
+                person.follow_up_date = document.getElementById('details-follow-up-date').value || null;
+                saveConversations();
+                updateDisplay();
+            }
+            closePersonDetails();
+        }
+
+        function handleDetailsOverlayClick(event) {
+            if (event.target === document.getElementById('person-details-overlay')) closePersonDetails();
         }
 
         function updateDisplay() {
@@ -1313,9 +1415,15 @@ function saveConversations() {
             }
             
             nameSpan.appendChild(document.createTextNode(name));
-            nameSpan.addEventListener('click', () => { 
-                addHapticFeedback(nameSpan); 
-                showEditNamePrompt(name, box); 
+            if (hasPersonDetails(name, box)) {
+                const dot = document.createElement('span');
+                dot.className = 'details-dot';
+                dot.title = 'Has notes';
+                nameSpan.appendChild(dot);
+            }
+            nameSpan.addEventListener('click', () => {
+                addHapticFeedback(nameSpan);
+                openPersonDetails(name, box);
             });
             
             const actions = document.createElement('div'); 
@@ -1518,6 +1626,13 @@ function saveConversations() {
         });
         
         window.addEventListener('resize', updateDisplay);
+
+        // Scroll focused detail fields into view when mobile keyboard opens
+        ['details-next-step', 'details-note', 'details-follow-up-date'].forEach(id => {
+            document.getElementById(id).addEventListener('focus', function() {
+                setTimeout(() => this.scrollIntoView({ block: 'nearest', behavior: 'smooth' }), 300);
+            });
+        });
 
         // ── Supabase Auth ──────────────────────────────────────────────────────
 
