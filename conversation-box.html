@@ -37,6 +37,8 @@
         .view-map-row { width: 100%; max-width: 420px; }
         .btn-view-map { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; padding: 11px 16px; border: 1px solid #c6c6c8; border-radius: 8px; background: #f2f2f7; color: #3a3a3c; font-weight: 600; font-size: 15px; text-decoration: none; cursor: pointer; transition: all 0.2s ease; min-height: 44px; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif; }
         .btn-view-map:active { background: #e5e5ea; transform: scale(0.98); }
+        .btn-how-it-works { border: none; background: transparent; color: #8e8e93; font-size: 13px; font-weight: 500; cursor: pointer; padding: 6px 0; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif; }
+        .btn-how-it-works:active { color: #3a3a3c; }
         .conversation-grid { padding: 20px 16px; display: flex; flex-direction: column; gap: 16px; }
         .conversation-box { background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
         .box-header { padding: 16px; border-bottom: 0.5px solid #c6c6c8; background: #fff; position: relative; }
@@ -113,7 +115,7 @@
             .box-header { padding: 18px 20px; }
             .box-title { font-size: 18px; }
             .content-wrapper { padding-bottom: 0; order: 1; }
-            .post-grid-actions { padding: 0 28px 28px; background: #f7f7fa; align-items: flex-start; }
+            .post-grid-actions { padding: 0 28px 28px; background: #f7f7fa; align-items: center; }
             .action-row { max-width: 360px; }
             .view-map-row { max-width: 360px; }
             .add-person-section { position: static; transform: none; width: auto; max-width: none; border-top: 0.5px solid #e5e5ea; border-radius: 0; order: 2; padding: 20px 28px; }
@@ -302,6 +304,9 @@
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>
                         View Map
                     </a>
+                </div>
+                <div class="view-map-row" style="text-align:center;">
+                    <button class="btn-how-it-works" onclick="showOnboarding()" data-i18n="conversation_box.how_it_works">How it works</button>
                 </div>
             </div>
         </div>
