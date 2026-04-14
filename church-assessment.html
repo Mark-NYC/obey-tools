@@ -593,40 +593,135 @@ function submitShareDetails() {
 
 function performCapture(leaders, startDate, location, baptismCount) {
     const shareDate = formatShareDate(new Date());
+
+    // ── Draw the circle onto a <canvas> directly ───────────────────────────────
+    // html2canvas has a known rendering bug with CSS transforms (translateY/X)
+    // applied to <img> elements via nth-child selectors inside an
+    // overflow:hidden + border-radius:50% container: the transform is either
+    // ignored or applied after the clip, so those specific icon images are
+    // dropped from the exported image.  Drawing the circle ourselves on a
+    // canvas bypasses html2canvas's CSS-transform + clip-region path entirely
+    // and guarantees every icon appears in the correct position every time.
+    const sourceCircle = document.querySelector('.church-circle');
+    const circleSize   = 320;  // matches CSS width/height
+    const borderWidth  = 4;
+    const innerR       = circleSize / 2 - borderWidth;  // padding-box radius (156px)
+
+    const cvs = document.createElement('canvas');
+    cvs.width  = circleSize * 2;  // 2× for sharpness at scale:2
+    cvs.height = circleSize * 2;
+    cvs.style.cssText = `width:${circleSize}px;height:${circleSize}px;border-radius:50%;box-shadow:0 4px 20px rgba(0,0,0,0.1);`;
+    const ctx = cvs.getContext('2d');
+    ctx.scale(2, 2);
+
+    const cx = circleSize / 2, cy = circleSize / 2;
+
+    // Clip to the circle's inner area (mirrors overflow:hidden on padding-box)
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(cx, cy, innerR, 0, Math.PI * 2);
+    ctx.clip();
+
+    // White background fill
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, 0, circleSize, circleSize);
+
+    // Grid lines (z-index:10 in DOM → painted first, behind icons)
+    ctx.strokeStyle = '#333';
+    ctx.lineWidth   = 3;
+    [
+        [circleSize * 0.25, 0,          circleSize * 0.25, circleSize],
+        [circleSize * 0.50, 0,          circleSize * 0.50, circleSize],
+        [circleSize * 0.75, 0,          circleSize * 0.75, circleSize],
+        [0, circleSize * 0.3333, circleSize, circleSize * 0.3333],
+        [0, circleSize * 0.6666, circleSize, circleSize * 0.6666],
+    ].forEach(([x1, y1, x2, y2]) => {
+        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+    });
+
+    // Icon layout constants — mirror the CSS exactly:
+    //   .icon-grid { padding:20px; grid-template-columns:repeat(4,1fr);
+    //                              grid-template-rows:repeat(3,1fr) }
+    //   .icon-cell img { width:60px; height:60px }
+    //   nth-child transforms: top-row +8px, child-5 −8px, child-9/12 −8px
+    const pad      = 20;
+    const cols     = 4, rows = 3;
+    const cellW    = (circleSize - pad * 2) / cols;
+    const cellH    = (circleSize - pad * 2) / rows;
+    const iconSize = 60;
+    const offsets  = [           // index 0-based; mirrors CSS nth-child rules
+        {dx:0,dy:8},{dx:0,dy:8},{dx:0,dy:8},{dx:0,dy:8},  // icons 1-4
+        {dx:-8,dy:0},                                       // icon 5
+        {dx:0,dy:0},{dx:0,dy:0},{dx:0,dy:0},               // icons 6-8
+        {dx:0,dy:-8},                                       // icon 9
+        {dx:0,dy:0},{dx:0,dy:0},                            // icons 10-11
+        {dx:0,dy:-8},                                       // icon 12
+    ];
+
+    const cells = Array.from(sourceCircle.querySelectorAll('.icon-cell'));
+
+    // Colored background circles (z-index:15 in DOM)
+    cells.forEach((cell, i) => {
+        const {dx, dy} = offsets[i] || {dx:0, dy:0};
+        const icx = pad + (i % cols) * cellW + cellW / 2 + dx;
+        const icy = pad + Math.floor(i / cols) * cellH + cellH / 2 + dy;
+        const color = cell.classList.contains('bg-green')  ? '#7ed957'
+                    : cell.classList.contains('bg-yellow') ? '#ffde59'
+                    : cell.classList.contains('bg-red')    ? '#ff745b'
+                    : null;
+        if (color) {
+            ctx.beginPath();
+            ctx.arc(icx, icy, iconSize / 2, 0, Math.PI * 2);
+            ctx.fillStyle = color;
+            ctx.fill();
+        }
+    });
+
+    // Icon images on top (z-index:20 in DOM)
+    // ctx.drawImage() on an already-loaded <img> is synchronous and requires
+    // no network or decode step — the pixel data is already in memory.
+    cells.forEach((cell, i) => {
+        const {dx, dy} = offsets[i] || {dx:0, dy:0};
+        const icx = pad + (i % cols) * cellW + cellW / 2 + dx;
+        const icy = pad + Math.floor(i / cols) * cellH + cellH / 2 + dy;
+        const img = cell.querySelector('img');
+        if (img && img.complete && img.naturalWidth > 0) {
+            ctx.drawImage(img, icx - iconSize / 2, icy - iconSize / 2, iconSize, iconSize);
+        }
+    });
+
+    ctx.restore();  // remove circular clip
+
+    // Circle border drawn on top of content (matches border:4px solid #333)
+    ctx.beginPath();
+    ctx.arc(cx, cy, innerR + borderWidth / 2, 0, Math.PI * 2);
+    ctx.strokeStyle = '#333';
+    ctx.lineWidth   = borderWidth;
+    ctx.setLineDash(sourceCircle.classList.contains('dotted') ? [8, 6] : []);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // ── Assemble the off-screen export container ───────────────────────────────
+    // Position at top:0/left:0 with opacity:0 rather than top:-9999px: elements
+    // far off-screen can have their compositor tiles evicted, which is harmless
+    // for the canvas-based circle but matters for the text / key clone.
     const tempElement = document.createElement('div');
-    tempElement.style.cssText = 'position:fixed;top:-9999px;left:0;width:400px;height:auto;min-height:500px;background:#fff;padding:20px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:20px;z-index:-1;';
+    tempElement.style.cssText = 'position:fixed;top:0;left:0;width:400px;height:auto;min-height:500px;background:#fff;padding:20px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:20px;opacity:0;pointer-events:none;';
+
     const infoDiv = document.createElement('div');
     infoDiv.style.cssText = 'text-align:center;font-size:16px;font-weight:600;margin-bottom:20px;width:100%;line-height:1.4;';
     infoDiv.innerHTML = `${window.t('church_assessment.share_label_leaders')} ${leaders}<br>${window.t('church_assessment.share_label_start_date')} ${formatInputDate(startDate)}<br>${window.t('church_assessment.share_label_location')} ${location}<br>${window.t('church_assessment.share_label_baptisms')} ${baptismCount}`;
-    tempElement.appendChild(infoDiv);
-    const circleClone = document.querySelector('.church-circle').cloneNode(true);
+
     const keyClone = document.querySelector('.assessment-key').cloneNode(true);
     keyClone.style.margin = '0';
-    tempElement.appendChild(circleClone);
+
+    tempElement.appendChild(infoDiv);
+    tempElement.appendChild(cvs);       // canvas replaces the DOM circle clone
     tempElement.appendChild(keyClone);
     document.body.appendChild(tempElement);
 
-    // Build a promise that resolves only once every <img> inside the clone is
-    // fully loaded *and* decoded.  For images already in cache `img.complete`
-    // will be true immediately; for any that still need a network/decode pass
-    // we wait for onload + img.decode().  After all images are ready we wait
-    // two animation frames so the browser has had a chance to paint them before
-    // html2canvas walks the DOM.
-    const imgs = Array.from(tempElement.querySelectorAll('img'));
-    const imageReadyPromises = imgs.map(img => {
-        const decodeIfPossible = () =>
-            img.decode ? img.decode().catch(() => {}) : Promise.resolve();
-        if (img.complete && img.naturalWidth > 0) {
-            return decodeIfPossible();
-        }
-        return new Promise(resolve => {
-            img.onload  = () => decodeIfPossible().finally(resolve);
-            img.onerror = resolve; // don't block capture on a broken image
-        });
-    });
-
-    Promise.all(imageReadyPromises)
-        .then(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))))
+    // Two rAF ticks let the browser composite the new element before capture.
+    new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))
         .then(async () => {
         try {
             const canvas = await html2canvas(tempElement, {
