@@ -605,8 +605,29 @@ function performCapture(leaders, startDate, location, baptismCount) {
     tempElement.appendChild(circleClone);
     tempElement.appendChild(keyClone);
     document.body.appendChild(tempElement);
-    
-    setTimeout(async () => {
+
+    // Build a promise that resolves only once every <img> inside the clone is
+    // fully loaded *and* decoded.  For images already in cache `img.complete`
+    // will be true immediately; for any that still need a network/decode pass
+    // we wait for onload + img.decode().  After all images are ready we wait
+    // two animation frames so the browser has had a chance to paint them before
+    // html2canvas walks the DOM.
+    const imgs = Array.from(tempElement.querySelectorAll('img'));
+    const imageReadyPromises = imgs.map(img => {
+        const decodeIfPossible = () =>
+            img.decode ? img.decode().catch(() => {}) : Promise.resolve();
+        if (img.complete && img.naturalWidth > 0) {
+            return decodeIfPossible();
+        }
+        return new Promise(resolve => {
+            img.onload  = () => decodeIfPossible().finally(resolve);
+            img.onerror = resolve; // don't block capture on a broken image
+        });
+    });
+
+    Promise.all(imageReadyPromises)
+        .then(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))))
+        .then(async () => {
         try {
             const canvas = await html2canvas(tempElement, {
                 scale: 2,
@@ -668,7 +689,7 @@ function performCapture(leaders, startDate, location, baptismCount) {
                 document.body.removeChild(tempElement);
             }
         }
-    }, 500);
+    });
 }
 
 function saveUserName() {
