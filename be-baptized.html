@@ -157,6 +157,7 @@
                     <button class="auth-btn-primary" onclick="authSignUp()" data-i18n="auth.sign_up">Sign Up</button>
                     <button class="auth-btn-secondary" onclick="authLogIn()" data-i18n="auth.log_in">Log In</button>
                 </div>
+                <button type="button" style="display:block;width:100%;margin-top:6px;padding:6px;background:none;border:none;color:#8e8e93;font-size:13px;cursor:pointer;text-align:center;font-family:inherit;" onclick="authForgotPassword()">Forgot password?</button>
             </div>
             <div class="auth-status" id="auth-status" style="display:none">
                 <span class="auth-status-text" id="auth-status-text">Not signed in</span>
@@ -329,6 +330,17 @@
         async function authLogOut() {
             const { error } = await window.supabase.auth.signOut();
             if (error) showNotification(error.message);
+        }
+
+        async function authForgotPassword() {
+            const emailEl = document.getElementById('auth-email');
+            const email   = emailEl ? emailEl.value.trim() : '';
+            if (!email) { showNotification('Enter your email address first.'); return; }
+            const { error } = await window.supabase.auth.resetPasswordForEmail(email, {
+                redirectTo: window.location.origin + '/reset-password.html'
+            });
+            if (error) showNotification(error.message);
+            else       showNotification('Password reset email sent — check your inbox.');
         }
         document.addEventListener('DOMContentLoaded', () => {
             if (window.supabase) {

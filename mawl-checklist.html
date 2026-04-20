@@ -20,10 +20,11 @@
     <script type="module" src="/i18n.js"></script>
     <script type="module">
         import { supabase } from './supabase.js'
-        import { authSignUp, authLogIn, authLogOut, initLeaderPage, showNotification } from './auth.js'
+        import { authSignUp, authLogIn, authLogOut, initLeaderPage, showNotification, authForgotPassword} from './auth.js'
         window.authSignUp = authSignUp
         window.authLogIn  = authLogIn
         window.authLogOut = authLogOut
+        window.authForgotPassword = authForgotPassword
 
         let _activeChecklistId = null
         let _activeChecklistCreatedBy = null  // tracks creator of selected checklist
@@ -1242,6 +1243,7 @@
                     <button class="auth-btn-primary" onclick="authSignUp()" data-i18n="auth.sign_up">Sign Up</button>
                     <button class="auth-btn-secondary" onclick="authLogIn()" data-i18n="auth.log_in">Log In</button>
                 </div>
+                <button type="button" style="display:block;width:100%;margin-top:6px;padding:6px;background:none;border:none;color:#8e8e93;font-size:13px;cursor:pointer;text-align:center;font-family:inherit;" onclick="authForgotPassword()">Forgot password?</button>
             </div>
             <div class="auth-status" id="auth-status" style="display:none">
                 <span class="auth-status-text" id="auth-status-text" data-i18n="auth.not_signed_in">Not signed in</span>
