@@ -40,6 +40,15 @@ export function updateAuthUI(user) {
         form.style.display   = 'block'
         status.style.display = 'none'
         text.textContent     = t('auth.not_signed_in')
+        if (form && !form.querySelector('.auth-forgot-btn')) {
+            const btn = document.createElement('button')
+            btn.type = 'button'
+            btn.className = 'auth-forgot-btn'
+            btn.textContent = 'Forgot password?'
+            btn.style.cssText = 'display:block;width:100%;margin-top:6px;padding:6px;background:none;border:none;color:#8e8e93;font-size:13px;cursor:pointer;text-align:center;font-family:inherit;'
+            btn.addEventListener('click', authForgotPassword)
+            form.appendChild(btn)
+        }
     }
 }
 
@@ -47,8 +56,16 @@ export async function authSignUp() {
     const email    = document.getElementById('auth-email').value.trim()
     const password = document.getElementById('auth-password').value
     const { error } = await supabase.auth.signUp({ email, password })
-    if (error) showNotification(error.message)
-    else        showNotification(t('auth.check_email'))
+    if (error) {
+        const msg = error.message.toLowerCase()
+        if (msg.includes('already registered') || msg.includes('already been registered')) {
+            showNotification('Email already registered — try Log In or click Forgot Password.')
+        } else {
+            showNotification(error.message)
+        }
+    } else {
+        showNotification(t('auth.check_email'))
+    }
 }
 
 export async function authLogIn() {
@@ -61,6 +78,17 @@ export async function authLogIn() {
 export async function authLogOut() {
     const { error } = await supabase.auth.signOut()
     if (error) showNotification(error.message)
+}
+
+export async function authForgotPassword() {
+    const emailEl = document.getElementById('auth-email')
+    const email   = emailEl ? emailEl.value.trim() : ''
+    if (!email) { showNotification('Enter your email address first.'); return }
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin + '/reset-password.html'
+    })
+    if (error) showNotification(error.message)
+    else       showNotification('Password reset email sent — check your inbox.')
 }
 
 // Called once per leader-gated page. Checks session + role on load and on
