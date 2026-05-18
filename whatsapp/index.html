@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/x-icon" href="../assets/images/favicons/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/favicons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../assets/images/favicons/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="../assets/images/favicons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="../assets/images/favicons/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="../assets/images/favicons/android-chrome-512x512.png">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#000000">
+    <meta name="apple-mobile-web-app-title" content="Obey Tools">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap">
+    <title>What's Next — OBEY.TOOLS</title>
+    <script type="module">
+        import { supabase } from '../supabase.js'
+        window._supabase = supabase
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+            background: #f2f2f7;
+            min-height: 100vh;
+            color: #000;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 375px;
+            margin: 0 auto;
+            background: #fff;
+            min-height: 100vh;
+        }
+
+        /* Top nav */
+        .top-nav {
+            text-align: center;
+            padding: 20px 0 8px;
+        }
+        .top-nav a {
+            display: inline-block;
+            background: #000;
+            color: #fff;
+            font-weight: 700;
+            font-size: 17px;
+            padding: 12px 28px;
+            border-radius: 50px;
+            text-decoration: none;
+        }
+
+        /* Page header */
+        .page-header {
+            padding: 28px 24px 20px;
+            text-align: center;
+            border-bottom: 0.5px solid #e5e5ea;
+        }
+        .page-title {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 48px;
+            font-weight: 400;
+            letter-spacing: 2px;
+            color: #25D366;
+            -webkit-text-stroke: 2px #000;
+        }
+        .page-subtitle {
+            font-size: 15px;
+            color: #8e8e93;
+            margin-top: 6px;
+        }
+
+        /* WhatsApp primary CTA */
+        .whatsapp-section {
+            padding: 32px 24px;
+            text-align: center;
+            border-bottom: 0.5px solid #e5e5ea;
+        }
+        .whatsapp-section h2 {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #1a1a1a;
+        }
+        .whatsapp-section p {
+            font-size: 15px;
+            color: #636366;
+            margin-bottom: 24px;
+            line-height: 1.55;
+        }
+        .qr-wrap {
+            width: 180px;
+            height: 180px;
+            margin: 0 auto 24px;
+            border: 1.5px solid #e5e5ea;
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f9f9f9;
+        }
+        .qr-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .qr-placeholder {
+            font-size: 13px;
+            color: #aeaeb2;
+            text-align: center;
+            padding: 20px;
+            line-height: 1.5;
+        }
+        .btn-whatsapp {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #25D366;
+            color: #fff;
+            font-weight: 700;
+            font-size: 17px;
+            padding: 14px 32px;
+            border-radius: 50px;
+            text-decoration: none;
+            transition: opacity 0.15s;
+        }
+        .btn-whatsapp:hover { opacity: 0.88; }
+        .btn-whatsapp:active { opacity: 0.75; }
+        .btn-whatsapp svg { flex-shrink: 0; }
+
+        /* Labs section — secondary action */
+        .labs-section {
+            padding: 32px 24px 48px;
+            background: #f2f2f7;
+        }
+        .labs-container {}
+        .labs-container h2 {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 38px;
+            font-weight: 400;
+            letter-spacing: 1px;
+            color: #1a1a1a;
+            margin-bottom: 10px;
+        }
+        .labs-container > p {
+            font-size: 15px;
+            color: #636366;
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+        .labs-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .lab-item {
+            background: #fff;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+        }
+        .lab-item a {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 20px;
+            text-decoration: none;
+            color: inherit;
+            gap: 12px;
+        }
+        .lab-item a:active { opacity: 0.75; }
+        .lab-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1a1a1a;
+            flex: 1;
+            line-height: 1.35;
+        }
+        .lab-seats-pill {
+            display: inline-block;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 20px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            background: #e5e5ea;
+            color: #636366;
+        }
+        .lab-seats-pill.available {
+            background: #d4f5e9;
+            color: #007a4e;
+        }
+        .lab-seats-pill.full {
+            background: #ffe5e5;
+            color: #c0392b;
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                max-width: 768px;
+                border-radius: 12px;
+                margin: 20px auto;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+                overflow: hidden;
+            }
+        }
+    </style>
+    <script src="/pwa.js" defer></script>
+</head>
+<body>
+
+    <div class="top-nav">
+        <a href="../index.html">Home</a>
+    </div>
+
+    <div class="container">
+
+        <div class="page-header">
+            <div class="page-title">What's Next</div>
+            <div class="page-subtitle">You finished the lab. Here's how to keep going.</div>
+        </div>
+
+        <!-- Primary CTA: WhatsApp -->
+        <section class="whatsapp-section">
+            <h2>Stay connected</h2>
+            <p>Join the Covo WhatsApp group for updates, encouragement, and next steps from the community.</p>
+            <div class="qr-wrap">
+                <img src="../assets/images/whatsapp-qr.png" alt="WhatsApp group QR code"
+                     onerror="this.parentNode.innerHTML='<div class=&quot;qr-placeholder&quot;>QR code<br>coming soon</div>'">
+            </div>
+            <a href="https://wa.me/" class="btn-whatsapp">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+                    <path d="M12.05 2C6.495 2 2 6.495 2 12.05c0 1.9.526 3.7 1.445 5.234L2 22l4.892-1.424A9.96 9.96 0 0012.05 22C17.605 22 22 17.505 22 11.95 22 6.495 17.605 2 12.05 2zm0 18.215a8.148 8.148 0 01-4.154-1.136l-.297-.177-3.083.898.898-3.019-.198-.31A8.137 8.137 0 013.879 12.05c0-4.506 3.665-8.171 8.171-8.171 4.506 0 8.171 3.665 8.171 8.171 0 4.506-3.665 8.165-8.171 8.165z"/>
+                </svg>
+                Join on WhatsApp
+            </a>
+        </section>
+
+        <!-- Secondary action: upcoming labs -->
+        <section class="labs-section">
+            <div class="labs-container">
+                <h2>Keep practicing</h2>
+                <p>A 45-minute lab can give you clarity. Repeated practice builds leaders. Join the next Covo Multipliers lab and keep working the pathway with other leaders who want to see disciples, leaders, and churches multiply.</p>
+                <ul class="labs-list">
+                    <li class="lab-item" data-slug="rhythms-of-a-covo-multiplier-jun-2026">
+                        <a href="../rhythms-of-a-covo-multiplier.html">
+                            <span class="lab-title">The Rhythms of a Covo Multiplier</span>
+                            <span class="lab-seats-pill" data-slug="rhythms-of-a-covo-multiplier-jun-2026">Loading…</span>
+                        </a>
+                    </li>
+                    <li class="lab-item" data-slug="aquila-and-priscilla-pattern-jul-2026">
+                        <a href="../aquila-and-priscilla-pattern.html">
+                            <span class="lab-title">The Aquila and Priscilla Pattern</span>
+                            <span class="lab-seats-pill" data-slug="aquila-and-priscilla-pattern-jul-2026">Loading…</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        const LAB_SLUGS = [
+            'rhythms-of-a-covo-multiplier-jun-2026',
+            'aquila-and-priscilla-pattern-jul-2026'
+        ]
+
+        async function loadLabSeats() {
+            const supabase = window._supabase
+            if (!supabase) return
+
+            const { data, error } = await supabase
+                .from('lab_events')
+                .select('slug, seats_remaining, event_date')
+                .in('slug', LAB_SLUGS)
+
+            if (error || !data) {
+                document.querySelectorAll('.lab-seats-pill').forEach(el => { el.textContent = '' })
+                return
+            }
+
+            const today = new Date()
+            today.setHours(0, 0, 0, 0)
+
+            for (const lab of data) {
+                const item = document.querySelector(`.lab-item[data-slug="${lab.slug}"]`)
+                if (!item) continue
+
+                const eventDate = new Date(lab.event_date)
+                if (eventDate < today) {
+                    item.style.display = 'none'
+                    continue
+                }
+
+                const pill = item.querySelector('.lab-seats-pill')
+                if (!pill) continue
+
+                if (lab.seats_remaining <= 0) {
+                    pill.textContent = 'Full'
+                    pill.classList.add('full')
+                } else {
+                    pill.textContent = lab.seats_remaining + ' seats left'
+                    pill.classList.add('available')
+                }
+            }
+
+            // Clear any pills still showing the loading state
+            document.querySelectorAll('.lab-seats-pill').forEach(el => {
+                if (el.textContent === 'Loading…') el.textContent = ''
+            })
+        }
+
+        document.addEventListener('DOMContentLoaded', loadLabSeats)
+    </script>
+
+</body>
+</html>
