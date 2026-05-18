@@ -656,6 +656,7 @@ function saveConversations() {
         // Load all data for userId from Supabase into the in-memory state.
         // Returns true if rows were found, false if the user has no data yet.
         async function loadFromSupabase(userId) {
+            console.log('[Sync Debug] loadFromSupabase userId:', userId);
             try {
                 const { data: people, error } = await window.supabase
                     .from('conversation_people')
@@ -721,6 +722,7 @@ function saveConversations() {
             const user = getCurrentUser();
             if (!user) { _saving = false; return; }
             const userId = user.id;
+            console.log('[Sync Debug] saveToSupabase userId:', userId);
 
             try {
                 // Ensure a profile row exists (display_name left null for now)
@@ -776,6 +778,7 @@ function saveConversations() {
             // window.supabase is guaranteed set by DOMContentLoaded (module runs first).
             if (window.supabase) {
                 const { data: { session } } = await window.supabase.auth.getSession();
+                console.log('[Sync Debug] Supabase project: mjiswwujcsmayuytoaul | user:', session?.user?.id, session?.user?.email);
                 if (session?.user) {
                     window._supabaseUser = session.user;
                     const loaded = await loadFromSupabase(session.user.id);
