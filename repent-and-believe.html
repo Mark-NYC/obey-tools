@@ -29,7 +29,7 @@
             min-height: 100vh;
             color: #000;
             line-height: 1.5;
-            padding-bottom: 100px;
+            padding-bottom: 90px;
         }
         .container {
             max-width: 375px;
@@ -37,19 +37,19 @@
             background: #ffffff;
             min-height: 100vh;
         }
-        .header {
-            padding: 30px 20px 20px;
-            background: #f2f2f7;
-            border-bottom: 0.5px solid #c6c6c8;
-            text-align: center;
+        /* Top bar: nav + title + auth + settings, all in one compact row */
+        .top-bar {
             position: relative;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            background: #f2f2f7;
         }
-        .settings-btn {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            width: 36px;
-            height: 36px;
+        .top-bar-group { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+        .icon-btn {
+            width: 32px;
+            height: 32px;
             background: #e5e5ea;
             border: none;
             border-radius: 8px;
@@ -57,167 +57,172 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
+            font-size: 15px;
+            flex-shrink: 0;
+            text-decoration: none;
+            color: #3a3a3c;
             transition: all 0.2s ease;
         }
-        .settings-btn:active {
-            background: #e5e5ea;
-            transform: scale(0.95);
+        .icon-btn:active { background: #d1d1d6; transform: scale(0.93); }
+        .top-bar-title {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            line-height: 1.1;
         }
-        .header-icon {
-            height: 80px;
-            width: auto;
-            margin: 0 auto 16px;
-            display: block;
-            border-radius: 0px;
-        }
-        .header h1 {
+        .top-bar-title h1 {
             font-family: 'Bebas Neue', cursive;
-            font-size: 42px;
+            font-size: 20px;
             font-weight: 400;
-            margin-bottom: 8px;
-            letter-spacing: 2px;
+            letter-spacing: 1px;
             color: #00D084;
-            -webkit-text-stroke: 2px #000;
+            -webkit-text-stroke: 1px #000;
+            max-width: 100%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
-        .header .scripture {
-            font-size: 15px;
+        .top-bar-count {
+            font-size: 10.5px;
+            font-weight: 700;
             color: #8e8e93;
-            font-weight: 500;
+            white-space: nowrap;
         }
-        .progress-bar-container {
-            padding: 16px 20px;
-            background: #fff;
-            border-bottom: 0.5px solid #c6c6c8;
-        }
-        .progress-bar {
-            height: 8px;
+        .progress-line {
+            height: 3px;
             background: #e5e5ea;
-            border-radius: 4px;
             overflow: hidden;
         }
-        .progress-fill {
+        .progress-line-fill {
             height: 100%;
             background: #00D084;
             width: 0%;
-            transition: width 0.5s ease;
-        }
-        .progress-text {
-            margin-top: 8px;
-            font-size: 13px;
-            color: #8e8e93;
-            text-align: center;
-            font-weight: 500;
+            transition: width 0.4s ease;
         }
         .content {
-            padding: 16px;
+            padding: 8px 12px 4px;
         }
-        .section-divider {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin: 24px 0 12px;
-            padding: 0 4px;
-        }
-        .section-divider-line {
-            flex: 1;
-            height: 1px;
-            background: #c6c6c8;
-        }
-        .section-divider-text {
-            font-size: 13px;
-            font-weight: 600;
+        .section-label {
+            font-size: 11px;
+            font-weight: 700;
             color: #8e8e93;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.6px;
+            padding: 8px 4px 4px;
         }
-        .card {
+        .section-label:first-child { padding-top: 4px; }
+        .item {
             background: #fff;
-            margin-bottom: 12px;
-            border-radius: 12px;
+            margin-bottom: 4px;
+            border-radius: 10px;
             overflow: hidden;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            user-select: none;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+            transition: background 0.3s ease;
         }
-        .card:active {
-            transform: scale(0.98);
-        }
-        .card.completed {
-            background: #00D084;
-        }
-        .card-content {
-            padding: 18px 20px;
+        .item.completed { background: #f7f7f9; }
+        .item-row {
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 10px;
+            padding: 8px 10px;
+            cursor: pointer;
+            user-select: none;
         }
-        .card-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 10px;
+        .item-row:active { background: rgba(0,0,0,0.03); }
+        .item-icon {
+            width: 26px;
+            height: 26px;
+            border-radius: 7px;
             background-size: cover;
             background-position: center;
             flex-shrink: 0;
-            transition: all 0.3s ease;
+            transition: opacity 0.3s ease, filter 0.3s ease;
         }
-        .card.completed .card-icon {
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        }
-        .card-icon.care-icon {
-            background-image: url('assets/images/icons/care-icon.jpg');
-        }
-        .card-icon.worship-icon {
-            background-image: url('assets/images/icons/worship-icon.jpg');
-        }
-        .card-icon.accountability-icon {
-            background-image: url('assets/images/icons/accountability-icon.jpg');
-        }
-        .card-icon.vision-icon {
-            background-image: url('assets/images/icons/vision-icon.jpg');
-        }
-        .card-icon.discover-icon {
-            background-image: url('assets/images/icons/discover-icon.jpg');
-        }
-        .card-icon.practice-icon {
-            background-image: url('assets/images/icons/practice-icon.jpg');
-        }
-        .card-icon.pray-icon {
-            background-image: url('assets/images/icons/pray-icon.jpg');
-        }
-        .card-text {
+        .item.completed .item-icon { opacity: 0.4; filter: grayscale(65%); }
+        .item-icon.care-icon { background-image: url('assets/images/icons/care-icon.jpg'); }
+        .item-icon.worship-icon { background-image: url('assets/images/icons/worship-icon.jpg'); }
+        .item-icon.accountability-icon { background-image: url('assets/images/icons/accountability-icon.jpg'); }
+        .item-icon.vision-icon { background-image: url('assets/images/icons/vision-icon.jpg'); }
+        .item-icon.discover-icon { background-image: url('assets/images/icons/discover-icon.jpg'); }
+        .item-icon.practice-icon { background-image: url('assets/images/icons/practice-icon.jpg'); }
+        .item-icon.pray-icon { background-image: url('assets/images/icons/pray-icon.jpg'); }
+        .item-title {
             flex: 1;
-        }
-        .card-title {
-            font-size: 17px;
+            min-width: 0;
+            font-size: 14.5px;
             font-weight: 700;
             color: #3a3a3c;
-            margin-bottom: 4px;
-            letter-spacing: -0.2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
             transition: color 0.3s ease;
         }
-        .card.completed .card-title {
-            color: #fff;
+        .item.completed .item-title { color: #b8b8bd; }
+        .item-chevron {
+            width: 14px;
+            text-align: center;
+            font-size: 10px;
+            color: #c6c6c8;
+            flex-shrink: 0;
+            transition: transform 0.3s ease;
         }
-        .view-link {
-            color: #007AFF;
+        .item.expanded .item-chevron { transform: rotate(180deg); }
+        .item-checkbox {
+            width: 25px;
+            height: 25px;
+            border: 2px solid #c6c6c8;
+            border-radius: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .item.completed .item-checkbox { background: #00D084; border-color: #00D084; }
+        .item-checkbox::after {
+            content: '✓';
+            color: #fff;
             font-size: 15px;
+            font-weight: 700;
+            opacity: 0;
+            transform: scale(0);
+            transition: all 0.2s ease;
+        }
+        .item.completed .item-checkbox::after { opacity: 1; transform: scale(1); }
+        .item-checkbox .step-count {
+            font-size: 10px;
+            font-weight: 700;
+            color: #8e8e93;
+        }
+        .item.completed .item-checkbox .step-count { display: none; }
+        .item-detail {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.35s ease;
+        }
+        .item.expanded .item-detail { max-height: 2000px; }
+        .item-detail-inner {
+            padding: 2px 14px 14px;
+            border-top: 0.5px solid #ececef;
+        }
+        .item-description {
+            font-size: 13.5px;
+            color: #8e8e93;
+            line-height: 1.45;
+            padding-top: 10px;
+        }
+        .item-view-link {
+            display: inline-block;
+            color: #007AFF;
+            font-size: 13.5px;
             font-weight: 600;
             cursor: pointer;
             text-decoration: underline;
-        }
-        .card.completed .view-link {
-            color: #fff;
-        }
-        .card-description {
-            font-size: 14px;
-            color: #8e8e93;
-            line-height: 1.4;
-            transition: color 0.3s ease;
-        }
-        .card.completed .card-description {
-            color: rgba(255,255,255,0.9);
+            margin-top: 10px;
         }
         .assignment-badge {
             display: inline-block;
@@ -227,42 +232,7 @@
             font-weight: 600;
             padding: 3px 8px;
             border-radius: 10px;
-            margin-top: 4px;
-        }
-        .card.completed .assignment-badge {
-            background: rgba(255,255,255,0.3);
-            color: #fff;
-        }
-        .card-checkbox {
-            width: 28px;
-            height: 28px;
-            border: 2px solid #c6c6c8;
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            transition: all 0.3s ease;
-        }
-        .card.completed .card-checkbox {
-            background: #fff;
-            border-color: #fff;
-        }
-        .card-checkbox::after {
-            content: '✓';
-            color: #00D084;
-            font-size: 18px;
-            font-weight: 700;
-            opacity: 0;
-            transform: scale(0);
-            transition: all 0.2s ease;
-        }
-        .card.completed .card-checkbox::after {
-            opacity: 1;
-            transform: scale(1);
-        }
-        .step-card {
-            position: relative;
+            margin-top: 8px;
         }
         .step-indicators {
             display: flex;
@@ -270,45 +240,29 @@
             margin-top: 12px;
         }
         .step-dot {
-            width: 32px;
-            height: 32px;
-            border-radius: 16px;
+            width: 30px;
+            height: 30px;
+            border-radius: 15px;
             border: 2px solid #c6c6c8;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
             color: #8e8e93;
             background: #fff;
             cursor: pointer;
             transition: all 0.3s ease;
+            margin: 0 auto;
         }
-        .step-dot:active {
-            transform: scale(0.95);
-        }
-        .step-dot.completed {
-            background: #00D084;
-            border-color: #00D084;
-            color: #fff;
-        }
-        .card.completed .step-dot {
-            border-color: rgba(255,255,255,0.5);
-            color: rgba(255,255,255,0.7);
-        }
-        .card.completed .step-dot.completed {
-            background: #fff;
-            border-color: #fff;
-            color: #00D084;
-        }
+        .step-dot:active { transform: scale(0.93); }
+        .step-dot.completed { background: #00D084; border-color: #00D084; color: #fff; }
         .step-label {
-            font-size: 13px;
+            font-size: 12px;
             color: #8e8e93;
-            margin-top: 8px;
+            margin-top: 6px;
             line-height: 1.3;
-        }
-        .card.completed .step-label {
-            color: rgba(255,255,255,0.8);
+            text-align: center;
         }
         .reset-section {
             position: fixed;
@@ -319,16 +273,16 @@
             max-width: 375px;
             background: #fff;
             border-top: 0.5px solid #c6c6c8;
-            padding: 16px;
-            padding-bottom: calc(16px + env(safe-area-inset-bottom));
+            padding: 8px 16px;
+            padding-bottom: calc(8px + env(safe-area-inset-bottom));
         }
         .btn {
             width: 100%;
-            padding: 14px;
+            padding: 10px;
             border: none;
             border-radius: 8px;
             font-weight: 600;
-            font-size: 15px;
+            font-size: 14px;
             cursor: pointer;
             background: #f2f2f7;
             color: #3a3a3c;
@@ -371,9 +325,7 @@
             align-items: center;
             justify-content: center;
         }
-        .popup-overlay.active {
-            display: flex;
-        }
+        .popup-overlay.active { display: flex; }
         .popup-content {
             background: #fff;
             border-radius: 12px;
@@ -400,9 +352,7 @@
             justify-content: center;
             color: #3a3a3c;
         }
-        .popup-close:active {
-            background: #e5e5ea;
-        }
+        .popup-close:active { background: #e5e5ea; }
         .popup-image {
             max-width: 100%;
             height: auto;
@@ -428,9 +378,7 @@
             justify-content: center;
             padding: 20px;
         }
-        .modal-overlay.active {
-            display: flex;
-        }
+        .modal-overlay.active { display: flex; }
         .modal-content {
             background: #fff;
             border-radius: 12px;
@@ -446,9 +394,7 @@
             margin-bottom: 20px;
             color: #3a3a3c;
         }
-        .modal-section {
-            margin-bottom: 20px;
-        }
+        .modal-section { margin-bottom: 20px; }
         .modal-label {
             font-size: 14px;
             font-weight: 600;
@@ -456,11 +402,7 @@
             margin-bottom: 8px;
             display: block;
         }
-        .toggle-group {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 20px;
-        }
+        .toggle-group { display: flex; gap: 8px; margin-bottom: 20px; }
         .toggle-btn {
             flex: 1;
             padding: 10px;
@@ -473,11 +415,7 @@
             cursor: pointer;
             transition: all 0.2s ease;
         }
-        .toggle-btn.active {
-            background: #00D084;
-            border-color: #00D084;
-            color: #fff;
-        }
+        .toggle-btn.active { background: #00D084; border-color: #00D084; color: #fff; }
         .assignment-input {
             width: 100%;
             padding: 10px;
@@ -499,9 +437,7 @@
             cursor: pointer;
             margin-top: 20px;
         }
-        .generate-btn:active {
-            opacity: 0.8;
-        }
+        .generate-btn:active { opacity: 0.8; }
         .link-display {
             background: #f2f2f7;
             padding: 12px;
@@ -511,9 +447,7 @@
             margin-top: 12px;
             display: none;
         }
-        .link-display.show {
-            display: block;
-        }
+        .link-display.show { display: block; }
         .copy-btn {
             width: 100%;
             padding: 10px;
@@ -527,12 +461,8 @@
             margin-top: 8px;
             display: none;
         }
-        .copy-btn.show {
-            display: block;
-        }
-        .copy-btn:active {
-            opacity: 0.8;
-        }
+        .copy-btn.show { display: block; }
+        .copy-btn:active { opacity: 0.8; }
         @media (min-width: 768px) {
             .container {
                 max-width: 768px;
@@ -541,9 +471,7 @@
                 box-shadow: 0 4px 20px rgba(0,0,0,0.1);
                 overflow: hidden;
             }
-            .content {
-                padding: 20px;
-            }
+            .content { padding: 12px 20px 4px; }
             .reset-section {
                 position: static;
                 transform: none;
@@ -553,8 +481,7 @@
                 border-radius: 0;
             }
         }
-        /* Auth section */
-        .auth-section { padding: 12px 16px; background: #f2f2f7; border-bottom: 0.5px solid #c6c6c8; visibility: hidden; }
+        /* Auth modal form */
         .auth-section input { width: 100%; padding: 10px 14px; border: 1px solid #c6c6c8; border-radius: 8px; font-size: 15px; background: #fff; outline: none; margin-bottom: 8px; font-family: inherit; }
         .auth-section input:focus { border-color: #3a3a3c; }
         .auth-buttons { display: flex; gap: 8px; }
@@ -564,16 +491,13 @@
         .auth-status { display: flex; align-items: center; justify-content: space-between; }
         .auth-status-text { font-size: 13px; color: #8e8e93; }
         .auth-logout-btn { padding: 6px 14px; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; background: #e5e5ea; color: #3a3a3c; font-family: inherit; }
-        .bible-btn { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 7px 12px; background: #f2f2f7; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; color: #3a3a3c; transition: background 0.2s ease; white-space: nowrap; }
+        .bible-btn { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 7px 12px; background: #f2f2f7; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; color: #3a3a3c; transition: background 0.2s ease; white-space: nowrap; width: 100%; margin-top: 12px; }
         .bible-btn:active { background: #e5e5ea; }
-        .card.completed .bible-btn { background: rgba(255,255,255,0.25); color: #fff; }
-        .bible-btn-mobile-wrap { padding: 0 20px 14px; }
-        .bible-btn-mobile { width: 100%; }
         .bible-btn-icon { font-size: 11px; transition: transform 0.25s ease; }
         .bible-btn.open .bible-btn-icon { transform: rotate(180deg); }
         .bible-accordion { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
         .bible-accordion.open { max-height: 5000px; }
-        .bible-text { padding: 0 20px 18px; border-top: 0.5px solid #e5e5ea; }
+        .bible-text { padding-top: 12px; }
         .bible-translation { font-size: 11px; font-weight: 700; color: #8e8e93; text-transform: uppercase; letter-spacing: 0.8px; margin-top: 14px; margin-bottom: 10px; }
         .bible-verse { font-size: 14px; line-height: 1.65; color: #3a3a3c; margin-bottom: 6px; }
         .verse-num { font-size: 11px; font-weight: 700; vertical-align: super; margin-right: 2px; opacity: 0.6; }
@@ -582,212 +506,222 @@
     <script src="/pwa.js" defer></script>
 </head>
 <body>
-    <div style="display:flex; gap:10px; justify-content:center; padding:20px 16px 8px;">
-        <a href="index.html" style="display:inline-block; background:#000; color:#fff; font-weight:700; font-size:15px; padding:11px 22px; border-radius:50px; text-decoration:none; white-space:nowrap;" data-i18n="nav.home">Home</a>
-        <a href="commands-of-christ.html" style="display:inline-block; background:#00D084; color:#fff; font-weight:700; font-size:15px; padding:11px 22px; border-radius:50px; text-decoration:none; white-space:nowrap;" data-i18n="nav.back_commands">← Commands of Christ</a>
-    </div>
     <div class="container">
-        <div class="auth-section" id="auth-section">
-            <div id="auth-form" style="display:none">
-                <input type="email" id="auth-email" placeholder="Email" data-i18n-placeholder="auth.email_placeholder">
-                <input type="password" id="auth-password" placeholder="Password" data-i18n-placeholder="auth.password_placeholder">
-                <div class="auth-buttons">
-                    <button class="auth-btn-primary" onclick="authSignUp()" data-i18n="auth.sign_up">Sign Up</button>
-                    <button class="auth-btn-secondary" onclick="authLogIn()" data-i18n="auth.log_in">Log In</button>
-                </div>
-                <button type="button" style="display:block;width:100%;margin-top:6px;padding:6px;background:none;border:none;color:#8e8e93;font-size:13px;cursor:pointer;text-align:center;font-family:inherit;" onclick="authForgotPassword()">Forgot password?</button>
+        <div class="top-bar">
+            <div class="top-bar-group">
+                <a href="index.html" class="icon-btn" aria-label="Home" title="Home">🏠</a>
+                <a href="commands-of-christ.html" class="icon-btn" aria-label="Back to Commands of Christ" title="Back to Commands of Christ">←</a>
             </div>
-            <div class="auth-status" id="auth-status" style="display:none">
-                <span class="auth-status-text" id="auth-status-text">Not signed in</span>
-                <button class="auth-logout-btn" onclick="authLogOut()" data-i18n="auth.log_out">Log Out</button>
+            <div class="top-bar-title">
+                <h1 data-i18n="repent_and_believe.title">Repent &amp; Believe</h1>
+                <span class="top-bar-count" id="progressText">0/9</span>
+            </div>
+            <div class="top-bar-group">
+                <button class="icon-btn" id="authBarBtn" onclick="openAuthModal()" aria-label="Account" title="Account" style="visibility:hidden;">👤</button>
+                <button class="icon-btn" onclick="openSettings()" aria-label="Settings" title="Settings">⚙️</button>
             </div>
         </div>
-        <div class="header">
-            <button class="settings-btn" onclick="openSettings()">⚙️</button>
-            <img src="assets/images/header/repent-and-believe-header.webp" alt="Command Icon" class="header-icon">
-            <h1 data-i18n="repent_and_believe.title">Repent &amp; Believe</h1>
-            <div class="scripture" data-i18n="repent_and_believe.scripture">Command: Mark 1:15 | Story: Luke 19:1–10</div>
-        </div>
-        <div class="progress-bar-container">
-            <div class="progress-bar">
-                <div class="progress-fill" id="progressFill"></div>
-            </div>
-            <div class="progress-text" id="progressText">0 of 9 completed</div>
+        <div class="progress-line">
+            <div class="progress-line-fill" id="progressFill"></div>
         </div>
         <div class="content">
-            <div class="section-divider">
-                <div class="section-divider-line"></div>
-                <div class="section-divider-text" data-i18n="common.look_back">Look Back</div>
-                <div class="section-divider-line"></div>
-            </div>
-            <div class="card" onclick="toggleCard(this)" data-card="care" data-assignment-key="care" data-section="lookback">
-                <div class="card-content">
-                    <div class="card-icon care-icon"></div>
-                    <div class="card-text">
-                        <div class="card-title" data-i18n="common.care_title">Care &amp; Prayer</div>
-                        <div class="card-description" data-i18n="common.care_desc">Everyone shares briefly how they are doing. Pray if appropriate.</div>
+            <div class="section-label" data-i18n="common.look_back">Look Back</div>
+            <div class="item" onclick="toggleExpand(this)" data-card="care" data-assignment-key="care" data-section="lookback">
+                <div class="item-row">
+                    <div class="item-icon care-icon"></div>
+                    <div class="item-title" data-i18n="common.care_title">Care &amp; Prayer</div>
+                    <div class="item-chevron">▼</div>
+                    <div class="item-checkbox" onclick="event.stopPropagation(); toggleComplete(this.closest('.item'))"></div>
+                </div>
+                <div class="item-detail">
+                    <div class="item-detail-inner">
+                        <div class="item-description" data-i18n="common.care_desc">Everyone shares briefly how they are doing. Pray if appropriate.</div>
                         <div class="assignment-badge-container"></div>
                     </div>
-                    <div class="card-checkbox"></div>
                 </div>
             </div>
-            <div class="card" onclick="toggleCard(this)" data-card="worship" data-assignment-key="worship" data-section="lookback">
-                <div class="card-content">
-                    <div class="card-icon worship-icon"></div>
-                    <div class="card-text">
-                        <div class="card-title" data-i18n="common.worship_title">Worship</div>
-                        <div class="card-description" data-i18n="common.worship_desc">Praise God • Give to Needs • Lord's Supper</div>
+            <div class="item" onclick="toggleExpand(this)" data-card="worship" data-assignment-key="worship" data-section="lookback">
+                <div class="item-row">
+                    <div class="item-icon worship-icon"></div>
+                    <div class="item-title" data-i18n="common.worship_title">Worship</div>
+                    <div class="item-chevron">▼</div>
+                    <div class="item-checkbox" onclick="event.stopPropagation(); toggleComplete(this.closest('.item'))"></div>
+                </div>
+                <div class="item-detail">
+                    <div class="item-detail-inner">
+                        <div class="item-description" data-i18n="common.worship_desc">Praise God • Give to Needs • Lord's Supper</div>
                         <div class="assignment-badge-container"></div>
                     </div>
-                    <div class="card-checkbox"></div>
                 </div>
             </div>
-            <div class="card" onclick="toggleCard(this)" data-card="accountability" data-assignment-key="accountability" data-section="lookback">
-                <div class="card-content">
-                    <div class="card-icon accountability-icon"></div>
-                    <div class="card-text">
-                        <div class="card-title" data-i18n="common.accountability_title">Loving Accountability</div>
-                        <div class="card-description" data-i18n="common.accountability_desc">Follow: Share how you obeyed. Fish: Share who you shared with.</div>
+            <div class="item" onclick="toggleExpand(this)" data-card="accountability" data-assignment-key="accountability" data-section="lookback">
+                <div class="item-row">
+                    <div class="item-icon accountability-icon"></div>
+                    <div class="item-title" data-i18n="common.accountability_title">Loving Accountability</div>
+                    <div class="item-chevron">▼</div>
+                    <div class="item-checkbox" onclick="event.stopPropagation(); toggleComplete(this.closest('.item'))"></div>
+                </div>
+                <div class="item-detail">
+                    <div class="item-detail-inner">
+                        <div class="item-description" data-i18n="common.accountability_desc">Follow: Share how you obeyed. Fish: Share who you shared with.</div>
                         <div class="assignment-badge-container"></div>
                     </div>
-                    <div class="card-checkbox"></div>
                 </div>
             </div>
-            <div class="card" onclick="toggleCard(this)" data-card="vision" data-assignment-key="vision" data-section="lookback">
-                <div class="card-content">
-                    <div class="card-icon vision-icon"></div>
-                    <div class="card-text">
-                        <div class="card-title"><span data-i18n="common.vision_title">Vision: Acts 2 Church Circle</span> <span class="view-link" onclick="event.stopPropagation(); showVisionPopup()" data-i18n="common.vision_view">(View)</span></div>
-                        <div class="card-description" data-i18n="common.vision_ref">Acts 2:36-47</div>
+            <div class="item" onclick="toggleExpand(this)" data-card="vision" data-assignment-key="vision" data-section="lookback">
+                <div class="item-row">
+                    <div class="item-icon vision-icon"></div>
+                    <div class="item-title" data-i18n="common.vision_title">Vision: Acts 2 Church Circle</div>
+                    <div class="item-chevron">▼</div>
+                    <div class="item-checkbox" onclick="event.stopPropagation(); toggleComplete(this.closest('.item'))"></div>
+                </div>
+                <div class="item-detail">
+                    <div class="item-detail-inner">
+                        <div class="item-description" data-i18n="common.vision_ref">Acts 2:36-47</div>
+                        <span class="item-view-link" onclick="event.stopPropagation(); showVisionPopup()" data-i18n="common.vision_view">(View)</span>
                         <div class="assignment-badge-container"></div>
                     </div>
-                    <div class="card-checkbox"></div>
                 </div>
             </div>
-            <div class="section-divider">
-                <div class="section-divider-line"></div>
-                <div class="section-divider-text" data-i18n="common.look_up">Look Up</div>
-                <div class="section-divider-line"></div>
-            </div>
-            <div class="card step-card" data-card="teaching" data-assignment-key="lookup" data-section="lookup">
-                <div class="card-content" style="flex-direction: column; align-items: stretch;">
-                    <div style="display: flex; align-items: center; gap: 16px;">
-                        <div class="card-icon discover-icon"></div>
-                        <div class="card-text">
-                            <div class="card-title" data-i18n="common.new_teaching">New Teaching From Scripture</div>
-                            <div class="card-description" data-i18n="repent_and_believe.teaching_ref">Mark 1:15 | Luke 19:1-10</div>
-                            <div class="assignment-badge-container"></div>
+            <div class="section-label" data-i18n="common.look_up">Look Up</div>
+            <div class="item step-item" onclick="toggleExpand(this)" data-card="teaching" data-assignment-key="lookup" data-section="lookup">
+                <div class="item-row">
+                    <div class="item-icon discover-icon"></div>
+                    <div class="item-title" data-i18n="common.new_teaching">New Teaching From Scripture</div>
+                    <div class="item-chevron">▼</div>
+                    <div class="item-checkbox"><span class="step-count" id="teachingStepCount">0/3</span></div>
+                </div>
+                <div class="item-detail">
+                    <div class="item-detail-inner">
+                        <div class="item-description" data-i18n="repent_and_believe.teaching_ref">Mark 1:15 | Luke 19:1-10</div>
+                        <div class="assignment-badge-container"></div>
+                        <div class="step-indicators">
+                            <div style="flex: 1;">
+                                <div class="step-dot" data-step="1" onclick="event.stopPropagation(); toggleStep(this, 'teaching')">1</div>
+                                <div class="step-label" data-i18n="common.step_read_command">Read Command &amp; Tell Story</div>
+                            </div>
+                            <div style="flex: 1;">
+                                <div class="step-dot" data-step="2" onclick="event.stopPropagation(); toggleStep(this, 'teaching')">2</div>
+                                <div class="step-label" data-i18n="common.step_read_story_together">Read Story Together</div>
+                            </div>
+                            <div style="flex: 1;">
+                                <div class="step-dot" data-step="3" onclick="event.stopPropagation(); toggleStep(this, 'teaching')">3</div>
+                                <div class="step-label" data-i18n="common.step_retell_story">Retell Story</div>
+                            </div>
+                        </div>
+                        <button class="bible-btn" onclick="toggleBible(event)"><span>Luke 19:1–10 (CSB)</span><span class="bible-btn-icon">▼</span></button>
+                        <div class="bible-accordion" id="bible-accordion">
+                            <div class="bible-text">
+                                <div class="bible-translation">Christian Standard Bible</div>
+                                <p class="bible-verse"><span class="verse-num">1</span>He entered Jericho and was passing through.</p>
+                                <p class="bible-verse"><span class="verse-num">2</span>There was a man named Zacchaeus who was a chief tax collector, and he was rich.</p>
+                                <p class="bible-verse"><span class="verse-num">3</span>He was trying to see who Jesus was, but he was not able because of the crowd, since he was a short man.</p>
+                                <p class="bible-verse"><span class="verse-num">4</span>So running ahead, he climbed up a sycamore tree to see Jesus, since he was about to pass that way.</p>
+                                <p class="bible-verse"><span class="verse-num">5</span>When Jesus came to the place, he looked up and said to him, "Zacchaeus, hurry and come down because today it is necessary for me to stay at your house."</p>
+                                <p class="bible-verse"><span class="verse-num">6</span>So he quickly came down and welcomed him joyfully.</p>
+                                <p class="bible-verse"><span class="verse-num">7</span>All who saw it began to complain, "He's gone to stay with a sinful man."</p>
+                                <p class="bible-verse"><span class="verse-num">8</span>But Zacchaeus stood there and said to the Lord, "Look, I'll give half of my possessions to the poor, Lord. And if I have extorted anything from anyone, I'll pay back four times as much."</p>
+                                <p class="bible-verse"><span class="verse-num">9</span>"Today salvation has come to this house," Jesus told him, "because he too is a son of Abraham.</p>
+                                <p class="bible-verse"><span class="verse-num">10</span>For the Son of Man has come to seek and to save the lost."</p>
+                            </div>
                         </div>
                     </div>
-                    <div class="step-indicators">
-                        <div style="flex: 1;">
-                            <div class="step-dot" data-step="1" onclick="event.stopPropagation(); toggleStep(this, 'teaching')">1</div>
-                            <div class="step-label" data-i18n="common.step_read_command">Read Command &amp; Tell Story</div>
-                        </div>
-                        <div style="flex: 1;">
-                            <div class="step-dot" data-step="2" onclick="event.stopPropagation(); toggleStep(this, 'teaching')">2</div>
-                            <div class="step-label" data-i18n="common.step_read_story_together">Read Story Together</div>
-                        </div>
-                        <div style="flex: 1;">
-                            <div class="step-dot" data-step="3" onclick="event.stopPropagation(); toggleStep(this, 'teaching')">3</div>
-                            <div class="step-label" data-i18n="common.step_retell_story">Retell Story</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="bible-btn-mobile-wrap"><button class="bible-btn bible-btn-mobile" onclick="toggleBible(event)"><span>Luke 19:1–10 (CSB)</span><span class="bible-btn-icon">▼</span></button></div>
-                <div class="bible-accordion" id="bible-accordion">
-                    <div class="bible-text">
-                        <div class="bible-translation">Christian Standard Bible</div>
-                        <p class="bible-verse"><span class="verse-num">1</span>He entered Jericho and was passing through.</p>
-                        <p class="bible-verse"><span class="verse-num">2</span>There was a man named Zacchaeus who was a chief tax collector, and he was rich.</p>
-                        <p class="bible-verse"><span class="verse-num">3</span>He was trying to see who Jesus was, but he was not able because of the crowd, since he was a short man.</p>
-                        <p class="bible-verse"><span class="verse-num">4</span>So running ahead, he climbed up a sycamore tree to see Jesus, since he was about to pass that way.</p>
-                        <p class="bible-verse"><span class="verse-num">5</span>When Jesus came to the place, he looked up and said to him, "Zacchaeus, hurry and come down because today it is necessary for me to stay at your house."</p>
-                        <p class="bible-verse"><span class="verse-num">6</span>So he quickly came down and welcomed him joyfully.</p>
-                        <p class="bible-verse"><span class="verse-num">7</span>All who saw it began to complain, "He's gone to stay with a sinful man."</p>
-                        <p class="bible-verse"><span class="verse-num">8</span>But Zacchaeus stood there and said to the Lord, "Look, I'll give half of my possessions to the poor, Lord. And if I have extorted anything from anyone, I'll pay back four times as much."</p>
-                        <p class="bible-verse"><span class="verse-num">9</span>"Today salvation has come to this house," Jesus told him, "because he too is a son of Abraham.</p>
-                        <p class="bible-verse"><span class="verse-num">10</span>For the Son of Man has come to seek and to save the lost."</p>
-                    </div>
                 </div>
             </div>
-            <div class="card" onclick="toggleCard(this)" data-card="discuss-god" data-assignment-key="lookup" data-section="lookup">
-                <div class="card-content">
-                    <div class="card-icon discover-icon"></div>
-                    <div class="card-text">
-                        <div class="card-title" data-i18n="common.discuss_god_title">What do we learn about God?</div>
+            <div class="item" onclick="toggleExpand(this)" data-card="discuss-god" data-assignment-key="lookup" data-section="lookup">
+                <div class="item-row">
+                    <div class="item-icon discover-icon"></div>
+                    <div class="item-title" data-i18n="common.discuss_god_title">What do we learn about God?</div>
+                    <div class="item-chevron">▼</div>
+                    <div class="item-checkbox" onclick="event.stopPropagation(); toggleComplete(this.closest('.item'))"></div>
+                </div>
+                <div class="item-detail">
+                    <div class="item-detail-inner">
                         <div class="assignment-badge-container"></div>
                     </div>
-                    <div class="card-checkbox"></div>
                 </div>
             </div>
-            <div class="card" onclick="toggleCard(this)" data-card="discuss-people" data-assignment-key="lookup" data-section="lookup">
-                <div class="card-content">
-                    <div class="card-icon discover-icon"></div>
-                    <div class="card-text">
-                        <div class="card-title" data-i18n="common.discuss_people_title">What do we learn about people?</div>
+            <div class="item" onclick="toggleExpand(this)" data-card="discuss-people" data-assignment-key="lookup" data-section="lookup">
+                <div class="item-row">
+                    <div class="item-icon discover-icon"></div>
+                    <div class="item-title" data-i18n="common.discuss_people_title">What do we learn about people?</div>
+                    <div class="item-chevron">▼</div>
+                    <div class="item-checkbox" onclick="event.stopPropagation(); toggleComplete(this.closest('.item'))"></div>
+                </div>
+                <div class="item-detail">
+                    <div class="item-detail-inner">
                         <div class="assignment-badge-container"></div>
                     </div>
-                    <div class="card-checkbox"></div>
                 </div>
             </div>
-            <div class="card" onclick="toggleCard(this)" data-card="pray-listen" data-assignment-key="lookup" data-section="lookup">
-                <div class="card-content">
-                    <div class="card-icon discover-icon"></div>
-                    <div class="card-text">
-                        <div class="card-title" data-i18n="common.pray_listen_title">Pause — Pray and Listen</div>
+            <div class="item" onclick="toggleExpand(this)" data-card="pray-listen" data-assignment-key="lookup" data-section="lookup">
+                <div class="item-row">
+                    <div class="item-icon discover-icon"></div>
+                    <div class="item-title" data-i18n="common.pray_listen_title">Pause — Pray and Listen</div>
+                    <div class="item-chevron">▼</div>
+                    <div class="item-checkbox" onclick="event.stopPropagation(); toggleComplete(this.closest('.item'))"></div>
+                </div>
+                <div class="item-detail">
+                    <div class="item-detail-inner">
                         <div class="assignment-badge-container"></div>
                     </div>
-                    <div class="card-checkbox"></div>
                 </div>
             </div>
-            <div class="card" onclick="toggleCard(this)" data-card="discuss-obey" data-assignment-key="lookup" data-section="lookup">
-                <div class="card-content">
-                    <div class="card-icon discover-icon"></div>
-                    <div class="card-text">
-                        <div class="card-title" data-i18n="common.how_obey_title">How will you obey the story?</div>
-                        <div class="card-description" data-i18n="common.how_obey_desc">Share how you will obey.</div>
+            <div class="item" onclick="toggleExpand(this)" data-card="discuss-obey" data-assignment-key="lookup" data-section="lookup">
+                <div class="item-row">
+                    <div class="item-icon discover-icon"></div>
+                    <div class="item-title" data-i18n="common.how_obey_title">How will you obey the story?</div>
+                    <div class="item-chevron">▼</div>
+                    <div class="item-checkbox" onclick="event.stopPropagation(); toggleComplete(this.closest('.item'))"></div>
+                </div>
+                <div class="item-detail">
+                    <div class="item-detail-inner">
+                        <div class="item-description" data-i18n="common.how_obey_desc">Share how you will obey.</div>
                         <div class="assignment-badge-container"></div>
                     </div>
-                    <div class="card-checkbox"></div>
                 </div>
             </div>
-            <div class="section-divider">
-                <div class="section-divider-line"></div>
-                <div class="section-divider-text" data-i18n="common.look_forward">Look Forward</div>
-                <div class="section-divider-line"></div>
-            </div>
-            <div class="card" onclick="toggleCard(this)" data-card="practice" data-assignment-key="practice" data-section="lookforward">
-                <div class="card-content">
-                    <div class="card-icon practice-icon"></div>
-                    <div class="card-text">
-                        <div class="card-title" data-i18n="common.practice_3circles_title">Practice: 3 Circles</div>
-                        <div class="card-description" data-i18n="common.practice_3circles_desc">Practice the 3 Circles gospel tool.</div>
+            <div class="section-label" data-i18n="common.look_forward">Look Forward</div>
+            <div class="item" onclick="toggleExpand(this)" data-card="practice" data-assignment-key="practice" data-section="lookforward">
+                <div class="item-row">
+                    <div class="item-icon practice-icon"></div>
+                    <div class="item-title" data-i18n="common.practice_3circles_title">Practice: 3 Circles</div>
+                    <div class="item-chevron">▼</div>
+                    <div class="item-checkbox" onclick="event.stopPropagation(); toggleComplete(this.closest('.item'))"></div>
+                </div>
+                <div class="item-detail">
+                    <div class="item-detail-inner">
+                        <div class="item-description" data-i18n="common.practice_3circles_desc">Practice the 3 Circles gospel tool.</div>
                         <div class="assignment-badge-container"></div>
                     </div>
-                    <div class="card-checkbox"></div>
                 </div>
             </div>
-            <div class="card" onclick="toggleCard(this)" data-card="goals" data-assignment-key="goals" data-section="lookforward">
-                <div class="card-content">
-                    <div class="card-icon accountability-icon"></div>
-                    <div class="card-text">
-                        <div class="card-title" data-i18n="common.set_goals_title">Set Goals</div>
-                        <div class="card-description" data-i18n="common.set_goals_desc">Follow: What is Jesus asking you to obey? Fish: Who needs to hear this story?</div>
+            <div class="item" onclick="toggleExpand(this)" data-card="goals" data-assignment-key="goals" data-section="lookforward">
+                <div class="item-row">
+                    <div class="item-icon accountability-icon"></div>
+                    <div class="item-title" data-i18n="common.set_goals_title">Set Goals</div>
+                    <div class="item-chevron">▼</div>
+                    <div class="item-checkbox" onclick="event.stopPropagation(); toggleComplete(this.closest('.item'))"></div>
+                </div>
+                <div class="item-detail">
+                    <div class="item-detail-inner">
+                        <div class="item-description" data-i18n="common.set_goals_desc">Follow: What is Jesus asking you to obey? Fish: Who needs to hear this story?</div>
                         <div class="assignment-badge-container"></div>
                     </div>
-                    <div class="card-checkbox"></div>
                 </div>
             </div>
-            <div class="card" onclick="toggleCard(this)" data-card="commission" data-assignment-key="commission" data-section="lookforward">
-                <div class="card-content">
-                    <div class="card-icon pray-icon"></div>
-                    <div class="card-text">
-                        <div class="card-title" data-i18n="common.commission_title">Commission with Prayer</div>
-                        <div class="card-description" data-i18n="common.commission_desc">Pray together.</div>
+            <div class="item" onclick="toggleExpand(this)" data-card="commission" data-assignment-key="commission" data-section="lookforward">
+                <div class="item-row">
+                    <div class="item-icon pray-icon"></div>
+                    <div class="item-title" data-i18n="common.commission_title">Commission with Prayer</div>
+                    <div class="item-chevron">▼</div>
+                    <div class="item-checkbox" onclick="event.stopPropagation(); toggleComplete(this.closest('.item'))"></div>
+                </div>
+                <div class="item-detail">
+                    <div class="item-detail-inner">
+                        <div class="item-description" data-i18n="common.commission_desc">Pray together.</div>
                         <div class="assignment-badge-container"></div>
                     </div>
-                    <div class="card-checkbox"></div>
                 </div>
             </div>
         </div>
@@ -817,6 +751,25 @@
             <div class="link-display" id="linkDisplay"></div>
             <button class="copy-btn" id="copyBtn" onclick="copyLink()" data-i18n="settings.copy_link">Copy Link</button>
             <button class="btn" onclick="closeSettings()" style="margin-top: 16px;" data-i18n="settings.close">Close</button>
+        </div>
+    </div>
+    <div class="modal-overlay" id="authModal">
+        <div class="modal-content auth-section" onclick="event.stopPropagation()">
+            <div class="modal-header">Account</div>
+            <div id="auth-form" style="display:none">
+                <input type="email" id="auth-email" placeholder="Email" data-i18n-placeholder="auth.email_placeholder">
+                <input type="password" id="auth-password" placeholder="Password" data-i18n-placeholder="auth.password_placeholder">
+                <div class="auth-buttons">
+                    <button class="auth-btn-primary" onclick="authSignUp()" data-i18n="auth.sign_up">Sign Up</button>
+                    <button class="auth-btn-secondary" onclick="authLogIn()" data-i18n="auth.log_in">Log In</button>
+                </div>
+                <button type="button" style="display:block;width:100%;margin-top:6px;padding:6px;background:none;border:none;color:#8e8e93;font-size:13px;cursor:pointer;text-align:center;font-family:inherit;" onclick="authForgotPassword()">Forgot password?</button>
+            </div>
+            <div class="auth-status" id="auth-status" style="display:none">
+                <span class="auth-status-text" id="auth-status-text">Not signed in</span>
+                <button class="auth-logout-btn" onclick="authLogOut()" data-i18n="auth.log_out">Log Out</button>
+            </div>
+            <button class="btn" onclick="closeAuthModal()" style="margin-top: 16px;" data-i18n="settings.close">Close</button>
         </div>
     </div>
     <script>
@@ -849,16 +802,16 @@
             displayAssignments();
         }
         function displayAssignments() {
-            document.querySelectorAll('[data-assignment-key]').forEach(function(card) {
-                const key = card.dataset.assignmentKey;
-                const section = card.dataset.section;
+            document.querySelectorAll('[data-assignment-key]').forEach(function(item) {
+                const key = item.dataset.assignmentKey;
+                const section = item.dataset.section;
                 let assignedName = '';
                 if (assignmentMode === 'section') {
                     assignedName = assignments[section] || '';
                 } else {
                     assignedName = assignments[key] || '';
                 }
-                const container = card.querySelector('.assignment-badge-container');
+                const container = item.querySelector('.assignment-badge-container');
                 if (container) {
                     if (assignedName) {
                         container.innerHTML = '<div class="assignment-badge">' + assignedName + '</div>';
@@ -874,6 +827,12 @@
         }
         function closeSettings() {
             document.getElementById('settingsModal').classList.remove('active');
+        }
+        function openAuthModal() {
+            document.getElementById('authModal').classList.add('active');
+        }
+        function closeAuthModal() {
+            document.getElementById('authModal').classList.remove('active');
         }
         function setAssignmentMode(mode) {
             assignmentMode = mode;
@@ -927,20 +886,46 @@
             localStorage.setItem(storageKey + '-steps', JSON.stringify(stepProgress));
             updateProgress();
         }
-        function toggleCard(card) {
-            const cardId = card.dataset.card;
-            if (card.classList.contains('completed')) {
-                card.classList.remove('completed');
-                completedCards = completedCards.filter(function(id) { return id !== cardId; });
+        function allItems() {
+            return Array.from(document.querySelectorAll('.item'));
+        }
+        function expandOnly(item) {
+            allItems().forEach(function(el) {
+                if (el !== item) el.classList.remove('expanded');
+            });
+            if (item) item.classList.add('expanded');
+        }
+        function toggleExpand(item) {
+            const wasExpanded = item.classList.contains('expanded');
+            expandOnly(wasExpanded ? null : item);
+        }
+        function advanceToNextIncomplete(current) {
+            const items = allItems();
+            const idx = items.indexOf(current);
+            for (let i = idx + 1; i < items.length; i++) {
+                if (!items[i].classList.contains('completed')) {
+                    expandOnly(items[i]);
+                    items[i].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    return;
+                }
+            }
+            expandOnly(null);
+        }
+        function toggleComplete(item) {
+            const cardId = item.dataset.card;
+            const nowCompleted = !item.classList.contains('completed');
+            item.classList.toggle('completed', nowCompleted);
+            if (nowCompleted) {
+                if (!completedCards.includes(cardId)) completedCards.push(cardId);
+                advanceToNextIncomplete(item);
             } else {
-                card.classList.add('completed');
-                completedCards.push(cardId);
+                completedCards = completedCards.filter(function(id) { return id !== cardId; });
             }
             saveProgress();
         }
         function toggleStep(stepDot, cardId) {
             const step = stepDot.dataset.step;
-            const card = stepDot.closest('.card');
+            const item = stepDot.closest('.item');
             if (!stepProgress[cardId]) {
                 stepProgress[cardId] = [];
             }
@@ -951,23 +936,31 @@
                 stepProgress[cardId].push(step);
                 stepDot.classList.add('completed');
             }
-            if (stepProgress[cardId].length === 3) {
-                if (!completedCards.includes(cardId)) {
-                    completedCards.push(cardId);
-                    card.classList.add('completed');
-                }
+            updateStepCount(item, cardId);
+            const nowComplete = stepProgress[cardId].length === 3;
+            if (nowComplete) {
+                if (!completedCards.includes(cardId)) completedCards.push(cardId);
+                item.classList.add('completed');
+                advanceToNextIncomplete(item);
             } else {
                 completedCards = completedCards.filter(function(id) { return id !== cardId; });
-                card.classList.remove('completed');
+                item.classList.remove('completed');
             }
             saveProgress();
         }
+        function updateStepCount(item, cardId) {
+            const countEl = item.querySelector('.step-count');
+            if (countEl) {
+                const done = (stepProgress[cardId] || []).length;
+                countEl.textContent = done + '/3';
+            }
+        }
         function updateProgress() {
-            const total = document.querySelectorAll('.card:not(.step-card)').length + 1;
+            const total = document.querySelectorAll('.item:not(.step-item)').length + 1;
             const completed = completedCards.length;
             const percentage = (completed / total) * 100;
             document.getElementById('progressFill').style.width = percentage + '%';
-            document.getElementById('progressText').textContent = window.t('common.completed_of', { done: completed, total: total });
+            document.getElementById('progressText').textContent = completed + '/' + total;
             if (completed === total) {
                 showNotification(window.t('common.study_complete'));
             }
@@ -978,11 +971,15 @@
                 stepProgress = {};
                 localStorage.removeItem(storageKey);
                 localStorage.removeItem(storageKey + '-steps');
-                document.querySelectorAll('.card').forEach(function(card) {
-                    card.classList.remove('completed');
+                document.querySelectorAll('.item').forEach(function(item) {
+                    item.classList.remove('completed');
+                    item.classList.remove('expanded');
                 });
                 document.querySelectorAll('.step-dot').forEach(function(dot) {
                     dot.classList.remove('completed');
+                });
+                document.querySelectorAll('.step-count').forEach(function(el) {
+                    el.textContent = '0/3';
                 });
                 updateProgress();
                 showNotification(window.t('common.progress_reset'));
@@ -1004,24 +1001,27 @@
         window.addEventListener('DOMContentLoaded', function() {
             initializeFromURL();
             completedCards.forEach(function(cardId) {
-                const card = document.querySelector('[data-card="' + cardId + '"]');
-                if (card) {
-                    card.classList.add('completed');
+                const item = document.querySelector('[data-card="' + cardId + '"]');
+                if (item) {
+                    item.classList.add('completed');
                 }
             });
             Object.keys(stepProgress).forEach(function(cardId) {
+                const item = document.querySelector('[data-card="' + cardId + '"]');
                 stepProgress[cardId].forEach(function(step) {
                     const stepDot = document.querySelector('[data-card="' + cardId + '"] [data-step="' + step + '"]');
                     if (stepDot) {
                         stepDot.classList.add('completed');
                     }
                 });
+                if (item) updateStepCount(item, cardId);
             });
             window.addEventListener('i18n:ready', updateProgress, { once: true });
         });
         document.addEventListener('click', function(e) {
             if (e.target.classList.contains('modal-overlay')) {
                 closeSettings();
+                closeAuthModal();
             }
             if (e.target.classList.contains('popup-overlay')) {
                 closeVisionPopup();
@@ -1030,7 +1030,7 @@
         function toggleBible(e) { e.stopPropagation(); const accordion = document.getElementById('bible-accordion'); const isOpen = accordion.classList.toggle('open'); document.querySelectorAll('.bible-btn').forEach(btn => btn.classList.toggle('open', isOpen)); }
         function updateAuthUI(user) {
             window._supabaseUser = user;
-            document.getElementById('auth-section').style.visibility = 'visible';
+            document.getElementById('authBarBtn').style.visibility = 'visible';
             const form = document.getElementById('auth-form');
             const status = document.getElementById('auth-status');
             const text = document.getElementById('auth-status-text');
