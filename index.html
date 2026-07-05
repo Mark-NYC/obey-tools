@@ -41,7 +41,7 @@
                 const btn = document.createElement('button')
                 btn.className = 'auth-toast-close'
                 btn.setAttribute('aria-label', 'Dismiss')
-                btn.textContent = '\u00d7'
+                btn.textContent = '×'
                 btn.onclick = () => el.remove()
                 el.appendChild(btn)
                 // remove after 12s as a fallback
@@ -398,7 +398,7 @@
         if (isIOS && !isStandalone) {
             window.addEventListener('load', function () {
                 if (deferredPrompt) return  // Chromium already showing
-                text.innerHTML = 'Tap <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" width="16" height="16" style="vertical-align:middle;display:inline-block;margin:0 1px -1px" fill="currentColor"><path d="M30.3 13.7L25 8.4l-5.3 5.3-1.4-1.4L25 5.6l6.7 6.7z"/><path d="M24 7h2v21h-2z"/><path d="M35 40H15c-1.7 0-3-1.3-3-3V19c0-1.7 1.3-3 3-3h7v2h-7c-.6 0-1 .4-1 1v18c0 .6.4 1 1 1h20c.6 0 1-.4 1-1V19c0-.6-.4-1-1-1h-7v-2h7c1.7 0 3 1.3 3 3v18c0 1.7-1.3 3-3 3z"/></svg> Share, then \u201cAdd to Home Screen\u201d to install.'
+                text.innerHTML = 'Tap <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" width="16" height="16" style="vertical-align:middle;display:inline-block;margin:0 1px -1px" fill="currentColor"><path d="M30.3 13.7L25 8.4l-5.3 5.3-1.4-1.4L25 5.6l6.7 6.7z"/><path d="M24 7h2v21h-2z"/><path d="M35 40H15c-1.7 0-3-1.3-3-3V19c0-1.7 1.3-3 3-3h7v2h-7c-.6 0-1 .4-1 1v18c0 .6.4 1 1 1h20c.6 0 1-.4 1-1V19c0-.6-.4-1-1-1h-7v-2h7c1.7 0 3 1.3 3 3v18c0 1.7-1.3 3-3 3z"/></svg> Share, then “Add to Home Screen” to install.'
                 banner.style.display = 'flex'
             })
         }
@@ -458,6 +458,14 @@
             .catch(function () { sessionStorage.setItem(CACHE_KEY, ''); });
     })();
     </script>
+
+    <footer style="margin-top:48px; text-align:center; font-size:13px; color:#8e8e93; padding:0 20px;">
+        <p>Part of a small family of disciple-making tools:
+            <a href="https://churchwaffle.com" style="color:#8e8e93; text-decoration:underline;">Church Waffle</a> ·
+            <a href="https://covomultipliers.com" style="color:#8e8e93; text-decoration:underline;">Covo Multipliers</a> ·
+            <a href="https://conversationquadrant.com" style="color:#8e8e93; text-decoration:underline;">Conversation Quadrant</a>
+        </p>
+    </footer>
 
 </body>
 </html>
