@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -142,6 +143,651 @@
     </style>
     <script type="module" src="/i18n.js"></script>
     <script src="/pwa.js" defer></script>
+
+    <style id="mobile-rhythm-rework">
+        :root {
+            --brand-green: #00D084;
+            --ink: #000000;
+            --text: #3a3a3c;
+            --muted: #8e8e93;
+            --line: #c6c6c8;
+            --soft-line: #e5e5ea;
+            --canvas: #f2f2f7;
+            --surface: #ffffff;
+        }
+
+        html, body { height: 100%; }
+
+        body {
+            min-height: 100dvh;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: var(--canvas);
+            color: var(--ink);
+            -webkit-font-smoothing: antialiased;
+            text-rendering: optimizeLegibility;
+        }
+
+        body.sheet-open { overscroll-behavior: none; }
+
+        .top-nav {
+            width: 100%;
+            max-width: 430px;
+            min-height: 50px;
+            flex: 0 0 50px;
+            padding: 7px 14px 5px !important;
+            gap: 8px !important;
+            align-items: center;
+            background: var(--canvas);
+        }
+
+        .top-nav a {
+            min-height: 38px;
+            display: inline-flex !important;
+            align-items: center;
+            justify-content: center;
+            padding: 9px 15px !important;
+            border-radius: 999px !important;
+            font-size: 13px !important;
+            letter-spacing: -0.1px;
+            box-shadow: inset 0 0 0 0.5px rgba(0,0,0,0.08);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 430px;
+            height: calc(100dvh - 50px);
+            min-height: 0;
+            margin: 0;
+            display: grid;
+            grid-template-rows: auto auto minmax(0, 1fr) auto;
+            background: var(--canvas);
+            border-radius: 26px 26px 0 0;
+            overflow: hidden;
+            box-shadow: 0 -8px 30px rgba(0,0,0,0.05);
+        }
+
+        .header {
+            min-height: 82px;
+            padding: 8px 66px 7px;
+            display: grid;
+            grid-template-columns: 38px 1fr;
+            grid-template-rows: auto auto;
+            column-gap: 10px;
+            align-items: center;
+            text-align: left;
+            background: rgba(255,255,255,0.94);
+            border-bottom: 0.5px solid rgba(60,60,67,0.18);
+            position: relative;
+            z-index: 2;
+            -webkit-backdrop-filter: blur(16px) saturate(1.1);
+            backdrop-filter: blur(16px) saturate(1.1);
+        }
+
+        .header-icon {
+            grid-column: 1;
+            grid-row: 1 / span 2;
+            width: 38px;
+            height: 38px;
+            object-fit: contain;
+            margin: 0;
+        }
+
+        .header h1 {
+            grid-column: 2;
+            grid-row: 1;
+            margin: 0;
+            font-size: clamp(27px, 7.3vw, 33px);
+            line-height: 0.95;
+            letter-spacing: 1.2px;
+            -webkit-text-stroke: 1.2px #000;
+        }
+
+        .header .scripture {
+            grid-column: 2;
+            grid-row: 2;
+            margin-top: 4px;
+            font-size: 11px;
+            line-height: 1.2;
+            color: var(--muted);
+            white-space: nowrap;
+        }
+
+        .settings-btn,
+        .account-btn {
+            position: absolute;
+            top: 50%;
+            width: 36px;
+            height: 36px;
+            transform: translateY(-50%);
+            border: 0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--soft-line);
+            color: var(--text);
+            cursor: pointer;
+            transition: transform 150ms ease, background 150ms ease;
+        }
+
+        .settings-btn { right: 14px; }
+        .account-btn { left: 14px; }
+        .settings-btn:active,
+        .account-btn:active { transform: translateY(-50%) scale(0.94); }
+        .settings-btn svg,
+        .account-btn svg { width: 18px; height: 18px; }
+        .account-btn.signed-in { background: var(--brand-green); color: #000; }
+
+        .auth-section {
+            visibility: visible;
+            border: 0;
+            background: transparent;
+            padding: 16px;
+        }
+
+        .progress-bar-container {
+            min-height: 34px;
+            padding: 8px 14px 7px;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255,255,255,0.94);
+            border-bottom: 0.5px solid rgba(60,60,67,0.14);
+        }
+
+        .progress-bar {
+            height: 5px;
+            border-radius: 999px;
+            background: var(--soft-line);
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: inherit;
+            background: var(--brand-green);
+        }
+
+        .progress-text {
+            margin: 0;
+            font-size: 10.5px;
+            line-height: 1;
+            color: var(--muted);
+            font-variant-numeric: tabular-nums;
+            white-space: nowrap;
+        }
+
+        .content { display: none !important; }
+
+        .rhythm-overview {
+            min-height: 0;
+            margin: 7px 10px;
+            padding: 5px 8px;
+            display: grid;
+            grid-template-rows: minmax(0, 4fr) minmax(0, 1.35fr) minmax(0, 3fr);
+            gap: 0;
+            background: var(--surface);
+            border: 0.5px solid rgba(60,60,67,0.14);
+            border-radius: 22px;
+            box-shadow: 0 7px 24px rgba(0,0,0,0.06);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .rhythm-overview::before {
+            content: '';
+            position: absolute;
+            left: 28px;
+            top: 34px;
+            bottom: 26px;
+            width: 2px;
+            border-radius: 999px;
+            background: rgba(0,208,132,0.26);
+            pointer-events: none;
+        }
+
+        .rhythm-section {
+            min-height: 0;
+            display: grid;
+            position: relative;
+        }
+
+        .rhythm-section[data-section="lookback"] {
+            grid-template-rows: 18px repeat(4, minmax(0, 1fr));
+        }
+
+        .rhythm-section[data-section="lookup"] {
+            grid-template-rows: 18px minmax(0, 1fr);
+            border-top: 0.5px solid rgba(60,60,67,0.13);
+            border-bottom: 0.5px solid rgba(60,60,67,0.13);
+        }
+
+        .rhythm-section[data-section="lookforward"] {
+            grid-template-rows: 18px repeat(3, minmax(0, 1fr));
+        }
+
+        .rhythm-section-label {
+            min-width: 0;
+            padding: 2px 7px 0 45px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            color: var(--muted);
+            font-size: 9.5px;
+            line-height: 1;
+            font-weight: 780;
+            letter-spacing: 0.75px;
+            text-transform: uppercase;
+        }
+
+        .rhythm-section-label span:last-child {
+            font-size: 9px;
+            font-weight: 650;
+            letter-spacing: 0;
+            text-transform: none;
+            color: #aeaeb2;
+        }
+
+        .linear-step {
+            min-width: 0;
+            min-height: 0;
+            width: 100%;
+            padding: 2px 5px 2px 0;
+            display: grid;
+            grid-template-columns: 38px minmax(0, 1fr) 21px;
+            align-items: center;
+            gap: 7px;
+            border: 0;
+            background: transparent;
+            color: var(--text);
+            text-align: left;
+            cursor: pointer;
+            position: relative;
+            transition: transform 140ms ease, background 140ms ease;
+        }
+
+        .linear-step::after {
+            content: '';
+            position: absolute;
+            left: 45px;
+            right: 5px;
+            bottom: 0;
+            height: 0.5px;
+            background: rgba(60,60,67,0.11);
+        }
+
+        .rhythm-section .linear-step:last-child::after { display: none; }
+        .linear-step:active { transform: scale(0.985); }
+
+        .linear-step-number {
+            width: 30px;
+            height: 30px;
+            margin-left: 4px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+            color: #111;
+            border: 2px solid var(--brand-green);
+            box-shadow: 0 0 0 3px #fff;
+            font-size: 12px;
+            line-height: 1;
+            font-weight: 850;
+            font-variant-numeric: tabular-nums;
+            z-index: 1;
+        }
+
+        .linear-step.completed .linear-step-number {
+            background: var(--brand-green);
+            color: #000;
+        }
+
+        .linear-step-copy { min-width: 0; }
+
+        .linear-step-title {
+            display: block;
+            font-size: clamp(12.4px, 3.35vw, 14.2px);
+            line-height: 1.08;
+            font-weight: 730;
+            letter-spacing: -0.25px;
+            color: #1c1c1e;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .linear-step-detail {
+            display: block;
+            min-width: 0;
+            margin-top: 2px;
+            font-size: clamp(9.2px, 2.45vw, 10.5px);
+            line-height: 1.05;
+            color: var(--muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .linear-step-tail {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #aeaeb2;
+            font-size: 16px;
+            line-height: 1;
+            font-weight: 500;
+        }
+
+        .linear-step.completed .linear-step-tail {
+            background: rgba(0,208,132,0.16);
+            color: #087a50;
+            font-size: 0;
+        }
+
+        .linear-step.completed .linear-step-tail::after {
+            content: '✓';
+            font-size: 10px;
+            font-weight: 900;
+        }
+
+        .reset-section {
+            position: static;
+            width: auto;
+            max-width: none;
+            transform: none;
+            padding: 6px 10px calc(6px + env(safe-area-inset-bottom));
+            background: rgba(255,255,255,0.9);
+            border-top: 0.5px solid rgba(60,60,67,0.14);
+            -webkit-backdrop-filter: blur(16px);
+            backdrop-filter: blur(16px);
+        }
+
+        .reset-section .btn {
+            min-height: 36px;
+            padding: 8px 14px;
+            border-radius: 12px;
+            background: var(--soft-line);
+            color: var(--text);
+            font-size: 12px;
+            letter-spacing: 0.2px;
+        }
+
+        .section-sheet-overlay,
+        .auth-sheet-overlay {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding: 0;
+            background: rgba(0,0,0,0.28);
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 220ms ease, visibility 220ms ease;
+            z-index: 1800;
+            -webkit-backdrop-filter: blur(4px);
+            backdrop-filter: blur(4px);
+        }
+
+        .auth-sheet-overlay { z-index: 3400; }
+
+        .section-sheet-overlay.active,
+        .auth-sheet-overlay.active {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+
+        .section-sheet,
+        .auth-sheet {
+            width: 100%;
+            max-width: 430px;
+            max-height: 90dvh;
+            display: flex;
+            flex-direction: column;
+            background: var(--canvas);
+            border-radius: 30px 30px 0 0;
+            box-shadow: 0 -20px 60px rgba(0,0,0,0.18);
+            transform: translateY(24px);
+            transition: transform 250ms cubic-bezier(.2,.8,.2,1);
+            overflow: hidden;
+        }
+
+        .section-sheet-overlay.active .section-sheet,
+        .auth-sheet-overlay.active .auth-sheet { transform: translateY(0); }
+
+        .section-sheet-grabber,
+        .auth-sheet-grabber {
+            width: 38px;
+            height: 5px;
+            margin: 8px auto 5px;
+            border-radius: 999px;
+            background: #c7c7cc;
+            flex: 0 0 auto;
+        }
+
+        .section-sheet-header,
+        .auth-sheet-header {
+            padding: 5px 16px 10px;
+            background: rgba(255,255,255,0.94);
+            border-bottom: 0.5px solid rgba(60,60,67,0.14);
+            flex: 0 0 auto;
+            -webkit-backdrop-filter: blur(16px);
+            backdrop-filter: blur(16px);
+        }
+
+        .sheet-title-row,
+        .auth-title-row {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .sheet-title,
+        .auth-title {
+            font-size: 25px;
+            line-height: 1;
+            font-weight: 790;
+            letter-spacing: -0.7px;
+            color: #111;
+        }
+
+        .sheet-subtitle {
+            margin-top: 5px;
+            font-size: 12px;
+            line-height: 1.25;
+            color: var(--muted);
+        }
+
+        .sheet-close,
+        .auth-sheet-close {
+            width: 34px;
+            height: 34px;
+            border: 0;
+            border-radius: 50%;
+            background: var(--soft-line);
+            color: var(--text);
+            font-size: 22px;
+            line-height: 1;
+            cursor: pointer;
+        }
+
+        .sheet-segments {
+            margin-top: 10px;
+            padding: 3px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 3px;
+            border-radius: 12px;
+            background: var(--soft-line);
+        }
+
+        .sheet-segment {
+            min-height: 32px;
+            padding: 6px 5px;
+            border: 0;
+            border-radius: 9px;
+            background: transparent;
+            color: var(--muted);
+            font-size: 11px;
+            font-weight: 680;
+            cursor: pointer;
+        }
+
+        .sheet-segment.active {
+            background: #fff;
+            color: #111;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+        }
+
+        .section-sheet-body,
+        .auth-sheet-body {
+            min-height: 0;
+            overflow-y: auto;
+            overscroll-behavior: contain;
+            padding: 12px 12px calc(22px + env(safe-area-inset-bottom));
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .section-detail-group { display: none; }
+        .section-detail-group.active { display: block; }
+
+        .section-detail-group .card {
+            margin-bottom: 10px;
+            border-radius: 18px;
+            box-shadow: 0 2px 11px rgba(0,0,0,0.055);
+        }
+
+        .section-detail-group .card-content { padding: 15px 16px; }
+        .section-detail-group .card-icon { width: 44px; height: 44px; border-radius: 12px; }
+        .section-detail-group .card-title { font-size: 16px; }
+        .section-detail-group .card-description { font-size: 13px; }
+        .section-detail-group .step-indicators { gap: 6px; }
+        .section-detail-group .step-dot { width: 30px; height: 30px; }
+
+        .lookup-primary {
+            border: 1.5px solid rgba(0,208,132,0.38);
+        }
+
+        .step-prefix,
+        .substep-prefix {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            vertical-align: 1px;
+            margin-right: 6px;
+            border-radius: 999px;
+            font-size: 10px;
+            line-height: 1;
+            font-weight: 850;
+        }
+
+        .step-prefix {
+            min-width: 25px;
+            height: 20px;
+            padding: 0 7px;
+            background: var(--brand-green);
+            color: #000;
+        }
+
+        .substep-prefix {
+            min-width: 28px;
+            height: 20px;
+            padding: 0 6px;
+            background: var(--soft-line);
+            color: #5a5a5f;
+        }
+
+        .lookup-substep {
+            margin-left: 18px;
+            position: relative;
+        }
+
+        .lookup-substep::before {
+            content: '';
+            position: absolute;
+            left: -10px;
+            top: -10px;
+            bottom: 50%;
+            width: 1px;
+            background: rgba(0,208,132,0.36);
+        }
+
+        .lookup-substep::after {
+            content: '';
+            position: absolute;
+            left: -10px;
+            top: 50%;
+            width: 9px;
+            height: 1px;
+            background: rgba(0,208,132,0.36);
+        }
+
+        .focus-pulse { animation: focusPulse 850ms ease; }
+        @keyframes focusPulse {
+            0%, 100% { box-shadow: 0 2px 11px rgba(0,0,0,0.055); }
+            45% { box-shadow: 0 0 0 4px rgba(0,208,132,0.22), 0 7px 24px rgba(0,0,0,0.1); }
+        }
+
+        .auth-sheet { max-height: 72dvh; }
+        .auth-sheet-body .auth-section { padding: 4px; }
+        .modal-overlay { -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
+        .modal-content, .popup-content { border-radius: 24px; }
+
+        @media (max-height: 760px) {
+            .top-nav { min-height: 46px; flex-basis: 46px; }
+            .container { height: calc(100dvh - 46px); }
+            .header { min-height: 72px; padding-top: 6px; padding-bottom: 5px; }
+            .header-icon { width: 34px; height: 34px; }
+            .header h1 { font-size: 27px; }
+            .progress-bar-container { min-height: 30px; padding-top: 6px; padding-bottom: 6px; }
+            .rhythm-overview { margin-top: 5px; margin-bottom: 5px; }
+            .rhythm-section-label { height: 16px; font-size: 9px; }
+            .linear-step-number { width: 27px; height: 27px; font-size: 11px; }
+            .linear-step { grid-template-columns: 35px minmax(0,1fr) 20px; gap: 6px; }
+            .linear-step-title { font-size: 12px; }
+            .linear-step-detail { font-size: 9px; }
+            .reset-section { padding-top: 4px; padding-bottom: calc(4px + env(safe-area-inset-bottom)); }
+            .reset-section .btn { min-height: 32px; padding: 6px 12px; }
+        }
+
+        @media (min-width: 768px) {
+            body { overflow: auto; }
+            .top-nav { max-width: 768px; }
+            .container {
+                max-width: 768px;
+                height: min(900px, calc(100dvh - 70px));
+                margin-bottom: 20px;
+                border-radius: 30px;
+            }
+            .rhythm-overview { margin-left: 16px; margin-right: 16px; }
+            .linear-step-title { font-size: 15px; }
+            .linear-step-detail { font-size: 11px; }
+            .section-sheet, .auth-sheet { border-radius: 30px; margin-bottom: 20px; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                scroll-behavior: auto !important;
+                transition-duration: 0.01ms !important;
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+            }
+        }
+    </style>
+
 </head>
 <body>
     <div style="display:flex; gap:10px; justify-content:center; padding:20px 16px 8px;">
@@ -349,5 +995,390 @@
             }
         });
     </script>
+
+    <script id="mobile-rhythm-controller">
+        (function () {
+            const sectionMeta = {
+                lookback: {
+                    title: 'Look Back',
+                    range: 'Steps 1–4',
+                    purpose: 'Care, worship, accountability, vision'
+                },
+                lookup: {
+                    title: 'Look Up',
+                    range: 'Step 5',
+                    purpose: 'Scripture, discovery, listening, obedience'
+                },
+                lookforward: {
+                    title: 'Look Forward',
+                    range: 'Steps 6–8',
+                    purpose: 'Practice, goals, commission'
+                }
+            };
+
+            const stepMeta = [
+                { number: 1, section: 'lookback', primary: 'care', ids: ['care'], detail: 'Share, care, and pray' },
+                { number: 2, section: 'lookback', primary: 'worship', ids: ['worship'], detail: 'Praise • Give • Lord’s Supper' },
+                { number: 3, section: 'lookback', primary: 'accountability', ids: ['accountability'], detail: 'Follow • Fish' },
+                { number: 4, section: 'lookback', primary: 'vision', ids: ['vision'], detail: 'Acts 2 church circle' },
+                { number: 5, section: 'lookup', primary: 'teaching', ids: ['teaching', 'discuss-god', 'discuss-people', 'pray-listen', 'discuss-obey'], detail: 'Story • God • People • Listen • Obey' },
+                { number: 6, section: 'lookforward', primary: 'practice', ids: ['practice'], detail: 'Practice the 3 Circles' },
+                { number: 7, section: 'lookforward', primary: 'goals', ids: ['goals'], detail: 'Follow • Fish' },
+                { number: 8, section: 'lookforward', primary: 'commission', ids: ['commission'], detail: 'Pray together' }
+            ];
+
+            const sectionOrder = ['lookback', 'lookup', 'lookforward'];
+            const sectionGroups = {};
+            let sheetBody = null;
+            let sheetTitle = null;
+            let sheetSubtitle = null;
+            let sheetOverlay = null;
+            let authOverlay = null;
+
+            function gearIcon() {
+                return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.7 2.8h4.6l.6 2.1c.4.2.8.4 1.2.7l2.1-.6 2.3 4-1.5 1.5c.1.5.1 1 0 1.5l1.5 1.5-2.3 4-2.1-.6c-.4.3-.8.5-1.2.7l-.6 2.1H9.7l-.6-2.1c-.4-.2-.8-.4-1.2-.7l-2.1.6-2.3-4L5 12c-.1-.5-.1-1 0-1.5L3.5 9l2.3-4 2.1.6c.4-.3.8-.5 1.2-.7l.6-2.1Zm2.3 5.5a3.7 3.7 0 1 0 0 7.4 3.7 3.7 0 0 0 0-7.4Z" fill="currentColor"/></svg>';
+            }
+
+            function personIcon() {
+                return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12.2a4.4 4.4 0 1 0 0-8.8 4.4 4.4 0 0 0 0 8.8Zm0 2.2c-4.7 0-8.1 2.6-8.1 6.2h16.2c0-3.6-3.4-6.2-8.1-6.2Z" fill="currentColor"/></svg>';
+            }
+
+            function getStepByPrimary(primary) {
+                return stepMeta.find(function (step) { return step.primary === primary; });
+            }
+
+            function getStepBySection(section) {
+                return stepMeta.find(function (step) { return step.section === section; });
+            }
+
+            function getCardTitle(cardId) {
+                const card = document.querySelector('[data-card="' + cardId + '"]');
+                const title = card && card.querySelector('.card-title');
+                return title ? title.textContent.replace('(View)', '').replace(/^5[A-D]?\s*/, '').trim() : cardId;
+            }
+
+            function isStepComplete(step) {
+                return step.ids.every(function (id) {
+                    const card = document.querySelector('[data-card="' + id + '"]');
+                    return card && card.classList.contains('completed');
+                });
+            }
+
+            function createSheet() {
+                sheetOverlay = document.createElement('div');
+                sheetOverlay.className = 'section-sheet-overlay';
+                sheetOverlay.id = 'sectionSheetOverlay';
+                sheetOverlay.innerHTML = `
+                    <section class="section-sheet" role="dialog" aria-modal="true" aria-labelledby="sectionSheetTitle">
+                        <div class="section-sheet-grabber" aria-hidden="true"></div>
+                        <header class="section-sheet-header">
+                            <div class="sheet-title-row">
+                                <div>
+                                    <h2 class="sheet-title" id="sectionSheetTitle"></h2>
+                                    <p class="sheet-subtitle" id="sectionSheetSubtitle"></p>
+                                </div>
+                                <button class="sheet-close" type="button" aria-label="Close step">×</button>
+                            </div>
+                            <div class="sheet-segments" role="tablist" aria-label="Meeting rhythm sections"></div>
+                        </header>
+                        <div class="section-sheet-body"></div>
+                    </section>`;
+
+                document.body.appendChild(sheetOverlay);
+                sheetBody = sheetOverlay.querySelector('.section-sheet-body');
+                sheetTitle = sheetOverlay.querySelector('.sheet-title');
+                sheetSubtitle = sheetOverlay.querySelector('.sheet-subtitle');
+
+                const segments = sheetOverlay.querySelector('.sheet-segments');
+                sectionOrder.forEach(function (section) {
+                    const button = document.createElement('button');
+                    button.type = 'button';
+                    button.className = 'sheet-segment';
+                    button.dataset.section = section;
+                    button.textContent = sectionMeta[section].range + ' ' + sectionMeta[section].title;
+                    button.setAttribute('role', 'tab');
+                    button.addEventListener('click', function () {
+                        const firstStep = getStepBySection(section);
+                        openStep(firstStep.primary);
+                    });
+                    segments.appendChild(button);
+                });
+
+                sheetOverlay.querySelector('.sheet-close').addEventListener('click', closeSectionSheet);
+                sheetOverlay.addEventListener('click', function (event) {
+                    if (event.target === sheetOverlay) closeSectionSheet();
+                });
+            }
+
+            function createAuthSheet(authSection) {
+                authOverlay = document.createElement('div');
+                authOverlay.className = 'auth-sheet-overlay';
+                authOverlay.id = 'authSheetOverlay';
+                authOverlay.innerHTML = `
+                    <section class="auth-sheet" role="dialog" aria-modal="true" aria-labelledby="authSheetTitle">
+                        <div class="auth-sheet-grabber" aria-hidden="true"></div>
+                        <header class="auth-sheet-header">
+                            <div class="auth-title-row">
+                                <h2 class="auth-title" id="authSheetTitle">Account</h2>
+                                <button class="auth-sheet-close" type="button" aria-label="Close account">×</button>
+                            </div>
+                        </header>
+                        <div class="auth-sheet-body"></div>
+                    </section>`;
+                authOverlay.querySelector('.auth-sheet-body').appendChild(authSection);
+                authOverlay.querySelector('.auth-sheet-close').addEventListener('click', closeAuthPanel);
+                authOverlay.addEventListener('click', function (event) {
+                    if (event.target === authOverlay) closeAuthPanel();
+                });
+                document.body.appendChild(authOverlay);
+            }
+
+            function decorateLookupGroup(group) {
+                const labels = {
+                    teaching: '5',
+                    'discuss-god': '5A',
+                    'discuss-people': '5B',
+                    'pray-listen': '5C',
+                    'discuss-obey': '5D'
+                };
+
+                Object.keys(labels).forEach(function (id) {
+                    const card = group.querySelector('[data-card="' + id + '"]');
+                    if (!card) return;
+                    card.classList.add(id === 'teaching' ? 'lookup-primary' : 'lookup-substep');
+                    const title = card.querySelector('.card-title');
+                    if (!title || title.querySelector('.step-prefix, .substep-prefix')) return;
+                    const prefix = document.createElement('span');
+                    prefix.className = id === 'teaching' ? 'step-prefix' : 'substep-prefix';
+                    prefix.textContent = labels[id];
+                    title.prepend(prefix);
+                });
+            }
+
+            function createLinearStep(step) {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'linear-step';
+                button.dataset.step = String(step.number);
+                button.dataset.primary = step.primary;
+                button.innerHTML = `
+                    <span class="linear-step-number">${step.number}</span>
+                    <span class="linear-step-copy">
+                        <span class="linear-step-title">${getCardTitle(step.primary)}</span>
+                        <span class="linear-step-detail">${step.detail}</span>
+                    </span>
+                    <span class="linear-step-tail" aria-hidden="true">›</span>`;
+                button.setAttribute('aria-label', 'Open step ' + step.number + ': ' + getCardTitle(step.primary));
+                button.addEventListener('click', function () { openStep(step.primary); });
+                return button;
+            }
+
+            function createOverview(content, resetSection) {
+                const overview = document.createElement('main');
+                overview.className = 'rhythm-overview';
+                overview.setAttribute('aria-label', 'Eight ordered meeting steps');
+
+                sectionOrder.forEach(function (section) {
+                    const cards = Array.from(content.querySelectorAll('[data-section="' + section + '"]'));
+                    const group = document.createElement('div');
+                    group.className = 'section-detail-group';
+                    group.dataset.section = section;
+                    cards.forEach(function (card) { group.appendChild(card); });
+                    if (section === 'lookup') decorateLookupGroup(group);
+                    sectionGroups[section] = group;
+                    sheetBody.appendChild(group);
+
+                    const sectionEl = document.createElement('section');
+                    sectionEl.className = 'rhythm-section';
+                    sectionEl.dataset.section = section;
+
+                    const label = document.createElement('div');
+                    label.className = 'rhythm-section-label';
+                    label.innerHTML = '<span>' + sectionMeta[section].title + '</span><span>' + sectionMeta[section].range + '</span>';
+                    sectionEl.appendChild(label);
+
+                    stepMeta.filter(function (step) { return step.section === section; }).forEach(function (step) {
+                        sectionEl.appendChild(createLinearStep(step));
+                    });
+
+                    overview.appendChild(sectionEl);
+                });
+
+                content.innerHTML = '';
+                content.parentNode.insertBefore(overview, resetSection);
+            }
+
+            function openStep(primaryCardId) {
+                const step = getStepByPrimary(primaryCardId);
+                if (!step || !sheetOverlay || !sectionGroups[step.section]) return;
+
+                sectionOrder.forEach(function (key) {
+                    sectionGroups[key].classList.toggle('active', key === step.section);
+                });
+
+                sheetOverlay.querySelectorAll('.sheet-segment').forEach(function (button) {
+                    const isActive = button.dataset.section === step.section;
+                    button.classList.toggle('active', isActive);
+                    button.setAttribute('aria-selected', isActive ? 'true' : 'false');
+                });
+
+                sheetTitle.textContent = 'Step ' + step.number + ' · ' + getCardTitle(step.primary);
+                sheetSubtitle.textContent = sectionMeta[step.section].title + ' · ' + step.detail;
+                sheetOverlay.classList.add('active');
+                document.body.classList.add('sheet-open');
+                sheetBody.scrollTop = 0;
+                syncOverview();
+
+                requestAnimationFrame(function () {
+                    const card = sectionGroups[step.section].querySelector('[data-card="' + step.primary + '"]');
+                    if (!card) return;
+                    const bodyRect = sheetBody.getBoundingClientRect();
+                    const cardRect = card.getBoundingClientRect();
+                    const targetTop = sheetBody.scrollTop + cardRect.top - bodyRect.top - 8;
+                    sheetBody.scrollTo({ top: targetTop, behavior: 'smooth' });
+                    card.classList.add('focus-pulse');
+                    setTimeout(function () { card.classList.remove('focus-pulse'); }, 950);
+                });
+            }
+
+            function closeSectionSheet() {
+                if (!sheetOverlay) return;
+                sheetOverlay.classList.remove('active');
+                document.body.classList.remove('sheet-open');
+            }
+
+            function openAuthPanel() {
+                if (!authOverlay) return;
+                authOverlay.classList.add('active');
+                document.body.classList.add('sheet-open');
+            }
+
+            function closeAuthPanel() {
+                if (!authOverlay) return;
+                authOverlay.classList.remove('active');
+                document.body.classList.remove('sheet-open');
+            }
+
+            function syncAccountButton(user) {
+                const button = document.querySelector('.account-btn');
+                if (!button) return;
+                button.classList.toggle('signed-in', !!user);
+                button.setAttribute('aria-label', user ? 'Open signed-in account' : 'Open sign in');
+            }
+
+            function syncOverview() {
+                let completedSteps = 0;
+
+                stepMeta.forEach(function (step) {
+                    const complete = isStepComplete(step);
+                    if (complete) completedSteps += 1;
+                    const row = document.querySelector('.linear-step[data-step="' + step.number + '"]');
+                    if (!row) return;
+                    row.classList.toggle('completed', complete);
+                    row.setAttribute('aria-pressed', complete ? 'true' : 'false');
+                });
+
+                const fill = document.getElementById('progressFill');
+                const text = document.getElementById('progressText');
+                if (fill) fill.style.width = (completedSteps / 8 * 100) + '%';
+                if (text) text.textContent = completedSteps + ' of 8 steps';
+            }
+
+            function updateLinearProgress() {
+                syncOverview();
+                if (stepMeta.every(isStepComplete)) showNotification('Study complete! 🎉');
+            }
+
+            function enhanceLayout() {
+                if (document.querySelector('.rhythm-overview')) return;
+
+                const container = document.querySelector('.container');
+                const header = container && container.querySelector('.header');
+                const content = container && container.querySelector('.content');
+                const resetSection = container && container.querySelector('.reset-section');
+                const authSection = container && container.querySelector('.auth-section');
+                if (!container || !header || !content || !resetSection || !authSection) return;
+
+                const topNav = document.body.firstElementChild;
+                if (topNav) topNav.classList.add('top-nav');
+
+                const settings = header.querySelector('.settings-btn');
+                if (settings) {
+                    settings.innerHTML = gearIcon();
+                    settings.setAttribute('aria-label', 'Open assignment settings');
+                }
+
+                const account = document.createElement('button');
+                account.type = 'button';
+                account.className = 'account-btn';
+                account.innerHTML = personIcon();
+                account.setAttribute('aria-label', 'Open sign in');
+                account.addEventListener('click', openAuthPanel);
+                header.appendChild(account);
+
+                createSheet();
+                createAuthSheet(authSection);
+                createOverview(content, resetSection);
+
+                const completionObserver = new MutationObserver(syncOverview);
+                completionObserver.observe(sheetBody, {
+                    subtree: true,
+                    attributes: true,
+                    attributeFilter: ['class']
+                });
+
+                syncAccountButton(window._supabaseUser || null);
+                syncOverview();
+            }
+
+            window.openStep = openStep;
+            window.closeSectionSheet = closeSectionSheet;
+            window.openAuthPanel = openAuthPanel;
+            window.closeAuthPanel = closeAuthPanel;
+            window.syncOverview = syncOverview;
+            window.updateProgress = updateLinearProgress;
+
+            if (typeof window.toggleCard === 'function') {
+                const originalToggleCard = window.toggleCard;
+                window.toggleCard = function (card) {
+                    originalToggleCard(card);
+                    syncOverview();
+                };
+            }
+
+            if (typeof window.toggleStep === 'function') {
+                const originalToggleStep = window.toggleStep;
+                window.toggleStep = function (dot, cardId) {
+                    originalToggleStep(dot, cardId);
+                    syncOverview();
+                };
+            }
+
+            if (typeof window.resetAll === 'function') {
+                const originalResetAll = window.resetAll;
+                window.resetAll = function () {
+                    originalResetAll();
+                    syncOverview();
+                };
+            }
+
+            if (typeof window.updateAuthUI === 'function') {
+                const originalUpdateAuthUI = window.updateAuthUI;
+                window.updateAuthUI = function (user) {
+                    originalUpdateAuthUI(user);
+                    syncAccountButton(user);
+                };
+            }
+
+            document.addEventListener('keydown', function (event) {
+                if (event.key !== 'Escape') return;
+                if (authOverlay && authOverlay.classList.contains('active')) closeAuthPanel();
+                else if (sheetOverlay && sheetOverlay.classList.contains('active')) closeSectionSheet();
+            });
+
+            document.addEventListener('DOMContentLoaded', enhanceLayout, { once: true });
+        })();
+    </script>
+
 </body>
 </html>
