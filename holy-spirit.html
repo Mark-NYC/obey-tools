@@ -1,256 +1,1060 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <link rel="icon" type="image/x-icon" href="assets/images/favicons/favicon.ico">
-    <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicons/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="assets/images/favicons/favicon-16x16.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="assets/images/favicons/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="192x192" href="assets/images/favicons/android-chrome-192x192.png">
-    <link rel="icon" type="image/png" sizes="512x512" href="assets/images/favicons/android-chrome-512x512.png">
-    <link rel="manifest" href="/manifest.json">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#000000">
-    <meta name="apple-mobile-web-app-title" content="Obey Tools">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap">
-    <script type="module">
+<meta charset="utf-8"/>
+<link href="assets/images/favicons/favicon.ico" rel="icon" type="image/x-icon"/>
+<link href="assets/images/favicons/favicon-32x32.png" rel="icon" sizes="32x32" type="image/png"/>
+<link href="assets/images/favicons/favicon-16x16.png" rel="icon" sizes="16x16" type="image/png"/>
+<link href="assets/images/favicons/apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180"/>
+<link href="assets/images/favicons/android-chrome-192x192.png" rel="icon" sizes="192x192" type="image/png"/>
+<link href="assets/images/favicons/android-chrome-512x512.png" rel="icon" sizes="512x512" type="image/png"/>
+<link href="/manifest.json" rel="manifest"/>
+<meta content="yes" name="apple-mobile-web-app-capable"/>
+<meta content="#000000" name="theme-color"/>
+<meta content="Obey Tools" name="apple-mobile-web-app-title"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script type="module">
         import { supabase } from './supabase.js';
         window.supabase = supabase;
     </script>
-    <title>Holy Spirit</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif; background: #f2f2f7; min-height: 100vh; color: #000; line-height: 1.5; padding-bottom: 100px; }
-        .container { max-width: 375px; margin: 0 auto; background: #ffffff; min-height: 100vh; }
-        .header { padding: 30px 20px 20px; background: #f2f2f7; border-bottom: 0.5px solid #c6c6c8; text-align: center; position: relative; }
-        .settings-btn { position: absolute; top: 20px; right: 20px; width: 36px; height: 36px; background: #e5e5ea; border: none; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 20px; transition: all 0.2s ease; }
-        .settings-btn:active { background: #e5e5ea; transform: scale(0.95); }
-        .header-icon { height: 80px; width: auto; margin: 0 auto 16px; display: block; border-radius: 0px; }
-        .header h1 { font-family: 'Bebas Neue', cursive; font-size: 42px; font-weight: 400; margin-bottom: 8px; letter-spacing: 2px; color: #00D084; -webkit-text-stroke: 2px #000; }
-        .header .scripture { font-size: 15px; color: #8e8e93; font-weight: 500; }
-        .progress-bar-container { padding: 16px 20px; background: #fff; border-bottom: 0.5px solid #c6c6c8; }
-        .progress-bar { height: 8px; background: #e5e5ea; border-radius: 4px; overflow: hidden; }
-        .progress-fill { height: 100%; background: #00D084; width: 0%; transition: width 0.5s ease; }
-        .progress-text { margin-top: 8px; font-size: 13px; color: #8e8e93; text-align: center; font-weight: 500; }
-        .content { padding: 16px; }
-        .section-divider { display: flex; align-items: center; gap: 12px; margin: 24px 0 12px; padding: 0 4px; }
-        .section-divider-line { flex: 1; height: 1px; background: #c6c6c8; }
-        .section-divider-text { font-size: 13px; font-weight: 600; color: #8e8e93; text-transform: uppercase; letter-spacing: 0.5px; }
-        .card { background: #fff; margin-bottom: 12px; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); cursor: pointer; transition: all 0.3s ease; user-select: none; }
-        .card:active { transform: scale(0.98); }
-        .card.completed { background: #00D084; }
-        .card-content { padding: 18px 20px; display: flex; align-items: center; gap: 16px; }
-        .card-icon { width: 48px; height: 48px; border-radius: 10px; background-size: cover; background-position: center; flex-shrink: 0; transition: all 0.3s ease; }
-        .card.completed .card-icon { box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
-        .card-icon.care-icon { background-image: url('assets/images/icons/care-icon.jpg'); }
-        .card-icon.worship-icon { background-image: url('assets/images/icons/worship-icon.jpg'); }
-        .card-icon.accountability-icon { background-image: url('assets/images/icons/accountability-icon.jpg'); }
-        .card-icon.vision-icon { background-image: url('assets/images/icons/vision-icon.jpg'); }
-        .card-icon.discover-icon { background-image: url('assets/images/icons/discover-icon.jpg'); }
-        .card-icon.practice-icon { background-image: url('assets/images/icons/practice-icon.jpg'); }
-        .card-icon.pray-icon { background-image: url('assets/images/icons/pray-icon.jpg'); }
-        .card-text { flex: 1; }
-        .card-title { font-size: 17px; font-weight: 700; color: #3a3a3c; margin-bottom: 4px; letter-spacing: -0.2px; transition: color 0.3s ease; }
-        .card.completed .card-title { color: #fff; }
-        .view-link { color: #007AFF; font-size: 15px; font-weight: 600; cursor: pointer; text-decoration: underline; }
-        .card.completed .view-link { color: #fff; }
-        .card-description { font-size: 14px; color: #8e8e93; line-height: 1.4; transition: color 0.3s ease; }
-        .card.completed .card-description { color: rgba(255,255,255,0.9); }
-        .assignment-badge { display: inline-block; background: #007AFF; color: white; font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 10px; margin-top: 4px; }
-        .card.completed .assignment-badge { background: rgba(255,255,255,0.3); color: #fff; }
-        .card-checkbox { width: 28px; height: 28px; border: 2px solid #c6c6c8; border-radius: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.3s ease; }
-        .card.completed .card-checkbox { background: #fff; border-color: #fff; }
-        .card-checkbox::after { content: '✓'; color: #00D084; font-size: 18px; font-weight: 700; opacity: 0; transform: scale(0); transition: all 0.2s ease; }
-        .card.completed .card-checkbox::after { opacity: 1; transform: scale(1); }
-        .step-card { position: relative; }
-        .step-indicators { display: flex; gap: 8px; margin-top: 12px; }
-        .step-dot { width: 32px; height: 32px; border-radius: 16px; border: 2px solid #c6c6c8; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; color: #8e8e93; background: #fff; cursor: pointer; transition: all 0.3s ease; }
-        .step-dot:active { transform: scale(0.95); }
-        .step-dot.completed { background: #00D084; border-color: #00D084; color: #fff; }
-        .card.completed .step-dot { border-color: rgba(255,255,255,0.5); color: rgba(255,255,255,0.7); }
-        .card.completed .step-dot.completed { background: #fff; border-color: #fff; color: #00D084; }
-        .step-label { font-size: 13px; color: #8e8e93; margin-top: 8px; line-height: 1.3; }
-        .card.completed .step-label { color: rgba(255,255,255,0.8); }
-        .reset-section { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 375px; background: #fff; border-top: 0.5px solid #c6c6c8; padding: 16px; padding-bottom: calc(16px + env(safe-area-inset-bottom)); }
-        .btn { width: 100%; padding: 14px; border: none; border-radius: 8px; font-weight: 600; font-size: 15px; cursor: pointer; background: #f2f2f7; color: #3a3a3c; transition: all 0.2s ease; }
-        .btn:active { background: #e5e5ea; transform: scale(0.98); }
-        .notification { position: fixed; top: 60px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: white; padding: 12px 20px; border-radius: 8px; font-size: 15px; font-weight: 500; z-index: 1000; opacity: 0; animation: notificationSlide 3s ease; }
-        @keyframes notificationSlide { 0% { opacity: 0; transform: translateX(-50%) translateY(-20px); } 10% { opacity: 1; transform: translateX(-50%) translateY(0); } 90% { opacity: 1; transform: translateX(-50%) translateY(0); } 100% { opacity: 0; transform: translateX(-50%) translateY(-20px); } }
-        .popup-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 2000; align-items: center; justify-content: center; }
-        .popup-overlay.active { display: flex; }
-        .popup-content { background: #fff; border-radius: 12px; padding: 24px; max-width: 90%; max-height: 90%; overflow-y: auto; position: relative; text-align: center; }
-        .popup-close { position: absolute; top: 12px; right: 12px; width: 32px; height: 32px; background: #f2f2f7; border: none; border-radius: 16px; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #3a3a3c; }
-        .popup-close:active { background: #e5e5ea; }
-        .popup-image { max-width: 100%; height: auto; border-radius: 8px; margin-bottom: 16px; display: block; }
-        .popup-text { font-size: 15px; color: #3a3a3c; line-height: 1.6; }
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 3000; align-items: center; justify-content: center; padding: 20px; }
-        .modal-overlay.active { display: flex; }
-        .modal-content { background: #fff; border-radius: 12px; padding: 24px; max-width: 400px; width: 100%; max-height: 90vh; overflow-y: auto; }
-        .modal-header { font-size: 20px; font-weight: 700; margin-bottom: 20px; color: #3a3a3c; }
-        .modal-section { margin-bottom: 20px; }
-        .modal-label { font-size: 14px; font-weight: 600; color: #3a3a3c; margin-bottom: 8px; display: block; }
-        .toggle-group { display: flex; gap: 8px; margin-bottom: 20px; }
-        .toggle-btn { flex: 1; padding: 10px; border: 2px solid #c6c6c8; background: #fff; border-radius: 8px; font-size: 14px; font-weight: 600; color: #3a3a3c; cursor: pointer; transition: all 0.2s ease; }
-        .toggle-btn.active { background: #00D084; border-color: #00D084; color: #fff; }
-        .assignment-input { width: 100%; padding: 10px; border: 1px solid #c6c6c8; border-radius: 8px; font-size: 14px; margin-bottom: 12px; font-family: inherit; }
-        .generate-btn { width: 100%; padding: 14px; background: #00D084; color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 15px; cursor: pointer; margin-top: 20px; }
-        .generate-btn:active { opacity: 0.8; }
-        .link-display { background: #f2f2f7; padding: 12px; border-radius: 8px; font-size: 12px; word-break: break-all; margin-top: 12px; display: none; }
-        .link-display.show { display: block; }
-        .copy-btn { width: 100%; padding: 10px; background: #007AFF; color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; margin-top: 8px; display: none; }
-        .copy-btn.show { display: block; }
-        .copy-btn:active { opacity: 0.8; }
-        @media (min-width: 768px) { .container { max-width: 768px; border-radius: 12px; margin: 20px auto; box-shadow: 0 4px 20px rgba(0,0,0,0.1); overflow: hidden; } .content { padding: 20px; } .reset-section { position: static; transform: none; width: auto; max-width: none; border-top: 0.5px solid #c6c6c8; border-radius: 0; } }
-        /* Auth section */
-        .auth-section { padding: 12px 16px; background: #f2f2f7; border-bottom: 0.5px solid #c6c6c8; visibility: hidden; }
-        .auth-section input { width: 100%; padding: 10px 14px; border: 1px solid #c6c6c8; border-radius: 8px; font-size: 15px; background: #fff; outline: none; margin-bottom: 8px; font-family: inherit; }
-        .auth-section input:focus { border-color: #3a3a3c; }
-        .auth-buttons { display: flex; gap: 8px; }
-        .auth-buttons button { flex: 1; padding: 10px; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; }
-        .auth-btn-primary { background: #3a3a3c; color: #fff; }
-        .auth-btn-secondary { background: #e5e5ea; color: #3a3a3c; }
-        .auth-status { display: flex; align-items: center; justify-content: space-between; }
-        .auth-status-text { font-size: 13px; color: #8e8e93; }
-        .auth-logout-btn { padding: 6px 14px; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; background: #e5e5ea; color: #3a3a3c; font-family: inherit; }
-        .bible-btn { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 7px 12px; background: #f2f2f7; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; color: #3a3a3c; transition: background 0.2s ease; white-space: nowrap; }
-        .bible-btn:active { background: #e5e5ea; }
-        .card.completed .bible-btn { background: rgba(255,255,255,0.25); color: #fff; }
-        .bible-btn-mobile-wrap { padding: 0 20px 14px; }
-        .bible-btn-mobile { width: 100%; }
-        .bible-btn-icon { font-size: 11px; transition: transform 0.25s ease; }
-        .bible-btn.open .bible-btn-icon { transform: rotate(180deg); }
-        .bible-accordion { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
-        .bible-accordion.open { max-height: 5000px; }
-        .bible-text { padding: 0 20px 18px; border-top: 0.5px solid #e5e5ea; }
-        .bible-translation { font-size: 11px; font-weight: 700; color: #8e8e93; text-transform: uppercase; letter-spacing: 0.8px; margin-top: 14px; margin-bottom: 10px; }
-        .bible-verse { font-size: 14px; line-height: 1.65; color: #3a3a3c; margin-bottom: 6px; }
-        .verse-num { font-size: 11px; font-weight: 700; vertical-align: super; margin-right: 2px; opacity: 0.6; }
-    </style>
-    <script type="module" src="/i18n.js"></script>
-    <script src="/pwa.js" defer></script>
-</head>
+<title>Holy Spirit</title>
+<script src="/i18n.js" type="module"></script>
+<script defer="" src="/pwa.js"></script>
+<style>
+:root {
+    --brand-green: #00D084;
+    --brand-black: #000000;
+    --canvas: #f2f2f7;
+    --surface: #ffffff;
+    --surface-soft: #f7f7f9;
+    --text: #242426;
+    --muted: #6e6e73;
+    --line: rgba(60, 60, 67, 0.18);
+    --line-soft: rgba(60, 60, 67, 0.10);
+    --blue: #007AFF;
+    --radius: 20px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    width: 100%;
+    min-width: 0;
+    overflow-x: clip;
+    background: var(--canvas);
+    scroll-behavior: smooth;
+}
+
+body {
+    width: 100%;
+    min-width: 0;
+    min-height: 100vh;
+    margin: 0;
+    overflow-x: clip;
+    background: var(--canvas);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+}
+
+button,
+input {
+    font: inherit;
+}
+
+button,
+a {
+    -webkit-tap-highlight-color: transparent;
+}
+
+button {
+    color: inherit;
+}
+
+.top-nav {
+    width: min(100%, 430px);
+    margin: 0 auto;
+    padding: max(10px, env(safe-area-inset-top)) 12px 9px;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 8px;
+}
+
+.top-nav a {
+    min-width: 0;
+    min-height: 42px;
+    padding: 10px 15px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    color: #fff;
+    text-decoration: none;
+    font-size: 14px;
+    line-height: 1.1;
+    font-weight: 750;
+    white-space: nowrap;
+}
+
+.top-nav a:first-child {
+    background: var(--brand-black);
+}
+
+.top-nav a:last-child {
+    overflow: hidden;
+    background: var(--brand-green);
+    text-overflow: ellipsis;
+}
+
+.container {
+    width: min(100%, 430px);
+    min-width: 0;
+    min-height: calc(100vh - 61px);
+    margin: 0 auto;
+    background: var(--surface);
+    border-radius: 24px 24px 0 0;
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.055);
+}
+
+.header {
+    position: relative;
+    min-width: 0;
+    padding: 18px 60px 15px 68px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2px;
+    background: rgba(255,255,255,0.96);
+    border-bottom: 1px solid var(--line-soft);
+}
+
+.header-icon {
+    position: absolute;
+    left: 18px;
+    top: 18px;
+    width: 38px;
+    height: 38px;
+    object-fit: contain;
+}
+
+.header h1 {
+    min-width: 0;
+    margin: 0;
+    color: #000;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
+    font-size: 22px;
+    line-height: 1.1;
+    font-weight: 800;
+    letter-spacing: 0.75px;
+    text-transform: uppercase;
+}
+
+.header .scripture {
+    min-width: 0;
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.35;
+    font-weight: 600;
+}
+
+.account-btn {
+    position: absolute;
+    top: 19px;
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    display: grid;
+    place-items: center;
+    border: 0;
+    border-radius: 12px;
+    background: var(--surface-soft);
+    color: var(--text);
+    cursor: pointer;
+}
+
+
+.account-btn {
+    right: 14px;
+}
+
+.account-btn svg {
+    width: 20px;
+    height: 20px;
+}
+
+.account-btn.signed-in {
+    background: rgba(0, 208, 132, 0.14);
+    color: #06784f;
+}
+
+.progress-bar-container {
+    padding: 12px 18px 13px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--line-soft);
+}
+
+.progress-bar {
+    height: 7px;
+    overflow: hidden;
+    background: #e5e5ea;
+    border-radius: 999px;
+}
+
+.progress-fill {
+    width: 0;
+    height: 100%;
+    background: var(--brand-green);
+    border-radius: inherit;
+    transition: width 240ms ease;
+}
+
+.progress-text {
+    margin-top: 7px;
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.2;
+    font-weight: 650;
+    text-align: center;
+}
+
+.interaction-hint {
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.2;
+    font-weight: 650;
+    transition: opacity 180ms ease;
+}
+
+.interaction-hint[hidden] {
+    display: none;
+}
+
+.interaction-hint svg {
+    width: 14px;
+    height: 14px;
+    flex: 0 0 auto;
+}
+
+/* The original cards stay in the DOM as the data and persistence layer. */
+.content {
+    display: none;
+}
+
+.accordion-overview {
+    width: 100%;
+    min-width: 0;
+    padding: 0 16px 6px;
+}
+
+.accordion-section-label {
+    min-width: 0;
+    padding: 15px 2px 7px;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.1;
+    font-weight: 800;
+    letter-spacing: 0.75px;
+    text-transform: uppercase;
+}
+
+.accordion-section-label span:last-child {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.25px;
+}
+
+.accordion-step {
+    min-width: 0;
+    border-top: 1px solid var(--line);
+}
+
+.accordion-step:last-child {
+    border-bottom: 1px solid var(--line);
+}
+
+.accordion-trigger {
+    width: 100%;
+    min-width: 0;
+    min-height: 56px;
+    padding: 10px 2px;
+    display: grid;
+    grid-template-columns: 34px minmax(0, 1fr) 24px;
+    align-items: center;
+    gap: 10px;
+    border: 0;
+    background: transparent;
+    text-align: left;
+    cursor: pointer;
+}
+
+.accordion-trigger:active {
+    background: rgba(0,0,0,0.025);
+}
+
+.accordion-number {
+    width: 30px;
+    height: 30px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: #ededf0;
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1;
+    font-weight: 800;
+    transition: background 180ms ease, color 180ms ease, box-shadow 180ms ease;
+}
+
+.accordion-chevron {
+    width: 22px;
+    height: 22px;
+    display: grid;
+    place-items: center;
+    color: #8e8e93;
+    transition: transform 180ms ease, color 180ms ease;
+}
+
+.accordion-chevron svg {
+    width: 18px;
+    height: 18px;
+    display: block;
+}
+
+.accordion-step.completed .accordion-number {
+    background: var(--brand-green);
+    color: #fff;
+}
+
+.accordion-step.open > .accordion-trigger {
+    background: rgba(0, 208, 132, 0.055);
+}
+
+.accordion-step.open .accordion-number {
+    box-shadow: 0 0 0 3px rgba(0, 208, 132, 0.13);
+}
+
+.accordion-step.open .accordion-title {
+    color: #05784e;
+}
+
+.accordion-step.open .accordion-chevron {
+    color: #05784e;
+    transform: rotate(180deg);
+}
+
+.accordion-copy {
+    min-width: 0;
+}
+
+.accordion-title,
+.accordion-summary {
+    display: block;
+    min-width: 0;
+}
+
+.accordion-title {
+    color: var(--text);
+    font-size: 17px;
+    line-height: 1.2;
+    font-weight: 760;
+    letter-spacing: -0.2px;
+}
+
+.accordion-summary {
+    margin-top: 2px;
+    overflow-wrap: anywhere;
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.25;
+    font-weight: 560;
+}
+
+.accordion-panel[hidden] {
+    display: none;
+}
+
+.accordion-panel {
+    width: 100%;
+    min-width: 0;
+    padding: 2px 2px 19px 44px;
+    overflow: visible;
+}
+
+.guide-intro {
+    margin: 0;
+    color: var(--text);
+    font-size: 17px;
+    line-height: 1.55;
+}
+
+.guide-reference {
+    margin-top: 12px;
+    padding: 11px 12px;
+    background: var(--surface-soft);
+    border-left: 3px solid var(--brand-green);
+    border-radius: 0 10px 10px 0;
+    color: #48484a;
+    font-size: 15px;
+    line-height: 1.45;
+    font-weight: 650;
+}
+
+
+
+
+.guide-label {
+    margin-top: 18px;
+    margin-bottom: 7px;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.1;
+    font-weight: 800;
+    letter-spacing: 0.65px;
+    text-transform: uppercase;
+}
+
+.guide-flow {
+    border-top: 1px solid var(--line-soft);
+}
+
+.guide-flow-row {
+    min-width: 0;
+    padding: 11px 0;
+    display: grid;
+    grid-template-columns: 48px minmax(0, 1fr);
+    gap: 10px;
+    border-bottom: 1px solid var(--line-soft);
+}
+
+.guide-flow-index {
+    color: #05784e;
+    font-size: 14px;
+    line-height: 1.45;
+    font-weight: 800;
+}
+
+.guide-flow-text {
+    min-width: 0;
+    color: var(--text);
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+
+.conversation-box-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 7px;
+    color: #05784e;
+    font-size: 15px;
+    line-height: 1.35;
+    font-weight: 750;
+    text-decoration: none;
+}
+
+.conversation-box-link:hover,
+.conversation-box-link:focus-visible {
+    text-decoration: underline;
+}
+
+.conversation-box-link:focus-visible {
+    outline: 2px solid rgba(0, 208, 132, 0.35);
+    outline-offset: 3px;
+    border-radius: 4px;
+}
+
+.guide-action-row {
+    margin-top: 17px;
+    display: grid;
+    gap: 9px;
+}
+
+.complete-step-btn,
+.guide-secondary-btn,
+.btn,
+.auth-buttons button,
+.auth-logout-btn,
+.bible-btn {
+    width: 100%;
+    min-height: 48px;
+    padding: 12px 15px;
+    border: 0;
+    border-radius: 12px;
+    font-size: 16px;
+    line-height: 1.25;
+    font-weight: 750;
+    cursor: pointer;
+}
+
+.complete-step-btn {
+    background: var(--brand-green);
+    color: #fff;
+}
+
+.accordion-step.completed .complete-step-btn {
+    background: #e9e9ed;
+    color: var(--text);
+}
+
+.guide-secondary-btn,
+.btn,
+.auth-buttons .auth-btn-secondary,
+.auth-logout-btn {
+    background: #ededf0;
+    color: var(--text);
+}
+
+.auth-buttons .auth-btn-primary {
+    background: var(--blue);
+    color: #fff;
+}
+
+.inline-bible-wrap {
+    width: 100%;
+    min-width: 0;
+    margin-top: 17px;
+}
+
+.bible-btn-mobile-wrap {
+    padding: 0;
+}
+
+.bible-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    background: #ededf0;
+    color: var(--text);
+    text-align: left;
+}
+
+.bible-btn-icon {
+    flex: 0 0 auto;
+    font-size: 12px;
+    transition: transform 180ms ease;
+}
+
+.bible-btn.open .bible-btn-icon {
+    transform: rotate(180deg);
+}
+
+.bible-accordion {
+    display: none;
+    width: 100%;
+    min-width: 0;
+}
+
+.bible-accordion.open {
+    display: block;
+}
+
+.bible-text {
+    width: 100%;
+    min-width: 0;
+    padding: 14px 2px 2px;
+    border-top: 0;
+}
+
+.bible-translation {
+    margin: 0 0 11px;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.2;
+    font-weight: 800;
+    letter-spacing: 0.65px;
+    text-transform: uppercase;
+}
+
+.bible-verse {
+    margin: 0 0 12px;
+    color: var(--text);
+    font-size: 17px;
+    line-height: 1.65;
+}
+
+.verse-num {
+    margin-right: 3px;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 800;
+    vertical-align: super;
+}
+
+.reset-section {
+    width: 100%;
+    padding: 14px 16px calc(18px + env(safe-area-inset-bottom));
+    background: var(--surface);
+}
+
+.reset-section .btn {
+    background: #ededf0;
+    color: var(--text);
+}
+
+/* Account panel expands the document instead of creating an inner scroll area. */
+.auth-section {
+    display: none;
+    width: auto;
+    margin: 0 16px 8px;
+    padding: 16px;
+    visibility: visible;
+    background: var(--surface-soft);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+}
+
+.auth-section.open {
+    display: block;
+}
+
+.auth-section input {
+    width: 100%;
+    min-width: 0;
+    min-height: 46px;
+    margin: 0 0 10px;
+    padding: 11px 13px;
+    border: 1px solid #c7c7cc;
+    border-radius: 11px;
+    background: #fff;
+    color: var(--text);
+    font-size: 16px;
+    outline: none;
+}
+
+.auth-section input:focus {
+    border-color: var(--brand-green);
+    box-shadow: 0 0 0 3px rgba(0,208,132,0.12);
+}
+
+.auth-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 9px;
+}
+
+.auth-status {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.auth-status-text {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    color: var(--muted);
+    font-size: 15px;
+}
+
+
+
+
+
+
+
+
+
+
+/* Vision uses a lightweight overlay. Its content has no internal scroll. */
+.popup-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    padding: 24px 16px;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.66);
+}
+
+.popup-overlay.active {
+    display: flex;
+}
+
+.popup-content {
+    position: relative;
+    width: min(100%, 400px);
+    padding: 22px;
+    background: #fff;
+    border-radius: 20px;
+    text-align: center;
+}
+
+.popup-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 38px;
+    height: 38px;
+    display: grid;
+    place-items: center;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(242,242,247,0.94);
+    color: var(--text);
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.popup-image {
+    display: block;
+    width: 100%;
+    height: auto;
+    margin: 0 0 14px;
+    border-radius: 13px;
+}
+
+.popup-text {
+    color: var(--text);
+    font-size: 16px;
+    line-height: 1.55;
+}
+
+.notification {
+    position: fixed;
+    left: 50%;
+    top: max(18px, env(safe-area-inset-top));
+    z-index: 4000;
+    max-width: calc(100% - 32px);
+    padding: 11px 15px;
+    transform: translateX(-50%);
+    border-radius: 12px;
+    background: rgba(0,0,0,0.86);
+    color: #fff;
+    font-size: 15px;
+    font-weight: 650;
+    text-align: center;
+    animation: notificationSlide 3s ease;
+}
+
+@keyframes notificationSlide {
+    0%, 100% { opacity: 0; transform: translate(-50%, -10px); }
+    10%, 90% { opacity: 1; transform: translate(-50%, 0); }
+}
+
+@media (max-width: 359px) {
+    .top-nav {
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+
+    .top-nav a {
+        padding-left: 11px;
+        padding-right: 11px;
+        font-size: 13px;
+    }
+
+    .header {
+        padding-left: 60px;
+        padding-right: 60px;
+    }
+
+    .header-icon {
+        left: 13px;
+    }
+
+    .account-btn {
+        right: 9px;
+    }
+
+    .accordion-overview {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .accordion-trigger {
+        grid-template-columns: 32px minmax(0,1fr) 24px;
+        gap: 8px;
+    }
+
+    .accordion-panel {
+        padding-left: 40px;
+    }
+}
+
+@media (min-width: 700px) {
+    body {
+        padding-bottom: 24px;
+    }
+
+    .top-nav,
+    .container {
+        width: min(100%, 720px);
+    }
+
+    .container {
+        border-radius: 24px;
+        box-shadow: 0 12px 44px rgba(0,0,0,0.09);
+    }
+
+    .accordion-overview,
+    .reset-section {
+        padding-left: 28px;
+        padding-right: 28px;
+    }
+}
+</style></head>
 <body>
-    <div style="display:flex; gap:10px; justify-content:center; padding:20px 16px 8px;">
-        <a href="index.html" style="display:inline-block; background:#000; color:#fff; font-weight:700; font-size:15px; padding:11px 22px; border-radius:50px; text-decoration:none; white-space:nowrap;" data-i18n="nav.home">Home</a>
-        <a href="commands-of-christ.html" style="display:inline-block; background:#00D084; color:#fff; font-weight:700; font-size:15px; padding:11px 22px; border-radius:50px; text-decoration:none; white-space:nowrap;" data-i18n="nav.back_commands">← Commands of Christ</a>
-    </div>
-    <div class="container">
-        <div class="auth-section" id="auth-section">
-            <div id="auth-form" style="display:none">
-                <input type="email" id="auth-email" placeholder="Email" data-i18n-placeholder="auth.email_placeholder">
-                <input type="password" id="auth-password" placeholder="Password" data-i18n-placeholder="auth.password_placeholder">
-                <div class="auth-buttons">
-                    <button class="auth-btn-primary" onclick="authSignUp()" data-i18n="auth.sign_up">Sign Up</button>
-                    <button class="auth-btn-secondary" onclick="authLogIn()" data-i18n="auth.log_in">Log In</button>
-                </div>
-                <button type="button" style="display:block;width:100%;margin-top:6px;padding:6px;background:none;border:none;color:#8e8e93;font-size:13px;cursor:pointer;text-align:center;font-family:inherit;" onclick="authForgotPassword()">Forgot password?</button>
-            </div>
-            <div class="auth-status" id="auth-status" style="display:none">
-                <span class="auth-status-text" id="auth-status-text">Not signed in</span>
-                <button class="auth-logout-btn" onclick="authLogOut()" data-i18n="auth.log_out">Log Out</button>
-            </div>
-        </div>
-        <div class="header">
-            <button class="settings-btn" onclick="openSettings()">⚙️</button>
-            <img src="assets/images/header/holy-spirit-header.webp" alt="Command Icon" class="header-icon">
-            <h1 data-i18n="holy_spirit.title">Holy Spirit</h1>
-            <div class="scripture" data-i18n="holy_spirit.scripture">Story: Acts 4:27–31</div>
-        </div>
-        <div class="progress-bar-container">
-            <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
-            <div class="progress-text" id="progressText">0 of 9 completed</div>
-        </div>
-        <div class="content">
-            <div class="section-divider"><div class="section-divider-line"></div><div class="section-divider-text" data-i18n="common.look_back">Look Back</div><div class="section-divider-line"></div></div>
-            <div class="card" onclick="toggleCard(this)" data-card="care" data-assignment-key="care" data-section="lookback"><div class="card-content"><div class="card-icon care-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.care_title">Care &amp; Prayer</div><div class="card-description" data-i18n="common.care_desc">Everyone shares briefly how they are doing. Pray if appropriate.</div><div class="assignment-badge-container"></div></div><div class="card-checkbox"></div></div></div>
-            <div class="card" onclick="toggleCard(this)" data-card="worship" data-assignment-key="worship" data-section="lookback"><div class="card-content"><div class="card-icon worship-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.worship_title">Worship</div><div class="card-description" data-i18n="common.worship_desc">Praise God • Give to Needs • Lord's Supper</div><div class="assignment-badge-container"></div></div><div class="card-checkbox"></div></div></div>
-            <div class="card" onclick="toggleCard(this)" data-card="accountability" data-assignment-key="accountability" data-section="lookback"><div class="card-content"><div class="card-icon accountability-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.accountability_title">Loving Accountability</div><div class="card-description" data-i18n="common.accountability_desc">Follow: Share how you obeyed. Fish: Share who you shared with.</div><div class="assignment-badge-container"></div></div><div class="card-checkbox"></div></div></div>
-            <div class="card" onclick="toggleCard(this)" data-card="vision" data-assignment-key="vision" data-section="lookback"><div class="card-content"><div class="card-icon vision-icon"></div><div class="card-text"><div class="card-title"><span data-i18n="common.vision_title">Vision: Acts 2 Church Circle</span> <span class="view-link" onclick="event.stopPropagation(); showVisionPopup()" data-i18n="common.vision_view">(View)</span></div><div class="card-description" data-i18n="common.vision_ref">Acts 2:36-47</div><div class="assignment-badge-container"></div></div><div class="card-checkbox"></div></div></div>
-            <div class="section-divider"><div class="section-divider-line"></div><div class="section-divider-text" data-i18n="common.look_up">Look Up</div><div class="section-divider-line"></div></div>
-            <div class="card step-card" data-card="teaching" data-assignment-key="lookup" data-section="lookup">
-                <div class="card-content" style="flex-direction: column; align-items: stretch;">
-                    <div style="display: flex; align-items: center; gap: 16px;"><div class="card-icon discover-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.new_teaching">New Teaching From Scripture</div><div class="card-description" data-i18n="holy_spirit.teaching_ref">Acts 4:27-31</div><div class="assignment-badge-container"></div></div></div>
-                    <div class="step-indicators">
-                        <div style="flex: 1;"><div class="step-dot" data-step="1" onclick="event.stopPropagation(); toggleStep(this, 'teaching')">1</div><div class="step-label" data-i18n="common.step_read_command">Read Command &amp; Tell Story</div></div>
-                        <div style="flex: 1;"><div class="step-dot" data-step="2" onclick="event.stopPropagation(); toggleStep(this, 'teaching')">2</div><div class="step-label" data-i18n="common.step_read_story_together">Read Story Together</div></div>
-                        <div style="flex: 1;"><div class="step-dot" data-step="3" onclick="event.stopPropagation(); toggleStep(this, 'teaching')">3</div><div class="step-label" data-i18n="common.step_retell_story">Retell Story</div></div>
-                    </div>
-                </div>
-                <div class="bible-btn-mobile-wrap"><button class="bible-btn bible-btn-mobile" onclick="toggleBible(event)"><span data-i18n="holy_spirit.bible_btn">Acts 4:27–31 (CSB)</span><span class="bible-btn-icon">▼</span></button></div>
-                <div class="bible-accordion" id="bible-accordion">
-                    <div class="bible-text">
-                        <div class="bible-translation" data-i18n="common.christian_standard_bible">Christian Standard Bible</div>
-                        <p class="bible-verse"><span class="verse-num">27</span>"For, in fact, in this city both Herod and Pontius Pilate, with the Gentiles and the people of Israel, assembled together against your holy servant Jesus, whom you anointed,</p>
-                        <p class="bible-verse"><span class="verse-num">28</span>to do whatever your hand and your will had predestined to take place.</p>
-                        <p class="bible-verse"><span class="verse-num">29</span>And now, Lord, consider their threats, and grant that your servants may speak your word with all boldness,</p>
-                        <p class="bible-verse"><span class="verse-num">30</span>while you stretch out your hand for healing, and signs and wonders are performed through the name of your holy servant Jesus."</p>
-                        <p class="bible-verse"><span class="verse-num">31</span>When they had prayed, the place where they were assembled was shaken, and they were all filled with the Holy Spirit and began to speak the word of God boldly.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="card" onclick="toggleCard(this)" data-card="discuss-god" data-assignment-key="lookup" data-section="lookup"><div class="card-content"><div class="card-icon discover-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.discuss_god_title">What do we learn about God?</div><div class="assignment-badge-container"></div></div><div class="card-checkbox"></div></div></div>
-            <div class="card" onclick="toggleCard(this)" data-card="discuss-people" data-assignment-key="lookup" data-section="lookup"><div class="card-content"><div class="card-icon discover-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.discuss_people_title">What do we learn about people?</div><div class="assignment-badge-container"></div></div><div class="card-checkbox"></div></div></div>
-            <div class="card" onclick="toggleCard(this)" data-card="pray-listen" data-assignment-key="lookup" data-section="lookup"><div class="card-content"><div class="card-icon discover-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.pray_listen_title">Pause — Pray and Listen</div><div class="assignment-badge-container"></div></div><div class="card-checkbox"></div></div></div>
-            <div class="card" onclick="toggleCard(this)" data-card="discuss-obey" data-assignment-key="lookup" data-section="lookup"><div class="card-content"><div class="card-icon discover-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.how_obey_title">How will you obey the story?</div><div class="card-description" data-i18n="common.how_obey_desc">Share how you will obey.</div><div class="assignment-badge-container"></div></div><div class="card-checkbox"></div></div></div>
-            <div class="section-divider"><div class="section-divider-line"></div><div class="section-divider-text" data-i18n="common.look_forward">Look Forward</div><div class="section-divider-line"></div></div>
-            <div class="card" onclick="toggleCard(this)" data-card="practice" data-assignment-key="practice" data-section="lookforward"><div class="card-content"><div class="card-icon practice-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.practice_3circles_title">Practice: 3 Circles</div><div class="card-description" data-i18n="common.practice_3circles_desc">Practice the 3 Circles gospel tool.</div><div class="assignment-badge-container"></div></div><div class="card-checkbox"></div></div></div>
-            <div class="card" onclick="toggleCard(this)" data-card="goals" data-assignment-key="goals" data-section="lookforward"><div class="card-content"><div class="card-icon accountability-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.set_goals_title">Set Goals</div><div class="card-description" data-i18n="common.set_goals_desc">Follow: What is Jesus asking you to obey? Fish: Who needs to hear this story?</div><div class="assignment-badge-container"></div></div><div class="card-checkbox"></div></div></div>
-            <div class="card" onclick="toggleCard(this)" data-card="commission" data-assignment-key="commission" data-section="lookforward"><div class="card-content"><div class="card-icon pray-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.commission_title">Commission with Prayer</div><div class="card-description" data-i18n="common.commission_desc">Pray together.</div><div class="assignment-badge-container"></div></div><div class="card-checkbox"></div></div></div>
-        </div>
-        <div class="reset-section"><button class="btn" onclick="resetAll()" data-i18n="common.reset">RESET</button></div>
-    </div>
-    <div class="popup-overlay" id="visionPopup" onclick="closeVisionPopup()"><div class="popup-content" onclick="event.stopPropagation()"><button class="popup-close" onclick="closeVisionPopup()">×</button><img src="assets/images/popups/vision-popup.jpg" alt="Church Circle" class="popup-image"><div class="popup-text" data-i18n="common.vision_popup_text">Read Acts 2:36-47. Be a part of a church and start a church</div></div></div>
-    <div class="modal-overlay" id="settingsModal"><div class="modal-content" onclick="event.stopPropagation()"><div class="modal-header" data-i18n="settings.title">Assignment Settings</div><div class="modal-section"><label class="modal-label" data-i18n="settings.mode_label">Assignment Mode</label><div class="toggle-group"><button class="toggle-btn active" id="sectionBtn" onclick="setAssignmentMode('section')" data-i18n="settings.section_mode">By Section</button><button class="toggle-btn" id="componentBtn" onclick="setAssignmentMode('component')" data-i18n="settings.component_mode">By Component</button></div></div><div id="assignmentInputs"></div><button class="generate-btn" onclick="generateLink()" data-i18n="settings.generate_link">Generate Share Link</button><div class="link-display" id="linkDisplay"></div><button class="copy-btn" id="copyBtn" onclick="copyLink()" data-i18n="settings.copy_link">Copy Link</button><button class="btn" onclick="closeSettings()" style="margin-top: 16px;" data-i18n="settings.close">Close</button></div></div>
-    <script>
-        let assignmentMode = 'section', assignments = {}, sessionId = '';
+<div class="top-nav">
+<a data-i18n="nav.home" href="index.html">Home</a>
+<a data-i18n="nav.back_commands" href="commands-of-christ.html">← Commands of Christ</a>
+</div>
+<div class="container">
+<div class="auth-section" id="auth-section">
+<div id="auth-form" style="display:none">
+<input data-i18n-placeholder="auth.email_placeholder" id="auth-email" placeholder="Email" type="email"/>
+<input data-i18n-placeholder="auth.password_placeholder" id="auth-password" placeholder="Password" type="password"/>
+<div class="auth-buttons">
+<button class="auth-btn-primary" data-i18n="auth.sign_up" onclick="authSignUp()">Sign Up</button>
+<button class="auth-btn-secondary" data-i18n="auth.log_in" onclick="authLogIn()">Log In</button>
+</div>
+<button onclick="authForgotPassword()" style="display:block;width:100%;margin-top:6px;padding:6px;background:none;border:none;color:#8e8e93;font-size:13px;cursor:pointer;text-align:center;font-family:inherit;" type="button">Forgot password?</button>
+</div>
+<div class="auth-status" id="auth-status" style="display:none">
+<span class="auth-status-text" id="auth-status-text">Not signed in</span>
+<button class="auth-logout-btn" data-i18n="auth.log_out" onclick="authLogOut()">Log Out</button>
+</div>
+</div>
+<div class="header">
+
+<img alt="Command Icon" class="header-icon" src="assets/images/header/holy-spirit-header.webp"/>
+<h1 data-i18n="holy_spirit.title">HOLY SPIRIT</h1>
+<div class="scripture" data-i18n="holy_spirit.scripture">Story: Acts 4:27–31</div>
+</div>
+<div class="progress-bar-container">
+<div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+<div class="progress-text" id="progressText">0 of 9 completed</div>
+</div>
+<div class="content">
+<div class="section-divider"><div class="section-divider-line"></div><div class="section-divider-text" data-i18n="common.look_back">Look Back</div><div class="section-divider-line"></div></div>
+<div class="card" data-card="care" onclick="toggleCard(this)">
+<div class="card-content">
+<div class="card-icon care-icon"></div>
+<div class="card-text"><div class="card-title" data-i18n="common.care_title">Care &amp; Prayer</div><div class="card-description" data-i18n="common.care_desc">Everyone shares briefly how they are doing. Pray if appropriate.</div></div>
+</div>
+</div>
+<div class="card" data-card="worship" onclick="toggleCard(this)">
+<div class="card-content">
+<div class="card-icon worship-icon"></div>
+<div class="card-text"><div class="card-title" data-i18n="common.worship_title">Worship</div><div class="card-description" data-i18n="common.worship_desc">Praise God • Give to Needs • Lord's Supper</div></div>
+</div>
+</div>
+<div class="card" data-card="accountability" onclick="toggleCard(this)">
+<div class="card-content">
+<div class="card-icon accountability-icon"></div>
+<div class="card-text"><div class="card-title" data-i18n="common.accountability_title">Loving Accountability</div><div class="card-description" data-i18n="common.accountability_desc">Follow: Share how you obeyed. Fish: Share who you shared with.</div></div>
+</div>
+</div>
+<div class="card" data-card="vision" onclick="toggleCard(this)">
+<div class="card-content">
+<div class="card-icon vision-icon"></div>
+<div class="card-text"><div class="card-title"><span data-i18n="common.vision_title">Vision: Acts 2 Church Circle</span> <span class="view-link" data-i18n="common.vision_view" onclick="event.stopPropagation(); showVisionPopup()">(View)</span></div><div class="card-description" data-i18n="common.vision_ref">Acts 2:36-47</div></div>
+</div>
+</div>
+<div class="section-divider"><div class="section-divider-line"></div><div class="section-divider-text" data-i18n="common.look_up">Look Up</div><div class="section-divider-line"></div></div>
+<div class="card step-card" data-card="teaching">
+<div class="card-content" style="flex-direction: column; align-items: stretch;">
+<div style="display: flex; align-items: center; gap: 16px;">
+<div class="card-icon discover-icon"></div>
+<div class="card-text"><div class="card-title" data-i18n="common.new_teaching">New Teaching From Scripture</div><div class="card-description" data-i18n="holy_spirit.teaching_ref">Acts 4:27-31</div></div>
+</div>
+<div class="step-indicators">
+<div style="flex: 1;"><div class="step-dot" data-step="1" onclick="event.stopPropagation(); toggleStep(this, 'teaching')">1</div><div class="step-label" data-i18n="common.step_read_command">Read Command &amp; Tell Story</div></div>
+<div style="flex: 1;"><div class="step-dot" data-step="2" onclick="event.stopPropagation(); toggleStep(this, 'teaching')">2</div><div class="step-label" data-i18n="common.step_read_story_together">Read Story Together</div></div>
+<div style="flex: 1;"><div class="step-dot" data-step="3" onclick="event.stopPropagation(); toggleStep(this, 'teaching')">3</div><div class="step-label" data-i18n="common.step_retell_story">Retell Story</div></div>
+</div>
+</div>
+<div class="bible-btn-mobile-wrap"><button class="bible-btn bible-btn-mobile" onclick="toggleBible(event)"><span data-i18n="holy_spirit.bible_btn">Acts 4:27–31 (CSB)</span><span class="bible-btn-icon">▼</span></button></div>
+<div class="bible-accordion" id="bible-accordion">
+<div class="bible-text">
+<div class="bible-translation" data-i18n="common.christian_standard_bible">Christian Standard Bible</div>
+<p class="bible-verse"><span class="verse-num">27</span>“For, in fact, in this city both Herod and Pontius Pilate, with the Gentiles and the people of Israel, assembled together against your holy servant Jesus, whom you anointed,</p>
+<p class="bible-verse"><span class="verse-num">28</span>to do whatever your hand and your will had predestined to take place.</p>
+<p class="bible-verse"><span class="verse-num">29</span>And now, Lord, consider their threats, and grant that your servants may speak your word with all boldness,</p>
+<p class="bible-verse"><span class="verse-num">30</span>while you stretch out your hand for healing, and signs and wonders are performed through the name of your holy servant Jesus.”</p>
+<p class="bible-verse"><span class="verse-num">31</span>When they had prayed, the place where they were assembled was shaken, and they were all filled with the Holy Spirit and began to speak the word of God boldly.</p>
+</div>
+</div>
+</div>
+<div class="card" data-card="discuss-god" onclick="toggleCard(this)">
+<div class="card-content"><div class="card-icon discover-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.discuss_god_title">What do we learn about God?</div></div></div>
+</div>
+<div class="card" data-card="discuss-people" onclick="toggleCard(this)">
+<div class="card-content"><div class="card-icon discover-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.discuss_people_title">What do we learn about people?</div></div></div>
+</div>
+<div class="card" data-card="pray-listen" onclick="toggleCard(this)">
+<div class="card-content"><div class="card-icon discover-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.pray_listen_title">Pause — Pray and Listen</div></div></div>
+</div>
+<div class="card" data-card="discuss-obey" onclick="toggleCard(this)">
+<div class="card-content"><div class="card-icon discover-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.how_obey_title">How will you obey the story?</div><div class="card-description" data-i18n="common.how_obey_desc">Share how you will obey.</div></div></div>
+</div>
+<div class="section-divider"><div class="section-divider-line"></div><div class="section-divider-text" data-i18n="common.look_forward">Look Forward</div><div class="section-divider-line"></div></div>
+<div class="card" data-card="practice" onclick="toggleCard(this)">
+<div class="card-content"><div class="card-icon practice-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.practice_3circles_title">Practice: 3 Circles</div><div class="card-description" data-i18n="common.practice_3circles_desc">Practice the 3 Circles gospel tool.</div></div></div>
+</div>
+<div class="card" data-card="goals" onclick="toggleCard(this)">
+<div class="card-content"><div class="card-icon accountability-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.set_goals_title">Set Goals</div><div class="card-description" data-i18n="common.set_goals_desc">Follow: What is Jesus asking you to obey? Fish: Who needs to hear this story?</div></div></div>
+</div>
+<div class="card" data-card="commission" onclick="toggleCard(this)">
+<div class="card-content"><div class="card-icon pray-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.commission_title">Commission with Prayer</div><div class="card-description" data-i18n="common.commission_desc">Pray together.</div></div></div>
+</div>
+</div>
+<div class="reset-section"><button class="btn" data-i18n="common.reset" onclick="resetAll()">RESET</button></div>
+</div>
+<div class="popup-overlay" id="visionPopup" onclick="closeVisionPopup()">
+<div class="popup-content" onclick="event.stopPropagation()">
+<button class="popup-close" onclick="closeVisionPopup()">×</button>
+<img alt="Church Circle" class="popup-image" src="assets/images/popups/vision-popup.jpg"/>
+<div class="popup-text" data-i18n="common.vision_popup_text">Read Acts 2:36-47. Be a part of a church and start a church</div>
+</div>
+</div>
+
+<script>
         let storageKey = 'command-holy-spirit-progress';
         let completedCards = [], stepProgress = {};
-        const sectionAssignments = { 'lookback': 'section_keys.lookback', 'lookup': 'section_keys.lookup', 'lookforward': 'section_keys.lookforward' };
-        const componentAssignments = { 'care': 'component_keys.care', 'worship': 'component_keys.worship', 'accountability': 'component_keys.accountability', 'vision': 'component_keys.vision', 'lookup': 'component_keys.lookup', 'practice': 'component_keys.practice', 'goals': 'component_keys.goals', 'commission': 'component_keys.commission' };
-        function initializeFromURL() { const hash = window.location.hash.substring(1); if (hash) { try { const data = JSON.parse(atob(hash)); assignmentMode = data.mode || 'section'; assignments = data.assignments || {}; sessionId = data.sessionId || ''; if (sessionId) storageKey = 'command-holy-spirit-progress-' + sessionId; } catch(e) {} } completedCards = JSON.parse(localStorage.getItem(storageKey)) || []; stepProgress = JSON.parse(localStorage.getItem(storageKey + '-steps')) || {}; displayAssignments(); }
-        function displayAssignments() { document.querySelectorAll('[data-assignment-key]').forEach(function(card) { const key = card.dataset.assignmentKey, section = card.dataset.section; let name = assignmentMode === 'section' ? (assignments[section] || '') : (assignments[key] || ''); const c = card.querySelector('.assignment-badge-container'); if (c) c.innerHTML = name ? '<div class="assignment-badge">' + name + '</div>' : ''; }); }
-        function openSettings() { document.getElementById('settingsModal').classList.add('active'); renderAssignmentInputs(); }
-        function closeSettings() { document.getElementById('settingsModal').classList.remove('active'); }
-        function setAssignmentMode(mode) { assignmentMode = mode; document.getElementById('sectionBtn').classList.toggle('active', mode === 'section'); document.getElementById('componentBtn').classList.toggle('active', mode === 'component'); renderAssignmentInputs(); }
-        function renderAssignmentInputs() { const c = document.getElementById('assignmentInputs'); const list = assignmentMode === 'section' ? sectionAssignments : componentAssignments; let html = '<div class="modal-section"><label class="modal-label">' + window.t('settings.assign_names') + '</label>'; Object.keys(list).forEach(function(k) { html += '<input type="text" class="assignment-input" placeholder="' + window.t(list[k]) + '" value="' + (assignments[k] || '') + '" onchange="updateAssignment(\'' + k + '\', this.value)">'; }); html += '</div>'; c.innerHTML = html; }
-        function updateAssignment(key, value) { if (value.trim()) assignments[key] = value.trim(); else delete assignments[key]; }
-        function generateLink() { if (!sessionId) sessionId = 'session-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9); const encoded = btoa(JSON.stringify({ mode: assignmentMode, assignments: assignments, sessionId: sessionId })); const url = window.location.origin + window.location.pathname + '#' + encoded; document.getElementById('linkDisplay').textContent = url; document.getElementById('linkDisplay').classList.add('show'); document.getElementById('copyBtn').classList.add('show'); storageKey = 'command-holy-spirit-progress-' + sessionId; displayAssignments(); }
-        function copyLink() { navigator.clipboard.writeText(document.getElementById('linkDisplay').textContent).then(function() { showNotification(window.t('common.link_copied')); }); }
-        function saveProgress() { localStorage.setItem(storageKey, JSON.stringify(completedCards)); localStorage.setItem(storageKey + '-steps', JSON.stringify(stepProgress)); updateProgress(); }
-        function toggleCard(card) { const id = card.dataset.card; if (card.classList.contains('completed')) { card.classList.remove('completed'); completedCards = completedCards.filter(function(i) { return i !== id; }); } else { card.classList.add('completed'); completedCards.push(id); } saveProgress(); }
-        function toggleStep(dot, cardId) { const step = dot.dataset.step, card = dot.closest('.card'); if (!stepProgress[cardId]) stepProgress[cardId] = []; if (stepProgress[cardId].includes(step)) { stepProgress[cardId] = stepProgress[cardId].filter(function(s) { return s !== step; }); dot.classList.remove('completed'); } else { stepProgress[cardId].push(step); dot.classList.add('completed'); } if (stepProgress[cardId].length === 3) { if (!completedCards.includes(cardId)) { completedCards.push(cardId); card.classList.add('completed'); } } else { completedCards = completedCards.filter(function(i) { return i !== cardId; }); card.classList.remove('completed'); } saveProgress(); }
-        function updateProgress() { const total = document.querySelectorAll('.card:not(.step-card)').length + 1, completed = completedCards.length; document.getElementById('progressFill').style.width = (completed / total * 100) + '%'; document.getElementById('progressText').textContent = window.t('common.completed_of', { done: completed, total: total }); if (completed === total) showNotification(window.t('common.study_complete')); }
-        function resetAll() { if (confirm(window.t('common.reset_confirm'))) { completedCards = []; stepProgress = {}; localStorage.removeItem(storageKey); localStorage.removeItem(storageKey + '-steps'); document.querySelectorAll('.card').forEach(function(c) { c.classList.remove('completed'); }); document.querySelectorAll('.step-dot').forEach(function(d) { d.classList.remove('completed'); }); updateProgress(); showNotification(window.t('common.progress_reset')); } }
-        function showNotification(msg) { const n = document.createElement('div'); n.className = 'notification'; n.textContent = msg; document.body.appendChild(n); setTimeout(function() { n.remove(); }, 3000); }
-        function showVisionPopup() { document.getElementById('visionPopup').classList.add('active'); }
-        function closeVisionPopup() { document.getElementById('visionPopup').classList.remove('active'); }
-        window.addEventListener('DOMContentLoaded', function() { initializeFromURL(); completedCards.forEach(function(id) { const c = document.querySelector('[data-card="' + id + '"]'); if (c) c.classList.add('completed'); }); Object.keys(stepProgress).forEach(function(id) { stepProgress[id].forEach(function(s) { const d = document.querySelector('[data-card="' + id + '"] [data-step="' + s + '"]'); if (d) d.classList.add('completed'); }); }); window.addEventListener('i18n:ready', updateProgress, { once: true }); });
-        document.addEventListener('click', function(e) { if (e.target.classList.contains('modal-overlay')) closeSettings(); if (e.target.classList.contains('popup-overlay')) closeVisionPopup(); });
-        function toggleBible(e) { e.stopPropagation(); const accordion = document.getElementById('bible-accordion'); const isOpen = accordion.classList.toggle('open'); document.querySelectorAll('.bible-btn').forEach(btn => btn.classList.toggle('open', isOpen)); }
+
+        function initializeProgress() {
+            completedCards = JSON.parse(localStorage.getItem(storageKey)) || [];
+            stepProgress = JSON.parse(localStorage.getItem(storageKey + '-steps')) || {};
+        }
+
+        function saveProgress() {
+            localStorage.setItem(storageKey, JSON.stringify(completedCards));
+            localStorage.setItem(storageKey + '-steps', JSON.stringify(stepProgress));
+            updateProgress();
+        }
+
+        function toggleCard(card) {
+            const id = card.dataset.card;
+            if (card.classList.contains('completed')) {
+                card.classList.remove('completed');
+                completedCards = completedCards.filter(function(i) { return i !== id; });
+            } else {
+                card.classList.add('completed');
+                completedCards.push(id);
+            }
+            saveProgress();
+        }
+
+        function toggleStep(dot, cardId) {
+            const step = dot.dataset.step;
+            const card = dot.closest('.card');
+            if (!stepProgress[cardId]) stepProgress[cardId] = [];
+
+            if (stepProgress[cardId].includes(step)) {
+                stepProgress[cardId] = stepProgress[cardId].filter(function(s) { return s !== step; });
+                dot.classList.remove('completed');
+            } else {
+                stepProgress[cardId].push(step);
+                dot.classList.add('completed');
+            }
+
+            if (stepProgress[cardId].length === 3) {
+                if (!completedCards.includes(cardId)) {
+                    completedCards.push(cardId);
+                    card.classList.add('completed');
+                }
+            } else {
+                completedCards = completedCards.filter(function(i) { return i !== cardId; });
+                card.classList.remove('completed');
+            }
+            saveProgress();
+        }
+
+        function updateProgress() {
+            const total = document.querySelectorAll('.card:not(.step-card)').length + 1;
+            const completed = completedCards.length;
+            document.getElementById('progressFill').style.width = (completed / total * 100) + '%';
+            document.getElementById('progressText').textContent = completed + ' of ' + total + ' completed';
+            if (completed === total) showNotification('Study complete! 🎉');
+        }
+
+        function resetAll() {
+            if (confirm(window.t('common.reset_confirm'))) {
+                completedCards = [];
+                stepProgress = {};
+                localStorage.removeItem(storageKey);
+                localStorage.removeItem(storageKey + '-steps');
+                document.querySelectorAll('.card').forEach(function(c) { c.classList.remove('completed'); });
+                document.querySelectorAll('.step-dot').forEach(function(d) { d.classList.remove('completed'); });
+                updateProgress();
+                showNotification(window.t('common.progress_reset'));
+            }
+        }
+
+        function showNotification(msg) {
+            const n = document.createElement('div');
+            n.className = 'notification';
+            n.textContent = msg;
+            document.body.appendChild(n);
+            setTimeout(function() { n.remove(); }, 3000);
+        }
+
+        function showVisionPopup() {
+            document.getElementById('visionPopup').classList.add('active');
+        }
+
+        function closeVisionPopup() {
+            document.getElementById('visionPopup').classList.remove('active');
+        }
+
+        function toggleBible(e) {
+            e.stopPropagation();
+            const accordion = document.getElementById('bible-accordion');
+            const isOpen = accordion.classList.toggle('open');
+            document.querySelectorAll('.bible-btn').forEach(function(btn) {
+                btn.classList.toggle('open', isOpen);
+            });
+        }
+
         function updateAuthUI(user) {
             window._supabaseUser = user;
             document.getElementById('auth-section').style.visibility = 'visible';
             const form = document.getElementById('auth-form');
             const status = document.getElementById('auth-status');
             const text = document.getElementById('auth-status-text');
-            if (user) { form.style.display = 'none'; status.style.display = 'flex'; text.textContent = window.t('auth.signed_in_as', { email: user.email }); }
-            else { form.style.display = 'block'; status.style.display = 'none'; text.textContent = window.t('auth.not_signed_in'); }
+            if (user) {
+                form.style.display = 'none';
+                status.style.display = 'flex';
+                text.textContent = 'Signed in as ' + user.email;
+            } else {
+                form.style.display = 'block';
+                status.style.display = 'none';
+                text.textContent = 'Not signed in';
+            }
         }
+
         async function authSignUp() {
             const email = document.getElementById('auth-email').value.trim();
             const password = document.getElementById('auth-password').value;
             const { error } = await window.supabase.auth.signUp({ email, password });
-            if (error) showNotification(error.message); else showNotification(window.t('auth.check_email'));
+            if (error) showNotification(error.message);
+            else showNotification('Check your email to confirm sign up.');
         }
+
         async function authLogIn() {
             const email = document.getElementById('auth-email').value.trim();
             const password = document.getElementById('auth-password').value;
             const { error } = await window.supabase.auth.signInWithPassword({ email, password });
             if (error) showNotification(error.message);
         }
+
         async function authLogOut() {
             const { error } = await window.supabase.auth.signOut();
             if (error) showNotification(error.message);
@@ -258,20 +1062,465 @@
 
         async function authForgotPassword() {
             const emailEl = document.getElementById('auth-email');
-            const email   = emailEl ? emailEl.value.trim() : '';
-            if (!email) { showNotification('Enter your email address first.'); return; }
+            const email = emailEl ? emailEl.value.trim() : '';
+            if (!email) {
+                showNotification('Enter your email address first.');
+                return;
+            }
             const { error } = await window.supabase.auth.resetPasswordForEmail(email, {
                 redirectTo: window.location.origin + '/reset-password.html'
             });
             if (error) showNotification(error.message);
-            else       showNotification('Password reset email sent — check your inbox.');
+            else showNotification('Password reset email sent — check your inbox.');
         }
-        document.addEventListener('DOMContentLoaded', () => {
+
+        window.addEventListener('DOMContentLoaded', function() {
+            initializeProgress();
+            completedCards.forEach(function(id) {
+                const c = document.querySelector('[data-card="' + id + '"]');
+                if (c) c.classList.add('completed');
+            });
+            Object.keys(stepProgress).forEach(function(id) {
+                stepProgress[id].forEach(function(s) {
+                    const d = document.querySelector('[data-card="' + id + '"] [data-step="' + s + '"]');
+                    if (d) d.classList.add('completed');
+                });
+            });
+            window.addEventListener('i18n:ready', updateProgress, { once: true });
+        });
+
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('popup-overlay')) closeVisionPopup();
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
             if (window.supabase) {
-                window.supabase.auth.getSession().then(({ data: { session } }) => { updateAuthUI(session?.user ?? null); });
-                window.supabase.auth.onAuthStateChange((_event, session) => { updateAuthUI(session?.user ?? null); });
+                window.supabase.auth.getSession().then(function(result) {
+                    updateAuthUI(result.data.session ? result.data.session.user : null);
+                });
+                window.supabase.auth.onAuthStateChange(function(_event, session) {
+                    updateAuthUI(session ? session.user : null);
+                });
             }
         });
-    </script>
-</body>
+</script>
+<script id="clean-accordion-controller">
+(function () {
+    const sections = [
+        { key: 'lookback', title: 'Look Back', range: 'Steps 1–4' },
+        { key: 'lookup', title: 'Look Up', range: 'Step 5' },
+        { key: 'lookforward', title: 'Look Forward', range: 'Steps 6–8' }
+    ];
+
+    const steps = [
+        {
+            number: 1,
+            section: 'lookback',
+            primary: 'care',
+            ids: ['care'],
+            title: 'Care & Prayer',
+            summary: 'Share, care, and pray',
+            intro: 'Everyone shares briefly how they are doing. Pray if appropriate.',
+            flow: [
+                ['1', 'Invite each person to share briefly how they are doing.'],
+                ['2', 'Listen for needs, burdens, or reasons to celebrate.'],
+                ['3', 'Pause and pray when it is appropriate.']
+            ]
+        },
+        {
+            number: 2,
+            section: 'lookback',
+            primary: 'worship',
+            ids: ['worship'],
+            title: 'Worship',
+            summary: 'Praise • Give • Lord’s Supper',
+            intro: 'Praise God, give toward needs, and share the Lord’s Supper.',
+            flow: [
+                ['1', 'Praise God together.'],
+                ['2', 'Give toward needs as they are shared.'],
+                ['3', 'Share the Lord’s Supper when appropriate.']
+            ]
+        },
+        {
+            number: 3,
+            section: 'lookback',
+            primary: 'accountability',
+            ids: ['accountability'],
+            title: 'Loving Accountability',
+            summary: 'Follow • Fish',
+            intro: 'Look back with honesty and encouragement. This is about obedience, not shame.',
+            flow: [
+                ['Follow', 'How did you obey what Jesus showed you last time?'],
+                ['Fish', 'Who did you share with, and what happened?<br><a class="conversation-box-link" href="https://obey.tools/conversation-box.html" target="_blank" rel="noopener">Open Conversation Box <span aria-hidden="true">↗</span></a>']
+            ]
+        },
+        {
+            number: 4,
+            section: 'lookback',
+            primary: 'vision',
+            ids: ['vision'],
+            title: 'Vision: Acts 2 Church Circle',
+            summary: 'Acts 2:36–47',
+            intro: 'Read Acts 2:36–47. Be a part of a church and start a church.',
+            reference: 'Acts 2:36–47',
+            vision: true
+        },
+        {
+            number: 5,
+            section: 'lookup',
+            primary: 'teaching',
+            ids: ['teaching', 'discuss-god', 'discuss-people', 'pray-listen', 'discuss-obey'],
+            title: 'New Teaching From Scripture',
+            summary: 'Story • God • People • Listen • Obey',
+            intro: 'Work through the passage as one guided discovery process. These questions are parts of Step 5, not additional checklist items.',
+            reference: 'Story: Acts 4:27–31',
+            flow: [
+                ['1', 'Read the command and tell the story.'],
+                ['2', 'Read the story together.'],
+                ['3', 'Retell the story in your own words.'],
+                ['4', 'What do we learn about God?'],
+                ['5', 'What do we learn about people?'],
+                ['6', 'Pause, pray, and listen.'],
+                ['7', 'How will you obey the story?']
+            ],
+            bible: true
+        },
+        {
+            number: 6,
+            section: 'lookforward',
+            primary: 'practice',
+            ids: ['practice'],
+            title: 'Practice: 3 Circles',
+            summary: 'Practice the gospel tool',
+            intro: 'Practice the 3 Circles gospel tool until each person can use it simply and clearly.',
+            flow: [
+                ['1', 'Choose who will practice first.'],
+                ['2', 'Practice sharing the 3 Circles clearly and simply.'],
+                ['3', 'Give brief encouragement and try again if needed.']
+            ]
+        },
+        {
+            number: 7,
+            section: 'lookforward',
+            primary: 'goals',
+            ids: ['goals'],
+            title: 'Set Goals',
+            summary: 'Follow • Fish',
+            intro: 'Choose clear next steps before leaving the gathering.',
+            flow: [
+                ['Follow', 'What is Jesus asking you to obey before the next gathering?'],
+                ['Fish', 'Who needs to hear this story?']
+            ]
+        },
+        {
+            number: 8,
+            section: 'lookforward',
+            primary: 'commission',
+            ids: ['commission'],
+            title: 'Commission with Prayer',
+            summary: 'Pray together',
+            intro: 'Pray together and send one another out to obey Jesus.',
+            flow: [
+                ['1', 'Pray for the commitments and people that were named.'],
+                ['2', 'Ask the Holy Spirit for courage, power, and faithfulness.'],
+                ['3', 'Send one another out to obey Jesus.']
+            ]
+        }
+    ];
+
+    let accordionRoot = null;
+    let openStepNumber = null;
+
+    function personIcon() {
+        return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12.2a4.4 4.4 0 1 0 0-8.8 4.4 4.4 0 0 0 0 8.8Zm0 2.2c-4.7 0-8.1 2.6-8.1 6.2h16.2c0-3.6-3.4-6.2-8.1-6.2Z" fill="currentColor"/></svg>';
+    }
+
+    function getUnderlyingCard(id) {
+        return document.querySelector('.content [data-card="' + id + '"]');
+    }
+
+    function isStepComplete(step) {
+        return step.ids.every(function (id) {
+            const card = getUnderlyingCard(id);
+            return card && card.classList.contains('completed');
+        });
+    }
+
+    function flowMarkup(flow) {
+        if (!flow || !flow.length) return '';
+        return '<div class="guide-label">What to do</div><div class="guide-flow">' + flow.map(function (row) {
+            return '<div class="guide-flow-row"><div class="guide-flow-index">' + row[0] + '</div><div class="guide-flow-text">' + row[1] + '</div></div>';
+        }).join('') + '</div>';
+    }
+
+    function closeExpandedBible() {
+        const bible = document.getElementById('bible-accordion');
+        if (bible) bible.classList.remove('open');
+        document.querySelectorAll('.bible-btn').forEach(function (button) {
+            button.classList.remove('open');
+        });
+    }
+
+    function createStep(step) {
+        const item = document.createElement('section');
+        item.className = 'accordion-step';
+        item.dataset.step = String(step.number);
+        item.dataset.primary = step.primary;
+
+        const trigger = document.createElement('button');
+        trigger.type = 'button';
+        trigger.className = 'accordion-trigger';
+        trigger.setAttribute('aria-expanded', 'false');
+        trigger.setAttribute('aria-controls', 'accordion-panel-' + step.number);
+        trigger.innerHTML =
+            '<span class="accordion-number">' + step.number + '</span>' +
+            '<span class="accordion-copy"><span class="accordion-title">' + step.title + '</span><span class="accordion-summary">' + step.summary + '</span></span>' +
+            '<span class="accordion-chevron" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m6.5 9 5.5 5.5L17.5 9" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>';
+        trigger.addEventListener('click', function () {
+            setOpenStep(openStepNumber === step.number ? null : step.number);
+        });
+
+        const panel = document.createElement('div');
+        panel.className = 'accordion-panel';
+        panel.id = 'accordion-panel-' + step.number;
+        panel.setAttribute('role', 'region');
+        panel.hidden = true;
+        panel.innerHTML =
+            '<p class="guide-intro">' + step.intro + '</p>' +
+            (step.reference ? '<div class="guide-reference">' + step.reference + '</div>' : '') +
+            flowMarkup(step.flow) +
+            '<div class="guide-action-row"></div>';
+
+        const actionRow = panel.querySelector('.guide-action-row');
+
+        if (step.vision) {
+            const visionButton = document.createElement('button');
+            visionButton.type = 'button';
+            visionButton.className = 'guide-secondary-btn';
+            visionButton.textContent = 'View Church Circle';
+            visionButton.addEventListener('click', function () {
+                showVisionPopup();
+            });
+            actionRow.appendChild(visionButton);
+        }
+
+        if (step.bible) {
+            const teachingCard = getUnderlyingCard('teaching');
+            const bibleWrap = teachingCard && teachingCard.querySelector('.bible-btn-mobile-wrap');
+            const bibleAccordion = teachingCard && teachingCard.querySelector('.bible-accordion');
+            if (bibleWrap && bibleAccordion) {
+                const inlineBible = document.createElement('div');
+                inlineBible.className = 'inline-bible-wrap';
+                inlineBible.appendChild(bibleWrap);
+                inlineBible.appendChild(bibleAccordion);
+                actionRow.parentNode.insertBefore(inlineBible, actionRow);
+            }
+        }
+
+        const completeButton = document.createElement('button');
+        completeButton.type = 'button';
+        completeButton.className = 'complete-step-btn';
+        completeButton.addEventListener('click', function () {
+            setStepComplete(step, !isStepComplete(step));
+        });
+        actionRow.appendChild(completeButton);
+
+        item.appendChild(trigger);
+        item.appendChild(panel);
+        return item;
+    }
+
+    function createAccordion(content, resetSection) {
+        accordionRoot = document.createElement('main');
+        accordionRoot.className = 'accordion-overview';
+        accordionRoot.setAttribute('aria-label', 'Eight ordered meeting steps');
+
+        sections.forEach(function (section) {
+            const label = document.createElement('div');
+            label.className = 'accordion-section-label';
+            label.innerHTML = '<span>' + section.title + '</span><span>' + section.range + '</span>';
+            accordionRoot.appendChild(label);
+
+            steps.filter(function (step) {
+                return step.section === section.key;
+            }).forEach(function (step) {
+                accordionRoot.appendChild(createStep(step));
+            });
+        });
+
+        content.parentNode.insertBefore(accordionRoot, resetSection);
+    }
+
+    function dismissInteractionHint() {
+        const hint = document.getElementById('interactionHint');
+        if (hint) hint.hidden = true;
+        try {
+            localStorage.setItem('holy-spirit-accordion-hint-seen', 'true');
+        } catch (error) {}
+    }
+
+    function setOpenStep(number) {
+        if (number !== null) dismissInteractionHint();
+        if (number !== 5) closeExpandedBible();
+        openStepNumber = number;
+        if (!accordionRoot) return;
+
+        accordionRoot.querySelectorAll('.accordion-step').forEach(function (item) {
+            const isOpen = number !== null && Number(item.dataset.step) === number;
+            item.classList.toggle('open', isOpen);
+            const trigger = item.querySelector('.accordion-trigger');
+            const panel = item.querySelector('.accordion-panel');
+            if (trigger) trigger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+            if (panel) panel.hidden = !isOpen;
+        });
+    }
+
+    function setStepComplete(step, complete) {
+        step.ids.forEach(function (id) {
+            const card = getUnderlyingCard(id);
+            if (card) card.classList.toggle('completed', complete);
+            const index = completedCards.indexOf(id);
+            if (complete && index === -1) completedCards.push(id);
+            if (!complete && index !== -1) completedCards.splice(index, 1);
+        });
+
+        if (step.primary === 'teaching') {
+            stepProgress.teaching = complete ? ['1', '2', '3'] : [];
+            document.querySelectorAll('.content [data-card="teaching"] .step-dot').forEach(function (dot) {
+                dot.classList.toggle('completed', complete);
+            });
+        }
+
+        saveProgress();
+        syncAccordion();
+
+        if (complete) {
+            const nextStep = steps.find(function (candidate) {
+                return candidate.number > step.number && !isStepComplete(candidate);
+            });
+            if (nextStep) {
+                setOpenStep(nextStep.number);
+                requestAnimationFrame(function () {
+                    const nextItem = accordionRoot && accordionRoot.querySelector('[data-step="' + nextStep.number + '"]');
+                    if (nextItem) nextItem.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                });
+            }
+        }
+    }
+
+    function syncAccordion() {
+        if (!accordionRoot) return;
+        let count = 0;
+
+        steps.forEach(function (step) {
+            const complete = isStepComplete(step);
+            if (complete) count += 1;
+            const item = accordionRoot.querySelector('.accordion-step[data-step="' + step.number + '"]');
+            if (!item) return;
+            item.classList.toggle('completed', complete);
+            const button = item.querySelector('.complete-step-btn');
+            if (button) button.textContent = complete ? 'Mark Step Incomplete' : 'Mark Step Complete';
+        });
+
+        const fill = document.getElementById('progressFill');
+        const text = document.getElementById('progressText');
+        if (fill) fill.style.width = (count / 8 * 100) + '%';
+        if (text) text.textContent = count + ' of 8 steps';
+    }
+
+    function updateAccordionProgress() {
+        syncAccordion();
+        if (steps.every(isStepComplete)) showNotification('Study complete! 🎉');
+    }
+
+    function toggleAccountPanel() {
+        const authSection = document.getElementById('auth-section');
+        if (!authSection) return;
+        authSection.classList.toggle('open');
+        if (authSection.classList.contains('open')) {
+            authSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    }
+
+    function closeAccountPanel() {
+        const authSection = document.getElementById('auth-section');
+        if (authSection) authSection.classList.remove('open');
+    }
+
+    function syncAccountButton(user) {
+        const button = document.querySelector('.account-btn');
+        if (!button) return;
+        button.classList.toggle('signed-in', !!user);
+        button.setAttribute('aria-label', user ? 'Open signed-in account' : 'Open sign in');
+    }
+
+    function enhanceLayout() {
+        if (document.querySelector('.accordion-overview')) return;
+
+        const container = document.querySelector('.container');
+        const header = container && container.querySelector('.header');
+        const progress = container && container.querySelector('.progress-bar-container');
+        const content = container && container.querySelector('.content');
+        const resetSection = container && container.querySelector('.reset-section');
+        const authSection = document.getElementById('auth-section');
+        if (!container || !header || !progress || !content || !resetSection || !authSection) return;
+
+        const account = document.createElement('button');
+        account.type = 'button';
+        account.className = 'account-btn';
+        account.innerHTML = personIcon();
+        account.setAttribute('aria-label', 'Open sign in');
+        account.addEventListener('click', toggleAccountPanel);
+        header.appendChild(account);
+
+        const interactionHint = document.createElement('div');
+        interactionHint.className = 'interaction-hint';
+        interactionHint.id = 'interactionHint';
+        interactionHint.innerHTML = '<span>Tap a step to see instructions</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6.5 9 5.5 5.5L17.5 9" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+        try {
+            interactionHint.hidden = localStorage.getItem('holy-spirit-accordion-hint-seen') === 'true';
+        } catch (error) {}
+        progress.appendChild(interactionHint);
+
+        progress.insertAdjacentElement('afterend', authSection);
+        createAccordion(content, resetSection);
+
+        setOpenStep(null);
+        syncAccountButton(window._supabaseUser || null);
+        syncAccordion();
+
+        const observer = new MutationObserver(function () {
+            syncAccordion();
+        });
+        observer.observe(content, {
+            subtree: true,
+            childList: true,
+            attributes: true,
+            attributeFilter: ['class']
+        });
+
+        window.addEventListener('i18n:ready', syncAccordion);
+    }
+
+    const originalResetAll = window.resetAll;
+    window.resetAll = function () {
+        originalResetAll();
+        syncAccordion();
+        closeExpandedBible();
+        setOpenStep(null);
+    };
+
+    const originalUpdateAuthUI = window.updateAuthUI;
+    window.updateAuthUI = function (user) {
+        originalUpdateAuthUI(user);
+        syncAccountButton(user);
+    };
+
+    window.updateProgress = updateAccordionProgress;
+    window.openAuthPanel = toggleAccountPanel;
+    window.closeAuthPanel = closeAccountPanel;
+
+    document.addEventListener('DOMContentLoaded', enhanceLayout, { once: true });
+})();
+</script></body>
 </html>
