@@ -14,15 +14,11 @@
 <meta content="#000000" name="theme-color"/>
 <meta content="Obey Tools" name="apple-mobile-web-app-title"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<link href="https://fonts.googleapis.com" rel="preconnect"/>
-<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&amp;display=swap" rel="stylesheet"/>
 <script type="module">
         import { supabase } from './supabase.js';
         window.supabase = supabase;
     </script>
 <title>Be Baptized</title>
-
 <script src="/i18n.js" type="module"></script>
 <script defer="" src="/pwa.js"></script>
 <style>
@@ -149,13 +145,13 @@ button {
 .header h1 {
     min-width: 0;
     margin: 0;
-    color: var(--brand-green);
-    font-family: "Bebas Neue", Impact, sans-serif;
-    font-size: 31px;
-    line-height: 1;
-    font-weight: 400;
-    letter-spacing: 1.5px;
-    -webkit-text-stroke: 1.35px #000;
+    color: #000;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
+    font-size: 22px;
+    line-height: 1.1;
+    font-weight: 800;
+    letter-spacing: 0.75px;
+    text-transform: uppercase;
 }
 
 .header .scripture {
@@ -166,7 +162,6 @@ button {
     font-weight: 600;
 }
 
-.settings-btn,
 .account-btn {
     position: absolute;
     top: 19px;
@@ -182,15 +177,11 @@ button {
     cursor: pointer;
 }
 
-.settings-btn {
+
+.account-btn {
     right: 14px;
 }
 
-.account-btn {
-    right: 56px;
-}
-
-.settings-btn svg,
 .account-btn svg {
     width: 20px;
     height: 20px;
@@ -422,24 +413,8 @@ button {
     font-weight: 650;
 }
 
-.accordion-assignment:empty {
-    display: none;
-}
 
-.accordion-assignment {
-    margin-top: 12px;
-}
 
-.assignment-badge {
-    display: inline-block;
-    padding: 6px 10px;
-    border-radius: 8px;
-    background: rgba(0,122,255,0.11);
-    color: #0066d6;
-    font-size: 13px;
-    line-height: 1.2;
-    font-weight: 750;
-}
 
 .guide-label {
     margin-top: 18px;
@@ -479,6 +454,30 @@ button {
     line-height: 1.5;
 }
 
+
+.conversation-box-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 7px;
+    color: #05784e;
+    font-size: 15px;
+    line-height: 1.35;
+    font-weight: 750;
+    text-decoration: none;
+}
+
+.conversation-box-link:hover,
+.conversation-box-link:focus-visible {
+    text-decoration: underline;
+}
+
+.conversation-box-link:focus-visible {
+    outline: 2px solid rgba(0, 208, 132, 0.35);
+    outline-offset: 3px;
+    border-radius: 4px;
+}
+
 .guide-action-row {
     margin-top: 17px;
     display: grid;
@@ -487,8 +486,6 @@ button {
 
 .complete-step-btn,
 .guide-secondary-btn,
-.generate-btn,
-.copy-btn,
 .btn,
 .auth-buttons button,
 .auth-logout-btn,
@@ -504,8 +501,7 @@ button {
     cursor: pointer;
 }
 
-.complete-step-btn,
-.generate-btn {
+.complete-step-btn {
     background: var(--brand-green);
     color: #fff;
 }
@@ -523,7 +519,6 @@ button {
     color: var(--text);
 }
 
-.copy-btn,
 .auth-buttons .auth-btn-primary {
     background: var(--blue);
     color: #fff;
@@ -612,9 +607,8 @@ button {
     color: var(--text);
 }
 
-/* Account and settings are inline panels. They increase document height. */
-.auth-section,
-.modal-overlay {
+/* Account panel expands the document instead of creating an inner scroll area. */
+.auth-section {
     display: none;
     width: auto;
     margin: 0 16px 8px;
@@ -625,13 +619,11 @@ button {
     border-radius: 16px;
 }
 
-.auth-section.open,
-.modal-overlay.active {
+.auth-section.open {
     display: block;
 }
 
-.auth-section input,
-.assignment-input {
+.auth-section input {
     width: 100%;
     min-width: 0;
     min-height: 46px;
@@ -645,14 +637,12 @@ button {
     outline: none;
 }
 
-.auth-section input:focus,
-.assignment-input:focus {
+.auth-section input:focus {
     border-color: var(--brand-green);
     box-shadow: 0 0 0 3px rgba(0,208,132,0.12);
 }
 
-.auth-buttons,
-.toggle-group {
+.auth-buttons {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 9px;
@@ -672,71 +662,14 @@ button {
     font-size: 15px;
 }
 
-.modal-content {
-    width: 100%;
-    max-width: none;
-    padding: 0;
-    background: transparent;
-}
 
-.modal-header {
-    margin: 0 0 15px;
-    color: var(--text);
-    font-size: 21px;
-    line-height: 1.2;
-    font-weight: 800;
-}
 
-.modal-section {
-    margin-bottom: 16px;
-}
 
-.modal-label {
-    display: block;
-    margin-bottom: 8px;
-    color: var(--text);
-    font-size: 15px;
-    font-weight: 750;
-}
 
-.toggle-btn {
-    min-height: 44px;
-    padding: 10px 12px;
-    border: 1px solid #c7c7cc;
-    border-radius: 10px;
-    background: #fff;
-    color: var(--text);
-    font-size: 15px;
-    font-weight: 700;
-    cursor: pointer;
-}
 
-.toggle-btn.active {
-    border-color: var(--brand-green);
-    background: rgba(0,208,132,0.13);
-    color: #05784e;
-}
 
-.link-display {
-    display: none;
-    margin-top: 12px;
-    padding: 12px;
-    overflow-wrap: anywhere;
-    background: #fff;
-    border-radius: 10px;
-    color: var(--muted);
-    font-size: 13px;
-}
 
-.link-display.show,
-.copy-btn.show {
-    display: block;
-}
 
-.copy-btn {
-    display: none;
-    margin-top: 9px;
-}
 
 /* Vision uses a lightweight overlay. Its content has no internal scroll. */
 .popup-overlay {
@@ -829,19 +762,15 @@ button {
 
     .header {
         padding-left: 60px;
-        padding-right: 96px;
+        padding-right: 60px;
     }
 
     .header-icon {
         left: 13px;
     }
 
-    .settings-btn {
-        right: 9px;
-    }
-
     .account-btn {
-        right: 51px;
+        right: 9px;
     }
 
     .accordion-overview {
@@ -903,9 +832,9 @@ button {
 </div>
 </div>
 <div class="header">
-<button class="settings-btn" onclick="openSettings()">⚙️</button>
+
 <img alt="Command Icon" class="header-icon" src="assets/images/header/be-baptized-header.webp"/>
-<h1 data-i18n="be_baptized.title">Be Baptized</h1>
+<h1 data-i18n="be_baptized.title">BE BAPTIZED</h1>
 <div class="scripture" data-i18n="be_baptized.scripture">Command: Matt. 28:19 | Story: Acts 8:26–39</div>
 </div>
 <div class="progress-bar-container">
@@ -914,40 +843,36 @@ button {
 </div>
 <div class="content">
 <div class="section-divider"><div class="section-divider-line"></div><div class="section-divider-text" data-i18n="common.look_back">Look Back</div><div class="section-divider-line"></div></div>
-<div class="card" data-assignment-key="care" data-card="care" data-section="lookback" onclick="toggleCard(this)">
+<div class="card" data-card="care" onclick="toggleCard(this)">
 <div class="card-content">
 <div class="card-icon care-icon"></div>
-<div class="card-text"><div class="card-title" data-i18n="common.care_title">Care &amp; Prayer</div><div class="card-description" data-i18n="common.care_desc">Everyone shares briefly how they are doing. Pray if appropriate.</div><div class="assignment-badge-container"></div></div>
-
+<div class="card-text"><div class="card-title" data-i18n="common.care_title">Care &amp; Prayer</div><div class="card-description" data-i18n="common.care_desc">Everyone shares briefly how they are doing. Pray if appropriate.</div></div>
 </div>
 </div>
-<div class="card" data-assignment-key="worship" data-card="worship" data-section="lookback" onclick="toggleCard(this)">
+<div class="card" data-card="worship" onclick="toggleCard(this)">
 <div class="card-content">
 <div class="card-icon worship-icon"></div>
-<div class="card-text"><div class="card-title" data-i18n="common.worship_title">Worship</div><div class="card-description" data-i18n="common.worship_desc">Praise God • Give to Needs • Lord's Supper</div><div class="assignment-badge-container"></div></div>
-
+<div class="card-text"><div class="card-title" data-i18n="common.worship_title">Worship</div><div class="card-description" data-i18n="common.worship_desc">Praise God • Give to Needs • Lord's Supper</div></div>
 </div>
 </div>
-<div class="card" data-assignment-key="accountability" data-card="accountability" data-section="lookback" onclick="toggleCard(this)">
+<div class="card" data-card="accountability" onclick="toggleCard(this)">
 <div class="card-content">
 <div class="card-icon accountability-icon"></div>
-<div class="card-text"><div class="card-title" data-i18n="common.accountability_title">Loving Accountability</div><div class="card-description" data-i18n="common.accountability_desc">Follow: Share how you obeyed. Fish: Share who you shared with.</div><div class="assignment-badge-container"></div></div>
-
+<div class="card-text"><div class="card-title" data-i18n="common.accountability_title">Loving Accountability</div><div class="card-description" data-i18n="common.accountability_desc">Follow: Share how you obeyed. Fish: Share who you shared with.</div></div>
 </div>
 </div>
-<div class="card" data-assignment-key="vision" data-card="vision" data-section="lookback" onclick="toggleCard(this)">
+<div class="card" data-card="vision" onclick="toggleCard(this)">
 <div class="card-content">
 <div class="card-icon vision-icon"></div>
-<div class="card-text"><div class="card-title"><span data-i18n="common.vision_title">Vision: Acts 2 Church Circle</span> <span class="view-link" data-i18n="common.vision_view" onclick="event.stopPropagation(); showVisionPopup()">(View)</span></div><div class="card-description" data-i18n="common.vision_ref">Acts 2:36-47</div><div class="assignment-badge-container"></div></div>
-
+<div class="card-text"><div class="card-title"><span data-i18n="common.vision_title">Vision: Acts 2 Church Circle</span> <span class="view-link" data-i18n="common.vision_view" onclick="event.stopPropagation(); showVisionPopup()">(View)</span></div><div class="card-description" data-i18n="common.vision_ref">Acts 2:36-47</div></div>
 </div>
 </div>
 <div class="section-divider"><div class="section-divider-line"></div><div class="section-divider-text" data-i18n="common.look_up">Look Up</div><div class="section-divider-line"></div></div>
-<div class="card step-card" data-assignment-key="lookup" data-card="teaching" data-section="lookup">
+<div class="card step-card" data-card="teaching">
 <div class="card-content" style="flex-direction: column; align-items: stretch;">
 <div style="display: flex; align-items: center; gap: 16px;">
 <div class="card-icon discover-icon"></div>
-<div class="card-text"><div class="card-title" data-i18n="common.new_teaching">New Teaching From Scripture</div><div class="card-description" data-i18n="be_baptized.teaching_ref">Matt. 28:19 | Acts 8:26-39</div><div class="assignment-badge-container"></div></div>
+<div class="card-text"><div class="card-title" data-i18n="common.new_teaching">New Teaching From Scripture</div><div class="card-description" data-i18n="be_baptized.teaching_ref">Matt. 28:19 | Acts 8:26-39</div></div>
 </div>
 <div class="step-indicators">
 <div style="flex: 1;"><div class="step-dot" data-step="1" onclick="event.stopPropagation(); toggleStep(this, 'teaching')">1</div><div class="step-label" data-i18n="common.step_read_command">Read Command &amp; Tell Story</div></div>
@@ -975,27 +900,27 @@ button {
 </div>
 </div>
 </div>
-<div class="card" data-assignment-key="lookup" data-card="discuss-god" data-section="lookup" onclick="toggleCard(this)">
-<div class="card-content"><div class="card-icon discover-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.discuss_god_title">What do we learn about God?</div><div class="assignment-badge-container"></div></div></div>
+<div class="card" data-card="discuss-god" onclick="toggleCard(this)">
+<div class="card-content"><div class="card-icon discover-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.discuss_god_title">What do we learn about God?</div></div></div>
 </div>
-<div class="card" data-assignment-key="lookup" data-card="discuss-people" data-section="lookup" onclick="toggleCard(this)">
-<div class="card-content"><div class="card-icon discover-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.discuss_people_title">What do we learn about people?</div><div class="assignment-badge-container"></div></div></div>
+<div class="card" data-card="discuss-people" onclick="toggleCard(this)">
+<div class="card-content"><div class="card-icon discover-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.discuss_people_title">What do we learn about people?</div></div></div>
 </div>
-<div class="card" data-assignment-key="lookup" data-card="pray-listen" data-section="lookup" onclick="toggleCard(this)">
-<div class="card-content"><div class="card-icon discover-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.pray_listen_title">Pause — Pray and Listen</div><div class="assignment-badge-container"></div></div></div>
+<div class="card" data-card="pray-listen" onclick="toggleCard(this)">
+<div class="card-content"><div class="card-icon discover-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.pray_listen_title">Pause — Pray and Listen</div></div></div>
 </div>
-<div class="card" data-assignment-key="lookup" data-card="discuss-obey" data-section="lookup" onclick="toggleCard(this)">
-<div class="card-content"><div class="card-icon discover-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.how_obey_title">How will you obey the story?</div><div class="card-description" data-i18n="common.how_obey_desc">Share how you will obey.</div><div class="assignment-badge-container"></div></div></div>
+<div class="card" data-card="discuss-obey" onclick="toggleCard(this)">
+<div class="card-content"><div class="card-icon discover-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.how_obey_title">How will you obey the story?</div><div class="card-description" data-i18n="common.how_obey_desc">Share how you will obey.</div></div></div>
 </div>
 <div class="section-divider"><div class="section-divider-line"></div><div class="section-divider-text" data-i18n="common.look_forward">Look Forward</div><div class="section-divider-line"></div></div>
-<div class="card" data-assignment-key="practice" data-card="practice" data-section="lookforward" onclick="toggleCard(this)">
-<div class="card-content"><div class="card-icon practice-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.practice_3circles_title">Practice: 3 Circles</div><div class="card-description" data-i18n="common.practice_3circles_desc">Practice the 3 Circles gospel tool.</div><div class="assignment-badge-container"></div></div></div>
+<div class="card" data-card="practice" onclick="toggleCard(this)">
+<div class="card-content"><div class="card-icon practice-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.practice_3circles_title">Practice: 3 Circles</div><div class="card-description" data-i18n="common.practice_3circles_desc">Practice the 3 Circles gospel tool.</div></div></div>
 </div>
-<div class="card" data-assignment-key="goals" data-card="goals" data-section="lookforward" onclick="toggleCard(this)">
-<div class="card-content"><div class="card-icon accountability-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.set_goals_title">Set Goals</div><div class="card-description" data-i18n="common.set_goals_desc">Follow: What is Jesus asking you to obey? Fish: Who needs to hear this story?</div><div class="assignment-badge-container"></div></div></div>
+<div class="card" data-card="goals" onclick="toggleCard(this)">
+<div class="card-content"><div class="card-icon accountability-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.set_goals_title">Set Goals</div><div class="card-description" data-i18n="common.set_goals_desc">Follow: What is Jesus asking you to obey? Fish: Who needs to hear this story?</div></div></div>
 </div>
-<div class="card" data-assignment-key="commission" data-card="commission" data-section="lookforward" onclick="toggleCard(this)">
-<div class="card-content"><div class="card-icon pray-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.commission_title">Commission with Prayer</div><div class="card-description" data-i18n="common.commission_desc">Pray together.</div><div class="assignment-badge-container"></div></div></div>
+<div class="card" data-card="commission" onclick="toggleCard(this)">
+<div class="card-content"><div class="card-icon pray-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.commission_title">Commission with Prayer</div><div class="card-description" data-i18n="common.commission_desc">Pray together.</div></div></div>
 </div>
 </div>
 <div class="reset-section"><button class="btn" data-i18n="common.reset" onclick="resetAll()">RESET</button></div>
@@ -1007,64 +932,137 @@ button {
 <div class="popup-text" data-i18n="common.vision_popup_text">Read Acts 2:36-47. Be a part of a church and start a church</div>
 </div>
 </div>
-<div class="modal-overlay" id="settingsModal">
-<div class="modal-content" onclick="event.stopPropagation()">
-<div class="modal-header">Assignment Settings</div>
-<div class="modal-section"><label class="modal-label">Assignment Mode</label><div class="toggle-group"><button class="toggle-btn active" id="sectionBtn" onclick="setAssignmentMode('section')">By Section</button><button class="toggle-btn" id="componentBtn" onclick="setAssignmentMode('component')">By Component</button></div></div>
-<div id="assignmentInputs"></div>
-<button class="generate-btn" onclick="generateLink()">Generate Share Link</button>
-<div class="link-display" id="linkDisplay"></div>
-<button class="copy-btn" id="copyBtn" onclick="copyLink()">Copy Link</button>
-<button class="btn" onclick="closeSettings()" style="margin-top: 16px;">Close</button>
-</div>
-</div>
+
 <script>
-        let assignmentMode = 'section', assignments = {}, sessionId = '';
         let storageKey = 'command-be-baptized-progress';
         let completedCards = [], stepProgress = {};
-        const sectionAssignments = { 'lookback': 'section_keys.lookback', 'lookup': 'section_keys.lookup', 'lookforward': 'section_keys.lookforward' };
-        const componentAssignments = { 'care': 'component_keys.care', 'worship': 'component_keys.worship', 'accountability': 'component_keys.accountability', 'vision': 'component_keys.vision', 'lookup': 'component_keys.lookup', 'practice': 'component_keys.practice', 'goals': 'component_keys.goals', 'commission': 'component_keys.commission' };
-        function initializeFromURL() { const hash = window.location.hash.substring(1); if (hash) { try { const data = JSON.parse(atob(hash)); assignmentMode = data.mode || 'section'; assignments = data.assignments || {}; sessionId = data.sessionId || ''; if (sessionId) storageKey = 'command-be-baptized-progress-' + sessionId; } catch(e) {} } completedCards = JSON.parse(localStorage.getItem(storageKey)) || []; stepProgress = JSON.parse(localStorage.getItem(storageKey + '-steps')) || {}; displayAssignments(); }
-        function displayAssignments() { document.querySelectorAll('[data-assignment-key]').forEach(function(card) { const key = card.dataset.assignmentKey, section = card.dataset.section; let name = assignmentMode === 'section' ? (assignments[section] || '') : (assignments[key] || ''); const c = card.querySelector('.assignment-badge-container'); if (c) c.innerHTML = name ? '<div class="assignment-badge">' + name + '</div>' : ''; }); }
-        function openSettings() { document.getElementById('settingsModal').classList.add('active'); renderAssignmentInputs(); }
-        function closeSettings() { document.getElementById('settingsModal').classList.remove('active'); }
-        function setAssignmentMode(mode) { assignmentMode = mode; document.getElementById('sectionBtn').classList.toggle('active', mode === 'section'); document.getElementById('componentBtn').classList.toggle('active', mode === 'component'); renderAssignmentInputs(); }
-        function renderAssignmentInputs() { const c = document.getElementById('assignmentInputs'); const list = assignmentMode === 'section' ? sectionAssignments : componentAssignments; let html = '<div class="modal-section"><label class="modal-label">' + window.t('settings.assign_names') + '</label>'; Object.keys(list).forEach(function(k) { html += '<input type="text" class="assignment-input" placeholder="' + window.t(list[k]) + '" value="' + (assignments[k] || '') + '" onchange="updateAssignment(\'' + k + '\', this.value)">'; }); html += '</div>'; c.innerHTML = html; }
-        function updateAssignment(key, value) { if (value.trim()) assignments[key] = value.trim(); else delete assignments[key]; }
-        function generateLink() { if (!sessionId) sessionId = 'session-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9); const encoded = btoa(JSON.stringify({ mode: assignmentMode, assignments: assignments, sessionId: sessionId })); const url = window.location.origin + window.location.pathname + '#' + encoded; document.getElementById('linkDisplay').textContent = url; document.getElementById('linkDisplay').classList.add('show'); document.getElementById('copyBtn').classList.add('show'); storageKey = 'command-be-baptized-progress-' + sessionId; displayAssignments(); }
-        function copyLink() { navigator.clipboard.writeText(document.getElementById('linkDisplay').textContent).then(function() { showNotification('Link copied to clipboard!'); }); }
-        function saveProgress() { localStorage.setItem(storageKey, JSON.stringify(completedCards)); localStorage.setItem(storageKey + '-steps', JSON.stringify(stepProgress)); updateProgress(); }
-        function toggleCard(card) { const id = card.dataset.card; if (card.classList.contains('completed')) { card.classList.remove('completed'); completedCards = completedCards.filter(function(i) { return i !== id; }); } else { card.classList.add('completed'); completedCards.push(id); } saveProgress(); }
-        function toggleStep(dot, cardId) { const step = dot.dataset.step, card = dot.closest('.card'); if (!stepProgress[cardId]) stepProgress[cardId] = []; if (stepProgress[cardId].includes(step)) { stepProgress[cardId] = stepProgress[cardId].filter(function(s) { return s !== step; }); dot.classList.remove('completed'); } else { stepProgress[cardId].push(step); dot.classList.add('completed'); } if (stepProgress[cardId].length === 3) { if (!completedCards.includes(cardId)) { completedCards.push(cardId); card.classList.add('completed'); } } else { completedCards = completedCards.filter(function(i) { return i !== cardId; }); card.classList.remove('completed'); } saveProgress(); }
-        function updateProgress() { const total = document.querySelectorAll('.card:not(.step-card)').length + 1, completed = completedCards.length; document.getElementById('progressFill').style.width = (completed / total * 100) + '%'; document.getElementById('progressText').textContent = completed + ' of ' + total + ' completed'; if (completed === total) showNotification('Study complete! 🎉'); }
-        function resetAll() { if (confirm(window.t('common.reset_confirm'))) { completedCards = []; stepProgress = {}; localStorage.removeItem(storageKey); localStorage.removeItem(storageKey + '-steps'); document.querySelectorAll('.card').forEach(function(c) { c.classList.remove('completed'); }); document.querySelectorAll('.step-dot').forEach(function(d) { d.classList.remove('completed'); }); updateProgress(); showNotification(window.t('common.progress_reset')); } }
-        function showNotification(msg) { const n = document.createElement('div'); n.className = 'notification'; n.textContent = msg; document.body.appendChild(n); setTimeout(function() { n.remove(); }, 3000); }
-        function showVisionPopup() { document.getElementById('visionPopup').classList.add('active'); }
-        function closeVisionPopup() { document.getElementById('visionPopup').classList.remove('active'); }
-        window.addEventListener('DOMContentLoaded', function() { initializeFromURL(); completedCards.forEach(function(id) { const c = document.querySelector('[data-card="' + id + '"]'); if (c) c.classList.add('completed'); }); Object.keys(stepProgress).forEach(function(id) { stepProgress[id].forEach(function(s) { const d = document.querySelector('[data-card="' + id + '"] [data-step="' + s + '"]'); if (d) d.classList.add('completed'); }); }); window.addEventListener('i18n:ready', updateProgress, { once: true }); });
-        document.addEventListener('click', function(e) { if (e.target.classList.contains('modal-overlay')) closeSettings(); if (e.target.classList.contains('popup-overlay')) closeVisionPopup(); });
-        function toggleBible(e) { e.stopPropagation(); const accordion = document.getElementById('bible-accordion'); const isOpen = accordion.classList.toggle('open'); document.querySelectorAll('.bible-btn').forEach(btn => btn.classList.toggle('open', isOpen)); }
+
+        function initializeProgress() {
+            completedCards = JSON.parse(localStorage.getItem(storageKey)) || [];
+            stepProgress = JSON.parse(localStorage.getItem(storageKey + '-steps')) || {};
+        }
+
+        function saveProgress() {
+            localStorage.setItem(storageKey, JSON.stringify(completedCards));
+            localStorage.setItem(storageKey + '-steps', JSON.stringify(stepProgress));
+            updateProgress();
+        }
+
+        function toggleCard(card) {
+            const id = card.dataset.card;
+            if (card.classList.contains('completed')) {
+                card.classList.remove('completed');
+                completedCards = completedCards.filter(function(i) { return i !== id; });
+            } else {
+                card.classList.add('completed');
+                completedCards.push(id);
+            }
+            saveProgress();
+        }
+
+        function toggleStep(dot, cardId) {
+            const step = dot.dataset.step;
+            const card = dot.closest('.card');
+            if (!stepProgress[cardId]) stepProgress[cardId] = [];
+
+            if (stepProgress[cardId].includes(step)) {
+                stepProgress[cardId] = stepProgress[cardId].filter(function(s) { return s !== step; });
+                dot.classList.remove('completed');
+            } else {
+                stepProgress[cardId].push(step);
+                dot.classList.add('completed');
+            }
+
+            if (stepProgress[cardId].length === 3) {
+                if (!completedCards.includes(cardId)) {
+                    completedCards.push(cardId);
+                    card.classList.add('completed');
+                }
+            } else {
+                completedCards = completedCards.filter(function(i) { return i !== cardId; });
+                card.classList.remove('completed');
+            }
+            saveProgress();
+        }
+
+        function updateProgress() {
+            const total = document.querySelectorAll('.card:not(.step-card)').length + 1;
+            const completed = completedCards.length;
+            document.getElementById('progressFill').style.width = (completed / total * 100) + '%';
+            document.getElementById('progressText').textContent = completed + ' of ' + total + ' completed';
+            if (completed === total) showNotification('Study complete! 🎉');
+        }
+
+        function resetAll() {
+            if (confirm(window.t('common.reset_confirm'))) {
+                completedCards = [];
+                stepProgress = {};
+                localStorage.removeItem(storageKey);
+                localStorage.removeItem(storageKey + '-steps');
+                document.querySelectorAll('.card').forEach(function(c) { c.classList.remove('completed'); });
+                document.querySelectorAll('.step-dot').forEach(function(d) { d.classList.remove('completed'); });
+                updateProgress();
+                showNotification(window.t('common.progress_reset'));
+            }
+        }
+
+        function showNotification(msg) {
+            const n = document.createElement('div');
+            n.className = 'notification';
+            n.textContent = msg;
+            document.body.appendChild(n);
+            setTimeout(function() { n.remove(); }, 3000);
+        }
+
+        function showVisionPopup() {
+            document.getElementById('visionPopup').classList.add('active');
+        }
+
+        function closeVisionPopup() {
+            document.getElementById('visionPopup').classList.remove('active');
+        }
+
+        function toggleBible(e) {
+            e.stopPropagation();
+            const accordion = document.getElementById('bible-accordion');
+            const isOpen = accordion.classList.toggle('open');
+            document.querySelectorAll('.bible-btn').forEach(function(btn) {
+                btn.classList.toggle('open', isOpen);
+            });
+        }
+
         function updateAuthUI(user) {
             window._supabaseUser = user;
             document.getElementById('auth-section').style.visibility = 'visible';
             const form = document.getElementById('auth-form');
             const status = document.getElementById('auth-status');
             const text = document.getElementById('auth-status-text');
-            if (user) { form.style.display = 'none'; status.style.display = 'flex'; text.textContent = 'Signed in as ' + user.email; }
-            else { form.style.display = 'block'; status.style.display = 'none'; text.textContent = 'Not signed in'; }
+            if (user) {
+                form.style.display = 'none';
+                status.style.display = 'flex';
+                text.textContent = 'Signed in as ' + user.email;
+            } else {
+                form.style.display = 'block';
+                status.style.display = 'none';
+                text.textContent = 'Not signed in';
+            }
         }
+
         async function authSignUp() {
             const email = document.getElementById('auth-email').value.trim();
             const password = document.getElementById('auth-password').value;
             const { error } = await window.supabase.auth.signUp({ email, password });
-            if (error) showNotification(error.message); else showNotification('Check your email to confirm sign up.');
+            if (error) showNotification(error.message);
+            else showNotification('Check your email to confirm sign up.');
         }
+
         async function authLogIn() {
             const email = document.getElementById('auth-email').value.trim();
             const password = document.getElementById('auth-password').value;
             const { error } = await window.supabase.auth.signInWithPassword({ email, password });
             if (error) showNotification(error.message);
         }
+
         async function authLogOut() {
             const { error } = await window.supabase.auth.signOut();
             if (error) showNotification(error.message);
@@ -1072,21 +1070,48 @@ button {
 
         async function authForgotPassword() {
             const emailEl = document.getElementById('auth-email');
-            const email   = emailEl ? emailEl.value.trim() : '';
-            if (!email) { showNotification('Enter your email address first.'); return; }
+            const email = emailEl ? emailEl.value.trim() : '';
+            if (!email) {
+                showNotification('Enter your email address first.');
+                return;
+            }
             const { error } = await window.supabase.auth.resetPasswordForEmail(email, {
                 redirectTo: window.location.origin + '/reset-password.html'
             });
             if (error) showNotification(error.message);
-            else       showNotification('Password reset email sent — check your inbox.');
+            else showNotification('Password reset email sent — check your inbox.');
         }
-        document.addEventListener('DOMContentLoaded', () => {
+
+        window.addEventListener('DOMContentLoaded', function() {
+            initializeProgress();
+            completedCards.forEach(function(id) {
+                const c = document.querySelector('[data-card="' + id + '"]');
+                if (c) c.classList.add('completed');
+            });
+            Object.keys(stepProgress).forEach(function(id) {
+                stepProgress[id].forEach(function(s) {
+                    const d = document.querySelector('[data-card="' + id + '"] [data-step="' + s + '"]');
+                    if (d) d.classList.add('completed');
+                });
+            });
+            window.addEventListener('i18n:ready', updateProgress, { once: true });
+        });
+
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('popup-overlay')) closeVisionPopup();
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
             if (window.supabase) {
-                window.supabase.auth.getSession().then(({ data: { session } }) => { updateAuthUI(session?.user ?? null); });
-                window.supabase.auth.onAuthStateChange((_event, session) => { updateAuthUI(session?.user ?? null); });
+                window.supabase.auth.getSession().then(function(result) {
+                    updateAuthUI(result.data.session ? result.data.session.user : null);
+                });
+                window.supabase.auth.onAuthStateChange(function(_event, session) {
+                    updateAuthUI(session ? session.user : null);
+                });
             }
         });
-    </script>
+</script>
 <script id="clean-accordion-controller">
 (function () {
     const sections = [
@@ -1134,7 +1159,7 @@ button {
             intro: 'Look back with honesty and encouragement. This is about obedience, not shame.',
             flow: [
                 ['Follow', 'How did you obey what Jesus showed you last time?'],
-                ['Fish', 'Who did you share with, and what happened?']
+                ['Fish', 'Who did you share with, and what happened?<br><a class="conversation-box-link" href="https://obey.tools/conversation-box.html" target="_blank" rel="noopener">Open Conversation Box <span aria-hidden="true">↗</span></a>']
             ]
         },
         {
@@ -1214,10 +1239,6 @@ button {
     let accordionRoot = null;
     let openStepNumber = null;
 
-    function gearIcon() {
-        return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.7 2.8h4.6l.6 2.1c.4.2.8.4 1.2.7l2.1-.6 2.3 4-1.5 1.5c.1.5.1 1 0 1.5l1.5 1.5-2.3 4-2.1-.6c-.4.3-.8.5-1.2.7l-.6 2.1H9.7l-.6-2.1c-.4-.2-.8-.4-1.2-.7l-2.1.6-2.3-4L5 12c-.1-.5-.1-1 0-1.5L3.5 9l2.3-4 2.1.6c.4-.3.8-.5 1.2-.7l.6-2.1Zm2.3 5.5a3.7 3.7 0 1 0 0 7.4 3.7 3.7 0 0 0 0-7.4Z" fill="currentColor"/></svg>';
-    }
-
     function personIcon() {
         return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12.2a4.4 4.4 0 1 0 0-8.8 4.4 4.4 0 0 0 0 8.8Zm0 2.2c-4.7 0-8.1 2.6-8.1 6.2h16.2c0-3.6-3.4-6.2-8.1-6.2Z" fill="currentColor"/></svg>';
     }
@@ -1231,14 +1252,6 @@ button {
             const card = getUnderlyingCard(id);
             return card && card.classList.contains('completed');
         });
-    }
-
-    function assignmentMarkup(step) {
-        const source = getUnderlyingCard(step.primary);
-        const badge = source && source.querySelector('.assignment-badge-container .assignment-badge');
-        return badge
-            ? '<div class="accordion-assignment"><div class="assignment-badge">' + badge.textContent + '</div></div>'
-            : '<div class="accordion-assignment"></div>';
     }
 
     function flowMarkup(flow) {
@@ -1283,7 +1296,6 @@ button {
         panel.innerHTML =
             '<p class="guide-intro">' + step.intro + '</p>' +
             (step.reference ? '<div class="guide-reference">' + step.reference + '</div>' : '') +
-            assignmentMarkup(step) +
             flowMarkup(step.flow) +
             '<div class="guide-action-row"></div>';
 
@@ -1404,20 +1416,6 @@ button {
         }
     }
 
-    function syncAssignments() {
-        if (!accordionRoot) return;
-        steps.forEach(function (step) {
-            const item = accordionRoot.querySelector('.accordion-step[data-step="' + step.number + '"]');
-            if (!item) return;
-            const target = item.querySelector('.accordion-assignment');
-            const source = getUnderlyingCard(step.primary);
-            const badge = source && source.querySelector('.assignment-badge-container .assignment-badge');
-            if (target) {
-                target.innerHTML = badge ? '<div class="assignment-badge">' + badge.textContent + '</div>' : '';
-            }
-        });
-    }
-
     function syncAccordion() {
         if (!accordionRoot) return;
         let count = 0;
@@ -1436,7 +1434,6 @@ button {
         const text = document.getElementById('progressText');
         if (fill) fill.style.width = (count / 8 * 100) + '%';
         if (text) text.textContent = count + ' of 8 steps';
-        syncAssignments();
     }
 
     function updateAccordionProgress() {
@@ -1474,14 +1471,7 @@ button {
         const content = container && container.querySelector('.content');
         const resetSection = container && container.querySelector('.reset-section');
         const authSection = document.getElementById('auth-section');
-        const settingsModal = document.getElementById('settingsModal');
-        if (!container || !header || !progress || !content || !resetSection || !authSection || !settingsModal) return;
-
-        const settings = header.querySelector('.settings-btn');
-        if (settings) {
-            settings.innerHTML = gearIcon();
-            settings.setAttribute('aria-label', 'Open assignment settings');
-        }
+        if (!container || !header || !progress || !content || !resetSection || !authSection) return;
 
         const account = document.createElement('button');
         account.type = 'button';
@@ -1501,7 +1491,6 @@ button {
         progress.appendChild(interactionHint);
 
         progress.insertAdjacentElement('afterend', authSection);
-        authSection.insertAdjacentElement('afterend', settingsModal);
         createAccordion(content, resetSection);
 
         setOpenStep(null);
@@ -1527,11 +1516,6 @@ button {
         syncAccordion();
         closeExpandedBible();
         setOpenStep(null);
-    };
-
-    const originalCloseSettings = window.closeSettings;
-    window.closeSettings = function () {
-        originalCloseSettings();
     };
 
     const originalUpdateAuthUI = window.updateAuthUI;
