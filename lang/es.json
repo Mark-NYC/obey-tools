@@ -7,7 +7,17 @@
     "log_in": "Iniciar sesión",
     "log_out": "Cerrar sesión",
     "email_placeholder": "Correo electrónico",
-    "password_placeholder": "Contraseña"
+    "password_placeholder": "Contraseña",
+    "enter_email_password": "Primero ingresa tu correo y contraseña.",
+    "enter_email_first": "Primero ingresa tu correo electrónico.",
+    "already_registered": "Este correo ya tiene una cuenta. Toca «Iniciar sesión», o usa «¿Olvidaste tu contraseña?» si no la recuerdas.",
+    "signup_complete": "Cuenta creada: has iniciado sesión.",
+    "confirm_email_sent": "¡Casi listo! Enviamos un enlace de confirmación a {email}. Abre ese correo y toca el enlace para activar tu cuenta (revisa también el spam).",
+    "email_not_confirmed": "Tu correo aún no está confirmado, por eso no puedes iniciar sesión. Busca el correo de confirmación que te enviamos o reenvíalo abajo.",
+    "resend_confirmation": "Reenviar correo de confirmación",
+    "invalid_credentials": "Correo o contraseña incorrectos. Si olvidaste tu contraseña, toca «¿Olvidaste tu contraseña?» abajo para restablecerla.",
+    "reset_email_sent": "Correo para restablecer la contraseña enviado a {email}; revisa tu bandeja de entrada y el spam.",
+    "forgot_password": "¿Olvidaste tu contraseña?"
   },
   "nav": {
     "home": "Inicio",

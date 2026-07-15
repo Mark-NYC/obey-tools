@@ -17,6 +17,20 @@
 <script type="module">
         import { supabase } from './supabase.js';
         window.supabase = supabase;
+        import { authSignUp, authLogIn, authLogOut, authForgotPassword, initAuthSection } from './auth.js';
+        window.authSignUp = authSignUp;
+        window.authLogIn = authLogIn;
+        window.authLogOut = authLogOut;
+        window.authForgotPassword = authForgotPassword;
+        // Keep the collapsible account button (added by this page's layout script)
+        // in sync with auth state — it used to hook the inline updateAuthUI we replaced.
+        initAuthSection(function (session) {
+            const accountBtn = document.querySelector('.account-btn');
+            if (!accountBtn) return;
+            const signedIn = !!(session && session.user);
+            accountBtn.classList.toggle('signed-in', signedIn);
+            accountBtn.setAttribute('aria-label', signedIn ? 'Open signed-in account' : 'Open sign in');
+        });
     </script>
 <title>Love One Another</title>
 <script src="/i18n.js" type="module"></script>
@@ -821,10 +835,10 @@ button {
 <input data-i18n-placeholder="auth.email_placeholder" id="auth-email" placeholder="Email" type="email"/>
 <input data-i18n-placeholder="auth.password_placeholder" id="auth-password" placeholder="Password" type="password"/>
 <div class="auth-buttons">
-<button class="auth-btn-primary" data-i18n="auth.sign_up" onclick="authSignUp()">Sign Up</button>
-<button class="auth-btn-secondary" data-i18n="auth.log_in" onclick="authLogIn()">Log In</button>
+<button class="auth-btn-primary" data-i18n="auth.log_in" onclick="authLogIn()">Log In</button>
+<button class="auth-btn-secondary" data-i18n="auth.sign_up" onclick="authSignUp()">Sign Up</button>
 </div>
-<button onclick="authForgotPassword()" style="display:block;width:100%;margin-top:6px;padding:6px;background:none;border:none;color:#8e8e93;font-size:13px;cursor:pointer;text-align:center;font-family:inherit;" type="button">Forgot password?</button>
+<button type="button" class="auth-forgot-btn" data-i18n="auth.forgot_password" onclick="authForgotPassword()" style="display:block;width:100%;margin-top:6px;padding:6px;background:none;border:none;color:#8e8e93;font-size:13px;cursor:pointer;text-align:center;font-family:inherit;">Forgot password?</button>
 </div>
 <div class="auth-status" id="auth-status" style="display:none">
 <span class="auth-status-text" id="auth-status-text">Not signed in</span>
@@ -986,56 +1000,10 @@ button {
             });
         }
 
-        function updateAuthUI(user) {
-            window._supabaseUser = user;
-            document.getElementById('auth-section').style.visibility = 'visible';
-            const form = document.getElementById('auth-form');
-            const status = document.getElementById('auth-status');
-            const text = document.getElementById('auth-status-text');
-            if (user) {
-                form.style.display = 'none';
-                status.style.display = 'flex';
-                text.textContent = 'Signed in as ' + user.email;
-            } else {
-                form.style.display = 'block';
-                status.style.display = 'none';
-                text.textContent = 'Not signed in';
-            }
-        }
 
-        async function authSignUp() {
-            const email = document.getElementById('auth-email').value.trim();
-            const password = document.getElementById('auth-password').value;
-            const { error } = await window.supabase.auth.signUp({ email, password });
-            if (error) showNotification(error.message);
-            else showNotification('Check your email to confirm sign up.');
-        }
 
-        async function authLogIn() {
-            const email = document.getElementById('auth-email').value.trim();
-            const password = document.getElementById('auth-password').value;
-            const { error } = await window.supabase.auth.signInWithPassword({ email, password });
-            if (error) showNotification(error.message);
-        }
 
-        async function authLogOut() {
-            const { error } = await window.supabase.auth.signOut();
-            if (error) showNotification(error.message);
-        }
 
-        async function authForgotPassword() {
-            const emailEl = document.getElementById('auth-email');
-            const email = emailEl ? emailEl.value.trim() : '';
-            if (!email) {
-                showNotification('Enter your email address first.');
-                return;
-            }
-            const { error } = await window.supabase.auth.resetPasswordForEmail(email, {
-                redirectTo: window.location.origin + '/reset-password.html'
-            });
-            if (error) showNotification(error.message);
-            else showNotification('Password reset email sent — check your inbox.');
-        }
 
         window.addEventListener('DOMContentLoaded', function() {
             initializeProgress();
@@ -1056,16 +1024,6 @@ button {
             if (e.target.classList.contains('popup-overlay')) closeVisionPopup();
         });
 
-        document.addEventListener('DOMContentLoaded', function() {
-            if (window.supabase) {
-                window.supabase.auth.getSession().then(function(result) {
-                    updateAuthUI(result.data.session ? result.data.session.user : null);
-                });
-                window.supabase.auth.onAuthStateChange(function(_event, session) {
-                    updateAuthUI(session ? session.user : null);
-                });
-            }
-        });
 </script>
 <script id="clean-accordion-controller">
 (function () {
