@@ -86,23 +86,41 @@ async function resolveRole(userId) {
     return role
 }
 
+// The status line is set imperatively (it needs email interpolation), so it is
+// NOT re-translated by i18n's applyTranslations() the way [data-i18n] nodes are.
+// A signed-in session restores from localStorage before the async i18n fetch
+// finishes, so t() would return the raw key ("auth.signed_in_as"). Split this
+// out so we can re-run it once i18n is ready.
+function refreshAuthStatusText() {
+    const text = document.getElementById('auth-status-text')
+    if (!text) return
+    const user = window._supabaseUser
+    text.textContent = user
+        ? t('auth.signed_in_as', { email: user.email })
+        : t('auth.not_signed_in')
+}
+
+// Re-apply the status text once translations have loaded. Covers the case where
+// auth state resolved before i18n:ready; harmless (idempotent) otherwise. Every
+// auth page imports this module — including conversation-box.html, whose custom
+// updateAuthUI also writes #auth-status-text — so this single listener fixes all.
+window.addEventListener('i18n:ready', refreshAuthStatusText)
+
 export function updateAuthUI(user) {
     window._supabaseUser = user
     const section = document.getElementById('auth-section')
     if (section) section.style.visibility = 'visible'
     const form   = document.getElementById('auth-form')
     const status = document.getElementById('auth-status')
-    const text   = document.getElementById('auth-status-text')
     if (!form || !status) return
     if (user) {
         form.style.display   = 'none'
         status.style.display = 'flex'
-        if (text) text.textContent = t('auth.signed_in_as', { email: user.email })
     } else {
         form.style.display   = 'block'
         status.style.display = 'none'
-        if (text) text.textContent = t('auth.not_signed_in')
     }
+    refreshAuthStatusText()
 }
 
 // Element-id arguments let a second form (e.g. inside an access-denied panel)
