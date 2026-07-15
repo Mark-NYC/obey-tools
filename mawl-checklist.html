@@ -1230,6 +1230,12 @@
     <div id="access-denied" class="access-denied">
         <div class="access-denied-msg" data-i18n="access.restricted">Access restricted.</div>
         <div class="access-denied-sub" data-i18n="access.leader_required">Leader approval required.</div>
+        <div id="denied-auth" style="width:100%;max-width:280px;margin:0 auto 20px;text-align:left;">
+            <input type="email" id="denied-email" placeholder="Email" data-i18n-placeholder="auth.email_placeholder" style="display:block;width:100%;padding:12px 14px;border:1px solid #c6c6c8;border-radius:10px;font-size:15px;background:#fff;outline:none;margin-bottom:10px;font-family:inherit;box-sizing:border-box;">
+            <input type="password" id="denied-password" placeholder="Password" data-i18n-placeholder="auth.password_placeholder" style="display:block;width:100%;padding:12px 14px;border:1px solid #c6c6c8;border-radius:10px;font-size:15px;background:#fff;outline:none;margin-bottom:10px;font-family:inherit;box-sizing:border-box;">
+            <button data-i18n="auth.log_in" onclick="authLogIn('denied-email','denied-password')" style="display:block;width:100%;padding:12px;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;background:#3a3a3c;color:#fff;">Log In</button>
+            <button type="button" class="auth-forgot-btn" data-i18n="auth.forgot_password" onclick="authForgotPassword('denied-email')" style="display:block;width:100%;margin-top:6px;padding:6px;background:none;border:none;color:#8e8e93;font-size:13px;cursor:pointer;text-align:center;font-family:inherit;">Forgot password?</button>
+        </div>
         <a href="index.html" class="access-denied-btn" data-i18n="access.go_home">Go to Home</a>
     </div>
 
@@ -1240,10 +1246,10 @@
                 <input type="email" id="auth-email" data-i18n-placeholder="auth.email_placeholder" placeholder="Email">
                 <input type="password" id="auth-password" data-i18n-placeholder="auth.password_placeholder" placeholder="Password">
                 <div class="auth-buttons">
-                    <button class="auth-btn-primary" onclick="authSignUp()" data-i18n="auth.sign_up">Sign Up</button>
-                    <button class="auth-btn-secondary" onclick="authLogIn()" data-i18n="auth.log_in">Log In</button>
+                    <button class="auth-btn-primary" data-i18n="auth.log_in" onclick="authLogIn()">Log In</button>
+                    <button class="auth-btn-secondary" data-i18n="auth.sign_up" onclick="authSignUp()">Sign Up</button>
                 </div>
-                <button type="button" style="display:block;width:100%;margin-top:6px;padding:6px;background:none;border:none;color:#8e8e93;font-size:13px;cursor:pointer;text-align:center;font-family:inherit;" onclick="authForgotPassword()">Forgot password?</button>
+            <button type="button" class="auth-forgot-btn" data-i18n="auth.forgot_password" onclick="authForgotPassword()" style="display:block;width:100%;margin-top:6px;padding:6px;background:none;border:none;color:#8e8e93;font-size:13px;cursor:pointer;text-align:center;font-family:inherit;">Forgot password?</button>
             </div>
             <div class="auth-status" id="auth-status" style="display:none">
                 <span class="auth-status-text" id="auth-status-text" data-i18n="auth.not_signed_in">Not signed in</span>

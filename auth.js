@@ -3,6 +3,9 @@
 import { supabase } from './supabase.js'
 import { t } from './i18n.js'
 
+// Where email confirmation links land after Supabase verifies them.
+const EMAIL_REDIRECT = window.location.origin + '/index.html'
+
 export function showNotification(message) {
     const el = document.createElement('div')
     el.className = 'notification'
@@ -11,18 +14,76 @@ export function showNotification(message) {
     setTimeout(() => el.remove(), 3000)
 }
 
+// Persistent, dismissible banner for auth feedback the user must not miss
+// (confirmation instructions, login errors). Styled inline so it works on
+// every page without per-page CSS. type: 'info' | 'success' | 'error'.
+export function showAuthMessage(message, { type = 'info', actionLabel, onAction } = {}) {
+    document.querySelectorAll('.auth-banner').forEach(el => el.remove())
+    const colors = { info: '#3a3a3c', success: '#00B884', error: '#ff3b30' }
+    const el = document.createElement('div')
+    el.className = 'auth-banner'
+    el.style.cssText =
+        'position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:10000;' +
+        'max-width:360px;width:calc(100% - 32px);background:#1c1c1e;color:#fff;' +
+        'padding:14px 40px 14px 16px;border-radius:14px;font-size:14px;line-height:1.45;' +
+        'box-shadow:0 6px 24px rgba(0,0,0,0.35);' +
+        'font-family:-apple-system,BlinkMacSystemFont,sans-serif;' +
+        'border-left:4px solid ' + (colors[type] || colors.info) + ';'
+
+    const text = document.createElement('div')
+    text.textContent = message
+    el.appendChild(text)
+
+    if (actionLabel && onAction) {
+        const act = document.createElement('button')
+        act.type = 'button'
+        act.textContent = actionLabel
+        act.style.cssText =
+            'margin-top:10px;padding:8px 14px;border:none;border-radius:8px;' +
+            'background:#00B884;color:#fff;font-weight:600;font-size:13px;' +
+            'cursor:pointer;font-family:inherit;'
+        act.addEventListener('click', () => { act.disabled = true; act.style.opacity = '0.6'; onAction() })
+        el.appendChild(act)
+    }
+
+    const close = document.createElement('button')
+    close.type = 'button'
+    close.setAttribute('aria-label', 'Dismiss')
+    close.textContent = '×'
+    close.style.cssText =
+        'position:absolute;top:6px;right:10px;background:none;border:none;' +
+        'color:#8e8e93;font-size:20px;cursor:pointer;line-height:1;font-family:inherit;'
+    close.addEventListener('click', () => el.remove())
+    el.appendChild(close)
+
+    document.body.appendChild(el)
+}
+
+// Returns 'leader' | 'user' | null. null means the lookup itself failed
+// (network / RLS error) — callers must not treat that as "not a leader".
 export async function fetchRole(userId) {
     const { data, error } = await supabase
         .from('profiles')
         .select('role')
         .eq('id', userId)
-        .single()
-    if (error && error.code === 'PGRST116') {
+        .maybeSingle()
+    if (error) return null
+    if (!data) {
         // Profile row missing — create with default role
         await supabase.from('profiles').insert({ id: userId, role: 'user' })
         return 'user'
     }
-    return data?.role ?? 'user'
+    return data.role ?? 'user'
+}
+
+async function resolveRole(userId) {
+    let role = await fetchRole(userId)
+    if (role === null) {
+        // Transient failure — retry once before giving up
+        await new Promise(r => setTimeout(r, 1500))
+        role = await fetchRole(userId)
+    }
+    return role
 }
 
 export function updateAuthUI(user) {
@@ -32,47 +93,97 @@ export function updateAuthUI(user) {
     const form   = document.getElementById('auth-form')
     const status = document.getElementById('auth-status')
     const text   = document.getElementById('auth-status-text')
+    if (!form || !status) return
     if (user) {
         form.style.display   = 'none'
         status.style.display = 'flex'
-        text.textContent     = t('auth.signed_in_as', { email: user.email })
+        if (text) text.textContent = t('auth.signed_in_as', { email: user.email })
     } else {
         form.style.display   = 'block'
         status.style.display = 'none'
-        text.textContent     = t('auth.not_signed_in')
-        if (form && !form.querySelector('.auth-forgot-btn')) {
-            const btn = document.createElement('button')
-            btn.type = 'button'
-            btn.className = 'auth-forgot-btn'
-            btn.textContent = 'Forgot password?'
-            btn.style.cssText = 'display:block;width:100%;margin-top:6px;padding:6px;background:none;border:none;color:#8e8e93;font-size:13px;cursor:pointer;text-align:center;font-family:inherit;'
-            btn.addEventListener('click', authForgotPassword)
-            form.appendChild(btn)
-        }
+        if (text) text.textContent = t('auth.not_signed_in')
     }
 }
 
-export async function authSignUp() {
-    const email    = document.getElementById('auth-email').value.trim()
-    const password = document.getElementById('auth-password').value
-    const { error } = await supabase.auth.signUp({ email, password })
+// Element-id arguments let a second form (e.g. inside an access-denied panel)
+// reuse these handlers. Non-string / missing values fall back to the default
+// form ids, so plain onclick="authLogIn()" keeps working.
+function fieldValue(id, fallback) {
+    if (typeof id !== 'string' || !id) id = fallback
+    return document.getElementById(id)?.value ?? ''
+}
+
+export async function authSignUp(emailId, passwordId) {
+    const email    = fieldValue(emailId, 'auth-email').trim()
+    const password = fieldValue(passwordId, 'auth-password')
+    if (!email || !password) {
+        showAuthMessage(t('auth.enter_email_password'), { type: 'error' })
+        return
+    }
+    const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { emailRedirectTo: EMAIL_REDIRECT }
+    })
     if (error) {
         const msg = error.message.toLowerCase()
         if (msg.includes('already registered') || msg.includes('already been registered')) {
-            showNotification('Email already registered — try Log In or click Forgot Password.')
+            showAuthMessage(t('auth.already_registered'), { type: 'error' })
         } else {
-            showNotification(error.message)
+            showAuthMessage(error.message, { type: 'error' })
         }
+        return
+    }
+    // With email confirmation enabled, Supabase anti-enumeration makes signUp
+    // "succeed" for an already-registered address, returning a user with no
+    // identities. Detect it so the user isn't told to wait for an email that
+    // will never arrive.
+    if (data?.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+        showAuthMessage(t('auth.already_registered'), { type: 'error' })
+        return
+    }
+    if (data?.session) {
+        // Email confirmation disabled — signed in immediately.
+        showAuthMessage(t('auth.signup_complete'), { type: 'success' })
+        return
+    }
+    showAuthMessage(t('auth.confirm_email_sent', { email }), { type: 'success' })
+}
+
+export async function authLogIn(emailId, passwordId) {
+    const email    = fieldValue(emailId, 'auth-email').trim()
+    const password = fieldValue(passwordId, 'auth-password')
+    if (!email || !password) {
+        showAuthMessage(t('auth.enter_email_password'), { type: 'error' })
+        return
+    }
+    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    if (!error) {
+        document.querySelectorAll('.auth-banner').forEach(el => el.remove())
+        return
+    }
+    const msg = error.message.toLowerCase()
+    if (msg.includes('not confirmed')) {
+        showAuthMessage(t('auth.email_not_confirmed'), {
+            type: 'error',
+            actionLabel: t('auth.resend_confirmation'),
+            onAction: () => resendConfirmation(email)
+        })
+    } else if (msg.includes('invalid login credentials')) {
+        showAuthMessage(t('auth.invalid_credentials'), { type: 'error' })
     } else {
-        showNotification(t('auth.check_email'))
+        showAuthMessage(error.message, { type: 'error' })
     }
 }
 
-export async function authLogIn() {
-    const email    = document.getElementById('auth-email').value.trim()
-    const password = document.getElementById('auth-password').value
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) showNotification(error.message)
+export async function resendConfirmation(email) {
+    const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email,
+        options: { emailRedirectTo: EMAIL_REDIRECT }
+    })
+    if (error) showAuthMessage(error.message, { type: 'error' })
+    else       showAuthMessage(t('auth.confirm_email_sent', { email }), { type: 'success' })
 }
 
 export async function authLogOut() {
@@ -80,15 +191,28 @@ export async function authLogOut() {
     if (error) showNotification(error.message)
 }
 
-export async function authForgotPassword() {
-    const emailEl = document.getElementById('auth-email')
-    const email   = emailEl ? emailEl.value.trim() : ''
-    if (!email) { showNotification('Enter your email address first.'); return }
+export async function authForgotPassword(emailId) {
+    const email = fieldValue(emailId, 'auth-email').trim()
+    if (!email) {
+        showAuthMessage(t('auth.enter_email_first'), { type: 'error' })
+        return
+    }
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: window.location.origin + '/reset-password.html'
     })
-    if (error) showNotification(error.message)
-    else       showNotification('Password reset email sent — check your inbox.')
+    if (error) showAuthMessage(error.message, { type: 'error' })
+    else       showAuthMessage(t('auth.reset_email_sent', { email }), { type: 'success' })
+}
+
+// Called once per page that shows the shared auth-section box (no gating).
+// Wires session restore + all subsequent auth state changes to the UI.
+export function initAuthSection(onChange) {
+    const apply = (session) => {
+        updateAuthUI(session?.user ?? null)
+        if (onChange) onChange(session)
+    }
+    supabase.auth.getSession().then(({ data: { session } }) => apply(session))
+    supabase.auth.onAuthStateChange((_event, session) => apply(session))
 }
 
 // Called once per leader-gated page. Checks session + role on load and on
@@ -97,12 +221,16 @@ export async function authForgotPassword() {
 async function checkLeaderAccess(session) {
     const denied = document.getElementById('access-denied')
     const main   = document.getElementById('main-container')
+    if (!denied || !main) return
+    // The login form inside the denied panel only makes sense when signed out
+    const deniedAuth = document.getElementById('denied-auth')
+    if (deniedAuth) deniedAuth.style.display = session?.user ? 'none' : ''
     if (!session?.user) {
         denied.style.display = 'flex'
         main.style.display   = 'none'
         return
     }
-    const role = await fetchRole(session.user.id)
+    const role = await resolveRole(session.user.id)
     if (role !== 'leader') {
         denied.style.display = 'flex'
         main.style.display   = 'none'
@@ -130,6 +258,7 @@ export function initLeaderPage() {
 async function checkUserAccess(session) {
     const denied = document.getElementById('access-denied')
     const main   = document.getElementById('main-container')
+    if (!denied || !main) return
     if (!session?.user) {
         denied.style.display = 'flex'
         main.style.display   = 'none'

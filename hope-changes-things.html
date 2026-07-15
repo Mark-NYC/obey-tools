@@ -19,6 +19,12 @@
     <script type="module">
         import { supabase } from './supabase.js';
         window.supabase = supabase;
+        import { authSignUp, authLogIn, authLogOut, authForgotPassword, initAuthSection } from './auth.js';
+        window.authSignUp = authSignUp;
+        window.authLogIn = authLogIn;
+        window.authLogOut = authLogOut;
+        window.authForgotPassword = authForgotPassword;
+        initAuthSection();
     </script>
     <title>Hope Changes Things - Luke 19:1-10</title>
     <style>
@@ -110,9 +116,10 @@
                 <input type="email" id="auth-email" data-i18n-placeholder="auth.email_placeholder" placeholder="Email">
                 <input type="password" id="auth-password" data-i18n-placeholder="auth.password_placeholder" placeholder="Password">
                 <div class="auth-buttons">
-                    <button class="auth-btn-primary" data-i18n="auth.sign_up" onclick="authSignUp()">Sign Up</button>
-                    <button class="auth-btn-secondary" data-i18n="auth.log_in" onclick="authLogIn()">Log In</button>
+                    <button class="auth-btn-primary" data-i18n="auth.log_in" onclick="authLogIn()">Log In</button>
+                    <button class="auth-btn-secondary" data-i18n="auth.sign_up" onclick="authSignUp()">Sign Up</button>
                 </div>
+            <button type="button" class="auth-forgot-btn" data-i18n="auth.forgot_password" onclick="authForgotPassword()" style="display:block;width:100%;margin-top:6px;padding:6px;background:none;border:none;color:#8e8e93;font-size:13px;cursor:pointer;text-align:center;font-family:inherit;">Forgot password?</button>
             </div>
             <div class="auth-status" id="auth-status" style="display:none">
                 <span class="auth-status-text" id="auth-status-text">Not signed in</span>
@@ -229,37 +236,6 @@
         function resetAll() { if (confirm(window.t('common.reset_confirm'))) { completedCards = []; localStorage.removeItem('hope-changes-things-progress'); document.querySelectorAll('.card').forEach(card => card.classList.remove('completed')); updateProgress(); showNotification(window.t('common.progress_reset')); } }
         function showNotification(message) { const n = document.createElement('div'); n.className = 'notification'; n.textContent = message; document.body.appendChild(n); setTimeout(() => n.remove(), 3000); }
         window.addEventListener('DOMContentLoaded', () => { completedCards.forEach(cardId => { const card = document.querySelector(`[data-card="${cardId}"]`); if (card) card.classList.add('completed'); }); window.addEventListener('i18n:ready', updateProgress, { once: true }); });
-        function updateAuthUI(user) {
-            window._supabaseUser = user;
-            document.getElementById('auth-section').style.visibility = 'visible';
-            const form = document.getElementById('auth-form');
-            const status = document.getElementById('auth-status');
-            const text = document.getElementById('auth-status-text');
-            if (user) { form.style.display = 'none'; status.style.display = 'flex'; text.textContent = window.t('auth.signed_in_as', { email: user.email }); }
-            else { form.style.display = 'block'; status.style.display = 'none'; text.textContent = window.t('auth.not_signed_in'); }
-        }
-        async function authSignUp() {
-            const email = document.getElementById('auth-email').value.trim();
-            const password = document.getElementById('auth-password').value;
-            const { error } = await window.supabase.auth.signUp({ email, password });
-            if (error) showNotification(error.message); else showNotification(window.t('auth.check_email'));
-        }
-        async function authLogIn() {
-            const email = document.getElementById('auth-email').value.trim();
-            const password = document.getElementById('auth-password').value;
-            const { error } = await window.supabase.auth.signInWithPassword({ email, password });
-            if (error) showNotification(error.message);
-        }
-        async function authLogOut() {
-            const { error } = await window.supabase.auth.signOut();
-            if (error) showNotification(error.message);
-        }
-        document.addEventListener('DOMContentLoaded', () => {
-            if (window.supabase) {
-                window.supabase.auth.getSession().then(({ data: { session } }) => { updateAuthUI(session?.user ?? null); });
-                window.supabase.auth.onAuthStateChange((_event, session) => { updateAuthUI(session?.user ?? null); });
-            }
-        });
     </script>
 </body>
 </html>

@@ -7,7 +7,17 @@
     "log_in": "Log In",
     "log_out": "Log Out",
     "email_placeholder": "Email",
-    "password_placeholder": "Password"
+    "password_placeholder": "Password",
+    "enter_email_password": "Enter your email and password first.",
+    "enter_email_first": "Enter your email address first.",
+    "already_registered": "This email already has an account. Tap Log In — or use “Forgot password?” if you don’t remember your password.",
+    "signup_complete": "Account created — you’re signed in.",
+    "confirm_email_sent": "Almost done! We sent a confirmation link to {email}. Open that email and tap the link to activate your account (check spam too).",
+    "email_not_confirmed": "Your email address hasn’t been confirmed yet, so you can’t log in. Find the confirmation email we sent you, or resend it below.",
+    "resend_confirmation": "Resend confirmation email",
+    "invalid_credentials": "Wrong email or password. If you forgot your password, tap “Forgot password?” below to reset it.",
+    "reset_email_sent": "Password reset email sent to {email} — check your inbox and spam folder.",
+    "forgot_password": "Forgot password?"
   },
   "nav": {
     "home": "Home",

@@ -7,7 +7,17 @@
     "log_in": "Anmelden",
     "log_out": "Abmelden",
     "email_placeholder": "E-Mail",
-    "password_placeholder": "Passwort"
+    "password_placeholder": "Passwort",
+    "enter_email_password": "Bitte gib zuerst E-Mail und Passwort ein.",
+    "enter_email_first": "Bitte gib zuerst deine E-Mail-Adresse ein.",
+    "already_registered": "Für diese E-Mail existiert bereits ein Konto. Tippe auf „Anmelden“ — oder nutze „Passwort vergessen?“, wenn du dein Passwort nicht mehr weißt.",
+    "signup_complete": "Konto erstellt — du bist angemeldet.",
+    "confirm_email_sent": "Fast geschafft! Wir haben einen Bestätigungslink an {email} gesendet. Öffne die E-Mail und tippe auf den Link, um dein Konto zu aktivieren (auch im Spam-Ordner nachsehen).",
+    "email_not_confirmed": "Deine E-Mail-Adresse ist noch nicht bestätigt, daher kannst du dich nicht anmelden. Suche die Bestätigungs-E-Mail oder sende sie unten erneut.",
+    "resend_confirmation": "Bestätigungs-E-Mail erneut senden",
+    "invalid_credentials": "E-Mail oder Passwort falsch. Wenn du dein Passwort vergessen hast, tippe unten auf „Passwort vergessen?“.",
+    "reset_email_sent": "E-Mail zum Zurücksetzen des Passworts an {email} gesendet — prüfe Posteingang und Spam-Ordner.",
+    "forgot_password": "Passwort vergessen?"
   },
   "nav": {
     "home": "Startseite",
