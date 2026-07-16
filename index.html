@@ -24,26 +24,7 @@
         window.authLogIn  = authLogIn
         window.authLogOut = authLogOut
         window.authForgotPassword = authForgotPassword
-
-        // Account overlay: the icon opens the full-screen sign-in; X or Escape closes.
-        // Lock body scroll while open so the page behind doesn't move.
-        window.toggleAccountPanel = () => {
-            const panel = document.getElementById('auth-section')
-            const open = panel?.classList.toggle('open')
-            document.body.style.overflow = open ? 'hidden' : ''
-        }
-        initAuthSection((session) => {
-            const btn = document.getElementById('account-btn')
-            if (!btn) return
-            const signedIn = !!session?.user
-            btn.classList.toggle('signed-in', signedIn)
-            btn.setAttribute('aria-label', signedIn ? 'Open signed-in account' : 'Open sign in')
-        })
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && document.getElementById('auth-section')?.classList.contains('open')) {
-                window.toggleAccountPanel()
-            }
-        })
+        initAuthSection()
 
         // ---- Auth redirect detection ----
         // Supabase v2 PKCE: success delivers ?code=..., errors deliver #error=...
@@ -336,169 +317,12 @@
             line-height: 1;
             flex-shrink: 0;
         }
-        /* ── Account panel (charcoal) — click the icon to open sign-in ─────── */
-        .account-btn {
-            position: fixed;
-            top: max(16px, env(safe-area-inset-top, 0px));
-            right: 16px;
-            z-index: 1000;
-            width: 42px;
-            height: 42px;
-            display: grid;
-            place-items: center;
-            padding: 0;
-            border: none;
-            border-radius: 12px;
-            background: #3a3a3c;
-            color: #fff;
-            cursor: pointer;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.18);
-            transition: background 0.15s ease, transform 0.1s ease;
-        }
-        .account-btn:hover { background: #4a4a4d; }
-        .account-btn:active { transform: scale(0.94); }
-        .account-btn svg { width: 22px; height: 22px; display: block; }
-        .account-btn.signed-in::after {
-            content: '';
-            position: absolute;
-            top: 7px;
-            right: 7px;
-            width: 9px;
-            height: 9px;
-            border-radius: 50%;
-            background: #00D084;
-            border: 2px solid #3a3a3c;
-        }
-
-        /* Full-screen sign-in overlay — display-toggled so auth.js setting
-           visibility:visible can't force it open; fades in when .open is added. */
-        #auth-section.account-overlay {
-            position: fixed;
-            inset: 0;
-            z-index: 2000;
-            background: #1c1c1e;
-            padding: calc(max(16px, env(safe-area-inset-top, 0px)) + 8px) 24px 24px;
-            box-sizing: border-box;
-            display: none;
-        }
-        #auth-section.account-overlay.open {
-            display: flex;
-            flex-direction: column;
-            animation: acctOverlayIn 0.18s ease;
-        }
-        @keyframes acctOverlayIn {
-            from { opacity: 0; }
-            to   { opacity: 1; }
-        }
-        .acct-close {
-            position: absolute;
-            top: calc(max(16px, env(safe-area-inset-top, 0px)) + 6px);
-            right: 16px;
-            width: 40px;
-            height: 40px;
-            display: grid;
-            place-items: center;
-            border: none;
-            border-radius: 12px;
-            background: rgba(255,255,255,0.08);
-            color: #fff;
-            font-size: 24px;
-            line-height: 1;
-            cursor: pointer;
-        }
-        .acct-close:hover { background: rgba(255,255,255,0.14); }
-        .acct-overlay-inner {
-            margin: auto;
-            width: 100%;
-            max-width: 340px;
-        }
-        .acct-overlay-logo {
-            font-family: 'Bebas Neue', cursive;
-            font-size: 52px;
-            font-weight: 400;
-            letter-spacing: 2px;
-            color: #00D084;
-            -webkit-text-stroke: 2px #000;
-            text-align: center;
-            margin-bottom: 24px;
-        }
-        .account-overlay input {
-            display: block;
-            width: 100%;
-            box-sizing: border-box;
-            padding: 13px 14px;
-            margin-bottom: 10px;
-            border: 1px solid #48484b;
-            border-radius: 11px;
-            background: #2a2a2d;
-            color: #fff;
-            font-size: 16px;
-            font-family: inherit;
-            outline: none;
-        }
-        .account-overlay input::placeholder { color: #8e8e93; }
-        .account-overlay input:focus { border-color: #00D084; }
-        .account-overlay .auth-buttons { display: flex; gap: 10px; margin-top: 4px; }
-        .account-overlay .acct-primary {
-            flex: 1;
-            padding: 13px;
-            border: none;
-            border-radius: 11px;
-            background: #00D084;
-            color: #08231a;
-            font-weight: 700;
-            font-size: 16px;
-            font-family: inherit;
-            cursor: pointer;
-        }
-        .account-overlay .acct-secondary {
-            flex: 1;
-            padding: 13px;
-            border: 1px solid #5a5a5d;
-            border-radius: 11px;
-            background: transparent;
-            color: #f2f2f7;
-            font-weight: 600;
-            font-size: 16px;
-            font-family: inherit;
-            cursor: pointer;
-        }
-        .account-overlay .auth-forgot-btn {
-            display: block;
-            width: 100%;
-            margin-top: 12px;
-            padding: 6px;
-            background: none;
-            border: none;
-            color: #8e8e93;
-            font-size: 14px;
-            font-family: inherit;
-            cursor: pointer;
-            text-align: center;
-        }
-        .account-overlay .auth-status { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-        .account-overlay .auth-status-text { font-size: 15px; color: #c7c7cc; }
-        .account-overlay .auth-logout-btn {
-            padding: 9px 16px;
-            border: 1px solid #5a5a5d;
-            border-radius: 11px;
-            background: transparent;
-            color: #f2f2f7;
-            font-weight: 600;
-            font-size: 14px;
-            font-family: inherit;
-            cursor: pointer;
-            white-space: nowrap;
-        }
     </style>
     <script type="module" src="/i18n.js"></script>
     <script src="/pwa.js" defer></script>
 </head>
 <body>
 
-    <button type="button" class="account-btn" id="account-btn" aria-label="Open sign in" onclick="toggleAccountPanel()">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12.2a4.4 4.4 0 1 0 0-8.8 4.4 4.4 0 0 0 0 8.8Zm0 2.2c-4.7 0-8.1 2.6-8.1 6.2h16.2c0-3.6-3.4-6.2-8.1-6.2Z" fill="currentColor"/></svg>
-    </button>
 
     <h1>OBEY.TOOLS</h1>
 
@@ -526,24 +350,20 @@
 
     </div>
 
-    <!-- Full-screen sign-in overlay, opened by the account icon top-right -->
-    <div class="auth-section account-overlay" id="auth-section">
-        <button type="button" class="acct-close" onclick="toggleAccountPanel()" aria-label="Close">&times;</button>
-        <div class="acct-overlay-inner">
-            <div class="acct-overlay-logo">OBEY.TOOLS</div>
-            <div id="auth-form" style="display:none">
-                <input type="email" id="auth-email" placeholder="Email" data-i18n-placeholder="auth.email_placeholder">
-                <input type="password" id="auth-password" placeholder="Password" data-i18n-placeholder="auth.password_placeholder">
-                <div class="auth-buttons">
-                    <button class="acct-primary" data-i18n="auth.log_in" onclick="authLogIn()">Log In</button>
-                    <button class="acct-secondary" data-i18n="auth.sign_up" onclick="authSignUp()">Sign Up</button>
-                </div>
-                <button type="button" class="auth-forgot-btn" data-i18n="auth.forgot_password" onclick="authForgotPassword()">Forgot password?</button>
+    <!-- Sign-in box; account-overlay.js turns it into the full-screen sign-in -->
+    <div class="auth-section" id="auth-section" style="display:none">
+        <div id="auth-form" style="display:none">
+            <input type="email" id="auth-email" placeholder="Email" data-i18n-placeholder="auth.email_placeholder">
+            <input type="password" id="auth-password" placeholder="Password" data-i18n-placeholder="auth.password_placeholder">
+            <div class="auth-buttons">
+                <button class="auth-btn-primary" data-i18n="auth.log_in" onclick="authLogIn()">Log In</button>
+                <button class="auth-btn-secondary" data-i18n="auth.sign_up" onclick="authSignUp()">Sign Up</button>
             </div>
-            <div class="auth-status" id="auth-status" style="display:none">
-                <span class="auth-status-text" id="auth-status-text" data-i18n="auth.not_signed_in">Not signed in</span>
-                <button class="auth-logout-btn" data-i18n="auth.log_out" onclick="authLogOut()">Log Out</button>
-            </div>
+            <button type="button" class="auth-forgot-btn" data-i18n="auth.forgot_password" onclick="authForgotPassword()">Forgot password?</button>
+        </div>
+        <div class="auth-status" id="auth-status" style="display:none">
+            <span class="auth-status-text" id="auth-status-text" data-i18n="auth.not_signed_in">Not signed in</span>
+            <button class="auth-logout-btn" data-i18n="auth.log_out" onclick="authLogOut()">Log Out</button>
         </div>
     </div>
 
