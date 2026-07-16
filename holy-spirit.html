@@ -1007,7 +1007,6 @@ button {
             const completed = completedCards.length;
             document.getElementById('progressFill').style.width = (completed / total * 100) + '%';
             document.getElementById('progressText').textContent = completed + ' of ' + total + ' completed';
-            if (completed === total) showNotification('Study complete! 🎉');
         }
 
         function resetAll() {
@@ -1377,6 +1376,10 @@ button {
         }
     }
 
+    var studyWasComplete = false;
+    var studyReady = false; /* suppress toast during progressive load; a real completion can't happen this fast */
+    if (document.readyState === 'complete') { setTimeout(function(){ studyReady = true; }, 800); }
+    else { window.addEventListener('load', function(){ setTimeout(function(){ studyReady = true; }, 800); }); }
     function syncAccordion() {
         if (!accordionRoot) return;
         let count = 0;
@@ -1396,11 +1399,13 @@ button {
         if (fill) fill.style.width = (count / 8 * 100) + '%';
         if (text) text.textContent = count + ' of 8 steps';
         var _ncp = document.getElementById('next-command-panel'); if (_ncp) _ncp.classList.toggle('visible', count === steps.length);
+        var _done = (count === steps.length);
+        if (studyReady && _done && studyWasComplete === false) showNotification('Study complete! 🎉');
+        studyWasComplete = _done;
     }
 
     function updateAccordionProgress() {
         syncAccordion();
-        if (steps.every(isStepComplete)) showNotification('Study complete! 🎉');
     }
 
     function toggleAccountPanel() {
