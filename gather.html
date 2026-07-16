@@ -828,6 +828,14 @@ button {
 }
 
 .bible-btn { min-height: 42px; } /* M2: comfortable tap target */
+
+/* Next Command — durable single next step shown when a command is complete (Field rec #1) */
+.next-command { display: none; text-align: center; padding: 4px 0 18px; }
+.next-command.visible { display: block; }
+.next-command .nc-eyebrow { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: #8e8e93; margin-bottom: 12px; }
+.next-command .nc-btn { display: block; width: 100%; max-width: 480px; margin: 0 auto; padding: 16px; border-radius: 14px; background: #00D084; color: #fff; font-size: 17px; font-weight: 700; text-decoration: none; }
+.next-command .nc-btn:active { opacity: .9; }
+.next-command .nc-up-next { font-size: 14px; color: #8e8e93; margin-top: 10px; }
 </style></head>
 <body>
 <div class="top-nav">
@@ -889,7 +897,7 @@ button {
 <div class="card" data-card="goals" onclick="toggleCard(this)"><div class="card-content"><div class="card-icon accountability-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.set_goals_title">Set Goals</div><div class="card-description" data-i18n="common.set_goals_desc">Follow: What is Jesus asking you to obey? Fish: Who needs to hear this story?</div></div><div class="card-checkbox"></div></div></div>
 <div class="card" data-card="commission" onclick="toggleCard(this)"><div class="card-content"><div class="card-icon pray-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.commission_title">Commission with Prayer</div><div class="card-description" data-i18n="common.commission_desc">Pray together.</div></div><div class="card-checkbox"></div></div></div>
 </div>
-<div class="reset-section"><button class="btn" data-i18n="common.reset" onclick="resetAll()">RESET</button></div>
+<div class="reset-section"><div class="next-command" id="next-command-panel"><div class="nc-eyebrow" data-i18n="common.commands_complete_all">All 12 commands complete</div><a class="nc-btn" href="commands-of-christ.html" data-i18n="common.back_to_commands">Back to Commands →</a><div class="nc-up-next">Now lead someone else through them.</div></div><button class="btn" data-i18n="common.reset" onclick="resetAll()">RESET</button></div>
 </div>
 <div class="popup-overlay" id="visionPopup" onclick="closeVisionPopup()"><div class="popup-content" onclick="event.stopPropagation()"><button class="popup-close" onclick="closeVisionPopup()">×</button><img alt="Church Circle" class="popup-image" src="assets/images/popups/vision-popup.jpg"/><div class="popup-text" data-i18n="common.vision_popup_text">Read Acts 2:36-47. Be a part of a church and start a church</div></div></div>
 <script>
@@ -1337,6 +1345,7 @@ button {
         const text = document.getElementById('progressText');
         if (fill) fill.style.width = (count / 8 * 100) + '%';
         if (text) text.textContent = count + ' of 8 steps';
+        var _ncp = document.getElementById('next-command-panel'); if (_ncp) _ncp.classList.toggle('visible', count === steps.length);
     }
 
     function updateAccordionProgress() {
