@@ -168,6 +168,13 @@ const CSS = `
     cursor: pointer;
     white-space: nowrap;
 }
+
+/* On phones the fixed account icon shares the top-right corner with the study
+   template's full-width back pill. Reserve room so the pill never sits under
+   the icon. Injected here so every page using the overlay is fixed at once. */
+@media (max-width: 699px) {
+    .top-nav { padding-right: 66px; }
+}
 `
 
 const PERSON_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12.2a4.4 4.4 0 1 0 0-8.8 4.4 4.4 0 0 0 0 8.8Zm0 2.2c-4.7 0-8.1 2.6-8.1 6.2h16.2c0-3.6-3.4-6.2-8.1-6.2Z" fill="currentColor"/></svg>'

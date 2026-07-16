@@ -29,7 +29,7 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif; background: #f2f2f7; min-height: 100vh; color: #000; line-height: 1.4; }
-        .container { max-width: 375px; margin: 0 auto; background: #fff; min-height: 100vh; }
+        .container { max-width: 430px; margin: 0 auto; background: #fff; min-height: 100vh; }
         .btn { flex: 1; padding: 11px 16px; border: none; border-radius: 8px; font-weight: 600; font-size: 15px; cursor: pointer; transition: all 0.2s ease; }
         .btn-primary { background: #ff9500; color: white; }
         .btn-primary:active { background: #ff9500; transform: scale(0.98); }
@@ -64,7 +64,7 @@
         .delete-btn { background: #ff3b30; color: white; }
         .down-btn { background: #6e6e73; color: white; }
         .empty-state { padding: 32px 16px; text-align: center; color: #8e8e93; font-size: 15px; }
-        .add-person-section { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 375px; background: #fff; border-top: 0.5px solid #c6c6c8; padding: 16px; padding-bottom: calc(16px + env(safe-area-inset-bottom)); }
+        .add-person-section { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 430px; background: #fff; border-top: 0.5px solid #c6c6c8; padding: 16px; padding-bottom: calc(16px + env(safe-area-inset-bottom)); }
         .add-person-input { display: flex; gap: 8px; }
         .add-person-input input { flex: 1; padding: 11px 16px; border: 1px solid #c6c6c8; border-radius: 8px; font-size: 17px; background: #f2f2f7; outline: none; }
         .add-person-input input:focus { border-color: #3a3a3c; background: #fff; }
@@ -127,7 +127,7 @@
             .view-map-row { max-width: 360px; }
             .add-person-section { position: static; transform: none; width: auto; max-width: none; border-top: 0.5px solid #e5e5ea; border-radius: 0; order: 2; padding: 20px 28px; }
         }
-        .notification { position: fixed; top: 60px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: white; padding: 12px 20px; border-radius: 8px; font-size: 15px; font-weight: 500; z-index: 1000; opacity: 0; animation: notificationSlide 3s ease; }
+        .notification { position: fixed; top: 60px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.86); color: #fff; padding: 11px 15px; border-radius: 12px; font-size: 15px; font-weight: 650; z-index: 1000; opacity: 0; animation: notificationSlide 3s ease; }
         @keyframes notificationSlide { 0% { opacity: 0; transform: translateX(-50%) translateY(-20px); } 10% { opacity: 1; transform: translateX(-50%) translateY(0); } 90% { opacity: 1; transform: translateX(-50%) translateY(0); } 100% { opacity: 0; transform: translateX(-50%) translateY(-20px); } }
         .haptic-feedback { animation: haptic 0.1s ease; }
         @keyframes haptic { 0% { transform: scale(1); } 50% { transform: scale(0.98); } 100% { transform: scale(1); } }

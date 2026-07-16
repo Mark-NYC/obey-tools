@@ -13,6 +13,8 @@
     <meta name="theme-color" content="#000000">
     <meta name="apple-mobile-web-app-title" content="Obey Tools">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preload" href="/assets/fonts/bebas-neue-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="/fonts.css">
     <title>Church Assessment Tool</title>
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <script type="module">
@@ -34,6 +36,10 @@
     <a href="index.html" style="display:inline-block; background:#000; color:#fff; font-weight:700; font-size:17px; padding:12px 28px; border-radius:50px; text-decoration:none;" data-i18n="nav.home">Home</a>
 </div>
 <div class="container">
+    <div style="text-align:center; padding:26px 16px 4px; background:#fff;">
+        <div style="font-family:'Bebas Neue', cursive; font-size:52px; font-weight:400; letter-spacing:2px; color:#000; line-height:1;" data-i18n="church_assessment.page_title">Church Circle</div>
+        <div style="font-size:14px; color:#8e8e93; margin-top:4px;" data-i18n="church_assessment.page_subtitle">Assess the health of your church.</div>
+    </div>
     <div class="auth-section" id="auth-section">
         <div id="auth-form" style="display:none">
             <input type="email" id="auth-email" placeholder="Email" data-i18n-placeholder="auth.email_placeholder">
@@ -94,7 +100,7 @@
     </div>
 
     <div class="reset-section">
-        <button class="btn btn-secondary" onclick="showResetPrompt()" data-i18n="common.reset">RESET</button>
+        <button class="btn btn-secondary" style="width:100%; flex:none; padding:14px; border-radius:14px; background:#ededf0; color:#1c1c1e; font-size:16px;" onclick="showResetPrompt()" data-i18n="common.reset">RESET</button>
     </div>
 
     <div class="name-prompt" id="name-prompt">
@@ -179,7 +185,7 @@
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif; background: #f2f2f7; min-height: 100vh; color: #000; line-height: 1.4; }
-.container { max-width: 375px; margin: 0 auto; background: #fff; min-height: 100vh; }
+.container { max-width: 430px; margin: 0 auto; background: #fff; min-height: 100vh; }
 .status-bar { height: 44px; background: #fff; display: flex; justify-content: center; align-items: center; font-weight: 600; font-size: 17px; border-bottom: 0.5px solid #c6c6c8; }
 .header { padding: 20px 16px 16px; background: #fff; }
 .date-info { color: #8e8e93; font-size: 13px; margin-bottom: 4px; }
@@ -257,7 +263,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-se
 .share-input-popup .submit-btn:active { background: #2c2c2e; }
 .share-input-popup .cancel-btn { background: #8e8e93; color: white; }
 .share-input-popup .cancel-btn:active { background: #6b6b70; }
-.notification { position: fixed; top: 60px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: white; padding: 12px 20px; border-radius: 8px; font-size: 15px; font-weight: 500; z-index: 1000; opacity: 0; animation: notificationSlide 3s ease; }
+.notification { position: fixed; top: 60px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.86); color: #fff; padding: 11px 15px; border-radius: 12px; font-size: 15px; font-weight: 650; z-index: 1000; opacity: 0; animation: notificationSlide 3s ease; }
 @keyframes notificationSlide { 0% { opacity: 0; transform: translateX(-50%) translateY(-20px); } 10% { opacity: 1; transform: translateX(-50%) translateY(0); } 90% { opacity: 1; transform: translateX(-50%) translateY(0); } 100% { opacity: 0; transform: translateX(-50%) translateY(-20px); } }
 .haptic-feedback { animation: haptic 0.1s ease; }
 @keyframes haptic { 0% { transform: scale(1); } 50% { transform: scale(0.98); } 100% { transform: scale(1); } }
