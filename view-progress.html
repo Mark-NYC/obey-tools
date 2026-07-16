@@ -263,6 +263,10 @@
         }
         .filter-select:focus { border-color: #3a3a3c; }
         .icon-btn {
+            min-height: 42px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             padding: 8px 14px;
             border: none;
             border-radius: 8px;
@@ -623,6 +627,16 @@
                 background: #f2f2f7;
                 border-bottom: 0.5px solid #e5e5ea;
             }
+            .mobile-home-btn {
+                background: #000;
+                color: #fff;
+                font-weight: 700;
+                font-size: 13px;
+                padding: 8px 16px;
+                border-radius: 50px;
+                text-decoration: none;
+                margin-right: auto;
+            }
             .mobile-back-btn {
                 display: flex;
                 align-items: center;
@@ -643,7 +657,8 @@
                 color: #8e8e93;
             }
             .mobile-logout-btn {
-                padding: 6px 12px;
+                min-height: 40px;
+                padding: 8px 14px;
                 border: none;
                 border-radius: 8px;
                 font-size: 12px;
@@ -710,6 +725,7 @@
 
             <!-- Mobile-only compact topbar: back arrow · Signed in · Log Out -->
             <div id="mobile-topbar">
+                <a href="index.html" class="mobile-home-btn" data-i18n="nav.home">Home</a>
                 <span class="mobile-signin-text">Signed in</span>
                 <button class="mobile-logout-btn" onclick="authLogOut()">Log Out</button>
             </div>

@@ -29,7 +29,7 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif; background: #f2f2f7; min-height: 100vh; color: #000; line-height: 1.4; }
-        .container { max-width: 375px; margin: 0 auto; background: #fff; min-height: 100vh; }
+        .container { max-width: 430px; margin: 0 auto; background: #fff; min-height: 100vh; }
 
         /* Auth */
         .auth-section { padding: 12px 16px; background: #f2f2f7; border-bottom: 0.5px solid #c6c6c8; visibility: hidden; }
@@ -77,7 +77,7 @@
         .category-card:active { transform: scale(0.98); }
         .category-card.selected { border-color: #ff9500; background: #fff8ee; }
         .category-name { font-size: 15px; font-weight: 600; color: #000; }
-        .category-hint { font-size: 12px; color: #8e8e93; margin-top: 4px; line-height: 1.4; }
+        .category-hint { font-size: 12px; color: #6e6e73; margin-top: 4px; line-height: 1.4; }
         .no-results { padding: 20px 0; text-align: center; color: #8e8e93; font-size: 15px; }
 
         /* Show all */
@@ -128,7 +128,7 @@
         .sync-indicator.synced  { background: rgba(52,199,89,0.9); display: block; }
 
         /* Notification */
-        .notification { position: fixed; top: 60px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: white; padding: 12px 20px; border-radius: 8px; font-size: 15px; font-weight: 500; z-index: 1000; opacity: 0; pointer-events: none; animation: notifSlide 3s ease; }
+        .notification { position: fixed; top: 60px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.86); color: #fff; padding: 11px 15px; border-radius: 12px; font-size: 15px; font-weight: 650; z-index: 1000; opacity: 0; pointer-events: none; animation: notifSlide 3s ease; }
         @keyframes notifSlide { 0%{opacity:0;transform:translateX(-50%) translateY(-20px)} 10%{opacity:1;transform:translateX(-50%) translateY(0)} 90%{opacity:1;transform:translateX(-50%) translateY(0)} 100%{opacity:0;transform:translateX(-50%) translateY(-20px)} }
 
         @media (min-width: 768px) {
