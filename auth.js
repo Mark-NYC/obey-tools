@@ -2,6 +2,7 @@
 // Import supabase directly so all pages use the same client instance.
 import { supabase } from './supabase.js'
 import { t } from './i18n.js'
+import { initAccountOverlay } from './account-overlay.js'
 
 // Where email confirmation links land after Supabase verifies them.
 const EMAIL_REDIRECT = window.location.origin + '/index.html'
@@ -225,6 +226,7 @@ export async function authForgotPassword(emailId) {
 // Called once per page that shows the shared auth-section box (no gating).
 // Wires session restore + all subsequent auth state changes to the UI.
 export function initAuthSection(onChange) {
+    initAccountOverlay()
     const apply = (session) => {
         updateAuthUI(session?.user ?? null)
         if (onChange) onChange(session)
@@ -260,6 +262,7 @@ async function checkLeaderAccess(session) {
 }
 
 export function initLeaderPage() {
+    initAccountOverlay()
     // Initial check — reads session from localStorage immediately
     supabase.auth.getSession().then(({ data: { session } }) => {
         checkLeaderAccess(session)
@@ -288,6 +291,7 @@ async function checkUserAccess(session) {
 }
 
 export function initUserPage() {
+    initAccountOverlay()
     supabase.auth.getSession().then(({ data: { session } }) => {
         checkUserAccess(session)
     })
