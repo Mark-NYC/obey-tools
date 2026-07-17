@@ -390,13 +390,13 @@ button {
 .accordion-title {
     color: var(--text);
     font-size: 17px;
-    line-height: 1.2;
+    line-height: 1.5;
     font-weight: 760;
-    letter-spacing: -0.2px;
+    letter-spacing: normal;
 }
 
 .accordion-summary {
-    margin-top: 2px;
+    margin-top: 5px;
     overflow-wrap: anywhere;
     color: var(--muted);
     font-size: 14px;
@@ -949,7 +949,7 @@ button {
 <div class="card-content"><div class="card-icon pray-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.commission_title">Commission with Prayer</div><div class="card-description" data-i18n="common.commission_desc">Pray together.</div></div></div>
 </div>
 </div>
-<div class="reset-section"><div class="next-command" id="next-command-panel"><div class="nc-eyebrow" data-i18n="common.command_complete">Command complete</div><a class="nc-btn" href="be-baptized.html" data-i18n="common.next_command">Next Command →</a><div class="nc-up-next">Up next: <b>Be Baptized</b></div></div><button class="btn" data-i18n="common.reset" onclick="resetAll()">RESET</button></div>
+<div class="reset-section"><div class="next-command" id="next-command-panel"><div class="nc-eyebrow" data-i18n="common.command_complete">Command complete</div><a class="nc-btn" href="be-baptized.html" data-i18n="common.next_command">Next Command →</a><div class="nc-up-next"><span data-i18n="common.up_next">Up next:</span> <b data-i18n="be_baptized.title">Be Baptized</b></div></div><button class="btn" data-i18n="common.reset" onclick="resetAll()">RESET</button></div>
 </div>
 <div class="popup-overlay" id="visionPopup" onclick="closeVisionPopup()">
 <div class="popup-content" onclick="event.stopPropagation()">
@@ -1120,127 +1120,39 @@ button {
 </script>
 <script id="clean-accordion-controller">
 (function () {
-    const sections = [
-        { key: 'lookback', title: 'Look Back', range: 'Steps 1–4' },
-        { key: 'lookup', title: 'Look Up', range: 'Step 5' },
-        { key: 'lookforward', title: 'Look Forward', range: 'Steps 6–8' }
+    const T   = (k, v) => (window.t ? window.t(k, v) : k);
+    const RAW = (k) => (window.i18n && window.i18n.raw ? window.i18n.raw(k) : undefined);
+    const HINT_KEY = 'repent-believe-accordion-hint-seen';
+
+    const SECTION_KEYS = ['lookback', 'lookup', 'lookforward'];
+
+    // Logic-only step definitions. All display text is resolved from i18n at
+    // render time via cmd_study.* / study_ui.* keys (see /lang/*.json).
+    const steps = [
+        { number: 1, section: 'lookback',    primary: 'care',           ids: ['care'] },
+        { number: 2, section: 'lookback',    primary: 'worship',        ids: ['worship'] },
+        { number: 3, section: 'lookback',    primary: 'accountability', ids: ['accountability'] },
+        { number: 4, section: 'lookback',    primary: 'vision',         ids: ['vision'], vision: true },
+        { number: 5, section: 'lookup',      primary: 'teaching',       ids: ['teaching', 'discuss-god', 'discuss-people', 'pray-listen', 'discuss-obey'], bible: true, refCmd: 'Mark 1:15', refStory: 'Luke 19:1–10' },
+        { number: 6, section: 'lookforward', primary: 'practice',       ids: ['practice'] },
+        { number: 7, section: 'lookforward', primary: 'goals',          ids: ['goals'] },
+        { number: 8, section: 'lookforward', primary: 'commission',     ids: ['commission'] }
     ];
 
-    const steps = [
-        {
-            number: 1,
-            section: 'lookback',
-            primary: 'care',
-            ids: ['care'],
-            title: 'Care & Prayer',
-            summary: 'Share, care, and pray',
-            intro: 'Everyone shares briefly how they are doing. Pray if appropriate.',
-            flow: [
-                ['1', 'Invite each person to share briefly how they are doing.'],
-                ['2', 'Listen for needs, burdens, or reasons to celebrate.'],
-                ['3', 'Pause and pray when it is appropriate.']
-            ]
-        },
-        {
-            number: 2,
-            section: 'lookback',
-            primary: 'worship',
-            ids: ['worship'],
-            title: 'Worship',
-            summary: 'Praise • Give • Lord’s Supper',
-            intro: 'Praise God, give toward needs, and share the Lord’s Supper.',
-            flow: [
-                ['1', 'Praise God together.'],
-                ['2', 'Give toward needs as they are shared.'],
-                ['3', 'Share the Lord’s Supper when appropriate.']
-            ]
-        },
-        {
-            number: 3,
-            section: 'lookback',
-            primary: 'accountability',
-            ids: ['accountability'],
-            title: 'Loving Accountability',
-            summary: 'Follow • Fish',
-            intro: 'Look back with honesty and encouragement. This is about obedience, not shame.',
-            flow: [
-                ['Follow', 'How did you obey what Jesus showed you last time?'],
-                ['Fish', 'Who did you share with, and what happened?<br><a class="conversation-box-link" href="https://obey.tools/conversation-box.html" target="_blank" rel="noopener">Open Conversation Box <span aria-hidden="true">↗</span></a>']
-            ]
-        },
-        {
-            number: 4,
-            section: 'lookback',
-            primary: 'vision',
-            ids: ['vision'],
-            title: 'Vision: Acts 2 Church Circle',
-            summary: 'Acts 2:36–47',
-            intro: 'Read Acts 2:36–47. Be a part of a church and start a church.',
-            reference: 'Acts 2:36–47',
-            vision: true
-        },
-        {
-            number: 5,
-            section: 'lookup',
-            primary: 'teaching',
-            ids: ['teaching', 'discuss-god', 'discuss-people', 'pray-listen', 'discuss-obey'],
-            title: 'New Teaching From Scripture',
-            summary: 'Story • God • People • Listen • Obey',
-            intro: 'Work through the passage as one guided discovery process. These questions are parts of Step 5, not additional checklist items.',
-            reference: 'Command: Mark 1:15 | Story: Luke 19:1–10',
-            flow: [
-                ['1', 'Read the command and tell the story.'],
-                ['2', 'Read the story together.'],
-                ['3', 'Retell the story in your own words.'],
-                ['4', 'What do we learn about God?'],
-                ['5', 'What do we learn about people?'],
-                ['6', 'Pause, pray, and listen.'],
-                ['7', 'How will you obey the story?']
-            ],
-            bible: true
-        },
-        {
-            number: 6,
-            section: 'lookforward',
-            primary: 'practice',
-            ids: ['practice'],
-            title: 'Practice: 3 Circles',
-            summary: 'Practice the gospel tool',
-            intro: 'Practice the 3 Circles gospel tool until each person can use it simply and clearly.',
-            flow: [
-                ['1', 'Choose who will practice first.'],
-                ['2', 'Practice sharing the 3 Circles clearly and simply.'],
-                ['3', 'Give brief encouragement and try again if needed.']
-            ]
-        },
-        {
-            number: 7,
-            section: 'lookforward',
-            primary: 'goals',
-            ids: ['goals'],
-            title: 'Set Goals',
-            summary: 'Follow • Fish',
-            intro: 'Choose clear next steps before leaving the gathering.',
-            flow: [
-                ['Follow', 'What is Jesus asking you to obey before the next gathering?'],
-                ['Fish', 'Who needs to hear this story?']
-            ]
-        },
-        {
-            number: 8,
-            section: 'lookforward',
-            primary: 'commission',
-            ids: ['commission'],
-            title: 'Commission with Prayer',
-            summary: 'Pray together',
-            intro: 'Pray together and send one another out to obey Jesus.',
-            flow: [
-                ['1', 'Pray for the commitments and people that were named.'],
-                ['2', 'Ask the Holy Spirit for courage, power, and faithfulness.'],
-                ['3', 'Send one another out to obey Jesus.']
-            ]
-        }
-    ];
+    function sectionList() {
+        return SECTION_KEYS.map(function (key) {
+            return { key: key, title: T('cmd_study.sections.' + key + '.title'), range: T('cmd_study.sections.' + key + '.range') };
+        });
+    }
+    function stepText(step, field) { return T('cmd_study.steps.' + step.number + '.' + field); }
+    function stepFlow(step) { const f = RAW('cmd_study.steps.' + step.number + '.flow'); return Array.isArray(f) ? f : null; }
+    function stepReference(step) {
+        if (step.bible)  return step.refCmd
+            ? T('study_ui.ref_fmt', { cmd: step.refCmd, story: step.refStory })
+            : T('study_ui.ref_story_fmt', { story: step.refStory });
+        if (step.vision) return T('cmd_study.steps.' + step.number + '.reference');
+        return null;
+    }
 
     let accordionRoot = null;
     let openStepNumber = null;
@@ -1262,7 +1174,7 @@ button {
 
     function flowMarkup(flow) {
         if (!flow || !flow.length) return '';
-        return '<div class="guide-label">What to do</div><div class="guide-flow">' + flow.map(function (row) {
+        return '<div class="guide-label">' + T('study_ui.what_to_do') + '</div><div class="guide-flow">' + flow.map(function (row) {
             return '<div class="guide-flow-row"><div class="guide-flow-index">' + row[0] + '</div><div class="guide-flow-text">' + row[1] + '</div></div>';
         }).join('') + '</div>';
     }
@@ -1288,7 +1200,7 @@ button {
         trigger.setAttribute('aria-controls', 'accordion-panel-' + step.number);
         trigger.innerHTML =
             '<span class="accordion-number">' + step.number + '</span>' +
-            '<span class="accordion-copy"><span class="accordion-title">' + step.title + '</span><span class="accordion-summary">' + step.summary + '</span></span>' +
+            '<span class="accordion-copy"><span class="accordion-title">' + stepText(step, 'title') + '</span><span class="accordion-summary">' + stepText(step, 'summary') + '</span></span>' +
             '<span class="accordion-chevron" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m6.5 9 5.5 5.5L17.5 9" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>';
         trigger.addEventListener('click', function () {
             setOpenStep(openStepNumber === step.number ? null : step.number);
@@ -1300,9 +1212,9 @@ button {
         panel.setAttribute('role', 'region');
         panel.hidden = true;
         panel.innerHTML =
-            '<p class="guide-intro">' + step.intro + '</p>' +
-            (step.reference ? '<div class="guide-reference">' + step.reference + '</div>' : '') +
-            flowMarkup(step.flow) +
+            '<p class="guide-intro">' + stepText(step, 'intro') + '</p>' +
+            (function () { const r = stepReference(step); return r ? '<div class="guide-reference">' + r + '</div>' : ''; })() +
+            flowMarkup(stepFlow(step)) +
             '<div class="guide-action-row"></div>';
 
         const actionRow = panel.querySelector('.guide-action-row');
@@ -1311,7 +1223,7 @@ button {
             const visionButton = document.createElement('button');
             visionButton.type = 'button';
             visionButton.className = 'guide-secondary-btn';
-            visionButton.textContent = 'View Church Circle';
+            visionButton.textContent = T('study_ui.view_church_circle');
             visionButton.addEventListener('click', function () {
                 showVisionPopup();
             });
@@ -1349,7 +1261,7 @@ button {
         accordionRoot.className = 'accordion-overview';
         accordionRoot.setAttribute('aria-label', 'Eight ordered meeting steps');
 
-        sections.forEach(function (section) {
+        sectionList().forEach(function (section) {
             const label = document.createElement('div');
             label.className = 'accordion-section-label';
             label.innerHTML = '<span>' + section.title + '</span><span>' + section.range + '</span>';
@@ -1369,7 +1281,7 @@ button {
         const hint = document.getElementById('interactionHint');
         if (hint) hint.hidden = true;
         try {
-            localStorage.setItem('repent-believe-accordion-hint-seen', 'true');
+            localStorage.setItem(HINT_KEY, 'true');
         } catch (error) {}
     }
 
@@ -1437,16 +1349,16 @@ button {
             if (!item) return;
             item.classList.toggle('completed', complete);
             const button = item.querySelector('.complete-step-btn');
-            if (button) button.textContent = complete ? 'Mark Step Incomplete' : 'Mark Step Complete';
+            if (button) button.textContent = complete ? T('study_ui.mark_incomplete') : T('study_ui.mark_complete');
         });
 
         const fill = document.getElementById('progressFill');
         const text = document.getElementById('progressText');
         if (fill) fill.style.width = (count / 8 * 100) + '%';
-        if (text) text.textContent = count + ' of 8 steps';
+        if (text) text.textContent = T('study_ui.steps_count', { count: count });
         var _ncp = document.getElementById('next-command-panel'); if (_ncp) _ncp.classList.toggle('visible', count === steps.length);
         var _done = (count === steps.length);
-        if (studyReady && _done && studyWasComplete === false && !window.__suppressCloudToast) showNotification('Study complete! 🎉');
+        if (studyReady && _done && studyWasComplete === false && !window.__suppressCloudToast) showNotification(T('common.study_complete'));
         studyWasComplete = _done;
     }
 
@@ -1472,7 +1384,7 @@ button {
         const button = document.querySelector('.account-btn');
         if (!button) return;
         button.classList.toggle('signed-in', !!user);
-        button.setAttribute('aria-label', user ? 'Open signed-in account' : 'Open sign in');
+        button.setAttribute('aria-label', user ? T('study_ui.open_account') : T('study_ui.open_sign_in'));
     }
 
     function enhanceLayout() {
@@ -1490,16 +1402,16 @@ button {
         account.type = 'button';
         account.className = 'account-btn';
         account.innerHTML = personIcon();
-        account.setAttribute('aria-label', 'Open sign in');
+        account.setAttribute('aria-label', T('study_ui.open_sign_in'));
         account.addEventListener('click', toggleAccountPanel);
         header.appendChild(account);
 
         const interactionHint = document.createElement('div');
         interactionHint.className = 'interaction-hint';
         interactionHint.id = 'interactionHint';
-        interactionHint.innerHTML = '<span>Tap a step to see instructions</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6.5 9 5.5 5.5L17.5 9" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+        interactionHint.innerHTML = '<span>' + T('study_ui.tap_hint') + '</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6.5 9 5.5 5.5L17.5 9" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
         try {
-            interactionHint.hidden = localStorage.getItem('repent-believe-accordion-hint-seen') === 'true';
+            interactionHint.hidden = localStorage.getItem(HINT_KEY) === 'true';
         } catch (error) {}
         progress.appendChild(interactionHint);
 
@@ -1520,7 +1432,6 @@ button {
             attributeFilter: ['class']
         });
 
-        window.addEventListener('i18n:ready', syncAccordion);
     }
 
     const originalResetAll = window.resetAll;
@@ -1541,7 +1452,20 @@ button {
     window.openAuthPanel = toggleAccountPanel;
     window.closeAuthPanel = closeAccountPanel;
 
-    document.addEventListener('DOMContentLoaded', enhanceLayout, { once: true });
+    let _accordionBuilt = false;
+    function buildAccordionOnce() {
+        if (_accordionBuilt) return;
+        if (!document.querySelector('.container')) return;
+        _accordionBuilt = true;
+        enhanceLayout();
+    }
+    // i18n:ready fires after the language file loads, so the accordion is built
+    // with translated strings on first paint. setLang() reloads the page, so a
+    // language switch rebuilds naturally — no live re-render required.
+    window.addEventListener('i18n:ready', buildAccordionOnce);
+    document.addEventListener('DOMContentLoaded', function () {
+        setTimeout(buildAccordionOnce, 600);
+    }, { once: true });
 })();
 </script></body>
 </html>

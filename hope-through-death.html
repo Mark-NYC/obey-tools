@@ -386,13 +386,13 @@ button {
 .accordion-title {
     color: var(--text);
     font-size: 17px;
-    line-height: 1.2;
+    line-height: 1.5;
     font-weight: 760;
-    letter-spacing: -0.2px;
+    letter-spacing: normal;
 }
 
 .accordion-summary {
-    margin-top: 2px;
+    margin-top: 5px;
     overflow-wrap: anywhere;
     color: var(--muted);
     font-size: 14px;
@@ -1027,7 +1027,7 @@ button {
             const completed = completedCards.length;
             document.getElementById('progressFill').style.width = (completed / total * 100) + '%';
             document.getElementById('progressText').textContent = completed + ' of ' + total + ' completed';
-            if (completed === total) showNotification('Study complete! 🎉');
+            if (completed === total) showNotification(window.t('common.study_complete'));
         }
 
         function resetAll() {
@@ -1095,124 +1095,41 @@ button {
 </script>
 <script id="clean-accordion-controller">
 (function () {
-    const sections = [
-        { key: 'lookback', title: 'Look Back', range: 'Steps 1–2' },
-        { key: 'lookup', title: 'Look Up', range: 'Steps 3–4' },
-        { key: 'lookforward', title: 'Look Forward', range: 'Steps 5–8' }
+    const T   = (k, v) => (window.t ? window.t(k, v) : k);
+    const RAW = (k) => (window.i18n && window.i18n.raw ? window.i18n.raw(k) : undefined);
+    const HINT_KEY = 'hope-through-death-accordion-hint-seen';
+    const PAGE = 'hope_through_death';
+
+    const SECTION_KEYS = ['lookback', 'lookup', 'lookforward'];
+
+    // Logic-only step definitions. Display text resolves from i18n at render
+    // time via story_study.* / study_ui.* and per-page PAGE.* keys.
+    const steps = [
+        { number: 1, section: 'lookback',    primary: 'care',           ids: ['care'] },
+        { number: 2, section: 'lookback',    primary: 'accountability', ids: ['accountability'] },
+        { number: 3, section: 'lookup',      primary: 'read-story',     ids: ['tell-story', 'read-story', 'retell-story'], bible: true },
+        { number: 4, section: 'lookup',      primary: 'discuss-god',    ids: ['discuss-god', 'discuss-people', 'discuss-identify', 'discuss-obey'] },
+        { number: 5, section: 'lookforward', primary: 'practice',       ids: ['practice'] },
+        { number: 6, section: 'lookforward', primary: 'follow-goal',    ids: ['follow-goal'] },
+        { number: 7, section: 'lookforward', primary: 'fish-goal',      ids: ['fish-goal'] },
+        { number: 8, section: 'lookforward', primary: 'pray',           ids: ['pray'] }
     ];
 
-    const steps = [
-        {
-            number: 1,
-            section: 'lookback',
-            primary: 'care',
-            ids: ['care'],
-            title: 'Care',
-            summary: 'Share, listen, and pray',
-            intro: 'Everyone shares briefly how they are doing. Pray when appropriate.',
-            flow: [
-                ['1', 'Invite each person to share briefly how they are doing.'],
-                ['2', 'Listen for needs, burdens, or reasons to celebrate.'],
-                ['3', 'Pause and pray when appropriate.']
-            ]
-        },
-        {
-            number: 2,
-            section: 'lookback',
-            primary: 'accountability',
-            ids: ['accountability'],
-            title: 'Loving Accountability',
-            summary: 'Follow • Fish',
-            intro: 'Look back with honesty and encouragement. This is about obedience, not shame.',
-            flow: [
-                ['Follow', 'How did you obey what Jesus showed you last time?'],
-                ['Fish', 'Who did you share the story with, and what happened?<br><a class="conversation-box-link" href="https://obey.tools/conversation-box.html" target="_blank" rel="noopener">Open Conversation Box <span aria-hidden="true">↗</span></a>']
-            ]
-        },
-        {
-            number: 3,
-            section: 'lookup',
-            primary: 'read-story',
-            ids: ['tell-story', 'read-story', 'retell-story'],
-            title: 'Hear the Story',
-            summary: 'Tell • Read • Retell',
-            intro: 'Hear the story several ways so everyone can understand and remember it.',
-            reference: 'Luke 23:26–43',
-            flow: [
-                ['1', 'Tell the story of the Thieves on the Cross from memory.'],
-                ['2', 'Read Luke 23:26–43 together.'],
-                ['3', 'Retell the story in your own words.']
-            ],
-            bible: true
-        },
-        {
-            number: 4,
-            section: 'lookup',
-            primary: 'discuss-god',
-            ids: ['discuss-god', 'discuss-people', 'discuss-identify', 'discuss-obey'],
-            title: 'Discover & Obey',
-            summary: 'God • People • Listen • Obey',
-            intro: 'Explore the story together, listen to God, and name a clear response.',
-            flow: [
-                ['1', 'What do we learn about God?'],
-                ['2', 'What do we learn about people?'],
-                ['3', 'Pause, pray, and listen.'],
-                ['4', 'How will you obey?']
-            ]
-        },
-        {
-            number: 5,
-            section: 'lookforward',
-            primary: 'practice',
-            ids: ['practice'],
-            title: 'Practice',
-            summary: 'Tell the story from memory',
-            intro: 'Practice telling the story of the Thieves on the Cross simply and accurately.',
-            flow: [
-                ['1', 'Choose who will practice first.'],
-                ['2', 'Tell the story without reading it.'],
-                ['3', 'Give brief encouragement and practice again if needed.']
-            ]
-        },
-        {
-            number: 6,
-            section: 'lookforward',
-            primary: 'follow-goal',
-            ids: ['follow-goal'],
-            title: 'Follow Goal',
-            summary: 'Choose an obedience step',
-            intro: 'Decide how you will respond to Jesus before the next gathering.',
-            flow: [
-                ['Follow', 'What is Jesus asking you to obey this week?']
-            ]
-        },
-        {
-            number: 7,
-            section: 'lookforward',
-            primary: 'fish-goal',
-            ids: ['fish-goal'],
-            title: 'Fish Goal',
-            summary: 'Choose who will hear',
-            intro: 'Name a person who needs hope and make a specific plan to share.',
-            flow: [
-                ['Fish', 'Who needs to hear this story? When will you share it?']
-            ]
-        },
-        {
-            number: 8,
-            section: 'lookforward',
-            primary: 'pray',
-            ids: ['pray'],
-            title: 'Pray',
-            summary: 'Close together in prayer',
-            intro: 'Pray for the obedience and sharing commitments that were made.',
-            flow: [
-                ['1', 'Pray for each Follow Goal.'],
-                ['2', 'Pray by name for each person in the Fish Goals.'],
-                ['3', 'Ask God for courage, love, and faithfulness.']
-            ]
-        }
-    ];
+    function sectionList() {
+        return SECTION_KEYS.map(function (key) {
+            return { key: key, title: T('story_study.sections.' + key + '.title'), range: T('story_study.sections.' + key + '.range') };
+        });
+    }
+    function stepText(step, field) {
+        if (step.number === 5 && field === 'intro') return T(PAGE + '.practice_intro');
+        return T('story_study.steps.' + step.number + '.' + field);
+    }
+    function stepFlow(step) {
+        if (step.number === 3) return [['1', T(PAGE + '.tell_story_desc')], ['2', T(PAGE + '.read_story_desc')], ['3', T('story_study.steps.3.retell')]];
+        const f = RAW('story_study.steps.' + step.number + '.flow');
+        return Array.isArray(f) ? f : null;
+    }
+    function stepReference(step) { return step.bible ? T(PAGE + '.scripture') : null; }
 
     let accordionRoot = null;
     let openStepNumber = null;
@@ -1234,7 +1151,7 @@ button {
 
     function flowMarkup(flow) {
         if (!flow || !flow.length) return '';
-        return '<div class="guide-label">What to do</div><div class="guide-flow">' + flow.map(function (row) {
+        return '<div class="guide-label">' + T('study_ui.what_to_do') + '</div><div class="guide-flow">' + flow.map(function (row) {
             return '<div class="guide-flow-row"><div class="guide-flow-index">' + row[0] + '</div><div class="guide-flow-text">' + row[1] + '</div></div>';
         }).join('') + '</div>';
     }
@@ -1260,7 +1177,7 @@ button {
         trigger.setAttribute('aria-controls', 'accordion-panel-' + step.number);
         trigger.innerHTML =
             '<span class="accordion-number">' + step.number + '</span>' +
-            '<span class="accordion-copy"><span class="accordion-title">' + step.title + '</span><span class="accordion-summary">' + step.summary + '</span></span>' +
+            '<span class="accordion-copy"><span class="accordion-title">' + stepText(step, 'title') + '</span><span class="accordion-summary">' + stepText(step, 'summary') + '</span></span>' +
             '<span class="accordion-chevron" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m6.5 9 5.5 5.5L17.5 9" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>';
         trigger.addEventListener('click', function () {
             setOpenStep(openStepNumber === step.number ? null : step.number);
@@ -1272,9 +1189,9 @@ button {
         panel.setAttribute('role', 'region');
         panel.hidden = true;
         panel.innerHTML =
-            '<p class="guide-intro">' + step.intro + '</p>' +
-            (step.reference ? '<div class="guide-reference">' + step.reference + '</div>' : '') +
-            flowMarkup(step.flow) +
+            '<p class="guide-intro">' + stepText(step, 'intro') + '</p>' +
+            (function () { const r = stepReference(step); return r ? '<div class="guide-reference">' + r + '</div>' : ''; })() +
+            flowMarkup(stepFlow(step)) +
             '<div class="guide-action-row"></div>';
 
         const actionRow = panel.querySelector('.guide-action-row');
@@ -1283,7 +1200,7 @@ button {
             const visionButton = document.createElement('button');
             visionButton.type = 'button';
             visionButton.className = 'guide-secondary-btn';
-            visionButton.textContent = 'View Church Circle';
+            visionButton.textContent = T('study_ui.view_church_circle');
             visionButton.addEventListener('click', function () {
                 showVisionPopup();
             });
@@ -1321,7 +1238,7 @@ button {
         accordionRoot.className = 'accordion-overview';
         accordionRoot.setAttribute('aria-label', 'Eight ordered Stories of Hope steps');
 
-        sections.forEach(function (section) {
+        sectionList().forEach(function (section) {
             const label = document.createElement('div');
             label.className = 'accordion-section-label';
             label.innerHTML = '<span>' + section.title + '</span><span>' + section.range + '</span>';
@@ -1341,7 +1258,7 @@ button {
         const hint = document.getElementById('interactionHint');
         if (hint) hint.hidden = true;
         try {
-            localStorage.setItem('hope-through-death-accordion-hint-seen', 'true');
+            localStorage.setItem(HINT_KEY, 'true');
         } catch (error) {}
     }
 
@@ -1405,18 +1322,18 @@ button {
             if (!item) return;
             item.classList.toggle('completed', complete);
             const button = item.querySelector('.complete-step-btn');
-            if (button) button.textContent = complete ? 'Mark Step Incomplete' : 'Mark Step Complete';
+            if (button) button.textContent = complete ? T('study_ui.mark_incomplete') : T('study_ui.mark_complete');
         });
 
         const fill = document.getElementById('progressFill');
         const text = document.getElementById('progressText');
         if (fill) fill.style.width = (count / 8 * 100) + '%';
-        if (text) text.textContent = count + ' of 8 steps';
+        if (text) text.textContent = T('study_ui.steps_count', { count: count });
     }
 
     function updateAccordionProgress() {
         syncAccordion();
-        if (steps.every(isStepComplete)) showNotification('Study complete! 🎉');
+        if (steps.every(isStepComplete)) showNotification(window.t('common.study_complete'));
     }
 
     function toggleAccountPanel() {
@@ -1437,7 +1354,7 @@ button {
         const button = document.querySelector('.account-btn');
         if (!button) return;
         button.classList.toggle('signed-in', !!user);
-        button.setAttribute('aria-label', user ? 'Open signed-in account' : 'Open sign in');
+        button.setAttribute('aria-label', user ? T('study_ui.open_account') : T('study_ui.open_sign_in'));
     }
 
     function enhanceLayout() {
@@ -1455,16 +1372,16 @@ button {
         account.type = 'button';
         account.className = 'account-btn';
         account.innerHTML = personIcon();
-        account.setAttribute('aria-label', 'Open sign in');
+        account.setAttribute('aria-label', T('study_ui.open_sign_in'));
         account.addEventListener('click', toggleAccountPanel);
         header.appendChild(account);
 
         const interactionHint = document.createElement('div');
         interactionHint.className = 'interaction-hint';
         interactionHint.id = 'interactionHint';
-        interactionHint.innerHTML = '<span>Tap a step to see instructions</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6.5 9 5.5 5.5L17.5 9" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+        interactionHint.innerHTML = '<span>' + T('study_ui.tap_hint') + '</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6.5 9 5.5 5.5L17.5 9" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
         try {
-            interactionHint.hidden = localStorage.getItem('hope-through-death-accordion-hint-seen') === 'true';
+            interactionHint.hidden = localStorage.getItem(HINT_KEY) === 'true';
         } catch (error) {}
         progress.appendChild(interactionHint);
 
@@ -1485,7 +1402,6 @@ button {
             attributeFilter: ['class']
         });
 
-        window.addEventListener('i18n:ready', syncAccordion);
     }
 
     const originalResetAll = window.resetAll;
@@ -1506,7 +1422,17 @@ button {
     window.openAuthPanel = toggleAccountPanel;
     window.closeAuthPanel = closeAccountPanel;
 
-    document.addEventListener('DOMContentLoaded', enhanceLayout, { once: true });
+    let _accordionBuilt = false;
+    function buildAccordionOnce() {
+        if (_accordionBuilt) return;
+        if (!document.querySelector('.container')) return;
+        _accordionBuilt = true;
+        enhanceLayout();
+    }
+    window.addEventListener('i18n:ready', buildAccordionOnce);
+    document.addEventListener('DOMContentLoaded', function () {
+        setTimeout(buildAccordionOnce, 600);
+    }, { once: true });
 })();
 </script></body>
 </html>

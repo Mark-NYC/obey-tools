@@ -53,6 +53,8 @@
     "next_command": "Nächstes Gebot →",
     "commands_complete_all": "Alle 12 Gebote abgeschlossen",
     "back_to_commands": "Zurück zu den Geboten →",
+    "up_next": "Als Nächstes:",
+    "up_next_reproduce": "Führe jetzt jemand anderen hindurch.",
     "reset_confirm": "Gesamten Fortschritt zurücksetzen?",
     "progress_reset": "Fortschritt zurückgesetzt",
     "study_complete": "Studium abgeschlossen! 🎉",
@@ -104,6 +106,323 @@
     "share": "TEILEN",
     "yes": "Ja",
     "no": "Nein"
+  },
+  "study_ui": {
+    "what_to_do": "Was zu tun ist",
+    "view_church_circle": "Kirchenkreis ansehen",
+    "mark_complete": "Schritt als erledigt markieren",
+    "mark_incomplete": "Schritt als offen markieren",
+    "steps_count": "{count} von 8 Schritten",
+    "tap_hint": "Tippe auf einen Schritt, um die Anleitung zu sehen",
+    "ref_fmt": "Gebot: {cmd} | Geschichte: {story}",
+    "ref_story_fmt": "Geschichte: {story}",
+    "open_sign_in": "Anmeldung öffnen",
+    "open_account": "Angemeldetes Konto öffnen"
+  },
+  "cmd_study": {
+    "sections": {
+      "lookback": {
+        "title": "Zurückblicken",
+        "range": "Schritte 1–4"
+      },
+      "lookup": {
+        "title": "Nach oben schauen",
+        "range": "Schritt 5"
+      },
+      "lookforward": {
+        "title": "Nach vorn schauen",
+        "range": "Schritte 6–8"
+      }
+    },
+    "steps": {
+      "1": {
+        "title": "Fürsorge & Gebet",
+        "summary": "Teilen, sorgen und beten",
+        "intro": "Jeder erzählt kurz, wie es ihm geht. Betet, wenn es passt.",
+        "flow": [
+          [
+            "1",
+            "Lade jede Person ein, kurz zu erzählen, wie es ihr geht."
+          ],
+          [
+            "2",
+            "Achte auf Nöte, Lasten oder Gründe zum Feiern."
+          ],
+          [
+            "3",
+            "Haltet inne und betet, wenn es passt."
+          ]
+        ]
+      },
+      "2": {
+        "title": "Anbetung",
+        "summary": "Loben • Geben • Abendmahl",
+        "intro": "Lobt Gott, gebt für Nöte und feiert das Abendmahl.",
+        "flow": [
+          [
+            "1",
+            "Lobt Gott gemeinsam."
+          ],
+          [
+            "2",
+            "Gebt für Nöte, sobald sie geteilt werden."
+          ],
+          [
+            "3",
+            "Feiert das Abendmahl, wenn es passt."
+          ]
+        ]
+      },
+      "3": {
+        "title": "Liebevolle Rechenschaft",
+        "summary": "Folgen • Fischen",
+        "intro": "Blickt ehrlich und ermutigend zurück. Es geht um Gehorsam, nicht um Scham.",
+        "flow": [
+          [
+            "Folgen",
+            "Wie hast du gehorcht, was Jesus dir letztes Mal gezeigt hat?"
+          ],
+          [
+            "Fischen",
+            "Mit wem hast du geteilt, und was ist geschehen?<br><a class=\"conversation-box-link\" href=\"https://obey.tools/conversation-box.html\" target=\"_blank\" rel=\"noopener\">Gesprächsbox öffnen <span aria-hidden=\"true\">↗</span></a>"
+          ]
+        ]
+      },
+      "4": {
+        "title": "Vision: Apostelgeschichte 2 Kirchenkreis",
+        "summary": "Apg 2:36–47",
+        "intro": "Lest Apg 2:36–47. Seid Teil einer Gemeinde und gründet eine Gemeinde.",
+        "reference": "Apg 2:36–47"
+      },
+      "5": {
+        "title": "Neue Lehre aus der Schrift",
+        "summary": "Geschichte • Gott • Menschen • Hören • Gehorchen",
+        "intro": "Geht den Abschnitt als einen geführten Entdeckungsprozess durch. Diese Fragen sind Teile von Schritt 5, keine zusätzlichen Punkte.",
+        "flow": [
+          [
+            "1",
+            "Lest das Gebot und erzählt die Geschichte."
+          ],
+          [
+            "2",
+            "Lest die Geschichte gemeinsam."
+          ],
+          [
+            "3",
+            "Erzählt die Geschichte mit euren eigenen Worten nach."
+          ],
+          [
+            "4",
+            "Was lernen wir über Gott?"
+          ],
+          [
+            "5",
+            "Was lernen wir über Menschen?"
+          ],
+          [
+            "6",
+            "Haltet inne, betet und hört."
+          ],
+          [
+            "7",
+            "Wie wirst du der Geschichte gehorchen?"
+          ]
+        ]
+      },
+      "6": {
+        "title": "Übung: 3 Kreise",
+        "summary": "Das Evangeliums-Werkzeug üben",
+        "intro": "Übt das Evangeliums-Werkzeug der 3 Kreise, bis jeder es einfach und klar anwenden kann.",
+        "flow": [
+          [
+            "1",
+            "Wählt, wer zuerst übt."
+          ],
+          [
+            "2",
+            "Übt, die 3 Kreise klar und einfach weiterzugeben."
+          ],
+          [
+            "3",
+            "Gebt kurze Ermutigung und versucht es bei Bedarf erneut."
+          ]
+        ]
+      },
+      "7": {
+        "title": "Ziele setzen",
+        "summary": "Folgen • Fischen",
+        "intro": "Wählt klare nächste Schritte, bevor ihr das Treffen verlasst.",
+        "flow": [
+          [
+            "Folgen",
+            "Wozu fordert Jesus dich im Gehorsam auf, bevor ihr euch das nächste Mal trefft?"
+          ],
+          [
+            "Fischen",
+            "Wer muss diese Geschichte hören?"
+          ]
+        ]
+      },
+      "8": {
+        "title": "Mit Gebet aussenden",
+        "summary": "Gemeinsam beten",
+        "intro": "Betet gemeinsam und sendet einander aus, Jesus zu gehorchen.",
+        "flow": [
+          [
+            "1",
+            "Betet für die genannten Vorhaben und Menschen."
+          ],
+          [
+            "2",
+            "Bittet den Heiligen Geist um Mut, Kraft und Treue."
+          ],
+          [
+            "3",
+            "Sendet einander aus, Jesus zu gehorchen."
+          ]
+        ]
+      }
+    }
+  },
+  "story_study": {
+    "sections": {
+      "lookback": {
+        "title": "Zurückblicken",
+        "range": "Schritte 1–2"
+      },
+      "lookup": {
+        "title": "Nach oben schauen",
+        "range": "Schritte 3–4"
+      },
+      "lookforward": {
+        "title": "Nach vorn schauen",
+        "range": "Schritte 5–8"
+      }
+    },
+    "steps": {
+      "1": {
+        "title": "Fürsorge",
+        "summary": "Teilen, zuhören und beten",
+        "intro": "Jeder erzählt kurz, wie es ihm geht. Betet, wenn es passt.",
+        "flow": [
+          [
+            "1",
+            "Lade jede Person ein, kurz zu erzählen, wie es ihr geht."
+          ],
+          [
+            "2",
+            "Achte auf Nöte, Lasten oder Gründe zum Feiern."
+          ],
+          [
+            "3",
+            "Haltet inne und betet, wenn es passt."
+          ]
+        ]
+      },
+      "2": {
+        "title": "Liebevolle Rechenschaft",
+        "summary": "Folgen • Fischen",
+        "intro": "Blickt ehrlich und ermutigend zurück. Es geht um Gehorsam, nicht um Scham.",
+        "flow": [
+          [
+            "Folgen",
+            "Wie hast du gehorcht, was Jesus dir letztes Mal gezeigt hat?"
+          ],
+          [
+            "Fischen",
+            "Mit wem hast du die Geschichte geteilt, und was ist geschehen?<br><a class=\"conversation-box-link\" href=\"https://obey.tools/conversation-box.html\" target=\"_blank\" rel=\"noopener\">Gesprächsbox öffnen <span aria-hidden=\"true\">↗</span></a>"
+          ]
+        ]
+      },
+      "3": {
+        "title": "Die Geschichte hören",
+        "summary": "Erzählen • Lesen • Nacherzählen",
+        "intro": "Hört die Geschichte auf mehrere Arten, damit sie alle verstehen und behalten.",
+        "retell": "Erzähle die Geschichte mit deinen eigenen Worten nach."
+      },
+      "4": {
+        "title": "Entdecken & Gehorchen",
+        "summary": "Gott • Menschen • Hören • Gehorchen",
+        "intro": "Erkundet gemeinsam die Geschichte, hört auf Gott und benennt eine klare Antwort.",
+        "flow": [
+          [
+            "1",
+            "Was lernen wir über Gott?"
+          ],
+          [
+            "2",
+            "Was lernen wir über Menschen?"
+          ],
+          [
+            "3",
+            "Haltet inne, betet und hört."
+          ],
+          [
+            "4",
+            "Wie wirst du gehorchen?"
+          ]
+        ]
+      },
+      "5": {
+        "title": "Übung",
+        "summary": "Erzähle die Geschichte aus dem Gedächtnis",
+        "flow": [
+          [
+            "1",
+            "Wählt, wer zuerst übt."
+          ],
+          [
+            "2",
+            "Erzähle die Geschichte, ohne sie zu lesen."
+          ],
+          [
+            "3",
+            "Gebt kurze Ermutigung und übt bei Bedarf erneut."
+          ]
+        ]
+      },
+      "6": {
+        "title": "Folgen-Ziel",
+        "summary": "Wähle einen Schritt des Gehorsams",
+        "intro": "Entscheide, wie du auf Jesus antwortest, bevor ihr euch das nächste Mal trefft.",
+        "flow": [
+          [
+            "Folgen",
+            "Wozu fordert Jesus dich diese Woche im Gehorsam auf?"
+          ]
+        ]
+      },
+      "7": {
+        "title": "Fischen-Ziel",
+        "summary": "Wähle, wer hören soll",
+        "intro": "Nenne eine Person, die Hoffnung braucht, und mache einen konkreten Plan zum Teilen.",
+        "flow": [
+          [
+            "Fischen",
+            "Wer muss diese Geschichte hören? Wann wirst du sie teilen?"
+          ]
+        ]
+      },
+      "8": {
+        "title": "Beten",
+        "summary": "Schließt gemeinsam im Gebet",
+        "intro": "Betet für die getroffenen Zusagen zum Gehorsam und zum Teilen.",
+        "flow": [
+          [
+            "1",
+            "Betet für jedes Folgen-Ziel."
+          ],
+          [
+            "2",
+            "Betet namentlich für jede Person in den Fischen-Zielen."
+          ],
+          [
+            "3",
+            "Bittet Gott um Mut, Liebe und Treue."
+          ]
+        ]
+      }
+    }
   },
   "settings": {
     "title": "Zuweisungseinstellungen",
@@ -251,42 +570,48 @@
     "scripture": "Lukas 7:36–50",
     "tell_story_desc": "Erzähle die Geschichte der reuigen Frau aus dem Gedächtnis.",
     "read_story_desc": "Lest Lukas 7:36–50 gemeinsam.",
-    "practice_desc": "Erzähle die Geschichte der reuigen Frau aus dem Gedächtnis."
+    "practice_desc": "Erzähle die Geschichte der reuigen Frau aus dem Gedächtnis.",
+    "practice_intro": "Übe, die Geschichte der reuigen Frau einfach und genau zu erzählen."
   },
   "hope_nonreligious": {
     "title": "Hoffnung für die Nichtreligiösen",
     "scripture": "Lukas 18:9–17",
     "tell_story_desc": "Erzähle die Geschichte vom Pharisäer und Zöllner aus dem Gedächtnis.",
     "read_story_desc": "Lest Lukas 18:9–17 gemeinsam.",
-    "practice_desc": "Erzähle die Geschichte vom Pharisäer und Zöllner aus dem Gedächtnis."
+    "practice_desc": "Erzähle die Geschichte vom Pharisäer und Zöllner aus dem Gedächtnis.",
+    "practice_intro": "Übe, die Geschichte vom Pharisäer und Zöllner einfach und genau zu erzählen."
   },
   "hope_changes": {
     "title": "Hoffnung verändert Dinge",
     "scripture": "Lukas 19:1–10",
     "tell_story_desc": "Erzähle die Geschichte von Zachäus aus dem Gedächtnis.",
     "read_story_desc": "Lest Lukas 19:1–10 gemeinsam.",
-    "practice_desc": "Erzähle die Geschichte von Zachäus aus dem Gedächtnis."
+    "practice_desc": "Erzähle die Geschichte von Zachäus aus dem Gedächtnis.",
+    "practice_intro": "Übe, die Geschichte von Zachäus einfach und genau zu erzählen."
   },
   "hope_forgives": {
     "title": "Hoffnung vergibt",
     "scripture": "Matthäus 18:21–35",
     "tell_story_desc": "Erzähle die Geschichte vom unbarmherzigen Knecht aus dem Gedächtnis.",
     "read_story_desc": "Lest Matthäus 18:21–35 gemeinsam.",
-    "practice_desc": "Erzähle die Geschichte vom unbarmherzigen Knecht aus dem Gedächtnis."
+    "practice_desc": "Erzähle die Geschichte vom unbarmherzigen Knecht aus dem Gedächtnis.",
+    "practice_intro": "Übe, die Geschichte vom unbarmherzigen Knecht einfach und genau zu erzählen."
   },
   "hope_through_death": {
     "title": "Hoffnung durch den Tod",
     "scripture": "Lukas 23:26–43",
     "tell_story_desc": "Erzähle die Geschichte von den Verbrechern am Kreuz aus dem Gedächtnis.",
     "read_story_desc": "Lest Lukas 23:26–43 gemeinsam.",
-    "practice_desc": "Erzähle die Geschichte von den Verbrechern am Kreuz aus dem Gedächtnis."
+    "practice_desc": "Erzähle die Geschichte von den Verbrechern am Kreuz aus dem Gedächtnis.",
+    "practice_intro": "Übe, die Geschichte von den Verbrechern am Kreuz einfach und genau zu erzählen."
   },
   "hope_rose_from_dead": {
     "title": "Hoffnung ist von den Toten auferstanden",
     "scripture": "Lukas 24:1–20",
     "tell_story_desc": "Erzähle die Geschichte der Auferstehung aus dem Gedächtnis.",
     "read_story_desc": "Lest Lukas 24:1–20 gemeinsam.",
-    "practice_desc": "Erzähle die Geschichte der Auferstehung aus dem Gedächtnis."
+    "practice_desc": "Erzähle die Geschichte der Auferstehung aus dem Gedächtnis.",
+    "practice_intro": "Übe, die Geschichte der Auferstehung einfach und genau zu erzählen."
   },
   "hope_is_waiting": {
     "title": "Hoffnung wartet auf dich",
@@ -294,7 +619,8 @@
     "tell_story_desc": "Erzähle die Geschichte vom verlorenen Sohn aus dem Gedächtnis.",
     "read_story_desc": "Lest Lukas 15:11–32 gemeinsam.",
     "practice_desc": "Erzähle die Geschichte vom verlorenen Sohn aus dem Gedächtnis.",
-    "bible_btn": "Lukas 15:11–32 (CSB)"
+    "bible_btn": "Lukas 15:11–32 (CSB)",
+    "practice_intro": "Übe, die Geschichte vom verlorenen Sohn einfach und genau zu erzählen."
   },
   "leader_tools": {
     "title": "Leiter-Tools",

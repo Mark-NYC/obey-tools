@@ -14,12 +14,32 @@ const DEFAULT  = 'en'
 let _lang    = localStorage.getItem(LANG_KEY) || DEFAULT
 let _strings = {}
 
+// ── Raw lookup ──────────────────────────────────────────────────────────────
+// Returns the resolved value for a dotted key (string, array, or object), or
+// undefined if the key is absent. Use for structured data such as flow arrays.
+export function raw(key) {
+    return key.split('.').reduce((o, k) => (o != null ? o[k] : undefined), _strings)
+}
+
 // ── Core translate function ─────────────────────────────────────────────────
 export function t(key, vars) {
-    const raw = key.split('.').reduce((o, k) => (o != null ? o[k] : undefined), _strings)
-    const str = (raw != null && raw !== key) ? String(raw) : key
+    const val = raw(key)
+    const str = (val != null && typeof val !== 'object') ? String(val) : key
     if (!vars) return str
     return str.replace(/\{(\w+)\}/g, (_, k) => (vars[k] != null ? vars[k] : `{${k}}`))
+}
+
+// ── Deep merge (overlay src onto dst, mutating dst) ─────────────────────────
+function _merge(dst, src) {
+    for (const k in src) {
+        if (src[k] && typeof src[k] === 'object' && !Array.isArray(src[k])) {
+            if (!dst[k] || typeof dst[k] !== 'object') dst[k] = {}
+            _merge(dst[k], src[k])
+        } else {
+            dst[k] = src[k]
+        }
+    }
+    return dst
 }
 
 // ── Language control ────────────────────────────────────────────────────────
@@ -57,24 +77,25 @@ export function applyTranslations() {
 
 // ── Initialisation ──────────────────────────────────────────────────────────
 async function _init() {
-    try {
-        const res = await fetch(`/lang/${_lang}.json`)
-        if (!res.ok) throw new Error(`HTTP ${res.status}`)
-        _strings = await res.json()
-    } catch {
-        if (_lang !== DEFAULT) {
-            try { _strings = await (await fetch('/lang/en.json')).json() } catch {}
-        }
+    // Always load English as a base so any key missing from the active language
+    // degrades to English rather than showing a raw key.
+    try { _strings = await (await fetch('/lang/en.json')).json() } catch { _strings = {} }
+    if (_lang !== DEFAULT) {
+        try {
+            const res = await fetch(`/lang/${_lang}.json`)
+            if (res.ok) _merge(_strings, await res.json())
+        } catch {}
     }
     // Re-expose with loaded strings
     window.t = t
+    window.i18n.raw = raw
     applyTranslations()
     window.dispatchEvent(new CustomEvent('i18n:ready'))
 }
 
 // Expose immediately so inline scripts calling window.t() before load don't crash
 window.t = t
-window.i18n = { setLang, getLang, applyTranslations }
+window.i18n = { setLang, getLang, applyTranslations, raw }
 
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', _init)

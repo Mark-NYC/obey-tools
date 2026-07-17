@@ -53,6 +53,8 @@
     "next_command": "Siguiente mandamiento →",
     "commands_complete_all": "Los 12 mandamientos completados",
     "back_to_commands": "Volver a los mandamientos →",
+    "up_next": "A continuación:",
+    "up_next_reproduce": "Ahora guía a otra persona a través de ellos.",
     "reset_confirm": "¿Reiniciar todo el progreso?",
     "progress_reset": "Progreso reiniciado",
     "study_complete": "¡Estudio completo! 🎉",
@@ -104,6 +106,323 @@
     "share": "COMPARTIR",
     "yes": "Sí",
     "no": "No"
+  },
+  "study_ui": {
+    "what_to_do": "Qué hacer",
+    "view_church_circle": "Ver Círculo de Iglesia",
+    "mark_complete": "Marcar paso como completado",
+    "mark_incomplete": "Marcar paso como incompleto",
+    "steps_count": "{count} de 8 pasos",
+    "tap_hint": "Toca un paso para ver las instrucciones",
+    "ref_fmt": "Mandamiento: {cmd} | Historia: {story}",
+    "ref_story_fmt": "Historia: {story}",
+    "open_sign_in": "Abrir inicio de sesión",
+    "open_account": "Abrir cuenta con sesión iniciada"
+  },
+  "cmd_study": {
+    "sections": {
+      "lookback": {
+        "title": "Mirar Atrás",
+        "range": "Pasos 1–4"
+      },
+      "lookup": {
+        "title": "Mirar Arriba",
+        "range": "Paso 5"
+      },
+      "lookforward": {
+        "title": "Mirar Adelante",
+        "range": "Pasos 6–8"
+      }
+    },
+    "steps": {
+      "1": {
+        "title": "Cuidado y Oración",
+        "summary": "Compartir, cuidar y orar",
+        "intro": "Cada persona comparte brevemente cómo está. Oren si es apropiado.",
+        "flow": [
+          [
+            "1",
+            "Invita a cada persona a compartir brevemente cómo está."
+          ],
+          [
+            "2",
+            "Presta atención a necesidades, cargas o motivos para celebrar."
+          ],
+          [
+            "3",
+            "Hagan una pausa y oren cuando sea apropiado."
+          ]
+        ]
+      },
+      "2": {
+        "title": "Adoración",
+        "summary": "Alabar • Dar • Cena del Señor",
+        "intro": "Alaben a Dios, den para las necesidades y compartan la Cena del Señor.",
+        "flow": [
+          [
+            "1",
+            "Alaben a Dios juntos."
+          ],
+          [
+            "2",
+            "Den para las necesidades a medida que se comparten."
+          ],
+          [
+            "3",
+            "Compartan la Cena del Señor cuando sea apropiado."
+          ]
+        ]
+      },
+      "3": {
+        "title": "Rendición de Cuentas Amorosa",
+        "summary": "Seguir • Pescar",
+        "intro": "Miren atrás con honestidad y ánimo. Se trata de obediencia, no de vergüenza.",
+        "flow": [
+          [
+            "Seguir",
+            "¿Cómo obedeciste lo que Jesús te mostró la última vez?"
+          ],
+          [
+            "Pescar",
+            "¿Con quién compartiste y qué pasó?<br><a class=\"conversation-box-link\" href=\"https://obey.tools/conversation-box.html\" target=\"_blank\" rel=\"noopener\">Abrir Caja de Conversación <span aria-hidden=\"true\">↗</span></a>"
+          ]
+        ]
+      },
+      "4": {
+        "title": "Visión: Círculo de Iglesia Hechos 2",
+        "summary": "Hechos 2:36–47",
+        "intro": "Lean Hechos 2:36–47. Sean parte de una iglesia y comiencen una iglesia.",
+        "reference": "Hechos 2:36–47"
+      },
+      "5": {
+        "title": "Nueva Enseñanza de las Escrituras",
+        "summary": "Historia • Dios • Personas • Escuchar • Obedecer",
+        "intro": "Recorran el pasaje como un solo proceso de descubrimiento guiado. Estas preguntas son partes del Paso 5, no elementos adicionales de la lista.",
+        "flow": [
+          [
+            "1",
+            "Lean el mandamiento y cuenten la historia."
+          ],
+          [
+            "2",
+            "Lean la historia juntos."
+          ],
+          [
+            "3",
+            "Vuelvan a contar la historia con sus propias palabras."
+          ],
+          [
+            "4",
+            "¿Qué aprendemos sobre Dios?"
+          ],
+          [
+            "5",
+            "¿Qué aprendemos sobre las personas?"
+          ],
+          [
+            "6",
+            "Hagan una pausa, oren y escuchen."
+          ],
+          [
+            "7",
+            "¿Cómo vas a obedecer la historia?"
+          ]
+        ]
+      },
+      "6": {
+        "title": "Práctica: 3 Círculos",
+        "summary": "Practicar la herramienta del evangelio",
+        "intro": "Practiquen la herramienta del evangelio de los 3 Círculos hasta que cada persona pueda usarla de forma simple y clara.",
+        "flow": [
+          [
+            "1",
+            "Elijan quién practicará primero."
+          ],
+          [
+            "2",
+            "Practiquen compartir los 3 Círculos de forma clara y simple."
+          ],
+          [
+            "3",
+            "Den un breve ánimo e inténtenlo de nuevo si es necesario."
+          ]
+        ]
+      },
+      "7": {
+        "title": "Establecer Metas",
+        "summary": "Seguir • Pescar",
+        "intro": "Elijan pasos siguientes claros antes de terminar la reunión.",
+        "flow": [
+          [
+            "Seguir",
+            "¿Qué te pide Jesús que obedezcas antes de la próxima reunión?"
+          ],
+          [
+            "Pescar",
+            "¿Quién necesita escuchar esta historia?"
+          ]
+        ]
+      },
+      "8": {
+        "title": "Comisionamiento con Oración",
+        "summary": "Orar juntos",
+        "intro": "Oren juntos y envíense unos a otros a obedecer a Jesús.",
+        "flow": [
+          [
+            "1",
+            "Oren por los compromisos y las personas que se mencionaron."
+          ],
+          [
+            "2",
+            "Pidan al Espíritu Santo valor, poder y fidelidad."
+          ],
+          [
+            "3",
+            "Envíense unos a otros a obedecer a Jesús."
+          ]
+        ]
+      }
+    }
+  },
+  "story_study": {
+    "sections": {
+      "lookback": {
+        "title": "Mirar Atrás",
+        "range": "Pasos 1–2"
+      },
+      "lookup": {
+        "title": "Mirar Arriba",
+        "range": "Pasos 3–4"
+      },
+      "lookforward": {
+        "title": "Mirar Adelante",
+        "range": "Pasos 5–8"
+      }
+    },
+    "steps": {
+      "1": {
+        "title": "Cuidado",
+        "summary": "Compartir, escuchar y orar",
+        "intro": "Cada persona comparte brevemente cómo está. Oren cuando sea apropiado.",
+        "flow": [
+          [
+            "1",
+            "Invita a cada persona a compartir brevemente cómo está."
+          ],
+          [
+            "2",
+            "Presta atención a necesidades, cargas o motivos para celebrar."
+          ],
+          [
+            "3",
+            "Hagan una pausa y oren cuando sea apropiado."
+          ]
+        ]
+      },
+      "2": {
+        "title": "Rendición de Cuentas Amorosa",
+        "summary": "Seguir • Pescar",
+        "intro": "Miren atrás con honestidad y ánimo. Se trata de obediencia, no de vergüenza.",
+        "flow": [
+          [
+            "Seguir",
+            "¿Cómo obedeciste lo que Jesús te mostró la última vez?"
+          ],
+          [
+            "Pescar",
+            "¿Con quién compartiste la historia y qué pasó?<br><a class=\"conversation-box-link\" href=\"https://obey.tools/conversation-box.html\" target=\"_blank\" rel=\"noopener\">Abrir Caja de Conversación <span aria-hidden=\"true\">↗</span></a>"
+          ]
+        ]
+      },
+      "3": {
+        "title": "Escuchar la Historia",
+        "summary": "Contar • Leer • Recontar",
+        "intro": "Escuchen la historia de varias maneras para que todos la entiendan y la recuerden.",
+        "retell": "Vuelve a contar la historia con tus propias palabras."
+      },
+      "4": {
+        "title": "Descubrir y Obedecer",
+        "summary": "Dios • Personas • Escuchar • Obedecer",
+        "intro": "Exploren juntos la historia, escuchen a Dios y definan una respuesta clara.",
+        "flow": [
+          [
+            "1",
+            "¿Qué aprendemos sobre Dios?"
+          ],
+          [
+            "2",
+            "¿Qué aprendemos sobre las personas?"
+          ],
+          [
+            "3",
+            "Hagan una pausa, oren y escuchen."
+          ],
+          [
+            "4",
+            "¿Cómo vas a obedecer?"
+          ]
+        ]
+      },
+      "5": {
+        "title": "Práctica",
+        "summary": "Cuenta la historia de memoria",
+        "flow": [
+          [
+            "1",
+            "Elijan quién practicará primero."
+          ],
+          [
+            "2",
+            "Cuenta la historia sin leerla."
+          ],
+          [
+            "3",
+            "Den un breve ánimo y practiquen de nuevo si es necesario."
+          ]
+        ]
+      },
+      "6": {
+        "title": "Meta de Seguir",
+        "summary": "Elige un paso de obediencia",
+        "intro": "Decide cómo responderás a Jesús antes de la próxima reunión.",
+        "flow": [
+          [
+            "Seguir",
+            "¿Qué te pide Jesús que obedezcas esta semana?"
+          ]
+        ]
+      },
+      "7": {
+        "title": "Meta de Pescar",
+        "summary": "Elige quién escuchará",
+        "intro": "Nombra a una persona que necesita esperanza y haz un plan específico para compartir.",
+        "flow": [
+          [
+            "Pescar",
+            "¿Quién necesita escuchar esta historia? ¿Cuándo la compartirás?"
+          ]
+        ]
+      },
+      "8": {
+        "title": "Orar",
+        "summary": "Cierren juntos en oración",
+        "intro": "Oren por los compromisos de obediencia y de compartir que se hicieron.",
+        "flow": [
+          [
+            "1",
+            "Oren por cada Meta de Seguir."
+          ],
+          [
+            "2",
+            "Oren por nombre por cada persona en las Metas de Pescar."
+          ],
+          [
+            "3",
+            "Pidan a Dios valor, amor y fidelidad."
+          ]
+        ]
+      }
+    }
   },
   "settings": {
     "title": "Configuración de Asignación",
@@ -251,42 +570,48 @@
     "scripture": "Lucas 7:36–50",
     "tell_story_desc": "Cuenta la historia de la Mujer Arrepentida de memoria.",
     "read_story_desc": "Lean Lucas 7:36–50 juntos.",
-    "practice_desc": "Cuenta la historia de la Mujer Arrepentida de memoria."
+    "practice_desc": "Cuenta la historia de la Mujer Arrepentida de memoria.",
+    "practice_intro": "Practica contar la historia de la Mujer Arrepentida de forma simple y precisa."
   },
   "hope_nonreligious": {
     "title": "Esperanza para el No Religioso",
     "scripture": "Lucas 18:9–17",
     "tell_story_desc": "Cuenta la historia del Fariseo y el Recaudador de Impuestos de memoria.",
     "read_story_desc": "Lean Lucas 18:9–17 juntos.",
-    "practice_desc": "Cuenta la historia del Fariseo y el Recaudador de Impuestos de memoria."
+    "practice_desc": "Cuenta la historia del Fariseo y el Recaudador de Impuestos de memoria.",
+    "practice_intro": "Practica contar la historia del Fariseo y el Recaudador de Impuestos de forma simple y precisa."
   },
   "hope_changes": {
     "title": "La Esperanza Cambia las Cosas",
     "scripture": "Lucas 19:1–10",
     "tell_story_desc": "Cuenta la historia de Zaqueo de memoria.",
     "read_story_desc": "Lean Lucas 19:1–10 juntos.",
-    "practice_desc": "Cuenta la historia de Zaqueo de memoria."
+    "practice_desc": "Cuenta la historia de Zaqueo de memoria.",
+    "practice_intro": "Practica contar la historia de Zaqueo de forma simple y precisa."
   },
   "hope_forgives": {
     "title": "La Esperanza Perdona",
     "scripture": "Mateo 18:21–35",
     "tell_story_desc": "Cuenta la historia del Siervo que No Perdonó de memoria.",
     "read_story_desc": "Lean Mateo 18:21–35 juntos.",
-    "practice_desc": "Cuenta la historia del Siervo que No Perdonó de memoria."
+    "practice_desc": "Cuenta la historia del Siervo que No Perdonó de memoria.",
+    "practice_intro": "Practica contar la historia del Siervo que No Perdonó de forma simple y precisa."
   },
   "hope_through_death": {
     "title": "Esperanza a Través de la Muerte",
     "scripture": "Lucas 23:26–43",
     "tell_story_desc": "Cuenta la historia de los Ladrones en la Cruz de memoria.",
     "read_story_desc": "Lean Lucas 23:26–43 juntos.",
-    "practice_desc": "Cuenta la historia de los Ladrones en la Cruz de memoria."
+    "practice_desc": "Cuenta la historia de los Ladrones en la Cruz de memoria.",
+    "practice_intro": "Practica contar la historia de los Ladrones en la Cruz de forma simple y precisa."
   },
   "hope_rose_from_dead": {
     "title": "La Esperanza Resucitó",
     "scripture": "Lucas 24:1–20",
     "tell_story_desc": "Cuenta la historia de la Resurrección de memoria.",
     "read_story_desc": "Lean Lucas 24:1–20 juntos.",
-    "practice_desc": "Cuenta la historia de la Resurrección de memoria."
+    "practice_desc": "Cuenta la historia de la Resurrección de memoria.",
+    "practice_intro": "Practica contar la historia de la Resurrección de forma simple y precisa."
   },
   "hope_is_waiting": {
     "title": "La Esperanza Te Está Esperando",
@@ -294,7 +619,8 @@
     "tell_story_desc": "Cuenta la historia del Hijo Pródigo de memoria.",
     "read_story_desc": "Lean Lucas 15:11–32 juntos.",
     "practice_desc": "Cuenta la historia del Hijo Pródigo de memoria.",
-    "bible_btn": "Luke 15:11–32 (CSB)"
+    "bible_btn": "Luke 15:11–32 (CSB)",
+    "practice_intro": "Practica contar la historia del Hijo Pródigo de forma simple y precisa."
   },
   "leader_tools": {
     "title": "Herramientas de Líder",
