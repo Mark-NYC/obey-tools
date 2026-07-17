@@ -53,6 +53,8 @@
     "next_command": "Наступний наказ →",
     "commands_complete_all": "Усі 12 наказів завершено",
     "back_to_commands": "Назад до наказів →",
+    "up_next": "Далі:",
+    "up_next_reproduce": "Тепер проведіть через них когось іншого.",
     "reset_confirm": "Скинути весь прогрес?",
     "progress_reset": "Прогрес скинуто",
     "study_complete": "Вивчення завершено! 🎉",

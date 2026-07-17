@@ -53,6 +53,8 @@
     "next_command": "Nächstes Gebot →",
     "commands_complete_all": "Alle 12 Gebote abgeschlossen",
     "back_to_commands": "Zurück zu den Geboten →",
+    "up_next": "Als Nächstes:",
+    "up_next_reproduce": "Führe jetzt jemand anderen hindurch.",
     "reset_confirm": "Gesamten Fortschritt zurücksetzen?",
     "progress_reset": "Fortschritt zurückgesetzt",
     "study_complete": "Studium abgeschlossen! 🎉",

@@ -53,6 +53,8 @@
     "next_command": "Следующая заповедь →",
     "commands_complete_all": "Все 12 заповедей завершены",
     "back_to_commands": "Назад к заповедям →",
+    "up_next": "Далее:",
+    "up_next_reproduce": "Теперь проведите через них кого-то ещё.",
     "reset_confirm": "Сбросить весь прогресс?",
     "progress_reset": "Прогресс сброшен",
     "study_complete": "Учёба завершена! 🎉",

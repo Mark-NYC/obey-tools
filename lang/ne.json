@@ -53,6 +53,8 @@
     "next_command": "अर्को आज्ञा →",
     "commands_complete_all": "सबै १२ आज्ञा पूरा भए",
     "back_to_commands": "आज्ञाहरूमा फर्कनुहोस् →",
+    "up_next": "अर्को:",
+    "up_next_reproduce": "अब अरू कसैलाई यी आज्ञाहरूको माध्यमबाट डोर्‍याउनुहोस्।",
     "reset_confirm": "सबै प्रगति रिसेट गर्ने?",
     "progress_reset": "प्रगति रिसेट भयो",
     "study_complete": "अध्ययन पूरा भयो! 🎉",

@@ -53,6 +53,8 @@
     "next_command": "Next Command →",
     "commands_complete_all": "All 12 commands complete",
     "back_to_commands": "Back to Commands →",
+    "up_next": "Up next:",
+    "up_next_reproduce": "Now lead someone else through them.",
     "reset_confirm": "ཡར་རྒྱས་ཚང་མ་སླར་བཀོད་བྱེད་དམ།",
     "progress_reset": "ཡར་རྒྱས་སླར་བཀོད་བྱས་པ།",
     "study_complete": "སློབ་སྦྱོང་ཟིན་པ། 🎉",
