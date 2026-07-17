@@ -1640,6 +1640,12 @@ function saveConversations() {
         
         window.addEventListener('resize', updateDisplay);
 
+        // Translations load asynchronously (i18n.js fetches /lang/*.json), so an
+        // initial updateDisplay() can run before they're ready and render raw keys
+        // (e.g. "conversation_box.no_conversations") in dynamically-built text.
+        // Re-render once i18n signals it's ready so real translations appear.
+        window.addEventListener('i18n:ready', updateDisplay);
+
         // Scroll focused detail fields into view when mobile keyboard opens
         ['details-next-step', 'details-note', 'details-follow-up-date'].forEach(id => {
             document.getElementById(id).addEventListener('focus', function() {
