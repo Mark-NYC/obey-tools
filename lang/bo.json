@@ -282,6 +282,146 @@
       }
     }
   },
+  "story_study": {
+    "sections": {
+      "lookback": {
+        "title": "Look Back",
+        "range": "Steps 1–2"
+      },
+      "lookup": {
+        "title": "Look Up",
+        "range": "Steps 3–4"
+      },
+      "lookforward": {
+        "title": "Look Forward",
+        "range": "Steps 5–8"
+      }
+    },
+    "steps": {
+      "1": {
+        "title": "Care",
+        "summary": "Share, listen, and pray",
+        "intro": "Everyone shares briefly how they are doing. Pray when appropriate.",
+        "flow": [
+          [
+            "1",
+            "Invite each person to share briefly how they are doing."
+          ],
+          [
+            "2",
+            "Listen for needs, burdens, or reasons to celebrate."
+          ],
+          [
+            "3",
+            "Pause and pray when appropriate."
+          ]
+        ]
+      },
+      "2": {
+        "title": "Loving Accountability",
+        "summary": "Follow • Fish",
+        "intro": "Look back with honesty and encouragement. This is about obedience, not shame.",
+        "flow": [
+          [
+            "Follow",
+            "How did you obey what Jesus showed you last time?"
+          ],
+          [
+            "Fish",
+            "Who did you share the story with, and what happened?<br><a class=\"conversation-box-link\" href=\"https://obey.tools/conversation-box.html\" target=\"_blank\" rel=\"noopener\">Open Conversation Box <span aria-hidden=\"true\">↗</span></a>"
+          ]
+        ]
+      },
+      "3": {
+        "title": "Hear the Story",
+        "summary": "Tell • Read • Retell",
+        "intro": "Hear the story several ways so everyone can understand and remember it.",
+        "retell": "Retell the story in your own words."
+      },
+      "4": {
+        "title": "Discover & Obey",
+        "summary": "God • People • Listen • Obey",
+        "intro": "Explore the story together, listen to God, and name a clear response.",
+        "flow": [
+          [
+            "1",
+            "What do we learn about God?"
+          ],
+          [
+            "2",
+            "What do we learn about people?"
+          ],
+          [
+            "3",
+            "Pause, pray, and listen."
+          ],
+          [
+            "4",
+            "How will you obey?"
+          ]
+        ]
+      },
+      "5": {
+        "title": "Practice",
+        "summary": "Tell the story from memory",
+        "flow": [
+          [
+            "1",
+            "Choose who will practice first."
+          ],
+          [
+            "2",
+            "Tell the story without reading it."
+          ],
+          [
+            "3",
+            "Give brief encouragement and practice again if needed."
+          ]
+        ]
+      },
+      "6": {
+        "title": "Follow Goal",
+        "summary": "Choose an obedience step",
+        "intro": "Decide how you will respond to Jesus before the next gathering.",
+        "flow": [
+          [
+            "Follow",
+            "What is Jesus asking you to obey this week?"
+          ]
+        ]
+      },
+      "7": {
+        "title": "Fish Goal",
+        "summary": "Choose who will hear",
+        "intro": "Name a person who needs hope and make a specific plan to share.",
+        "flow": [
+          [
+            "Fish",
+            "Who needs to hear this story? When will you share it?"
+          ]
+        ]
+      },
+      "8": {
+        "title": "Pray",
+        "summary": "Close together in prayer",
+        "intro": "Pray for the obedience and sharing commitments that were made.",
+        "flow": [
+          [
+            "1",
+            "Pray for each Follow Goal."
+          ],
+          [
+            "2",
+            "Pray by name for each person in the Fish Goals."
+          ],
+          [
+            "3",
+            "Ask God for courage, love, and faithfulness."
+          ]
+        ]
+      }
+    }
+  },
   "settings": {
     "title": "སྒྲིག་འགོད།",
     "mode_label": "Assignment Mode",
@@ -439,42 +579,48 @@
     "scripture": "Luke 7:36–50",
     "tell_story_desc": "Tell the story of the Repentant Woman from memory.",
     "read_story_desc": "Read Luke 7:36–50 together.",
-    "practice_desc": "Tell the story of the Repentant Woman from memory."
+    "practice_desc": "Tell the story of the Repentant Woman from memory.",
+    "practice_intro": "Practice telling the story of the Repentant Woman simply and accurately."
   },
   "hope_nonreligious": {
     "title": "Hope for the Nonreligious",
     "scripture": "Luke 18:9–17",
     "tell_story_desc": "Tell the story of the Pharisee & Tax Collector from memory.",
     "read_story_desc": "Read Luke 18:9–17 together.",
-    "practice_desc": "Tell the story of the Pharisee & Tax Collector from memory."
+    "practice_desc": "Tell the story of the Pharisee & Tax Collector from memory.",
+    "practice_intro": "Practice telling the story of the Pharisee & Tax Collector simply and accurately."
   },
   "hope_changes": {
     "title": "Hope Changes Things",
     "scripture": "Luke 19:1–10",
     "tell_story_desc": "Tell the story of Zacchaeus from memory.",
     "read_story_desc": "Read Luke 19:1–10 together.",
-    "practice_desc": "Tell the story of Zacchaeus from memory."
+    "practice_desc": "Tell the story of Zacchaeus from memory.",
+    "practice_intro": "Practice telling the story of Zacchaeus simply and accurately."
   },
   "hope_forgives": {
     "title": "Hope Forgives",
     "scripture": "Matthew 18:21–35",
     "tell_story_desc": "Tell the story of the Unforgiving Servant from memory.",
     "read_story_desc": "Read Matthew 18:21–35 together.",
-    "practice_desc": "Tell the story of the Unforgiving Servant from memory."
+    "practice_desc": "Tell the story of the Unforgiving Servant from memory.",
+    "practice_intro": "Practice telling the story of the Unforgiving Servant simply and accurately."
   },
   "hope_through_death": {
     "title": "Hope Through Death",
     "scripture": "Luke 23:26–43",
     "tell_story_desc": "Tell the story of the Thieves on the Cross from memory.",
     "read_story_desc": "Read Luke 23:26–43 together.",
-    "practice_desc": "Tell the story of the Thieves on the Cross from memory."
+    "practice_desc": "Tell the story of the Thieves on the Cross from memory.",
+    "practice_intro": "Practice telling the story of the Thieves on the Cross simply and accurately."
   },
   "hope_rose_from_dead": {
     "title": "Hope Rose From the Dead",
     "scripture": "Luke 24:1–20",
     "tell_story_desc": "Tell the story of the Resurrection from memory.",
     "read_story_desc": "Read Luke 24:1–20 together.",
-    "practice_desc": "Tell the story of the Resurrection from memory."
+    "practice_desc": "Tell the story of the Resurrection from memory.",
+    "practice_intro": "Practice telling the story of the Resurrection simply and accurately."
   },
   "hope_is_waiting": {
     "title": "Hope is Waiting For You",
@@ -482,7 +628,8 @@
     "tell_story_desc": "Tell the story of the Prodigal Son from memory.",
     "read_story_desc": "Read Luke 15:11–32 together.",
     "practice_desc": "Tell the story of the Prodigal Son from memory.",
-    "bible_btn": "Luke 15:11–32 (CSB)"
+    "bible_btn": "Luke 15:11–32 (CSB)",
+    "practice_intro": "Practice telling the story of the Prodigal Son simply and accurately."
   },
   "leader_tools": {
     "title": "འགོ་ཁྲིད་ཡོ་བྱད།",
