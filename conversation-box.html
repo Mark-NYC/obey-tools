@@ -84,8 +84,9 @@
         .box-selection-prompt .option:active { background: #f2f2f7; }
         .move-prompt { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff; padding: 0; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); z-index: 1000; display: none; flex-direction: column; width: 90%; max-width: 300px; overflow: hidden; }
         .move-prompt-header { display: flex; justify-content: flex-end; align-items: center; padding: 4px 6px; border-bottom: 1px solid #f2f2f7; }
-        .move-prompt-close { width: 32px; height: 32px; border: none; background: transparent; color: #8e8e93; font-size: 24px; line-height: 1; cursor: pointer; padding: 0; display: flex; align-items: center; justify-content: center; }
-        .move-prompt-close:active { color: #3a3a3c; }
+        .box-selection-prompt .prompt-close-row { display: flex; justify-content: flex-end; margin: -12px -8px -6px; }
+        .prompt-close { width: 32px; height: 32px; border: none; background: transparent; color: #8e8e93; font-size: 24px; line-height: 1; cursor: pointer; padding: 0; display: flex; align-items: center; justify-content: center; }
+        .prompt-close:active { color: #3a3a3c; }
         .option { display: flex; align-items: center; justify-content: space-between; padding: 16px; border-bottom: 1px solid #f2f2f7; cursor: pointer; background: #fff; transition: background 0.2s; }
         .option:last-child { border-bottom: none; }
         .option:active { background: #f2f2f7; }
@@ -337,6 +338,9 @@
             <button onclick="saveEditedName()" data-i18n="conversation_box.save">Save</button>
         </div>
         <div class="box-selection-prompt" id="box-selection-prompt">
+            <div class="prompt-close-row">
+                <button class="prompt-close" onclick="closeBoxSelection()" aria-label="Close" data-i18n-aria-label="conversation_box.close" data-i18n-title="conversation_box.close" title="Close">&times;</button>
+            </div>
             <div class="option" onclick="selectBox('casual')" data-i18n="conversation_box.box_casual">Casual</div>
             <div class="option" onclick="selectBox('meaningful')" data-i18n="conversation_box.box_meaningful">Meaningful</div>
             <div class="option" onclick="selectBox('spiritual')" data-i18n="conversation_box.box_spiritual">Spiritual</div>
@@ -344,7 +348,7 @@
         </div>
         <div class="move-prompt" id="move-prompt">
             <div class="move-prompt-header">
-                <button class="move-prompt-close" onclick="closeMovePrompt()" aria-label="Close" data-i18n-aria-label="conversation_box.close" data-i18n-title="conversation_box.close" title="Close">&times;</button>
+                <button class="prompt-close" onclick="closeMovePrompt()" aria-label="Close" data-i18n-aria-label="conversation_box.close" data-i18n-title="conversation_box.close" title="Close">&times;</button>
             </div>
             <div class="option" onclick="selectOption('rejected')">
                 <span class="color-circle red"></span>
@@ -1170,6 +1174,11 @@ function saveConversations() {
             } else {
                 showNotification(window.t('conversation_box.enter_name'));
             }
+        }
+
+        function closeBoxSelection() {
+            document.getElementById('box-selection-prompt').style.display = 'none';
+            pendingNewName = null;
         }
 
         function selectBox(box) {
