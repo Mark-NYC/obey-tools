@@ -113,6 +113,7 @@
     "steps_count": "{count} of 8 steps",
     "tap_hint": "Tap a step to see instructions",
     "ref_fmt": "Command: {cmd} | Story: {story}",
+    "ref_story_fmt": "Story: {story}",
     "open_sign_in": "Open sign in",
     "open_account": "Open signed-in account"
   },

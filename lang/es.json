@@ -113,6 +113,7 @@
     "steps_count": "{count} de 8 pasos",
     "tap_hint": "Toca un paso para ver las instrucciones",
     "ref_fmt": "Mandamiento: {cmd} | Historia: {story}",
+    "ref_story_fmt": "Historia: {story}",
     "open_sign_in": "Abrir inicio de sesión",
     "open_account": "Abrir cuenta con sesión iniciada"
   },

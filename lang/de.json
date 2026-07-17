@@ -113,6 +113,7 @@
     "steps_count": "{count} von 8 Schritten",
     "tap_hint": "Tippe auf einen Schritt, um die Anleitung zu sehen",
     "ref_fmt": "Gebot: {cmd} | Geschichte: {story}",
+    "ref_story_fmt": "Geschichte: {story}",
     "open_sign_in": "Anmeldung öffnen",
     "open_account": "Angemeldetes Konto öffnen"
   },

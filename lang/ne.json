@@ -113,6 +113,7 @@
     "steps_count": "8 मध्ये {count} चरण",
     "tap_hint": "निर्देशन हेर्न चरणमा ट्याप गर्नुहोस्",
     "ref_fmt": "आज्ञा: {cmd} | कथा: {story}",
+    "ref_story_fmt": "कथा: {story}",
     "open_sign_in": "साइन इन खोल्नुहोस्",
     "open_account": "साइन-इन खाता खोल्नुहोस्"
   },

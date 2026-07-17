@@ -113,6 +113,7 @@
     "steps_count": "{count} из 8 шагов",
     "tap_hint": "Нажмите на шаг, чтобы увидеть инструкции",
     "ref_fmt": "Заповедь: {cmd} | История: {story}",
+    "ref_story_fmt": "История: {story}",
     "open_sign_in": "Открыть вход",
     "open_account": "Открыть аккаунт"
   },

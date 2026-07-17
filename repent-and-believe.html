@@ -1108,7 +1108,9 @@ button {
     function stepText(step, field) { return T('cmd_study.steps.' + step.number + '.' + field); }
     function stepFlow(step) { const f = RAW('cmd_study.steps.' + step.number + '.flow'); return Array.isArray(f) ? f : null; }
     function stepReference(step) {
-        if (step.bible)  return T('study_ui.ref_fmt', { cmd: step.refCmd, story: step.refStory });
+        if (step.bible)  return step.refCmd
+            ? T('study_ui.ref_fmt', { cmd: step.refCmd, story: step.refStory })
+            : T('study_ui.ref_story_fmt', { story: step.refStory });
         if (step.vision) return T('cmd_study.steps.' + step.number + '.reference');
         return null;
     }
