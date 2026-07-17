@@ -105,6 +105,182 @@
     "yes": "Sí",
     "no": "No"
   },
+  "study_ui": {
+    "what_to_do": "Qué hacer",
+    "view_church_circle": "Ver Círculo de Iglesia",
+    "mark_complete": "Marcar paso como completado",
+    "mark_incomplete": "Marcar paso como incompleto",
+    "steps_count": "{count} de 8 pasos",
+    "tap_hint": "Toca un paso para ver las instrucciones",
+    "ref_fmt": "Mandamiento: {cmd} | Historia: {story}",
+    "open_sign_in": "Abrir inicio de sesión",
+    "open_account": "Abrir cuenta con sesión iniciada"
+  },
+  "cmd_study": {
+    "sections": {
+      "lookback": {
+        "title": "Mirar Atrás",
+        "range": "Pasos 1–4"
+      },
+      "lookup": {
+        "title": "Mirar Arriba",
+        "range": "Paso 5"
+      },
+      "lookforward": {
+        "title": "Mirar Adelante",
+        "range": "Pasos 6–8"
+      }
+    },
+    "steps": {
+      "1": {
+        "title": "Cuidado y Oración",
+        "summary": "Compartir, cuidar y orar",
+        "intro": "Cada persona comparte brevemente cómo está. Oren si es apropiado.",
+        "flow": [
+          [
+            "1",
+            "Invita a cada persona a compartir brevemente cómo está."
+          ],
+          [
+            "2",
+            "Presta atención a necesidades, cargas o motivos para celebrar."
+          ],
+          [
+            "3",
+            "Hagan una pausa y oren cuando sea apropiado."
+          ]
+        ]
+      },
+      "2": {
+        "title": "Adoración",
+        "summary": "Alabar • Dar • Cena del Señor",
+        "intro": "Alaben a Dios, den para las necesidades y compartan la Cena del Señor.",
+        "flow": [
+          [
+            "1",
+            "Alaben a Dios juntos."
+          ],
+          [
+            "2",
+            "Den para las necesidades a medida que se comparten."
+          ],
+          [
+            "3",
+            "Compartan la Cena del Señor cuando sea apropiado."
+          ]
+        ]
+      },
+      "3": {
+        "title": "Rendición de Cuentas Amorosa",
+        "summary": "Seguir • Pescar",
+        "intro": "Miren atrás con honestidad y ánimo. Se trata de obediencia, no de vergüenza.",
+        "flow": [
+          [
+            "Seguir",
+            "¿Cómo obedeciste lo que Jesús te mostró la última vez?"
+          ],
+          [
+            "Pescar",
+            "¿Con quién compartiste y qué pasó?<br><a class=\"conversation-box-link\" href=\"https://obey.tools/conversation-box.html\" target=\"_blank\" rel=\"noopener\">Abrir Caja de Conversación <span aria-hidden=\"true\">↗</span></a>"
+          ]
+        ]
+      },
+      "4": {
+        "title": "Visión: Círculo de Iglesia Hechos 2",
+        "summary": "Hechos 2:36–47",
+        "intro": "Lean Hechos 2:36–47. Sean parte de una iglesia y comiencen una iglesia.",
+        "reference": "Hechos 2:36–47"
+      },
+      "5": {
+        "title": "Nueva Enseñanza de las Escrituras",
+        "summary": "Historia • Dios • Personas • Escuchar • Obedecer",
+        "intro": "Recorran el pasaje como un solo proceso de descubrimiento guiado. Estas preguntas son partes del Paso 5, no elementos adicionales de la lista.",
+        "flow": [
+          [
+            "1",
+            "Lean el mandamiento y cuenten la historia."
+          ],
+          [
+            "2",
+            "Lean la historia juntos."
+          ],
+          [
+            "3",
+            "Vuelvan a contar la historia con sus propias palabras."
+          ],
+          [
+            "4",
+            "¿Qué aprendemos sobre Dios?"
+          ],
+          [
+            "5",
+            "¿Qué aprendemos sobre las personas?"
+          ],
+          [
+            "6",
+            "Hagan una pausa, oren y escuchen."
+          ],
+          [
+            "7",
+            "¿Cómo vas a obedecer la historia?"
+          ]
+        ]
+      },
+      "6": {
+        "title": "Práctica: 3 Círculos",
+        "summary": "Practicar la herramienta del evangelio",
+        "intro": "Practiquen la herramienta del evangelio de los 3 Círculos hasta que cada persona pueda usarla de forma simple y clara.",
+        "flow": [
+          [
+            "1",
+            "Elijan quién practicará primero."
+          ],
+          [
+            "2",
+            "Practiquen compartir los 3 Círculos de forma clara y simple."
+          ],
+          [
+            "3",
+            "Den un breve ánimo e inténtenlo de nuevo si es necesario."
+          ]
+        ]
+      },
+      "7": {
+        "title": "Establecer Metas",
+        "summary": "Seguir • Pescar",
+        "intro": "Elijan pasos siguientes claros antes de terminar la reunión.",
+        "flow": [
+          [
+            "Seguir",
+            "¿Qué te pide Jesús que obedezcas antes de la próxima reunión?"
+          ],
+          [
+            "Pescar",
+            "¿Quién necesita escuchar esta historia?"
+          ]
+        ]
+      },
+      "8": {
+        "title": "Comisionamiento con Oración",
+        "summary": "Orar juntos",
+        "intro": "Oren juntos y envíense unos a otros a obedecer a Jesús.",
+        "flow": [
+          [
+            "1",
+            "Oren por los compromisos y las personas que se mencionaron."
+          ],
+          [
+            "2",
+            "Pidan al Espíritu Santo valor, poder y fidelidad."
+          ],
+          [
+            "3",
+            "Envíense unos a otros a obedecer a Jesús."
+          ]
+        ]
+      }
+    }
+  },
   "settings": {
     "title": "Configuración de Asignación",
     "mode_label": "Modo de Asignación",

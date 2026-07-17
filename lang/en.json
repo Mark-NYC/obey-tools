@@ -105,6 +105,182 @@
     "yes": "Yes",
     "no": "No"
   },
+  "study_ui": {
+    "what_to_do": "What to do",
+    "view_church_circle": "View Church Circle",
+    "mark_complete": "Mark Step Complete",
+    "mark_incomplete": "Mark Step Incomplete",
+    "steps_count": "{count} of 8 steps",
+    "tap_hint": "Tap a step to see instructions",
+    "ref_fmt": "Command: {cmd} | Story: {story}",
+    "open_sign_in": "Open sign in",
+    "open_account": "Open signed-in account"
+  },
+  "cmd_study": {
+    "sections": {
+      "lookback": {
+        "title": "Look Back",
+        "range": "Steps 1–4"
+      },
+      "lookup": {
+        "title": "Look Up",
+        "range": "Step 5"
+      },
+      "lookforward": {
+        "title": "Look Forward",
+        "range": "Steps 6–8"
+      }
+    },
+    "steps": {
+      "1": {
+        "title": "Care & Prayer",
+        "summary": "Share, care, and pray",
+        "intro": "Everyone shares briefly how they are doing. Pray if appropriate.",
+        "flow": [
+          [
+            "1",
+            "Invite each person to share briefly how they are doing."
+          ],
+          [
+            "2",
+            "Listen for needs, burdens, or reasons to celebrate."
+          ],
+          [
+            "3",
+            "Pause and pray when it is appropriate."
+          ]
+        ]
+      },
+      "2": {
+        "title": "Worship",
+        "summary": "Praise • Give • Lord’s Supper",
+        "intro": "Praise God, give toward needs, and share the Lord’s Supper.",
+        "flow": [
+          [
+            "1",
+            "Praise God together."
+          ],
+          [
+            "2",
+            "Give toward needs as they are shared."
+          ],
+          [
+            "3",
+            "Share the Lord’s Supper when appropriate."
+          ]
+        ]
+      },
+      "3": {
+        "title": "Loving Accountability",
+        "summary": "Follow • Fish",
+        "intro": "Look back with honesty and encouragement. This is about obedience, not shame.",
+        "flow": [
+          [
+            "Follow",
+            "How did you obey what Jesus showed you last time?"
+          ],
+          [
+            "Fish",
+            "Who did you share with, and what happened?<br><a class=\"conversation-box-link\" href=\"https://obey.tools/conversation-box.html\" target=\"_blank\" rel=\"noopener\">Open Conversation Box <span aria-hidden=\"true\">↗</span></a>"
+          ]
+        ]
+      },
+      "4": {
+        "title": "Vision: Acts 2 Church Circle",
+        "summary": "Acts 2:36–47",
+        "intro": "Read Acts 2:36–47. Be a part of a church and start a church.",
+        "reference": "Acts 2:36–47"
+      },
+      "5": {
+        "title": "New Teaching From Scripture",
+        "summary": "Story • God • People • Listen • Obey",
+        "intro": "Work through the passage as one guided discovery process. These questions are parts of Step 5, not additional checklist items.",
+        "flow": [
+          [
+            "1",
+            "Read the command and tell the story."
+          ],
+          [
+            "2",
+            "Read the story together."
+          ],
+          [
+            "3",
+            "Retell the story in your own words."
+          ],
+          [
+            "4",
+            "What do we learn about God?"
+          ],
+          [
+            "5",
+            "What do we learn about people?"
+          ],
+          [
+            "6",
+            "Pause, pray, and listen."
+          ],
+          [
+            "7",
+            "How will you obey the story?"
+          ]
+        ]
+      },
+      "6": {
+        "title": "Practice: 3 Circles",
+        "summary": "Practice the gospel tool",
+        "intro": "Practice the 3 Circles gospel tool until each person can use it simply and clearly.",
+        "flow": [
+          [
+            "1",
+            "Choose who will practice first."
+          ],
+          [
+            "2",
+            "Practice sharing the 3 Circles clearly and simply."
+          ],
+          [
+            "3",
+            "Give brief encouragement and try again if needed."
+          ]
+        ]
+      },
+      "7": {
+        "title": "Set Goals",
+        "summary": "Follow • Fish",
+        "intro": "Choose clear next steps before leaving the gathering.",
+        "flow": [
+          [
+            "Follow",
+            "What is Jesus asking you to obey before the next gathering?"
+          ],
+          [
+            "Fish",
+            "Who needs to hear this story?"
+          ]
+        ]
+      },
+      "8": {
+        "title": "Commission with Prayer",
+        "summary": "Pray together",
+        "intro": "Pray together and send one another out to obey Jesus.",
+        "flow": [
+          [
+            "1",
+            "Pray for the commitments and people that were named."
+          ],
+          [
+            "2",
+            "Ask the Holy Spirit for courage, power, and faithfulness."
+          ],
+          [
+            "3",
+            "Send one another out to obey Jesus."
+          ]
+        ]
+      }
+    }
+  },
   "settings": {
     "title": "Assignment Settings",
     "mode_label": "Assignment Mode",
