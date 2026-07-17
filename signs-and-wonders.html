@@ -19,6 +19,8 @@
 <script type="module">
         import { supabase } from './supabase.js';
         window.supabase = supabase;
+        import { load as loadCloudProgress, save as saveCloudProgress, clear as clearCloudProgress } from './command-progress.js';
+        window.__cmdProgress = { load: loadCloudProgress, save: saveCloudProgress, clear: clearCloudProgress };
         import { authSignUp, authLogIn, authLogOut, authForgotPassword, initAuthSection } from './auth.js';
         window.authSignUp = authSignUp;
         window.authLogIn = authLogIn;
@@ -915,6 +917,40 @@ button {
 <script>
         let storageKey = 'command-signs-and-wonders-progress';
         let completedCards = [], stepProgress = {};
+        let cmdName = storageKey.replace(/^command-/, '').replace(/-progress$/, '');
+
+        // Merge account progress into local without losing anything already done on
+        // this device (union — a step stays complete if it's complete in either
+        // place), persist, refresh the view, and push the merged result back so
+        // devices converge. Suppresses the completion toast: this is a load-time
+        // reconcile, not a fresh completion.
+        function _mergeArr(a, b) {
+            const out = Array.isArray(a) ? a.slice() : [];
+            (Array.isArray(b) ? b : []).forEach(function (x) { if (out.indexOf(x) === -1) out.push(x); });
+            return out;
+        }
+        window.__applyCloudProgress = function (cloud) {
+            if (!cloud) return;
+            window.__suppressCloudToast = true;
+            completedCards = _mergeArr(completedCards, cloud.completedCards);
+            const cs = cloud.stepProgress || {};
+            Object.keys(cs).forEach(function (id) { stepProgress[id] = _mergeArr(stepProgress[id], cs[id]); });
+            localStorage.setItem(storageKey, JSON.stringify(completedCards));
+            localStorage.setItem(storageKey + '-steps', JSON.stringify(stepProgress));
+            completedCards.forEach(function (id) { const c = document.querySelector('[data-card="' + id + '"]'); if (c) c.classList.add('completed'); });
+            Object.keys(stepProgress).forEach(function (id) { (stepProgress[id] || []).forEach(function (s) { const d = document.querySelector('[data-card="' + id + '"] [data-step="' + s + '"]'); if (d) d.classList.add('completed'); }); });
+            if (typeof window.updateProgress === 'function') window.updateProgress();
+            if (window.__cmdProgress) window.__cmdProgress.save(cmdName, completedCards, stepProgress);
+            setTimeout(function () { window.__suppressCloudToast = false; }, 100);
+        };
+        // Offline-first: local has already rendered; pull the account copy and reconcile.
+        function _reconcileCloudProgress() {
+            if (!window.__cmdProgress) return;
+            window.__cmdProgress.load(cmdName).then(function (cloud) {
+                if (cloud) window.__applyCloudProgress(cloud);
+                else if (completedCards.length || Object.keys(stepProgress).length) window.__cmdProgress.save(cmdName, completedCards, stepProgress);
+            });
+        }
 
         function initializeProgress() {
             completedCards = JSON.parse(localStorage.getItem(storageKey)) || [];
@@ -924,6 +960,7 @@ button {
         function saveProgress() {
             localStorage.setItem(storageKey, JSON.stringify(completedCards));
             localStorage.setItem(storageKey + '-steps', JSON.stringify(stepProgress));
+            if (window.__cmdProgress) window.__cmdProgress.save(cmdName, completedCards, stepProgress);
             updateProgress();
         }
 
@@ -977,6 +1014,7 @@ button {
                 stepProgress = {};
                 localStorage.removeItem(storageKey);
                 localStorage.removeItem(storageKey + '-steps');
+                if (window.__cmdProgress) window.__cmdProgress.clear(cmdName);
                 document.querySelectorAll('.card').forEach(function(c) { c.classList.remove('completed'); });
                 document.querySelectorAll('.step-dot').forEach(function(d) { d.classList.remove('completed'); });
                 updateProgress();
@@ -1027,6 +1065,7 @@ button {
                 });
             });
             window.addEventListener('i18n:ready', updateProgress, { once: true });
+            _reconcileCloudProgress();
         });
 
         document.addEventListener('click', function(e) {
@@ -1274,7 +1313,7 @@ button {
         if (text) text.textContent = T('study_ui.steps_count', { count: count });
         var _ncp = document.getElementById('next-command-panel'); if (_ncp) _ncp.classList.toggle('visible', count === steps.length);
         var _done = (count === steps.length);
-        if (studyReady && _done && studyWasComplete === false) showNotification(T('common.study_complete'));
+        if (studyReady && _done && studyWasComplete === false && !window.__suppressCloudToast) showNotification(T('common.study_complete'));
         studyWasComplete = _done;
     }
 
