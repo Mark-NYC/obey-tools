@@ -83,6 +83,9 @@
         .box-selection-prompt .option:last-child { border-bottom: none; }
         .box-selection-prompt .option:active { background: #f2f2f7; }
         .move-prompt { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff; padding: 0; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); z-index: 1000; display: none; flex-direction: column; width: 90%; max-width: 300px; overflow: hidden; }
+        .move-prompt-header { display: flex; justify-content: flex-end; align-items: center; padding: 4px 6px; border-bottom: 1px solid #f2f2f7; }
+        .move-prompt-close { width: 32px; height: 32px; border: none; background: transparent; color: #8e8e93; font-size: 24px; line-height: 1; cursor: pointer; padding: 0; display: flex; align-items: center; justify-content: center; }
+        .move-prompt-close:active { color: #3a3a3c; }
         .option { display: flex; align-items: center; justify-content: space-between; padding: 16px; border-bottom: 1px solid #f2f2f7; cursor: pointer; background: #fff; transition: background 0.2s; }
         .option:last-child { border-bottom: none; }
         .option:active { background: #f2f2f7; }
@@ -340,6 +343,9 @@
             <div class="option" onclick="selectBox('discovery')" data-i18n="conversation_box.box_discovery">Discovery</div>
         </div>
         <div class="move-prompt" id="move-prompt">
+            <div class="move-prompt-header">
+                <button class="move-prompt-close" onclick="closeMovePrompt()" aria-label="Close" data-i18n-aria-label="conversation_box.close" data-i18n-title="conversation_box.close" title="Close">&times;</button>
+            </div>
             <div class="option" onclick="selectOption('rejected')">
                 <span class="color-circle red"></span>
                 <span data-i18n="conversation_box.move_rejected">Rejected Christ</span>
@@ -1225,6 +1231,13 @@ function saveConversations() {
             currentFromBox = fromBox; 
             currentToBox = toBox; 
             document.getElementById('move-prompt').style.display = 'flex'; 
+        }
+
+        function closeMovePrompt() {
+            document.getElementById('move-prompt').style.display = 'none';
+            currentName = null;
+            currentFromBox = null;
+            currentToBox = null;
         }
 
         function selectOption(option) {
