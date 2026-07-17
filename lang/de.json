@@ -49,6 +49,10 @@
   },
   "common": {
     "reset": "ZURÜCKSETZEN",
+    "command_complete": "Gebot abgeschlossen",
+    "next_command": "Nächstes Gebot →",
+    "commands_complete_all": "Alle 12 Gebote abgeschlossen",
+    "back_to_commands": "Zurück zu den Geboten →",
     "reset_confirm": "Gesamten Fortschritt zurücksetzen?",
     "progress_reset": "Fortschritt zurückgesetzt",
     "study_complete": "Studium abgeschlossen! 🎉",

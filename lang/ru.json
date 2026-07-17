@@ -49,6 +49,10 @@
   },
   "common": {
     "reset": "СБРОСИТЬ",
+    "command_complete": "Заповедь завершена",
+    "next_command": "Следующая заповедь →",
+    "commands_complete_all": "Все 12 заповедей завершены",
+    "back_to_commands": "Назад к заповедям →",
     "reset_confirm": "Сбросить весь прогресс?",
     "progress_reset": "Прогресс сброшен",
     "study_complete": "Учёба завершена! 🎉",

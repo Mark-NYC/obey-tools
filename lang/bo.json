@@ -49,6 +49,10 @@
   },
   "common": {
     "reset": "སླར་བཀོད།",
+    "command_complete": "Command complete",
+    "next_command": "Next Command →",
+    "commands_complete_all": "All 12 commands complete",
+    "back_to_commands": "Back to Commands →",
     "reset_confirm": "ཡར་རྒྱས་ཚང་མ་སླར་བཀོད་བྱེད་དམ།",
     "progress_reset": "ཡར་རྒྱས་སླར་བཀོད་བྱས་པ།",
     "study_complete": "སློབ་སྦྱོང་ཟིན་པ། 🎉",
