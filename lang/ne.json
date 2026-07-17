@@ -49,6 +49,10 @@
   },
   "common": {
     "reset": "रिसेट",
+    "command_complete": "आज्ञा पूरा भयो",
+    "next_command": "अर्को आज्ञा →",
+    "commands_complete_all": "सबै १२ आज्ञा पूरा भए",
+    "back_to_commands": "आज्ञाहरूमा फर्कनुहोस् →",
     "reset_confirm": "सबै प्रगति रिसेट गर्ने?",
     "progress_reset": "प्रगति रिसेट भयो",
     "study_complete": "अध्ययन पूरा भयो! 🎉",

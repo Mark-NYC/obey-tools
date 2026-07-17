@@ -49,6 +49,10 @@
   },
   "common": {
     "reset": "REINICIAR",
+    "command_complete": "Mandamiento completado",
+    "next_command": "Siguiente mandamiento →",
+    "commands_complete_all": "Los 12 mandamientos completados",
+    "back_to_commands": "Volver a los mandamientos →",
     "reset_confirm": "¿Reiniciar todo el progreso?",
     "progress_reset": "Progreso reiniciado",
     "study_complete": "¡Estudio completo! 🎉",

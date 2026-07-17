@@ -49,6 +49,10 @@
   },
   "common": {
     "reset": "রিসেট",
+    "command_complete": "আদেশ সম্পূর্ণ",
+    "next_command": "পরবর্তী আদেশ →",
+    "commands_complete_all": "সব ১২টি আদেশ সম্পূর্ণ",
+    "back_to_commands": "আদেশে ফিরে যান →",
     "reset_confirm": "সব অগ্রগতি রিসেট করবেন?",
     "progress_reset": "অগ্রগতি রিসেট হয়েছে",
     "study_complete": "অধ্যয়ন সম্পূর্ণ! 🎉",
