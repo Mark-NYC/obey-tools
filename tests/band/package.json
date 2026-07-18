@@ -1,0 +1,11 @@
+{
+  "name": "band-regression-tests",
+  "private": true,
+  "description": "Regression tests for the /band dashboard's non-negotiable save/sync reliability behavior. See README.md.",
+  "scripts": {
+    "test": "node -e \"const {spawn}=require('child_process');const m=spawn('node',['mock-server.js'],{stdio:'inherit'});setTimeout(()=>{const t=spawn('node',['run.js'],{stdio:'inherit'});t.on('exit',(c)=>{m.kill();process.exit(c)});},500)\""
+  },
+  "dependencies": {
+    "playwright-core": "^1.54.0"
+  }
+}
