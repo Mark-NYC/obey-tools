@@ -8,34 +8,46 @@
     <title>Kingdom Stewardship Dashboard</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif; 
-            background: #f2f2f7; 
-            min-height: 100vh; 
-            color: #000; 
-            line-height: 1.4; 
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+            background: #f2f2f7;
+            min-height: 100vh;
+            color: #000;
+            line-height: 1.4;
         }
-        .container { 
-            max-width: 800px; 
-            margin: 0 auto; 
-            background: #f2f2f7; 
-            min-height: 100vh; 
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #f2f2f7;
+            min-height: 100vh;
             padding-bottom: 40px;
         }
-        .status-bar { 
-            height: 44px; 
-            background: #3a3a3c; 
-            display: flex; 
+        .status-bar {
+            height: 44px;
+            background: #3a3a3c;
+            display: flex;
             justify-content: space-between;
-            align-items: center; 
+            align-items: center;
             padding: 0 16px;
-            font-weight: 600; 
-            font-size: 17px; 
+            font-weight: 600;
+            font-size: 17px;
             color: white;
             letter-spacing: 1px;
         }
         .status-bar-controls { display: flex; align-items: center; gap: 10px; }
-        #liveModeBtn {
+        #connStatus {
+            padding: 6px 12px;
+            background: #8e8e93;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        #connStatus.live { background: #34c759; }
+        #connStatus.connecting { background: #ff9500; }
+        #connStatus.offline { background: #ff3b30; }
+        #refreshBtn {
             padding: 6px 12px;
             background: #8e8e93;
             color: white;
@@ -46,7 +58,8 @@
             cursor: pointer;
             transition: all 0.2s;
         }
-        #liveModeBtn:active { transform: scale(0.95); }
+        #refreshBtn:active { transform: scale(0.95); }
+        #refreshBtn:disabled { opacity: 0.6; }
         .settings-icon { cursor: pointer; width: 24px; height: 24px; transition: transform 0.2s; }
         .settings-icon:active { transform: scale(0.9); }
         .header { padding: 20px 16px 16px; background: #fff; border-bottom: 0.5px solid #c6c6c8; }
@@ -136,7 +149,7 @@
         .momentum-arrow.up { color: #34c759; }
         .momentum-arrow.stagnant { color: #ff9500; }
         .momentum-arrow.down { color: #ff3b30; }
-        .save-indicator { position: fixed; top: 50px; right: 10px; background: #007aff; color: white; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; z-index: 999; opacity: 0; transition: opacity 0.3s; }
+        .save-indicator { position: fixed; top: 50px; right: 10px; background: #007aff; color: white; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; z-index: 999; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
         .save-indicator.saving { opacity: 1; background: #ff9500; }
         .save-indicator.saved { opacity: 1; background: #34c759; }
         .save-indicator.error { opacity: 1; background: #ff3b30; }
@@ -157,6 +170,22 @@
         .modal-buttons button { padding: 12px; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; }
         .btn-primary { background: #3a3a3c; color: white; }
         .btn-secondary { background: #f2f2f7; color: #3a3a3c; }
+        /* Auth (standard site pattern — used by the account overlay) */
+        .auth-section { padding: 12px 16px; background: #f2f2f7; border-bottom: 0.5px solid #c6c6c8; visibility: hidden; }
+        .auth-section input { width: 100%; padding: 10px 14px; border: 1px solid #c6c6c8; border-radius: 8px; font-size: 15px; background: #fff; outline: none; margin-bottom: 8px; font-family: inherit; }
+        .auth-section input:focus { border-color: #3a3a3c; }
+        .auth-buttons { display: flex; gap: 8px; }
+        .auth-buttons button { flex: 1; padding: 10px; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; }
+        .auth-btn-primary { background: #3a3a3c; color: #fff; }
+        .auth-btn-secondary { background: #e5e5ea; color: #3a3a3c; }
+        .auth-status { display: flex; align-items: center; justify-content: space-between; }
+        .auth-status-text { font-size: 13px; color: #8e8e93; }
+        .auth-logout-btn { padding: 6px 14px; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; background: #e5e5ea; color: #3a3a3c; font-family: inherit; }
+        /* Access denied (standard leader-gate pattern) */
+        .access-denied { display: none; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; padding: 40px 24px; text-align: center; }
+        .access-denied-msg { font-size: 17px; font-weight: 600; color: #3a3a3c; margin-bottom: 6px; }
+        .access-denied-sub { font-size: 14px; color: #6e6e73; margin-bottom: 28px; }
+        .access-denied-btn { display: inline-block; background: #000; color: #fff; font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-weight: 700; font-size: 15px; padding: 11px 28px; border-radius: 50px; text-decoration: none; }
         @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
         @media (max-width: 600px) {
@@ -174,16 +203,45 @@
 </head>
 <body>
     <div class="save-indicator" id="saveIndicator">Saving...</div>
-    
-    <div class="container">
+
+    <div id="access-denied" class="access-denied">
+        <div class="access-denied-msg" data-i18n="access.restricted">Access restricted.</div>
+        <div class="access-denied-sub" data-i18n="access.leader_required">Leader approval required.</div>
+        <div id="denied-auth" style="width:100%;max-width:280px;margin:0 auto 20px;text-align:left;">
+            <input type="email" id="denied-email" placeholder="Email" data-i18n-placeholder="auth.email_placeholder" style="display:block;width:100%;padding:12px 14px;border:1px solid #c6c6c8;border-radius:10px;font-size:15px;background:#fff;outline:none;margin-bottom:10px;font-family:inherit;box-sizing:border-box;">
+            <input type="password" id="denied-password" placeholder="Password" data-i18n-placeholder="auth.password_placeholder" style="display:block;width:100%;padding:12px 14px;border:1px solid #c6c6c8;border-radius:10px;font-size:15px;background:#fff;outline:none;margin-bottom:10px;font-family:inherit;box-sizing:border-box;">
+            <button data-i18n="auth.log_in" onclick="authLogIn('denied-email','denied-password')" style="display:block;width:100%;padding:12px;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;background:#3a3a3c;color:#fff;">Log In</button>
+            <button type="button" class="auth-forgot-btn" data-i18n="auth.forgot_password" onclick="authForgotPassword('denied-email')" style="display:block;width:100%;margin-top:6px;padding:6px;background:none;border:none;color:#8e8e93;font-size:13px;cursor:pointer;text-align:center;font-family:inherit;">Forgot password?</button>
+        </div>
+        <a href="index.html" class="access-denied-btn" data-i18n="access.go_home">Go to Home</a>
+    </div>
+
+    <div class="container" id="main-container" style="display:none">
         <div class="status-bar">
             <span>2026</span>
             <div class="status-bar-controls">
-                <button id="liveModeBtn" onclick="toggleLiveMeetingMode()">⚫ Offline</button>
+                <span id="connStatus" class="connecting">🟡 Connecting…</span>
+                <button id="refreshBtn" onclick="manualRefresh()">↻ Refresh</button>
                 <img src="assets/images/band/Settings-White.png" class="settings-icon" onclick="openSettings()" alt="Settings">
             </div>
         </div>
-        
+
+        <div class="auth-section" id="auth-section">
+            <div id="auth-form" style="display:none">
+                <input type="email" id="auth-email" placeholder="Email" data-i18n-placeholder="auth.email_placeholder">
+                <input type="password" id="auth-password" placeholder="Password" data-i18n-placeholder="auth.password_placeholder">
+                <div class="auth-buttons">
+                    <button class="auth-btn-primary" data-i18n="auth.log_in" onclick="authLogIn()">Log In</button>
+                    <button class="auth-btn-secondary" data-i18n="auth.sign_up" onclick="authSignUp()">Sign Up</button>
+                </div>
+                <button type="button" class="auth-forgot-btn" data-i18n="auth.forgot_password" onclick="authForgotPassword()" style="display:block;width:100%;margin-top:6px;padding:6px;background:none;border:none;color:#8e8e93;font-size:13px;cursor:pointer;text-align:center;font-family:inherit;">Forgot password?</button>
+            </div>
+            <div class="auth-status" id="auth-status" style="display:none">
+                <span class="auth-status-text" id="auth-status-text">Not signed in</span>
+                <button class="auth-logout-btn" onclick="authLogOut()" data-i18n="auth.log_out">Log Out</button>
+            </div>
+        </div>
+
         <div class="header">
             <h1>The Band</h1>
             <p class="subtitle">Vision: Reverse the Kingdom of Darkness advance in N.A.<br>Endstate: Biblical worldview holders 4% → 5% by 2030</p>
@@ -236,7 +294,7 @@
                             </tr>
                         </thead>
                         <tbody id="cityTableBody">
-                            <tr><td colspan="6" class="empty-state">No cities added yet.</td></tr>
+                            <tr><td colspan="6" class="empty-state">Loading…</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -344,30 +402,42 @@
 
     <script type="module">
         import { supabase } from './supabase.js';
+        import { initLeaderPage, authLogIn, authSignUp, authLogOut, authForgotPassword } from './auth.js';
 
-        let cities = [];
-        let currentCity = null;
-        let currentCityIndex = -1;
-        let lastSyncTimestamp = null;
+        window.authLogIn = authLogIn;
+        window.authSignUp = authSignUp;
+        window.authLogOut = authLogOut;
+        window.authForgotPassword = authForgotPassword;
+
+        // ====================================================================
+        // State. The database is the single source of truth: every mutation is
+        // one atomic server operation (row insert/delete or RPC), and success
+        // is only shown after the server confirms it. No merge logic exists —
+        // per-city rows plus atomic counter RPCs make conflicts structurally
+        // impossible.
+        // ====================================================================
+        let cities = [];            // [{id, name, baptismsYTD, churchesYTD, totalChurches, streamDepth, totalStreamDepth, momentumHistory, leaders:[{id, name, postHistory:{'YYYY-MM-DD':bool}}]}]
+        let currentCityId = null;
+        let loadedOnce = false;
+        let loadFailed = false;
+        let pendingOps = 0;
         let realtimeChannel = null;
-        let isLiveMeetingMode = false;
-        let pendingSave = false;
-        let saveQueue = [];
+        let refetchTimer = null;
+        let reconnectTimer = null;
+        let reconnectDelay = 2000;
+        let started = false;
         const streamLevels = ['1st Gen', '2nd Gen', '3rd Gen', '4th Gen'];
 
-        // ============================================================
-        // SANITIZE: postHistory must always be a plain object {}
-        // Arrays silently drop string keys during JSON serialization
-        // ============================================================
-        function sanitizeLeaders(citiesArr) {
-            (citiesArr || []).forEach(city => {
-                (city.leaders || []).forEach(leader => {
-                    if (!leader.postHistory || Array.isArray(leader.postHistory)) {
-                        leader.postHistory = {};
-                    }
-                });
-            });
-            return citiesArr;
+        const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        const byId = (id) => cities.find(c => c.id === id);
+
+        // ====================================================================
+        // Meeting schedule (2nd & 4th Sundays). Keys are the ISO date of the
+        // meeting Sunday ('YYYY-MM-DD') — matches the migrated database format.
+        // ====================================================================
+        function meetingKey(d) {
+            const p = (n) => String(n).padStart(2, '0');
+            return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
         }
 
         function getNthSundayOfMonth(year, month, n) {
@@ -387,8 +457,8 @@
             for (let i = 0; i < 4; i++) {
                 const second = getNthSundayOfMonth(year, month, 2);
                 const fourth = getNthSundayOfMonth(year, month, 4);
-                if (second >= startDate) meetings.push({ date: new Date(second), key: `${year}-${month}-2` });
-                if (fourth >= startDate) meetings.push({ date: new Date(fourth), key: `${year}-${month}-4` });
+                if (second >= startDate) meetings.push({ date: new Date(second), key: meetingKey(second) });
+                if (fourth >= startDate) meetings.push({ date: new Date(fourth), key: meetingKey(fourth) });
                 month--;
                 if (month < 0) { month = 11; year--; }
             }
@@ -403,11 +473,7 @@
             for (const meeting of meetings) {
                 const cutoff = new Date(meeting.date);
                 cutoff.setHours(23, 59, 59, 999);
-                const estCutoff = new Date(cutoff.toLocaleString("en-US", {timeZone: "America/New_York"}));
-                if (estNow <= estCutoff) {
-                    console.log('📅 Current meeting period:', meeting.key, formatMeetingDate(meeting.date));
-                    return meeting;
-                }
+                if (estNow <= cutoff) return meeting;
             }
 
             // Past all — return next upcoming
@@ -418,26 +484,23 @@
             const secondCutoff = new Date(second); secondCutoff.setHours(23,59,59,999);
             const fourthCutoff = new Date(fourth); fourthCutoff.setHours(23,59,59,999);
 
-            let nextDate, nextWhich;
-            if (estNow <= secondCutoff) { nextDate = second; nextWhich = '2'; }
-            else if (estNow <= fourthCutoff) { nextDate = fourth; nextWhich = '4'; }
+            let nextDate;
+            if (estNow <= secondCutoff) nextDate = second;
+            else if (estNow <= fourthCutoff) nextDate = fourth;
             else {
                 const nm = month === 11 ? 0 : month + 1;
                 const ny = month === 11 ? year + 1 : year;
                 nextDate = getNthSundayOfMonth(ny, nm, 2);
-                nextWhich = '2';
             }
-            const key = `${nextDate.getFullYear()}-${nextDate.getMonth()}-${nextWhich}`;
-            console.log('📅 Next meeting period:', key, formatMeetingDate(nextDate));
-            return { date: nextDate, key };
+            return { date: nextDate, key: meetingKey(nextDate) };
         }
 
         function formatMeetingDate(date) {
             const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-            const estDate = new Date(date.toLocaleString("en-US", {timeZone: "America/New_York"}));
-            return `${months[estDate.getMonth()]} ${estDate.getDate()}`;
+            return `${months[date.getMonth()]} ${date.getDate()}`;
         }
 
+        // ==================== streaks / participation =======================
         function calculateStreak(leader) {
             if (!leader.postHistory || Object.keys(leader.postHistory).length === 0) return 0;
             const meetings = getLastEightMeetings().reverse();
@@ -477,13 +540,6 @@
             return Math.round((posted / city.leaders.length) * 100);
         }
 
-        function trackMomentum(cityIndex) {
-            const city = cities[cityIndex];
-            if (!city.momentumHistory) city.momentumHistory = [];
-            city.momentumHistory.push({ date: new Date().toISOString(), rate: calculateCityParticipation(city) });
-            if (city.momentumHistory.length > 8) city.momentumHistory.shift();
-        }
-
         function calculateMomentum(city) {
             if (!city.momentumHistory || city.momentumHistory.length < 3) return 'stagnant';
             const h = city.momentumHistory;
@@ -514,271 +570,187 @@
             return 'gen-1';
         }
 
-        function showSaveIndicator(state) {
-            console.log('[saveIndicator]', state);
-            return; // UI notification suppressed
+        // ====================================================================
+        // Save status indicator. 'saved' is only ever shown AFTER the server
+        // confirmed the write; failures are always visible and never silent.
+        // ====================================================================
+        let indicatorTimer = null;
+        function showSaveIndicator(state, message) {
             const el = document.getElementById('saveIndicator');
+            clearTimeout(indicatorTimer);
             el.className = 'save-indicator ' + state;
-            if (state === 'saving') { el.textContent = 'Saving...'; }
-            else if (state === 'saved') { el.textContent = 'Saved ✓'; setTimeout(() => { el.className = 'save-indicator'; }, 2000); }
-            else if (state === 'error') { el.textContent = 'Save failed ✗'; setTimeout(() => { el.className = 'save-indicator'; }, 3000); }
-        }
-
-        function mergeLeaders(localLeaders, serverLeaders) {
-            const map = {};
-            (serverLeaders || []).forEach(l => { map[l.name] = { ...l, postHistory: { ...(l.postHistory || {}) } }; });
-            (localLeaders || []).forEach(l => {
-                if (map[l.name]) {
-                    const h = { ...(map[l.name].postHistory || {}) };
-                    Object.keys(l.postHistory || {}).forEach(k => { if (l.postHistory[k] === true) h[k] = true; });
-                    map[l.name].postHistory = h;
-                } else {
-                    map[l.name] = { ...l, postHistory: { ...(l.postHistory || {}) } };
-                }
-            });
-            return Object.values(map);
-        }
-
-        function getMaxStreamDepth(d1, d2) {
-            return streamLevels[Math.max(streamLevels.indexOf(d1 || '1st Gen'), streamLevels.indexOf(d2 || '1st Gen'))];
-        }
-
-        async function handleConflict(serverData) {
-            console.log('🔄 Resolving conflict...');
-            const serverMap = {};
-            (serverData.data.cities || []).forEach(c => { serverMap[c.name] = c; });
-            const merged = [];
-            cities.forEach(lc => {
-                const sc = serverMap[lc.name];
-                if (!sc) { merged.push(lc); }
-                else {
-                    merged.push({
-                        ...sc,
-                        leaders: mergeLeaders(lc.leaders, sc.leaders),
-                        baptismsYTD: Math.max(lc.baptismsYTD || 0, sc.baptismsYTD || 0),
-                        churchesYTD: Math.max(lc.churchesYTD || 0, sc.churchesYTD || 0),
-                        totalChurches: Math.max(lc.totalChurches || 0, sc.totalChurches || 0),
-                        streamDepth: getMaxStreamDepth(lc.streamDepth, sc.streamDepth),
-                        totalStreamDepth: getMaxStreamDepth(lc.totalStreamDepth, sc.totalStreamDepth)
-                    });
-                    delete serverMap[lc.name];
-                }
-            });
-            Object.values(serverMap).forEach(sc => merged.push(sc));
-            cities = sanitizeLeaders(merged);
-            lastSyncTimestamp = serverData.lastModified;
-            console.log('[conflict] Merge complete — cities:', cities.length, 'lastSyncTimestamp:', lastSyncTimestamp, '(caller will save)');
-        }
-
-        function startLiveSync() {
-            if (realtimeChannel) return;
-            realtimeChannel = supabase
-                .channel('band_data_changes')
-                .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'band_data', filter: 'id=eq.main' }, (payload) => {
-                    console.log('[realtime] UPDATE received — pendingSave:', pendingSave, 'queue length:', saveQueue.length);
-                    if (pendingSave) return;
-                    const incoming = payload.new;
-                    if (incoming.last_modified === lastSyncTimestamp) return;
-                    const modifiedBy = incoming.modified_by || 'another device';
-                    if (saveQueue.length > 0) {
-                        console.log('[realtime] Queue non-empty — merging incoming data into local state');
-                        handleConflict({ data: { cities: incoming.cities }, lastModified: incoming.last_modified });
-                    } else {
-                        console.log('[realtime] Data updated by', modifiedBy);
-                        cities = sanitizeLeaders(incoming.cities || []);
-                        lastSyncTimestamp = incoming.last_modified;
-                        updateOverview();
-                        if (currentCityIndex >= 0) renderCityView();
-                    }
-                })
-                .subscribe();
-        }
-
-        function stopLiveSync() {
-            if (realtimeChannel) { supabase.removeChannel(realtimeChannel); realtimeChannel = null; }
-        }
-
-        function showNotification(msg) {
-            const n = document.createElement('div');
-            n.style.cssText = 'position:fixed;top:60px;right:10px;background:#34c759;color:white;padding:12px 20px;border-radius:8px;font-weight:600;z-index:10000;animation:slideIn 0.3s ease-out;';
-            n.textContent = msg;
-            document.body.appendChild(n);
-            setTimeout(() => { n.style.animation = 'slideOut 0.3s ease-out'; setTimeout(() => n.remove(), 300); }, 3000);
-        }
-
-        function toggleLiveMeetingMode() {
-            isLiveMeetingMode = !isLiveMeetingMode;
-            if (isLiveMeetingMode) { startLiveSync(); showNotification('Live Meeting Mode ON'); }
-            else { stopLiveSync(); showNotification('Live Meeting Mode OFF'); }
-            updateLiveModeButton();
-        }
-
-        function updateLiveModeButton() {
-            const btn = document.getElementById('liveModeBtn');
-            if (btn) { btn.textContent = isLiveMeetingMode ? '🔴 Live' : '⚫ Offline'; btn.style.background = isLiveMeetingMode ? '#34c759' : '#8e8e93'; }
-        }
-
-        async function loadData() {
-            console.log('📥 Loading data from Supabase...');
-            try {
-                const { data, error } = await supabase
-                    .from('band_data')
-                    .select('cities, last_modified')
-                    .eq('id', 'main')
-                    .single();
-                if (error && error.code === 'PGRST116') {
-                    // No row yet — seed it
-                    const { error: insertError } = await supabase
-                        .from('band_data')
-                        .insert({ id: 'main', cities: [], last_modified: new Date().toISOString() });
-                    if (insertError) console.error('❌ Seed error:', insertError);
-                    cities = [];
-                    lastSyncTimestamp = new Date().toISOString();
-                } else if (error) {
-                    throw error;
-                } else {
-                    cities = sanitizeLeaders(data.cities || []);
-                    lastSyncTimestamp = data.last_modified;
-                    console.log('✅ Loaded from Supabase, cities:', cities.length);
-                    recoverDraftIfNewer(data.last_modified);
-                }
-            } catch(e) {
-                console.error('❌ Load error:', e);
-                cities = [];
-                lastSyncTimestamp = new Date().toISOString();
+            if (state === 'saving') {
+                el.textContent = 'Saving…';
+            } else if (state === 'saved') {
+                el.textContent = 'Saved ✓';
+                indicatorTimer = setTimeout(() => { el.className = 'save-indicator'; }, 2000);
+            } else if (state === 'error') {
+                el.textContent = message || 'Save failed ✗ — change reverted';
+                indicatorTimer = setTimeout(() => { el.className = 'save-indicator'; }, 5000);
+            } else {
+                el.className = 'save-indicator';
             }
-            updateOverview();
         }
 
-        async function saveData() {
-            return new Promise((resolve, reject) => {
-                saveQueue.push({ resolve, reject });
-                processSaveQueue();
-            });
-        }
-
-        async function processSaveQueue() {
-            if (pendingSave || saveQueue.length === 0) return;
-            pendingSave = true;
-            console.log('[saveQueue] processSaveQueue started — queue length:', saveQueue.length, 'pendingSave: true');
+        // Wrapper for every mutation: visible saving state, server-confirmed
+        // success, visible failure + revert. Returns true on success.
+        async function mutate(label, fn, revert) {
+            pendingOps++;
             showSaveIndicator('saving');
             try {
-                // CAS (Compare-And-Swap) write loop.
-                // Only writes if last_modified still matches our lastSyncTimestamp, making
-                // conflict detection atomic at the DB level. Eliminates the race window that
-                // existed between the old two-step SELECT-then-upsert approach.
-                const MAX_RETRIES = 4;
-                let saved = false;
-
-                for (let attempt = 1; attempt <= MAX_RETRIES && !saved; attempt++) {
-                    // Snapshot AFTER any merge so we always write the freshest local state
-                    const citiesSnapshot = JSON.parse(JSON.stringify(cities));
-                    const newTimestamp = new Date().toISOString();
-                    console.log(`💾 CAS attempt ${attempt}/${MAX_RETRIES} — lastSyncTimestamp: ${lastSyncTimestamp}`);
-
-                    const { data: updated, error: writeError } = await supabase
-                        .from('band_data')
-                        .update({ cities: citiesSnapshot, last_modified: newTimestamp, modified_by: getDeviceId() })
-                        .eq('id', 'main')
-                        .eq('last_modified', lastSyncTimestamp)  // atomic condition
-                        .select('id');
-
-                    if (writeError) throw writeError;
-
-                    if (updated && updated.length > 0) {
-                        // CAS succeeded — our write landed cleanly
-                        lastSyncTimestamp = newTimestamp;
-                        saved = true;
-                    } else {
-                        // CAS missed — another device wrote between our last sync and now.
-                        // Re-read the current server state, merge it with our local changes,
-                        // then retry. On each retry the snapshot above captures the merged state.
-                        console.warn(`[saveQueue] CAS miss on attempt ${attempt} — re-reading server state`);
-                        const { data: fresh, error: readError } = await supabase
-                            .from('band_data')
-                            .select('last_modified, cities')
-                            .eq('id', 'main')
-                            .single();
-                        if (readError) throw readError;
-                        // handleConflict merges and updates lastSyncTimestamp so next CAS targets the right row
-                        await handleConflict({ data: { cities: fresh.cities }, lastModified: fresh.last_modified });
-                        if (attempt < MAX_RETRIES) await new Promise(r => setTimeout(r, 100 * attempt));
-                    }
-                }
-
-                if (!saved) throw new Error(`CAS failed after ${MAX_RETRIES} attempts — too many concurrent writers`);
-
-                clearDraft();
-                console.log('✅ Saved to Supabase');
-                showSaveIndicator('saved');
-                updateOverview();
-                while (saveQueue.length > 0) { const { resolve } = saveQueue.shift(); resolve(); }
-            } catch(e) {
-                console.error('❌ Save error:', e);
+                await fn();
+                pendingOps--;
+                if (pendingOps === 0) showSaveIndicator('saved');
+                return true;
+            } catch (e) {
+                pendingOps--;
+                console.error(`❌ ${label} failed:`, e);
+                if (revert) revert();
                 showSaveIndicator('error');
-                while (saveQueue.length > 0) { const { reject } = saveQueue.shift(); reject(e); }
+                renderAll();
+                return false;
+            }
+        }
+
+        function throwIfError({ error }) { if (error) throw error; }
+
+        // ====================================================================
+        // Connection status + realtime. Live updates are always on; the pill
+        // shows the REAL channel state. Any change event triggers a debounced
+        // refetch — events arriving during a save are coalesced, never dropped.
+        // ====================================================================
+        function setConn(state) {
+            const el = document.getElementById('connStatus');
+            el.className = state;
+            el.textContent = state === 'live' ? '🟢 Live'
+                          : state === 'connecting' ? '🟡 Connecting…'
+                          : '🔴 Offline';
+        }
+
+        function scheduleRefetch() {
+            clearTimeout(refetchTimer);
+            refetchTimer = setTimeout(() => {
+                refetchAll().catch(e => console.error('❌ Refetch failed:', e));
+            }, 250);
+        }
+
+        function startRealtime() {
+            stopRealtime();
+            setConn('connecting');
+            realtimeChannel = supabase
+                .channel('band-live')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'band_cities' }, scheduleRefetch)
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'band_leaders' }, scheduleRefetch)
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'band_posts' }, scheduleRefetch)
+                .subscribe((status) => {
+                    if (status === 'SUBSCRIBED') {
+                        reconnectDelay = 2000;
+                        setConn('live');
+                        scheduleRefetch(); // resync after (re)connect
+                    } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+                        setConn('offline');
+                        scheduleReconnect();
+                    }
+                });
+        }
+
+        function stopRealtime() {
+            if (realtimeChannel) { supabase.removeChannel(realtimeChannel); realtimeChannel = null; }
+            clearTimeout(reconnectTimer);
+        }
+
+        function scheduleReconnect() {
+            clearTimeout(reconnectTimer);
+            reconnectTimer = setTimeout(() => {
+                if (started) startRealtime();
+            }, reconnectDelay);
+            reconnectDelay = Math.min(reconnectDelay * 2, 30000);
+        }
+
+        window.addEventListener('offline', () => setConn('offline'));
+        window.addEventListener('online', () => { if (started) { startRealtime(); scheduleRefetch(); } });
+
+        // ====================================================================
+        // Data loading
+        // ====================================================================
+        async function refetchAll() {
+            const [c, l, p] = await Promise.all([
+                supabase.from('band_cities').select('*').order('created_at'),
+                supabase.from('band_leaders').select('*').order('created_at'),
+                supabase.from('band_posts').select('*'),
+            ]);
+            throwIfError(c); throwIfError(l); throwIfError(p);
+
+            const leadersByCity = {};
+            (l.data || []).forEach(row => {
+                (leadersByCity[row.city_id] = leadersByCity[row.city_id] || []).push({
+                    id: row.id, name: row.name, postHistory: {},
+                });
+            });
+            const leaderById = {};
+            Object.values(leadersByCity).flat().forEach(le => { leaderById[le.id] = le; });
+            (p.data || []).forEach(row => {
+                if (leaderById[row.leader_id]) leaderById[row.leader_id].postHistory[row.meeting_key] = row.posted;
+            });
+
+            cities = (c.data || []).map(row => ({
+                id: row.id,
+                name: row.name,
+                baptismsYTD: row.baptisms_ytd,
+                churchesYTD: row.churches_ytd,
+                totalChurches: row.total_churches,
+                streamDepth: row.stream_depth,
+                totalStreamDepth: row.total_stream_depth,
+                momentumHistory: row.momentum_history || [],
+                leaders: leadersByCity[row.id] || [],
+            }));
+            loadedOnce = true;
+            loadFailed = false;
+            renderAll();
+        }
+
+        async function initialLoad() {
+            try {
+                await refetchAll();
+            } catch (e) {
+                console.error('❌ Load error:', e);
+                loadFailed = true;
+                renderAll();
+                showSaveIndicator('error', 'Couldn’t load data — check connection, then tap Refresh');
+            }
+        }
+
+        async function manualRefresh() {
+            const btn = document.getElementById('refreshBtn');
+            btn.disabled = true;
+            btn.textContent = '↻ …';
+            try {
+                await refetchAll();
+                showSaveIndicator('saved');
+            } catch (e) {
+                console.error('❌ Refresh failed:', e);
+                loadFailed = !loadedOnce;
+                showSaveIndicator('error', 'Refresh failed — check connection');
             } finally {
-                pendingSave = false;
-                console.log('[saveQueue] pendingSave cleared — remaining queue:', saveQueue.length);
-                if (saveQueue.length > 0) setTimeout(processSaveQueue, 100);
+                btn.disabled = false;
+                btn.textContent = '↻ Refresh';
             }
         }
 
-        function getDeviceId() {
-            let id = localStorage.getItem('band_device_id');
-            if (!id) { id = 'device_' + Math.random().toString(36).slice(2, 9); localStorage.setItem('band_device_id', id); }
-            return id;
+        // ====================================================================
+        // Rendering (same visual output as before)
+        // ====================================================================
+        function renderAll() {
+            updateOverview();
+            if (currentCityId !== null) renderCityView();
+            if (document.getElementById('settingsModal').classList.contains('active')) updateCityList();
         }
-
-        // ---- local draft helpers (data-loss protection) ----
-        function writeDraft() {
-            try {
-                localStorage.setItem('band_draft', JSON.stringify({
-                    cities: JSON.parse(JSON.stringify(cities)),
-                    ts: new Date().toISOString()
-                }));
-            } catch(e) {}
-        }
-
-        function clearDraft() {
-            try { localStorage.removeItem('band_draft'); } catch(e) {}
-        }
-
-        function recoverDraftIfNewer(serverTs) {
-            try {
-                const raw = localStorage.getItem('band_draft');
-                if (!raw) return;
-                const draft = JSON.parse(raw);
-                if (!draft.ts || !Array.isArray(draft.cities)) { clearDraft(); return; }
-                if (new Date(draft.ts) > new Date(serverTs || 0)) {
-                    console.warn('[draft] Recovering unsaved local draft from', draft.ts, '— queueing save');
-                    cities = sanitizeLeaders(draft.cities);
-                    saveData().catch(e => console.error('[draft] Recovery save failed:', e));
-                } else {
-                    clearDraft();
-                }
-            } catch(e) { console.error('[draft] Recovery error:', e); }
-        }
-
-        // Flush draft on page hide so the latest mutation survives navigation
-        window.addEventListener('pagehide', () => {
-            if (pendingSave || saveQueue.length > 0) {
-                writeDraft();
-                console.log('[pagehide] Page hiding with pending save — draft written to localStorage');
-            }
-        });
-        document.addEventListener('visibilitychange', () => {
-            if (document.hidden && (pendingSave || saveQueue.length > 0)) {
-                writeDraft();
-                console.log('[visibilitychange] Tab hidden with pending save — draft written to localStorage');
-            }
-        });
 
         function updateOverview() {
             let totalLeaders = 0, totalActive = 0, totalBaptisms = 0, totalChurches = 0, cities3rdPlus = 0;
             const cm = getCurrentMeetingPeriod();
 
-            cities.forEach((city, index) => {
+            cities.forEach(city => {
                 (city.leaders || []).forEach(l => {
                     totalLeaders++;
                     if (l.postHistory && l.postHistory[cm.key]) totalActive++;
@@ -787,7 +759,6 @@
                 totalChurches += city.totalChurches || 0;
                 const sd = city.totalStreamDepth || '1st Gen';
                 if (sd === '3rd Gen' || sd === '4th Gen') cities3rdPlus++;
-                
             });
 
             document.getElementById('totalActive').textContent = `${totalActive} / ${totalLeaders}`;
@@ -796,13 +767,21 @@
             document.getElementById('cities4thGen').textContent = `${cities3rdPlus} / 4`;
 
             const tbody = document.getElementById('cityTableBody');
+            if (loadFailed && !loadedOnce) {
+                tbody.innerHTML = '<tr><td colspan="6" class="empty-state">Couldn’t load data. Check your connection, then tap ↻ Refresh.</td></tr>';
+                return;
+            }
+            if (!loadedOnce) {
+                tbody.innerHTML = '<tr><td colspan="6" class="empty-state">Loading…</td></tr>';
+                return;
+            }
             if (cities.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No cities added yet. Tap the settings icon to add cities.</td></tr>';
                 return;
             }
 
-            const sorted = cities.map((c, i) => ({ c, i })).sort((a, b) => a.c.name.localeCompare(b.c.name));
-            tbody.innerHTML = sorted.map(({ c, i }) => {
+            const sorted = [...cities].sort((a, b) => a.name.localeCompare(b.name));
+            tbody.innerHTML = sorted.map(c => {
                 let activeCount = 0;
                 (c.leaders || []).forEach(l => { if (l.postHistory && l.postHistory[cm.key]) activeCount++; });
                 const participation = calculateCityParticipation(c);
@@ -811,13 +790,13 @@
                 const streakText = streakEmojis !== '⚫' ? `<span class="streak-text">${streakEmojis}</span>` : '';
                 return `
                     <tr>
-                        <td class="city-name">${c.name}</td>
+                        <td class="city-name">${esc(c.name)}</td>
                         <td style="text-align:center;"><span class="participation-text ${textClass}">${activeCount}/${(c.leaders || []).length}</span>${getMomentumArrow(calculateMomentum(c))}${streakText}</td>
                         <td class="metric-number" style="text-align:center;">${c.baptismsYTD || 0}</td>
                         <td class="metric-number" style="text-align:center;">${c.totalChurches || 0}</td>
                         <td style="text-align:center;"><span class="stream-badge ${getStreamClass(c.totalStreamDepth || '1st Gen')}">${getStreamDisplay(c.totalStreamDepth || '1st Gen')}</span></td>
                         <td style="text-align:center;">
-                            <button class="update-btn" onclick="openCity(${i})">
+                            <button class="update-btn" onclick="openCity('${c.id}')">
                                 <span class="update-btn-text">UPDATE</span>
                                 <img src="assets/images/band/edit-qtep4ftgzlsz4sl22a43m9-1.webp" class="update-btn-icon" alt="Update">
                             </button>
@@ -827,66 +806,47 @@
             }).join('');
         }
 
-        function openCity(index) {
-            currentCityIndex = index;
-            currentCity = cities[index];
-            if (!currentCity.leaders) currentCity.leaders = [];
+        function openCity(id) {
+            currentCityId = id;
             document.getElementById('overviewSection').style.display = 'none';
             document.getElementById('citySection').classList.add('active');
             renderCityView();
         }
 
-        async function backToOverview() {
-            // Wait for any in-flight save before navigating (max 3 s)
-            if (pendingSave || saveQueue.length > 0) {
-                console.log('[backToOverview] Waiting for pending save before navigating...');
-                await new Promise(resolve => {
-                    const timeout = setTimeout(resolve, 3000);
-                    const check = setInterval(() => {
-                        if (!pendingSave && saveQueue.length === 0) {
-                            clearInterval(check);
-                            clearTimeout(timeout);
-                            resolve();
-                        }
-                    }, 50);
-                });
-            }
+        function backToOverview() {
             document.getElementById('overviewSection').style.display = 'block';
             document.getElementById('citySection').classList.remove('active');
-            currentCity = null;
-            currentCityIndex = -1;
+            currentCityId = null;
         }
 
         function renderCityView() {
-            // ✅ FIX: always re-sync from live array — prevents stale reference after save/load cycles
-            if (currentCityIndex < 0) return;
-            currentCity = cities[currentCityIndex];
-            if (!currentCity) return;
+            const city = byId(currentCityId);
+            if (!city) { backToOverview(); return; }  // city was deleted remotely
 
             const cm = getCurrentMeetingPeriod();
             document.getElementById('currentMeetingDate').textContent = formatMeetingDate(cm.date);
-            document.getElementById('leadersLabel').textContent = `${currentCity.name.toUpperCase()} LEADERS`;
-            document.getElementById('baptismsCounter').textContent = currentCity.baptismsYTD || 0;
-            document.getElementById('churchesCounter').textContent = currentCity.totalChurches || 0;
-            document.getElementById('streamCounter').textContent = currentCity.streamDepth || '1st Gen';
+            document.getElementById('leadersLabel').textContent = `${city.name.toUpperCase()} LEADERS`;
+            document.getElementById('baptismsCounter').textContent = city.baptismsYTD || 0;
+            document.getElementById('churchesCounter').textContent = city.totalChurches || 0;
+            document.getElementById('streamCounter').textContent = city.streamDepth || '1st Gen';
 
             const leadersList = document.getElementById('leadersList');
             leadersList.innerHTML = '';
 
-            if (!currentCity.leaders || currentCity.leaders.length === 0) {
+            if (!city.leaders || city.leaders.length === 0) {
                 leadersList.innerHTML = '<div class="empty-state">No leaders added yet. Click "+ Add Leader" below.</div>';
             } else {
-                currentCity.leaders.forEach((leader, index) => {
+                city.leaders.forEach((leader, index) => {
                     const hasPosted = !!(leader.postHistory && leader.postHistory[cm.key]);
                     const card = document.createElement('div');
                     card.className = 'leader-card';
                     card.innerHTML = `
                         <div class="leader-card-header">
-                            <div class="leader-name">${leader.name}</div>
+                            <div class="leader-name">${esc(leader.name)}</div>
                             <div class="leader-streak">${getStreakEmojis(calculateStreak(leader))}</div>
                         </div>
                         <button class="post-toggle-btn ${hasPosted ? 'posted' : 'not-posted'}"
-                                onclick="togglePostStatus(${index})"
+                                onclick="togglePostStatus('${leader.id}')"
                                 id="leader-btn-${index}">
                             ${hasPosted ? `✓ Posted for ${formatMeetingDate(cm.date)}` : `Mark as Posted for ${formatMeetingDate(cm.date)}`}
                         </button>
@@ -897,11 +857,11 @@
 
             const manageList = document.getElementById('manageLeadersList');
             manageList.innerHTML = '';
-            if (currentCity.leaders && currentCity.leaders.length > 0) {
-                currentCity.leaders.forEach((leader, index) => {
+            if (city.leaders && city.leaders.length > 0) {
+                city.leaders.forEach(leader => {
                     const div = document.createElement('div');
                     div.className = 'manage-leader-item';
-                    div.innerHTML = `<span class="manage-leader-name">${leader.name}</span><button class="delete-leader-btn" onclick="removeLeader(${index})">Remove</button>`;
+                    div.innerHTML = `<span class="manage-leader-name">${esc(leader.name)}</span><button class="delete-leader-btn" onclick="removeLeader('${leader.id}')">Remove</button>`;
                     manageList.appendChild(div);
                 });
             } else {
@@ -909,6 +869,9 @@
             }
         }
 
+        // ====================================================================
+        // Mutations — each one is a single atomic server operation.
+        // ====================================================================
         function toggleAddLeaderForm() {
             const form = document.getElementById('addLeaderForm');
             form.classList.toggle('active');
@@ -916,97 +879,118 @@
         }
 
         async function addLeader() {
+            const city = byId(currentCityId);
             const name = document.getElementById('leaderNameInput').value.trim();
-            if (!name) return;
-            cities[currentCityIndex].leaders.push({ name, postHistory: {} }); // ✅ always {}
+            if (!city || !name) return;
             document.getElementById('leaderNameInput').value = '';
             toggleAddLeaderForm();
-            renderCityView();
-            writeDraft();
-            try { await saveData(); } catch(e) { console.error('Failed to save leader:', e); }
-        }
-
-        async function removeLeader(index) {
-            if (confirm(`Remove ${cities[currentCityIndex].leaders[index].name}?`)) {
-                cities[currentCityIndex].leaders.splice(index, 1);
-                renderCityView();
-                writeDraft();
-                try { await saveData(); } catch(e) { console.error('Failed to save:', e); }
-            }
-        }
-
-        async function togglePostStatus(leaderIndex) {
-            // ✅ FIX: read directly from live cities array, not stale currentCity ref
-            const leader = cities[currentCityIndex].leaders[leaderIndex];
-            const btn = document.getElementById(`leader-btn-${leaderIndex}`);
-
-            if (!leader.postHistory || Array.isArray(leader.postHistory)) {
-                leader.postHistory = {};
-            }
-
-            const cm = getCurrentMeetingPeriod();
-            const prev = leader.postHistory[cm.key];
-
-            if (isLiveMeetingMode && prev === true) {
-                if (!confirm('Already marked as posted. Unmark?')) return;
-            }
-
-            leader.postHistory[cm.key] = !prev;
-            writeDraft();
-
-            console.log('✏️ Toggling post status:', {
-                leader: leader.name,
-                meeting: cm.key,
-                newValue: leader.postHistory[cm.key],
-                fullHistory: leader.postHistory
+            await mutate('add leader', async () => {
+                const { data, error } = await supabase
+                    .from('band_leaders')
+                    .insert({ city_id: city.id, name })
+                    .select('*')
+                    .single();
+                if (error) throw error;
+                city.leaders.push({ id: data.id, name: data.name, postHistory: {} });
+                renderAll();
             });
+        }
 
-            btn.disabled = true;
+        async function removeLeader(leaderId) {
+            const city = byId(currentCityId);
+            if (!city) return;
+            const leader = city.leaders.find(l => l.id === leaderId);
+            if (!leader) return;
+            if (!confirm(`Remove ${leader.name}?`)) return;
+            const idx = city.leaders.indexOf(leader);
+            city.leaders.splice(idx, 1);           // optimistic
+            renderAll();
+            await mutate('remove leader', async () => {
+                const { error } = await supabase.from('band_leaders').delete().eq('id', leaderId);
+                if (error) throw error;
+            }, () => { city.leaders.splice(idx, 0, leader); });
+        }
+
+        async function togglePostStatus(leaderId) {
+            const city = byId(currentCityId);
+            if (!city) return;
+            const leader = city.leaders.find(l => l.id === leaderId);
+            if (!leader) return;
+            const index = city.leaders.indexOf(leader);
+            const cm = getCurrentMeetingPeriod();
+            const prev = !!leader.postHistory[cm.key];
+
+            if (prev && !confirm('Already marked as posted. Unmark?')) return;
+
+            leader.postHistory[cm.key] = !prev;    // optimistic
             renderCityView();
+            const btn = document.getElementById(`leader-btn-${index}`);
+            if (btn) btn.disabled = true;
 
-            try {
-                await saveData();
-                console.log('✅ Post status saved successfully');
-            } catch(e) {
-                console.error('❌ Failed to save post status:', e);
-                leader.postHistory[cm.key] = prev;
+            await mutate('post status', async () => {
+                const { error } = await supabase.rpc('band_set_post', {
+                    p_leader_id: leaderId,
+                    p_meeting_key: cm.key,
+                    p_posted: !prev,
+                });
+                if (error) throw error;
                 renderCityView();
-            } finally {
-                btn.disabled = false;
-            }
+            }, () => { leader.postHistory[cm.key] = prev; });
         }
 
         async function updateCityCounter(field, change) {
-            const city = cities[currentCityIndex];
+            const city = byId(currentCityId);
             if (!city) return;
-            if (!city[field]) city[field] = 0;
-            city[field] = Math.max(0, city[field] + change);
-            if (field === 'churchesYTD') city.totalChurches = city[field];
-            renderCityView();
-            writeDraft();
-            try { await saveData(); } catch(e) { console.error('Failed to save counter:', e); }
+            const prev = { b: city.baptismsYTD, c: city.churchesYTD, t: city.totalChurches };
+            if (field === 'baptismsYTD') {
+                city.baptismsYTD = Math.max(0, (city.baptismsYTD || 0) + change);   // optimistic
+            } else {
+                city.churchesYTD = Math.max(0, (city.churchesYTD || 0) + change);
+                city.totalChurches = city.churchesYTD;
+            }
+            renderAll();
+
+            await mutate('counter', async () => {
+                const { data, error } = await supabase.rpc('band_adjust_counter', {
+                    p_city_id: city.id,
+                    p_field: field === 'baptismsYTD' ? 'baptisms_ytd' : 'churches_ytd',
+                    p_delta: change,
+                });
+                if (error) throw error;
+                // Server value is authoritative (includes concurrent edits by others)
+                if (field === 'baptismsYTD') city.baptismsYTD = data;
+                else { city.churchesYTD = data; city.totalChurches = data; }
+                renderAll();
+            }, () => { city.baptismsYTD = prev.b; city.churchesYTD = prev.c; city.totalChurches = prev.t; });
         }
 
         async function updateCityStreamDepth(change) {
-            const city = cities[currentCityIndex];
+            const city = byId(currentCityId);
             if (!city) return;
+            const prev = { s: city.streamDepth, t: city.totalStreamDepth };
             const idx = streamLevels.indexOf(city.streamDepth || '1st Gen');
             const newIdx = Math.max(0, Math.min(streamLevels.length - 1, idx + change));
-            city.streamDepth = streamLevels[newIdx];
+            city.streamDepth = streamLevels[newIdx];               // optimistic
             city.totalStreamDepth = streamLevels[newIdx];
-            renderCityView();
-            writeDraft();
-            try { await saveData(); } catch(e) { console.error('Failed to save stream depth:', e); }
+            renderAll();
+
+            await mutate('stream depth', async () => {
+                const { data, error } = await supabase.rpc('band_step_stream_depth', {
+                    p_city_id: city.id,
+                    p_delta: change,
+                });
+                if (error) throw error;
+                city.streamDepth = data;
+                city.totalStreamDepth = data;
+                renderAll();
+            }, () => { city.streamDepth = prev.s; city.totalStreamDepth = prev.t; });
         }
 
+        // Settings: access is controlled by the leader login + RLS now, so no
+        // password prompt — any signed-in leader can manage cities.
         function openSettings() {
-            const pw = prompt('Enter password to access settings:');
-            if (pw === 'Matthew28!') {
-                document.getElementById('settingsModal').classList.add('active');
-                updateCityList();
-            } else if (pw !== null) {
-                alert('Incorrect password');
-            }
+            document.getElementById('settingsModal').classList.add('active');
+            updateCityList();
         }
 
         function closeSettings() {
@@ -1016,9 +1000,9 @@
         function updateCityList() {
             const list = document.getElementById('cityList');
             list.innerHTML = '';
-            cities.forEach((city, index) => {
+            cities.forEach(city => {
                 const li = document.createElement('li');
-                li.innerHTML = `<span>${city.name}</span><button class="delete-city-btn" onclick="deleteCity(${index})">Delete</button>`;
+                li.innerHTML = `<span>${esc(city.name)}</span><button class="delete-city-btn" onclick="deleteCity('${city.id}')">Delete</button>`;
                 list.appendChild(li);
             });
         }
@@ -1028,29 +1012,45 @@
             if (!name) return;
             const totalChurches = parseInt(document.getElementById('totalChurchesInput').value) || 0;
             const streamDepth = document.getElementById('streamDepthInput').value;
-            cities.push({ name, leaders: [], baptismsYTD: 0, churchesYTD: 0, streamDepth, totalChurches, totalStreamDepth: streamDepth });
             document.getElementById('newCityInput').value = '';
             document.getElementById('totalChurchesInput').value = '0';
             document.getElementById('streamDepthInput').value = '1st Gen';
-            updateOverview();
-            updateCityList();
-            writeDraft();
-            try { await saveData(); } catch(e) { console.error('Failed to save city:', e); }
+            await mutate('add city', async () => {
+                const { data, error } = await supabase
+                    .from('band_cities')
+                    .insert({ name, total_churches: totalChurches, stream_depth: streamDepth, total_stream_depth: streamDepth })
+                    .select('*')
+                    .single();
+                if (error) throw error;
+                cities.push({
+                    id: data.id, name: data.name,
+                    baptismsYTD: data.baptisms_ytd, churchesYTD: data.churches_ytd,
+                    totalChurches: data.total_churches,
+                    streamDepth: data.stream_depth, totalStreamDepth: data.total_stream_depth,
+                    momentumHistory: data.momentum_history || [], leaders: [],
+                });
+                renderAll();
+            });
         }
 
-        async function deleteCity(index) {
-            if (confirm(`Delete ${cities[index].name}? This cannot be undone.`)) {
-                cities.splice(index, 1);
-                updateOverview();
-                updateCityList();
-                writeDraft();
-                backToOverview();
-                try { await saveData(); } catch(e) { console.error('Failed to save after delete:', e); }
-            }
+        async function deleteCity(cityId) {
+            const city = byId(cityId);
+            if (!city) return;
+            if (!confirm(`Delete ${city.name}? This cannot be undone.`)) return;
+            const idx = cities.indexOf(city);
+            cities.splice(idx, 1);                  // optimistic
+            if (currentCityId === cityId) backToOverview();
+            renderAll();
+            await mutate('delete city', async () => {
+                const { error } = await supabase.from('band_cities').delete().eq('id', cityId);
+                if (error) throw error;
+            }, () => { cities.splice(idx, 0, city); });
         }
 
-        // Expose handlers to global scope (required for inline onclick with type="module")
-        window.toggleLiveMeetingMode = toggleLiveMeetingMode;
+        // ====================================================================
+        // Expose handlers (inline onclick + type="module")
+        // ====================================================================
+        window.manualRefresh = manualRefresh;
         window.openSettings = openSettings;
         window.closeSettings = closeSettings;
         window.backToOverview = backToOverview;
@@ -1064,8 +1064,30 @@
         window.addCity = addCity;
         window.deleteCity = deleteCity;
 
-        // Initialize
-        loadData();
+        // ====================================================================
+        // Startup: leader gate first (shared site pattern), then data + live
+        // updates once a session exists. RLS enforces leader-only access
+        // server-side regardless of what the client does.
+        // ====================================================================
+        setConn('connecting');
+        initLeaderPage();
+
+        function onSession(session) {
+            if (session?.user && !started) {
+                started = true;
+                if (session.access_token && supabase.realtime?.setAuth) {
+                    supabase.realtime.setAuth(session.access_token);
+                }
+                initialLoad();
+                startRealtime();
+            } else if (!session?.user && started) {
+                started = false;
+                stopRealtime();
+                setConn('connecting');
+            }
+        }
+        supabase.auth.getSession().then(({ data: { session } }) => onSession(session));
+        supabase.auth.onAuthStateChange((_event, session) => onSession(session));
     </script>
 </body>
 </html>
