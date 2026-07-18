@@ -16,10 +16,19 @@ reliability assessment. The UI and workflow do not change.
 
 Atomic RPCs (SECURITY INVOKER, so RLS applies): `band_adjust_counter`
 (clamped at 0; simultaneous +1s both count), `band_step_stream_depth`,
-`band_set_post`. Legacy quirks intentionally preserved: `meeting_key` keeps
-the existing `'<year>-<jsMonthIndex>-<2|4>'` format so history carries over,
-and the Churches counter mirrors `churches_ytd` into `total_churches` exactly
-as the current UI does.
+`band_set_post`. The Churches counter mirrors `churches_ytd` into
+`total_churches` exactly as the current UI does.
+
+**Meeting keys are normalized during migration** (approved 2026-07-18): the
+legacy `'<year>-<jsMonthIndex>-<2|4>'` format (0-indexed month; `'2026-6-4'`
+= 4th Sunday of *July*) is converted to the ISO date of the meeting Sunday
+(`'2026-07-26'`) for all historical and future records, via
+`band_legacy_key_to_date()` using the page's exact nth-Sunday arithmetic.
+Unconvertible keys abort the migration (history is never silently dropped);
+`04_validate.sql` sections 4.K1–4.K4 prove conversion completeness,
+no drops/duplicates, and correct meeting dates; `99_rollback.sql` converts
+keys back to the legacy format (`band_date_to_legacy_key()`) and reports a
+restored-vs-backup diff (section 99.1b).
 
 ## Run order (each file is a single paste into the Supabase SQL editor)
 

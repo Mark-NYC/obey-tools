@@ -53,7 +53,9 @@ create table if not exists public.band_leaders (
 create table if not exists public.band_posts (
   leader_id   uuid not null references public.band_leaders(id) on delete cascade,
   city_id     uuid not null references public.band_cities(id) on delete cascade,
-  meeting_key text not null,  -- legacy format preserved: '<year>-<jsMonthIndex>-<2|4>', e.g. '2026-6-4'
+  meeting_key text not null,  -- ISO date of the meeting Sunday, 'YYYY-MM-DD' (legacy
+                              -- '<year>-<jsMonthIndex>-<2|4>' keys are converted in 03)
+  constraint band_posts_meeting_key_iso check (meeting_key ~ '^\d{4}-\d{2}-\d{2}$'),
   posted      boolean not null default true,
   updated_at  timestamptz not null default now(),
   primary key (leader_id, meeting_key)
