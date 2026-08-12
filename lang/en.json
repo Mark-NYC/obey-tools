@@ -1031,6 +1031,7 @@
   },
   "live": {
     "facilitate_button": "Facilitate with a group",
+    "invite_group": "Invite group",
     "following_label": "Following the group facilitator",
     "current_badge": "Current",
     "go_to_current": "Go to current part",
@@ -1045,6 +1046,9 @@
     "native_share_text": "Join our Stories of Hope session",
     "copy_link": "Copy link",
     "copy_link_done": "Link copied",
+    "show_qr": "Show QR",
+    "hide_qr": "Hide QR",
+    "share_done": "Done",
     "copy_failed": "Couldn’t copy — long-press the link to copy it.",
     "qr_alt": "QR code to join the session",
     "qr_unavailable": "QR code unavailable offline",
