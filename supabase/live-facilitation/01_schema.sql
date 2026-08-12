@@ -114,7 +114,9 @@ begin
   end loop;
 end $$;
 
--- Hash a host token the one and only way it is ever hashed.
+-- Hash a host token the one and only way it is ever hashed. digest() is left
+-- unqualified and resolved via search_path, so it works whether pgcrypto lives
+-- in `extensions` (Supabase default) or `public`.
 create or replace function public.live_hash_token(p_token text)
 returns text
 language sql
@@ -122,7 +124,7 @@ immutable
 security definer
 set search_path = public, extensions
 as $$
-  select encode(extensions.digest(coalesce(p_token, ''), 'sha256'), 'hex');
+  select encode(digest(coalesce(p_token, ''), 'sha256'), 'hex');
 $$;
 
 -- ---------------------------------------------------------------------------
@@ -141,6 +143,9 @@ language plpgsql
 security definer
 set search_path = public, extensions
 as $$
+-- The OUT columns (session_id, join_code, expires_at) share names with
+-- live_sessions columns; resolve any ambiguity in queries to the column.
+#variable_conflict use_column
 declare
   v_id   uuid;
   v_code text;
@@ -157,7 +162,7 @@ begin
 
   insert into live_sessions (join_code, story_id)
   values (v_code, left(p_story_id, 128))
-  returning id, expires_at into v_id, v_exp;
+  returning id, live_sessions.expires_at into v_id, v_exp;
 
   insert into live_session_hosts (session_id, host_token_hash, facilitator_id)
   values (v_id, live_hash_token(p_host_token), auth.uid());
@@ -322,3 +327,7 @@ begin
   exception when duplicate_object then null;
   end;
 end $$;
+
+-- Make PostgREST pick up the new/updated functions immediately (otherwise the
+-- API can 404 the RPCs until its schema cache refreshes on its own).
+notify pgrst, 'reload schema';
