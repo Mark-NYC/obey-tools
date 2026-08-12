@@ -866,12 +866,12 @@ button {
    toggled element needs an explicit hidden override. */
 .facilitate-btn[hidden],
 .following-label[hidden],
-.share-toggle[hidden],
+.invite-chip[hidden],
 .facilitator-bar[hidden],
 .goto-current[hidden],
-.share-panel[hidden],
-.live-status-banner[hidden],
-.nativeShare[hidden] { display: none !important; }
+.share-primary[hidden],
+.share-qr[hidden],
+.live-status-banner[hidden] { display: none !important; }
 
 /* The live toolbar sits just under the header. */
 .live-toolbar {
@@ -926,14 +926,16 @@ button {
     100% { box-shadow: 0 0 0 0 rgba(0,184,132,0); }
 }
 
-.share-toggle {
+/* Facilitator: one slim invite chip (not a panel). Tapping it opens the
+   focused share overlay. Shows the live code inline so it's always to hand. */
+.invite-chip {
     width: 100%;
-    min-height: 46px;
+    min-height: 44px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 10px;
-    padding: 11px 15px;
+    padding: 9px 14px;
     border: 1px solid var(--line);
     border-radius: 12px;
     background: var(--surface-soft);
@@ -942,59 +944,64 @@ button {
     font-weight: 750;
     cursor: pointer;
 }
-.share-toggle .chev { transition: transform 180ms ease; color: #8e8e93; }
-.share-toggle.open .chev { transform: rotate(180deg); }
-
-/* Sharing panel */
-.share-panel {
-    margin-top: 10px;
-    padding: 16px;
-    border: 1px solid var(--line);
-    border-radius: 16px;
-    background: var(--surface-soft);
+.invite-chip:active { background: #ededf0; }
+.invite-chip .invite-chip-label { display: inline-flex; align-items: center; gap: 7px; }
+.invite-chip .invite-chip-label svg { width: 16px; height: 16px; color: #05784e; }
+.invite-chip .code {
+    font-size: 16px; font-weight: 850; letter-spacing: 3px;
+    color: #05784e; font-variant-numeric: tabular-nums;
 }
-.share-panel[hidden] { display: none; }
-.share-panel-heading { margin: 0 0 3px; font-size: 16px; font-weight: 800; }
-.share-panel-sub { margin: 0 0 14px; color: var(--muted); font-size: 13.5px; line-height: 1.4; }
-.share-code-wrap { text-align: center; margin-bottom: 14px; }
+
+/* Share overlay (reuses .popup-overlay / .popup-content). One-time gather step. */
+.share-sheet { text-align: center; }
+.share-sheet h2 { margin: 2px 0 4px; font-size: 20px; font-weight: 820; }
+.share-sheet-sub { margin: 0 0 18px; color: var(--muted); font-size: 14px; line-height: 1.45; }
+.share-code-wrap { margin-bottom: 18px; }
 .share-code-label {
     color: var(--muted); font-size: 11px; font-weight: 800;
-    letter-spacing: 0.8px; text-transform: uppercase;
+    letter-spacing: 0.9px; text-transform: uppercase;
 }
 .share-code {
-    margin-top: 4px;
-    font-size: 40px;
-    line-height: 1.05;
+    margin-top: 5px;
+    font-size: 46px;
+    line-height: 1.02;
     font-weight: 850;
-    letter-spacing: 6px;
+    letter-spacing: 8px;
     color: var(--text);
     font-variant-numeric: tabular-nums;
 }
-.share-hint { margin-top: 5px; color: var(--muted); font-size: 12.5px; line-height: 1.35; }
+.share-hint { margin-top: 7px; color: var(--muted); font-size: 13px; line-height: 1.35; }
+
+.share-primary {
+    width: 100%; min-height: 52px; margin-bottom: 10px;
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    border: 0; border-radius: 14px; background: var(--brand-green); color: #000;
+    font-size: 17px; font-weight: 800; cursor: pointer;
+}
+.share-primary svg { width: 19px; height: 19px; }
+.share-secondary { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.share-secondary button {
+    min-height: 46px; border: 0; border-radius: 12px;
+    background: #e9e9ed; color: var(--text);
+    font-size: 15px; font-weight: 760; cursor: pointer;
+}
 .share-qr {
-    display: flex; justify-content: center; margin: 6px 0 16px;
+    display: flex; justify-content: center; margin: 16px 0 4px;
 }
 .share-qr img, .share-qr canvas {
-    width: 168px; height: 168px; image-rendering: pixelated;
+    width: 176px; height: 176px; image-rendering: pixelated;
     border: 8px solid #fff; border-radius: 12px; background: #fff;
     box-shadow: 0 2px 10px rgba(0,0,0,0.08);
 }
 .share-qr-fallback {
-    width: 168px; height: 168px; display: grid; place-items: center;
+    width: 176px; height: 176px; display: grid; place-items: center;
     padding: 12px; border: 1px dashed var(--line); border-radius: 12px;
     color: var(--muted); font-size: 12.5px; text-align: center;
 }
-.share-actions { display: grid; gap: 9px; }
-.share-actions button {
-    width: 100%; min-height: 46px; padding: 11px 14px;
-    border: 0; border-radius: 12px; font-size: 15px; font-weight: 760; cursor: pointer;
-}
-.share-btn-primary { background: var(--brand-green); color: #000; }
-.share-btn-secondary { background: #e9e9ed; color: var(--text); }
-.share-link {
-    margin-top: 4px; padding: 9px 11px; border-radius: 10px;
-    background: #fff; border: 1px solid var(--line);
-    color: var(--muted); font-size: 12px; word-break: break-all; text-align: center;
+.share-done {
+    width: 100%; min-height: 48px; margin-top: 16px;
+    border: 0; border-radius: 12px; background: var(--brand-black); color: #fff;
+    font-size: 16px; font-weight: 780; cursor: pointer;
 }
 
 /* "Current" badge on the highlighted process row. */
@@ -1173,24 +1180,10 @@ button {
 <span data-i18n="live.following_label">Following the group facilitator</span>
 </div>
 
-<button class="share-toggle" id="shareToggle" type="button" hidden onclick="LIVE.toggleSharePanel()">
-<span data-i18n="live.share_heading">Invite your group</span>
-<span class="chev" aria-hidden="true">▾</span>
+<button class="invite-chip" id="inviteChip" type="button" hidden onclick="LIVE.openShare()">
+<span class="invite-chip-label"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a3 3 0 1 0-2.82-4H15a3 3 0 0 0 .1 5.66l-4.2 2.45a3 3 0 1 0 0 3.78l4.2 2.45A3 3 0 1 0 18 16a2.98 2.98 0 0 0-1.96.74l-4.2-2.45a3.02 3.02 0 0 0 0-1.58l4.2-2.45A2.98 2.98 0 0 0 18 8Z" fill="currentColor"/></svg><span data-i18n="live.invite_group">Invite group</span></span>
+<span class="code" id="inviteCode">····</span>
 </button>
-
-<div class="share-panel" id="sharePanel" hidden>
-<div class="share-code-wrap">
-<div class="share-code-label" data-i18n="live.join_code_label">Join code</div>
-<div class="share-code" id="shareCode">····</div>
-<div class="share-hint" id="shareHint"></div>
-</div>
-<div class="share-qr" id="shareQr"></div>
-<div class="share-actions">
-<button class="share-btn-primary" id="nativeShareBtn" type="button" hidden onclick="LIVE.nativeShare()" data-i18n="live.native_share">Share</button>
-<button class="share-btn-secondary" id="copyLinkBtn" type="button" onclick="LIVE.copyLink()" data-i18n="live.copy_link">Copy link</button>
-</div>
-<div class="share-link" id="shareLink"></div>
-</div>
 </div>
 
 <div class="live-status-banner" id="liveStatusBanner" hidden></div>
@@ -1302,6 +1295,25 @@ button {
 <span data-i18n="live.go_to_current">Go to current part</span>
 </button>
 <div class="popup-overlay" id="visionPopup" onclick="closeVisionPopup()"><div class="popup-content" onclick="event.stopPropagation()"><button class="popup-close" onclick="closeVisionPopup()">×</button><img alt="Church Circle" class="popup-image" src="assets/images/popups/vision-popup.jpg"/><div class="popup-text" data-i18n="common.vision_popup_text">Read Acts 2:36-47. Be a part of a church and start a church</div></div></div>
+<div class="popup-overlay" id="sharePopup" onclick="LIVE.closeShare()"><div class="popup-content share-sheet" onclick="event.stopPropagation()"><button class="popup-close" onclick="LIVE.closeShare()">×</button>
+<h2 data-i18n="live.share_heading">Invite your group</h2>
+<p class="share-sheet-sub" data-i18n="live.share_instructions">Share the link, or have people open the join page and enter the code below.</p>
+<div class="share-code-wrap">
+<div class="share-code-label" data-i18n="live.join_code_label">Join code</div>
+<div class="share-code" id="shareCode">····</div>
+<div class="share-hint" id="shareHint"></div>
+</div>
+<button class="share-primary" id="nativeShareBtn" type="button" hidden onclick="LIVE.nativeShare()">
+<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a3 3 0 1 0-2.82-4H15a3 3 0 0 0 .1 5.66l-4.2 2.45a3 3 0 1 0 0 3.78l4.2 2.45A3 3 0 1 0 18 16a2.98 2.98 0 0 0-1.96.74l-4.2-2.45a3.02 3.02 0 0 0 0-1.58l4.2-2.45A2.98 2.98 0 0 0 18 8Z" fill="currentColor"/></svg>
+<span data-i18n="live.native_share">Share</span>
+</button>
+<div class="share-secondary">
+<button id="copyLinkBtn" type="button" onclick="LIVE.copyLink()" data-i18n="live.copy_link">Copy link</button>
+<button id="qrToggleBtn" type="button" onclick="LIVE.toggleQR()" data-i18n="live.show_qr">Show QR</button>
+</div>
+<div class="share-qr" id="shareQr" hidden></div>
+<button class="share-done" type="button" onclick="LIVE.closeShare()" data-i18n="live.share_done">Done</button>
+</div></div>
 <div class="popup-overlay" id="reportPopup" onclick="LIVE.closeReport()"><div class="popup-content report-content" onclick="event.stopPropagation()"><button class="popup-close" onclick="LIVE.closeReport()">×</button>
 <h2 data-i18n="live.report_heading">How did the group respond?</h2>
 <div class="stepper-row">
@@ -1518,11 +1530,9 @@ button {
     function el(id) { return document.getElementById(id); }
     function setMode(m) {
         mode = m;
-        var showFacilitate = (m === 'idle');
-        el('facilitateBtn').hidden  = !showFacilitate;
+        el('facilitateBtn').hidden  = (m !== 'idle');
         el('followingLabel').hidden = (m !== 'participant');
-        el('shareToggle').hidden    = (m !== 'facilitator');
-        el('sharePanel').hidden     = (m !== 'facilitator') || !sharePanelOpen;
+        el('inviteChip').hidden     = (m !== 'facilitator');
         el('facilitatorBar').hidden = (m !== 'facilitator');
         applyOpenState();
         updateFacButtons();
@@ -1537,7 +1547,7 @@ button {
     // ---- live state ----
     var state = { sessionId: null, hostToken: null, joinCode: null };
     var channel = null;
-    var sharePanelOpen = true;
+    var qrShown = false;
 
     function sb() { return window.supabase; }
     function clamp(n) { n = parseInt(n, 10); if (isNaN(n)) n = 1; return Math.max(1, Math.min(STEP_MAX, n)); }
@@ -1631,27 +1641,37 @@ button {
         }, 150);
     }
 
-    function buildSharePanel() {
-        var link = directLink();
-        el('shareCode').textContent = state.joinCode || '····';
-        el('shareHint').textContent = T('live.join_hint', { url: joinPageUrl() });
-        el('shareLink').textContent = link;
-        el('nativeShareBtn').hidden = !(navigator.share);
-        renderQR(link);
+    // Populate the invite chip + share overlay from current state. Does not
+    // open anything and does not render the QR (that is lazy, on Show QR).
+    function buildShareContent() {
+        el('inviteCode').textContent = state.joinCode || '····';
+        el('shareCode').textContent  = state.joinCode || '····';
+        el('shareHint').textContent  = T('live.join_hint', { url: joinPageUrl() });
+        el('nativeShareBtn').hidden  = !(navigator.share);
     }
 
     // ---- public API (referenced by inline handlers) ----
     var LIVE = {
-        toggleSharePanel: function () {
-            sharePanelOpen = !sharePanelOpen;
-            el('sharePanel').hidden = !sharePanelOpen;
-            el('shareToggle').classList.toggle('open', sharePanelOpen);
+        openShare: function () {
+            buildShareContent();
+            // QR starts collapsed each time it is opened.
+            qrShown = false;
+            el('shareQr').hidden = true;
+            el('qrToggleBtn').textContent = T('live.show_qr');
+            el('sharePopup').classList.add('active');
+        },
+        closeShare: function () { el('sharePopup').classList.remove('active'); },
+        toggleQR: function () {
+            var box = el('shareQr'), btn = el('qrToggleBtn');
+            qrShown = !qrShown;
+            box.hidden = !qrShown;
+            btn.textContent = T(qrShown ? 'live.hide_qr' : 'live.show_qr');
+            if (qrShown && !box.firstChild) renderQR(directLink());
         },
         startFacilitation: async function () {
             if (mode !== 'idle') return;
             var btn = el('facilitateBtn');
             btn.disabled = true;
-            window.showNotification(T('live.starting'));
             var token = genHostToken();
             try {
                 var data = await rpc('live_create_session', { p_story_id: STORY_ID, p_host_token: token });
@@ -1663,12 +1683,12 @@ button {
                 try { localStorage.setItem('live-host-' + state.sessionId, token); } catch (e) {}
                 try { history.replaceState(null, '', '?s=' + state.sessionId); } catch (e) {}
                 currentStep = 1; openStep = 1;
-                sharePanelOpen = true;
                 setMode('facilitator');
-                el('shareToggle').classList.add('open');
-                buildSharePanel();
                 subscribeRealtime(state.sessionId);
                 updateGotoObserver();
+                // Gather phase: open the share sheet once so the facilitator can
+                // invite people immediately. Dismissing it leaves the bare screen.
+                LIVE.openShare();
             } catch (e) {
                 btn.disabled = false;
                 window.showNotification(T('live.backend_unavailable'));
@@ -1771,11 +1791,11 @@ button {
         if (channel) { sb().removeChannel(channel); channel = null; }
         if (io) { io.disconnect(); io = null; }
         el('gotoCurrent').hidden = true;
+        LIVE.closeShare();
         mode = 'ended';
         el('facilitateBtn').hidden  = true;
         el('followingLabel').hidden = true;
-        el('shareToggle').hidden    = true;
-        el('sharePanel').hidden     = true;
+        el('inviteChip').hidden     = true;
         el('facilitatorBar').hidden = true;
         setStatusBanner(T(isFacilitator ? 'live.session_ended_facilitator' : 'live.session_ended_participant'));
         applyOpenState();
@@ -1825,12 +1845,10 @@ button {
         if (storedToken) {
             state.hostToken = storedToken;
             state.joinCode = row.join_code || null;
-            // Reconnect as facilitator; keep the share panel collapsed but
-            // ready (a tap on "Invite your group" reveals code, link, and QR).
-            sharePanelOpen = false;
+            // Reconnect as facilitator: the invite chip shows the live code;
+            // tapping it reopens the share sheet. Don't auto-open on reconnect.
             setMode('facilitator');
-            buildSharePanel();
-            el('shareToggle').classList.remove('open');
+            buildShareContent();
         } else {
             setMode('participant');
         }

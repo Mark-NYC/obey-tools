@@ -90,21 +90,33 @@ async function waitCurrent(page, n, timeout = 4000) {
   record('No per-item completion / progress / reset UI', noProgressUI, `progress bar/complete/reset absent = ${noProgressUI}`);
 
   await F.page.click('#facilitateBtn');
-  await F.page.waitForTimeout(600);
+  await F.page.waitForTimeout(700);
+  const shareOpen = await F.page.evaluate(() => document.getElementById('sharePopup').classList.contains('active'));
   const code = (await F.page.textContent('#shareCode')).trim();
-  const link = (await F.page.textContent('#shareLink')).trim();
   const validCode = /^[ABCDEFGHJKMNPQRSTUVWXYZ2346789]{4}$/.test(code);
-  record('Facilitator starts session; 4-char code generated (safe alphabet)', validCode, `code="${code}"`);
+  record('Start opens the share overlay once, with a valid 4-char code (safe alphabet)', shareOpen && validCode, `overlayOpen=${shareOpen}, code="${code}"`);
   const st = await mockState();
   const sid = st.sessions[0] && st.sessions[0].id;
-  record('Share link points at the test story page with ?s=', link.includes('hope-for-the-rejected-live-test.html?s=' + sid), `link=${link}`);
-  const qrFallback = await F.page.evaluate(() => !!document.querySelector('.share-qr-fallback') || !!document.querySelector('#shareQr img'));
-  record('QR area renders (image or graceful offline fallback)', qrFallback, 'qr present or fallback shown');
+  await F.page.screenshot({ path: path.join(SHOTS, 'facilitator-share-overlay.png') });
+
+  // QR is hidden until asked for.
+  const qrHiddenFirst = !(await F.page.evaluate(() => { const b = document.getElementById('shareQr'); return b && !b.hidden; }));
+  await F.page.click('#qrToggleBtn');
+  await F.page.waitForTimeout(500);
+  const qrShownNow = await F.page.evaluate(() => { const b = document.getElementById('shareQr'); return !!(b && !b.hidden && (b.querySelector('img') || b.querySelector('.share-qr-fallback'))); });
+  record('QR is behind a tap: hidden by default, revealed by Show QR (image or offline fallback)', qrHiddenFirst && qrShownNow, `hiddenByDefault=${qrHiddenFirst}, shownAfterTap=${qrShownNow}`);
+
+  // Dismiss the overlay -> bare facilitating screen.
+  await F.page.click('.share-done');
+  await F.page.waitForTimeout(300);
+  const overlayClosed = !(await F.page.evaluate(() => document.getElementById('sharePopup').classList.contains('active')));
   const facUiClean = !(await visible(F.page, 'facilitateBtn')) && !(await visible(F.page, 'followingLabel'))
-    && (await visible(F.page, 'facilitatorBar')) && (await visible(F.page, 'sharePanel'));
-  record('Facilitator UI: start button + following label hidden; controls + share panel shown', facUiClean,
-    `facBtnHidden=${!(await visible(F.page, 'facilitateBtn'))}, followHidden=${!(await visible(F.page, 'followingLabel'))}, barShown=${await visible(F.page, 'facilitatorBar')}`);
-  await F.page.screenshot({ path: path.join(SHOTS, 'facilitator-share.png') });
+    && (await visible(F.page, 'facilitatorBar')) && (await visible(F.page, 'inviteChip')) && overlayClosed;
+  record('Bare facilitating screen: no start btn/label; controls + invite chip; overlay dismissed', facUiClean,
+    `overlayClosed=${overlayClosed}, barShown=${await visible(F.page, 'facilitatorBar')}, chipShown=${await visible(F.page, 'inviteChip')}`);
+  const chipCode = (await F.page.textContent('#inviteCode')).trim();
+  record('Invite chip carries the live join code', chipCode === code, `chip="${chipCode}" code="${code}"`);
+  await F.page.screenshot({ path: path.join(SHOTS, 'facilitator-bare.png') });
 
   // --- Participant joins via direct link (?s=) ---
   const P = await newContext(browser, 'participant');
@@ -152,12 +164,11 @@ async function waitCurrent(page, n, timeout = 4000) {
   // --- Facilitator refresh reconnects (real code re-shown) ---
   await F.page.reload({ waitUntil: 'domcontentloaded' });
   await F.page.waitForTimeout(700);
-  const facReconnect = (await visible(F.page, 'facilitatorBar')) && (await currentStep(F.page)) === 5;
-  await F.page.click('#shareToggle');
-  await F.page.waitForTimeout(200);
-  const reCode = (await F.page.textContent('#shareCode')).trim();
-  record('Facilitator refresh reconnects with controls + real join code', facReconnect && reCode === code,
-    `barShown=${facReconnect}, code after reconnect="${reCode}" (expected "${code}")`);
+  const facReconnect = (await visible(F.page, 'facilitatorBar')) && (await visible(F.page, 'inviteChip')) && (await currentStep(F.page)) === 5;
+  const noAutoOverlay = !(await F.page.evaluate(() => document.getElementById('sharePopup').classList.contains('active')));
+  const reCode = (await F.page.textContent('#inviteCode')).trim();
+  record('Facilitator refresh reconnects: controls + invite chip with real code, no auto-overlay', facReconnect && reCode === code && noAutoOverlay,
+    `barShown=${facReconnect}, chipCode="${reCode}" (expected "${code}"), overlayClosed=${noAutoOverlay}`);
 
   // --- Previous works ---
   await F.page.click('#facPrev');
