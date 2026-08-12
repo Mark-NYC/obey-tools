@@ -1,0 +1,11 @@
+{
+  "name": "live-facilitation-tests",
+  "private": true,
+  "description": "Two-browser flow test for the live group facilitation TEST pages (hope-for-the-rejected-live-test.html + live-join-test.html). Drives the real pages in facilitator/participant Chromium contexts against a local mock of the Supabase RPCs + realtime. See README.md.",
+  "scripts": {
+    "test": "node -e \"const {spawn}=require('child_process');const m=spawn('node',['mock-server.js'],{stdio:'inherit'});setTimeout(()=>{const t=spawn('node',['run.js'],{stdio:'inherit'});t.on('exit',(c)=>{m.kill();process.exit(c)});},600)\""
+  },
+  "dependencies": {
+    "playwright-core": "^1.54.0"
+  }
+}

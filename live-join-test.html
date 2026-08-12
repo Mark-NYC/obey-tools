@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<link href="assets/images/favicons/favicon.ico" rel="icon" type="image/x-icon"/>
+<link href="assets/images/favicons/favicon-32x32.png" rel="icon" sizes="32x32" type="image/png"/>
+<link href="assets/images/favicons/apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180"/>
+<link href="/manifest.json" rel="manifest"/>
+<meta content="yes" name="apple-mobile-web-app-capable"/>
+<meta content="#000000" name="theme-color"/>
+<meta content="Obey Tools" name="apple-mobile-web-app-title"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="noindex, nofollow" name="robots"/>
+<title>Join a Session (Test) — Live Facilitation</title>
+<script type="module">
+    import { supabase } from './supabase.js';
+    window.supabase = supabase;
+</script>
+<script src="/i18n.js" type="module"></script>
+<script defer="" src="/pwa.js"></script>
+<style>
+:root {
+    --brand-green: #FCB900;
+    --brand-black: #000000;
+    --canvas: #f2f2f7;
+    --surface: #ffffff;
+    --surface-soft: #f7f7f9;
+    --text: #242426;
+    --muted: #6e6e73;
+    --line: rgba(60, 60, 67, 0.18);
+    --radius: 20px;
+}
+* { box-sizing: border-box; }
+html, body {
+    margin: 0; min-height: 100vh; width: 100%;
+    background: var(--canvas); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", Arial, sans-serif;
+    font-size: 16px; line-height: 1.5; -webkit-font-smoothing: antialiased;
+}
+button, input { font: inherit; }
+.test-ribbon {
+    padding: 6px 16px; background: #1c1c1e; color: #fff;
+    font-size: 12px; font-weight: 750; letter-spacing: 0.4px; text-align: center;
+}
+.top-nav {
+    width: min(100%, 430px); margin: 0 auto;
+    padding: max(10px, env(safe-area-inset-top)) 12px 9px;
+    display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px;
+}
+.top-nav a {
+    min-height: 42px; padding: 10px 15px; display: inline-flex;
+    align-items: center; justify-content: center; border-radius: 999px;
+    color: #fff; text-decoration: none; font-size: 14px; font-weight: 750; white-space: nowrap;
+}
+.top-nav a:first-child { background: var(--brand-black); }
+.top-nav a:last-child { background: var(--brand-green); color: #000; overflow: hidden; text-overflow: ellipsis; }
+.wrap {
+    width: min(100%, 430px); margin: 0 auto; padding: 24px 20px 40px;
+}
+.card {
+    background: var(--surface); border-radius: 22px;
+    padding: 28px 22px; box-shadow: 0 8px 30px rgba(0,0,0,0.06);
+    text-align: center;
+}
+.card h1 {
+    margin: 0 0 6px; font-size: 24px; font-weight: 850; letter-spacing: 0.3px;
+}
+.card p.sub { margin: 0 0 22px; color: var(--muted); font-size: 15px; line-height: 1.45; }
+.code-input {
+    width: 100%; max-width: 260px; margin: 0 auto 14px; display: block;
+    padding: 16px 12px; border: 2px solid var(--line); border-radius: 14px;
+    background: #fff; color: var(--text);
+    font-size: 34px; font-weight: 850; letter-spacing: 10px; text-align: center;
+    text-transform: uppercase; outline: none;
+}
+.code-input:focus { border-color: var(--brand-green); box-shadow: 0 0 0 4px rgba(252,185,0,0.18); }
+.code-input::placeholder { color: #c7c7cc; letter-spacing: 10px; }
+.join-btn {
+    width: 100%; min-height: 52px; margin-top: 4px;
+    border: 0; border-radius: 14px; background: var(--brand-black); color: #fff;
+    font-size: 17px; font-weight: 800; cursor: pointer;
+}
+.join-btn[disabled] { opacity: 0.6; cursor: default; }
+.msg {
+    margin-top: 14px; min-height: 1px; font-size: 14px; line-height: 1.4; font-weight: 650;
+}
+.msg.error { color: #c0392b; }
+.msg.info  { color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="test-ribbon" data-i18n="live.test_banner">Test page — live group facilitation</div>
+<div class="top-nav">
+<a data-i18n="nav.home" href="index.html">Home</a>
+<a data-i18n="nav.back_stories" href="stories-of-hope.html">← Stories of Hope</a>
+</div>
+<div class="wrap">
+<div class="card">
+<h1 data-i18n="live.join_title">Join a session</h1>
+<p class="sub" data-i18n="live.join_prompt">Enter the 4-character code from your facilitator.</p>
+<input class="code-input" id="codeInput" type="text" inputmode="latin" autocomplete="off"
+       autocapitalize="characters" spellcheck="false" maxlength="4"
+       data-i18n-placeholder="live.join_placeholder" placeholder="CODE"
+       aria-label="Join code"/>
+<button class="join-btn" id="joinBtn" type="button" data-i18n="live.join_button">Join</button>
+<div class="msg info" id="msg"></div>
+</div>
+</div>
+<script>
+(function () {
+    var T = function (k, v) { return window.t ? window.t(k, v) : k; };
+    var STORY_PAGE = 'hope-for-the-rejected-live-test.html';
+
+    var input = document.getElementById('codeInput');
+    var btn   = document.getElementById('joinBtn');
+    var msg   = document.getElementById('msg');
+
+    function say(text, kind) {
+        msg.textContent = text || '';
+        msg.className = 'msg ' + (kind || 'info');
+    }
+
+    // Force uppercase and strip anything outside the safe alphabet as typed.
+    input.addEventListener('input', function () {
+        var v = input.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+        // Exclude the confusable characters the codes never use.
+        v = v.replace(/[O0I1L5]/g, '');
+        input.value = v.slice(0, 4);
+        say('', 'info');
+    });
+    input.addEventListener('keydown', function (e) { if (e.key === 'Enter') join(); });
+
+    async function join() {
+        var code = (input.value || '').toUpperCase().trim();
+        if (code.length !== 4) { say(T('live.join_invalid'), 'error'); input.focus(); return; }
+        btn.disabled = true;
+        say(T('live.join_checking'), 'info');
+        try {
+            var res = await window.supabase.rpc('live_get_by_code', { p_code: code });
+            if (res.error) throw res.error;
+            var row = Array.isArray(res.data) ? res.data[0] : res.data;
+            if (!row || !row.session_id) {
+                say(T('live.join_not_found'), 'error');
+                btn.disabled = false;
+                return;
+            }
+            // Land directly on the story page as a participant.
+            window.location.href = STORY_PAGE + '?s=' + encodeURIComponent(row.session_id);
+        } catch (e) {
+            // Backend not deployed, network error, or bad code.
+            say(T('live.join_not_found'), 'error');
+            btn.disabled = false;
+        }
+    }
+
+    btn.addEventListener('click', join);
+
+    // Prefill ?code= if present (e.g. a shared join link).
+    window.addEventListener('i18n:ready', function () {
+        var c = new URLSearchParams(window.location.search).get('code');
+        if (c) { input.value = c.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4); }
+        input.focus();
+    });
+})();
+</script>
+</body>
+</html>

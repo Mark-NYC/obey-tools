@@ -1,0 +1,1863 @@
+<!DOCTYPE html>
+
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<link href="assets/images/favicons/favicon.ico" rel="icon" type="image/x-icon"/>
+<link href="assets/images/favicons/favicon-32x32.png" rel="icon" sizes="32x32" type="image/png"/>
+<link href="assets/images/favicons/favicon-16x16.png" rel="icon" sizes="16x16" type="image/png"/>
+<link href="assets/images/favicons/apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180"/>
+<link href="assets/images/favicons/android-chrome-192x192.png" rel="icon" sizes="192x192" type="image/png"/>
+<link href="assets/images/favicons/android-chrome-512x512.png" rel="icon" sizes="512x512" type="image/png"/>
+<link href="/manifest.json" rel="manifest"/>
+<meta content="yes" name="apple-mobile-web-app-capable"/>
+<meta content="#000000" name="theme-color"/>
+<meta content="Obey Tools" name="apple-mobile-web-app-title"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script type="module">
+        import { supabase } from './supabase.js';
+        window.supabase = supabase;
+        import { authSignUp, authLogIn, authLogOut, authForgotPassword, initAuthSection } from './auth.js';
+        window.authSignUp = authSignUp;
+        window.authLogIn = authLogIn;
+        window.authLogOut = authLogOut;
+        window.authForgotPassword = authForgotPassword;
+        // Keep the collapsible account button (added by this page's layout script)
+        // in sync with auth state — it used to hook the inline updateAuthUI we replaced.
+        initAuthSection(function (session) {
+            const accountBtn = document.querySelector('.account-btn');
+            if (!accountBtn) return;
+            const signedIn = !!(session && session.user);
+            accountBtn.classList.toggle('signed-in', signedIn);
+            accountBtn.setAttribute('aria-label', signedIn ? 'Open signed-in account' : 'Open sign in');
+        });
+    </script>
+<title>Hope for the Rejected — Live Facilitation (Test) - Luke 7:36-50</title>
+<meta content="noindex, nofollow" name="robots"/>
+<script src="/i18n.js" type="module"></script>
+<script defer="" src="/pwa.js"></script>
+<!-- Self-contained-once-loaded QR generator, pinned like supabase.js. If it
+     fails to load (e.g. offline), the share panel degrades gracefully. -->
+<script defer="" src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+<style>
+:root {
+    --brand-green: #FCB900;
+    --brand-black: #000000;
+    --canvas: #f2f2f7;
+    --surface: #ffffff;
+    --surface-soft: #f7f7f9;
+    --text: #242426;
+    --muted: #6e6e73;
+    --line: rgba(60, 60, 67, 0.18);
+    --line-soft: rgba(60, 60, 67, 0.10);
+    --blue: #007AFF;
+    --radius: 20px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    width: 100%;
+    min-width: 0;
+    overflow-x: clip;
+    background: var(--canvas);
+    scroll-behavior: smooth;
+}
+
+body {
+    width: 100%;
+    min-width: 0;
+    min-height: 100vh;
+    margin: 0;
+    overflow-x: clip;
+    background: var(--canvas);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+}
+
+button,
+input {
+    font: inherit;
+}
+
+button,
+a {
+    -webkit-tap-highlight-color: transparent;
+}
+
+button {
+    color: inherit;
+}
+
+.top-nav {
+    width: min(100%, 430px);
+    margin: 0 auto;
+    padding: max(10px, env(safe-area-inset-top)) 12px 9px;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 8px;
+}
+
+.top-nav a {
+    min-width: 0;
+    min-height: 42px;
+    padding: 10px 15px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    color: #fff;
+    text-decoration: none;
+    font-size: 14px;
+    line-height: 1.1;
+    font-weight: 750;
+    white-space: nowrap;
+}
+
+.top-nav a:first-child {
+    background: var(--brand-black);
+}
+
+.top-nav a:last-child {
+    overflow: hidden;
+    background: var(--brand-green);
+    text-overflow: ellipsis;
+}
+
+.container {
+    width: min(100%, 430px);
+    min-width: 0;
+    min-height: calc(100vh - 61px);
+    margin: 0 auto;
+    background: var(--surface);
+    border-radius: 24px 24px 0 0;
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.055);
+}
+
+.header {
+    position: relative;
+    min-width: 0;
+    padding: 18px 60px 15px 68px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2px;
+    background: rgba(255,255,255,0.96);
+    border-bottom: 1px solid var(--line-soft);
+}
+
+.header-icon {
+    position: absolute;
+    left: 18px;
+    top: 18px;
+    width: 38px;
+    height: 38px;
+    object-fit: contain;
+}
+
+.header h1 {
+    min-width: 0;
+    margin: 0;
+    color: #000;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
+    font-size: 22px;
+    line-height: 1.1;
+    font-weight: 800;
+    letter-spacing: 0.75px;
+    text-transform: uppercase;
+}
+
+.header .scripture {
+    min-width: 0;
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.35;
+    font-weight: 600;
+}
+.scripture { text-wrap: balance; } /* P3: break between references, not inside one */
+
+.account-btn {
+    position: absolute;
+    top: 19px;
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    display: grid;
+    place-items: center;
+    border: 0;
+    border-radius: 12px;
+    background: var(--surface-soft);
+    color: var(--text);
+    cursor: pointer;
+}
+
+
+.account-btn {
+    right: 14px;
+}
+
+.account-btn svg {
+    width: 20px;
+    height: 20px;
+}
+
+.account-btn.signed-in {
+    background: rgba(0, 208, 132, 0.14);
+    color: #06784f;
+}
+
+.progress-bar-container {
+    padding: 12px 18px 13px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--line-soft);
+}
+
+.progress-bar {
+    height: 7px;
+    overflow: hidden;
+    background: #e5e5ea;
+    border-radius: 999px;
+}
+
+.progress-fill {
+    width: 0;
+    height: 100%;
+    background: var(--brand-green);
+    border-radius: inherit;
+    transition: width 240ms ease;
+}
+
+.progress-text {
+    margin-top: 7px;
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.2;
+    font-weight: 650;
+    text-align: center;
+}
+
+.interaction-hint {
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.2;
+    font-weight: 650;
+    transition: opacity 180ms ease;
+}
+
+.interaction-hint[hidden] {
+    display: none;
+}
+
+.interaction-hint svg {
+    width: 14px;
+    height: 14px;
+    flex: 0 0 auto;
+}
+
+/* The original cards stay in the DOM as the data and persistence layer. */
+.content {
+    display: none;
+}
+
+.accordion-overview {
+    width: 100%;
+    min-width: 0;
+    padding: 0 16px 6px;
+}
+
+.accordion-section-label {
+    min-width: 0;
+    padding: 15px 2px 7px;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.1;
+    font-weight: 800;
+    letter-spacing: 0.75px;
+    text-transform: uppercase;
+}
+
+.accordion-section-label span:last-child {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.25px;
+}
+
+.accordion-step {
+    min-width: 0;
+    border-top: 1px solid var(--line);
+}
+
+.accordion-step:last-child {
+    border-bottom: 1px solid var(--line);
+}
+
+.accordion-trigger {
+    width: 100%;
+    min-width: 0;
+    min-height: 56px;
+    padding: 10px 2px;
+    display: grid;
+    grid-template-columns: 34px minmax(0, 1fr) 24px;
+    align-items: center;
+    gap: 10px;
+    border: 0;
+    background: transparent;
+    text-align: left;
+    cursor: pointer;
+}
+
+.accordion-trigger:active {
+    background: rgba(0,0,0,0.025);
+}
+
+.accordion-number {
+    width: 30px;
+    height: 30px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: #ededf0;
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1;
+    font-weight: 800;
+    transition: background 180ms ease, color 180ms ease, box-shadow 180ms ease;
+}
+
+.accordion-chevron {
+    width: 22px;
+    height: 22px;
+    display: grid;
+    place-items: center;
+    color: #8e8e93;
+    transition: transform 180ms ease, color 180ms ease;
+}
+
+.accordion-chevron svg {
+    width: 18px;
+    height: 18px;
+    display: block;
+}
+
+.accordion-step.completed .accordion-number {
+    background: var(--brand-green);
+    color: #fff;
+}
+
+.accordion-step.open > .accordion-trigger {
+    background: rgba(0, 208, 132, 0.055);
+}
+
+.accordion-step.open .accordion-number {
+    box-shadow: 0 0 0 3px rgba(0, 208, 132, 0.13);
+}
+
+.accordion-step.open .accordion-title {
+    color: #05784e;
+}
+
+.accordion-step.open .accordion-chevron {
+    color: #05784e;
+    transform: rotate(180deg);
+}
+
+.accordion-copy {
+    min-width: 0;
+}
+
+.accordion-title,
+.accordion-summary {
+    display: block;
+    min-width: 0;
+}
+
+.accordion-title {
+    color: var(--text);
+    font-size: 17px;
+    line-height: 1.5;
+    font-weight: 760;
+    letter-spacing: normal;
+}
+
+.accordion-summary {
+    margin-top: 5px;
+    overflow-wrap: anywhere;
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.25;
+    font-weight: 560;
+}
+
+.accordion-panel[hidden] {
+    display: none;
+}
+
+.accordion-panel {
+    width: 100%;
+    min-width: 0;
+    padding: 2px 2px 19px 44px;
+    overflow: visible;
+}
+
+.guide-intro {
+    margin: 0;
+    color: var(--text);
+    font-size: 17px;
+    line-height: 1.55;
+}
+
+.guide-reference {
+    margin-top: 12px;
+    padding: 11px 12px;
+    background: var(--surface-soft);
+    border-left: 3px solid var(--brand-green);
+    border-radius: 0 10px 10px 0;
+    color: #48484a;
+    font-size: 15px;
+    line-height: 1.45;
+    font-weight: 650;
+}
+
+
+
+
+.guide-label {
+    margin-top: 18px;
+    margin-bottom: 7px;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.1;
+    font-weight: 800;
+    letter-spacing: 0.65px;
+    text-transform: uppercase;
+}
+
+.guide-flow {
+    border-top: 1px solid var(--line-soft);
+}
+
+.guide-flow-row {
+    min-width: 0;
+    padding: 11px 0;
+    display: grid;
+    grid-template-columns: 48px minmax(0, 1fr);
+    gap: 10px;
+    border-bottom: 1px solid var(--line-soft);
+}
+
+.guide-flow-index {
+    color: #05784e;
+    font-size: 14px;
+    line-height: 1.45;
+    font-weight: 800;
+}
+
+.guide-flow-text {
+    min-width: 0;
+    color: var(--text);
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+
+.conversation-box-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 7px;
+    color: #05784e;
+    font-size: 15px;
+    line-height: 1.35;
+    font-weight: 750;
+    text-decoration: none;
+}
+
+.conversation-box-link:hover,
+.conversation-box-link:focus-visible {
+    text-decoration: underline;
+}
+
+.conversation-box-link:focus-visible {
+    outline: 2px solid rgba(0, 208, 132, 0.35);
+    outline-offset: 3px;
+    border-radius: 4px;
+}
+
+.guide-action-row {
+    margin-top: 17px;
+    display: grid;
+    gap: 9px;
+}
+
+.complete-step-btn,
+.guide-secondary-btn,
+.btn,
+.auth-buttons button,
+.auth-logout-btn,
+.bible-btn {
+    width: 100%;
+    min-height: 48px;
+    padding: 12px 15px;
+    border: 0;
+    border-radius: 12px;
+    font-size: 16px;
+    line-height: 1.25;
+    font-weight: 750;
+    cursor: pointer;
+}
+
+.complete-step-btn {
+    background: var(--brand-green);
+    color: #fff;
+}
+
+.accordion-step.completed .complete-step-btn {
+    background: #e9e9ed;
+    color: var(--text);
+}
+
+.guide-secondary-btn,
+.btn,
+.auth-buttons .auth-btn-secondary,
+.auth-logout-btn {
+    background: #ededf0;
+    color: var(--text);
+}
+
+.auth-buttons .auth-btn-primary {
+    background: var(--blue);
+    color: #fff;
+}
+
+.inline-bible-wrap {
+    width: 100%;
+    min-width: 0;
+    margin-top: 17px;
+}
+
+.bible-btn-mobile-wrap {
+    padding: 0;
+}
+
+.bible-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    background: #ededf0;
+    color: var(--text);
+    text-align: left;
+}
+
+.bible-btn-icon {
+    flex: 0 0 auto;
+    font-size: 12px;
+    transition: transform 180ms ease;
+}
+
+.bible-btn.open .bible-btn-icon {
+    transform: rotate(180deg);
+}
+
+.bible-accordion {
+    display: none;
+    width: 100%;
+    min-width: 0;
+}
+
+.bible-accordion.open {
+    display: block;
+}
+
+.bible-text {
+    width: 100%;
+    min-width: 0;
+    padding: 14px 2px 2px;
+    border-top: 0;
+}
+
+.bible-translation {
+    margin: 0 0 11px;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.2;
+    font-weight: 800;
+    letter-spacing: 0.65px;
+    text-transform: uppercase;
+}
+
+.bible-verse {
+    margin: 0 0 12px;
+    color: var(--text);
+    font-size: 17px;
+    line-height: 1.65;
+}
+
+.verse-num {
+    margin-right: 3px;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 800;
+    vertical-align: super;
+}
+
+.reset-section {
+    width: 100%;
+    padding: 14px 16px calc(18px + env(safe-area-inset-bottom));
+    background: var(--surface);
+}
+
+.reset-section .btn {
+    background: #ededf0;
+    color: var(--text);
+}
+
+/* Account panel expands the document instead of creating an inner scroll area. */
+.auth-section {
+    display: none;
+    width: auto;
+    margin: 0 16px 8px;
+    padding: 16px;
+    visibility: visible;
+    background: var(--surface-soft);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+}
+
+.auth-section.open {
+    display: block;
+}
+
+.auth-section input {
+    width: 100%;
+    min-width: 0;
+    min-height: 46px;
+    margin: 0 0 10px;
+    padding: 11px 13px;
+    border: 1px solid #c7c7cc;
+    border-radius: 11px;
+    background: #fff;
+    color: var(--text);
+    font-size: 16px;
+    outline: none;
+}
+
+.auth-section input:focus {
+    border-color: var(--brand-green);
+    box-shadow: 0 0 0 3px rgba(0,208,132,0.12);
+}
+
+.auth-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 9px;
+}
+
+.auth-status {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.auth-status-text {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    color: var(--muted);
+    font-size: 15px;
+}
+
+
+
+
+
+
+
+
+
+
+/* Vision uses a lightweight overlay. Its content has no internal scroll. */
+.popup-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    padding: 24px 16px;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.66);
+}
+
+.popup-overlay.active {
+    display: flex;
+}
+
+.popup-content {
+    position: relative;
+    width: min(100%, 400px);
+    padding: 22px;
+    background: #fff;
+    border-radius: 20px;
+    text-align: center;
+}
+
+.popup-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 38px;
+    height: 38px;
+    display: grid;
+    place-items: center;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(242,242,247,0.94);
+    color: var(--text);
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.popup-image {
+    display: block;
+    width: 100%;
+    height: auto;
+    margin: 0 0 14px;
+    border-radius: 13px;
+}
+
+.popup-text {
+    color: var(--text);
+    font-size: 16px;
+    line-height: 1.55;
+}
+
+.notification {
+    position: fixed;
+    left: 50%;
+    top: max(18px, env(safe-area-inset-top));
+    z-index: 4000;
+    max-width: calc(100% - 32px);
+    padding: 11px 15px;
+    transform: translateX(-50%);
+    border-radius: 12px;
+    background: rgba(0,0,0,0.86);
+    color: #fff;
+    font-size: 15px;
+    font-weight: 650;
+    text-align: center;
+    animation: notificationSlide 3s ease;
+}
+
+@keyframes notificationSlide {
+    0%, 100% { opacity: 0; transform: translate(-50%, -10px); }
+    10%, 90% { opacity: 1; transform: translate(-50%, 0); }
+}
+
+@media (max-width: 359px) {
+    .top-nav {
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+
+    .top-nav a {
+        padding-left: 11px;
+        padding-right: 11px;
+        font-size: 13px;
+    }
+
+    .header {
+        padding-left: 60px;
+        padding-right: 60px;
+    }
+
+    .header-icon {
+        left: 13px;
+    }
+
+    .account-btn {
+        right: 9px;
+    }
+
+    .accordion-overview {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .accordion-trigger {
+        grid-template-columns: 32px minmax(0,1fr) 24px;
+        gap: 8px;
+    }
+
+    .accordion-panel {
+        padding-left: 40px;
+    }
+}
+
+@media (min-width: 700px) {
+    body {
+        padding-bottom: 24px;
+    }
+
+    .top-nav,
+    .container {
+        width: min(100%, 720px);
+    }
+
+    .container {
+        border-radius: 24px;
+        box-shadow: 0 12px 44px rgba(0,0,0,0.09);
+    }
+
+    .accordion-overview,
+    .reset-section {
+        padding-left: 28px;
+        padding-right: 28px;
+    }
+}
+
+.header {
+    padding-left: 18px;
+    padding-right: 60px;
+}
+.top-nav a:last-child,
+.complete-step-btn,
+.accordion-step.completed .accordion-number {
+    color: #000;
+}
+
+.bible-btn { min-height: 42px; } /* M2: comfortable tap target */
+
+/* ===================================================================
+   Live group facilitation — test-page-only additions.
+   Reuses the existing tokens and visual identity above.
+   =================================================================== */
+
+/* Quiet "test page" ribbon so this is never mistaken for production. */
+.test-ribbon {
+    margin: 0 auto;
+    width: min(100%, 430px);
+    padding: 6px 16px;
+    background: #1c1c1e;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 750;
+    letter-spacing: 0.4px;
+    text-align: center;
+}
+@media (min-width: 700px) { .test-ribbon { width: min(100%, 720px); } }
+
+/* A class rule's `display` beats the UA `[hidden] { display:none }`, so every
+   toggled element needs an explicit hidden override. */
+.facilitate-btn[hidden],
+.following-label[hidden],
+.share-toggle[hidden],
+.facilitator-bar[hidden],
+.goto-current[hidden],
+.share-panel[hidden],
+.live-status-banner[hidden],
+.nativeShare[hidden] { display: none !important; }
+
+/* The live toolbar sits just under the header. */
+.live-toolbar {
+    padding: 12px 16px 4px;
+}
+@media (min-width: 700px) { .live-toolbar { padding-left: 28px; padding-right: 28px; } }
+
+.facilitate-btn {
+    width: 100%;
+    min-height: 50px;
+    padding: 13px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: 0;
+    border-radius: 14px;
+    background: var(--brand-black);
+    color: #fff;
+    font-size: 16px;
+    line-height: 1.2;
+    font-weight: 780;
+    cursor: pointer;
+}
+.facilitate-btn:active { opacity: 0.9; }
+.facilitate-btn svg { width: 18px; height: 18px; }
+.facilitate-btn[disabled] { opacity: 0.6; cursor: default; }
+
+/* Participant "following" chip + live dot. */
+.following-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 11px 14px;
+    border-radius: 12px;
+    background: rgba(0, 208, 132, 0.10);
+    color: #05784e;
+    font-size: 14px;
+    font-weight: 700;
+}
+.live-dot {
+    width: 9px; height: 9px; border-radius: 50%;
+    background: #00b884;
+    box-shadow: 0 0 0 0 rgba(0,184,132,0.55);
+    animation: livePulse 1.8s infinite;
+    flex: 0 0 auto;
+}
+@keyframes livePulse {
+    0%   { box-shadow: 0 0 0 0 rgba(0,184,132,0.5); }
+    70%  { box-shadow: 0 0 0 8px rgba(0,184,132,0); }
+    100% { box-shadow: 0 0 0 0 rgba(0,184,132,0); }
+}
+
+.share-toggle {
+    width: 100%;
+    min-height: 46px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 11px 15px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--surface-soft);
+    color: var(--text);
+    font-size: 15px;
+    font-weight: 750;
+    cursor: pointer;
+}
+.share-toggle .chev { transition: transform 180ms ease; color: #8e8e93; }
+.share-toggle.open .chev { transform: rotate(180deg); }
+
+/* Sharing panel */
+.share-panel {
+    margin-top: 10px;
+    padding: 16px;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    background: var(--surface-soft);
+}
+.share-panel[hidden] { display: none; }
+.share-panel-heading { margin: 0 0 3px; font-size: 16px; font-weight: 800; }
+.share-panel-sub { margin: 0 0 14px; color: var(--muted); font-size: 13.5px; line-height: 1.4; }
+.share-code-wrap { text-align: center; margin-bottom: 14px; }
+.share-code-label {
+    color: var(--muted); font-size: 11px; font-weight: 800;
+    letter-spacing: 0.8px; text-transform: uppercase;
+}
+.share-code {
+    margin-top: 4px;
+    font-size: 40px;
+    line-height: 1.05;
+    font-weight: 850;
+    letter-spacing: 6px;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+}
+.share-hint { margin-top: 5px; color: var(--muted); font-size: 12.5px; line-height: 1.35; }
+.share-qr {
+    display: flex; justify-content: center; margin: 6px 0 16px;
+}
+.share-qr img, .share-qr canvas {
+    width: 168px; height: 168px; image-rendering: pixelated;
+    border: 8px solid #fff; border-radius: 12px; background: #fff;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+}
+.share-qr-fallback {
+    width: 168px; height: 168px; display: grid; place-items: center;
+    padding: 12px; border: 1px dashed var(--line); border-radius: 12px;
+    color: var(--muted); font-size: 12.5px; text-align: center;
+}
+.share-actions { display: grid; gap: 9px; }
+.share-actions button {
+    width: 100%; min-height: 46px; padding: 11px 14px;
+    border: 0; border-radius: 12px; font-size: 15px; font-weight: 760; cursor: pointer;
+}
+.share-btn-primary { background: var(--brand-green); color: #000; }
+.share-btn-secondary { background: #e9e9ed; color: var(--text); }
+.share-link {
+    margin-top: 4px; padding: 9px 11px; border-radius: 10px;
+    background: #fff; border: 1px solid var(--line);
+    color: var(--muted); font-size: 12px; word-break: break-all; text-align: center;
+}
+
+/* "Current" badge on the highlighted process row. */
+.accordion-step .current-badge {
+    display: none;
+    margin-left: 8px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--brand-green);
+    color: #000;
+    font-size: 10.5px;
+    font-weight: 850;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    vertical-align: middle;
+}
+.accordion-step.current .current-badge { display: inline-block; }
+.accordion-step.current > .accordion-trigger { background: rgba(0, 208, 132, 0.09); }
+.accordion-step.current .accordion-number {
+    background: var(--brand-green);
+    color: #000;
+    box-shadow: 0 0 0 4px rgba(0, 208, 132, 0.16);
+}
+.accordion-step.current .accordion-title { color: #05784e; }
+/* Participant rows are read-only followers. */
+.accordion-trigger.readonly { cursor: default; }
+.accordion-trigger.readonly:active { background: transparent; }
+
+/* "Go to current part" floating chip. */
+.goto-current {
+    position: fixed;
+    left: 50%;
+    bottom: calc(84px + env(safe-area-inset-bottom));
+    transform: translateX(-50%);
+    z-index: 1500;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 15px;
+    border: 0;
+    border-radius: 999px;
+    background: #1c1c1e;
+    color: #fff;
+    font-size: 13.5px;
+    font-weight: 750;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.28);
+    cursor: pointer;
+}
+.goto-current[hidden] { display: none; }
+.goto-current svg { width: 14px; height: 14px; }
+
+/* Sticky, visually quiet facilitator control bar. */
+.facilitator-bar {
+    position: sticky;
+    bottom: 0;
+    z-index: 1200;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    width: min(100%, 430px);
+    margin: 0 auto;
+    padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+    background: rgba(255,255,255,0.94);
+    -webkit-backdrop-filter: saturate(180%) blur(10px);
+    backdrop-filter: saturate(180%) blur(10px);
+    border-top: 1px solid var(--line);
+}
+@media (min-width: 700px) { .facilitator-bar { width: min(100%, 720px); border-radius: 0 0 24px 24px; } }
+.facilitator-bar[hidden] { display: none; }
+.fac-btn {
+    min-height: 46px;
+    padding: 11px 8px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--surface-soft);
+    color: var(--text);
+    font-size: 15px;
+    font-weight: 760;
+    cursor: pointer;
+}
+.fac-btn:active { background: #e6e6ea; }
+.fac-btn:disabled { opacity: 0.4; cursor: default; }
+.fac-btn.fac-done { background: var(--brand-black); color: #fff; border-color: var(--brand-black); }
+
+/* Closing / status banner. */
+.live-status-banner {
+    margin: 12px 16px;
+    padding: 14px 16px;
+    border-radius: 14px;
+    background: var(--surface-soft);
+    border: 1px solid var(--line);
+    color: var(--text);
+    font-size: 15px;
+    line-height: 1.45;
+    text-align: center;
+}
+.live-status-banner[hidden] { display: none; }
+@media (min-width: 700px) { .live-status-banner { margin-left: 28px; margin-right: 28px; } }
+
+/* Report popup — reuses .popup-overlay / .popup-content. */
+.report-content { text-align: left; }
+.report-content h2 { margin: 0 0 16px; font-size: 19px; font-weight: 820; text-align: center; }
+.stepper-row {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--line-soft);
+}
+.stepper-row:first-of-type { border-top: 1px solid var(--line-soft); }
+.stepper-label { font-size: 15.5px; font-weight: 700; }
+.stepper {
+    display: inline-flex; align-items: center; gap: 10px;
+}
+.stepper button {
+    width: 40px; height: 40px; border: 0; border-radius: 11px;
+    background: #e9e9ed; color: var(--text);
+    font-size: 22px; line-height: 1; font-weight: 800; cursor: pointer;
+}
+.stepper button:active { background: #dcdce1; }
+.stepper input {
+    width: 58px; height: 40px; padding: 0;
+    border: 1px solid #c7c7cc; border-radius: 10px;
+    background: #fff; color: var(--text);
+    font-size: 18px; font-weight: 800; text-align: center;
+    -moz-appearance: textfield;
+}
+.stepper input::-webkit-outer-spin-button,
+.stepper input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.report-error {
+    margin: 10px 0 0; color: #c0392b; font-size: 13.5px; line-height: 1.4;
+    min-height: 1px;
+}
+.report-error[hidden] { display: none; }
+.report-actions { margin-top: 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.report-actions button {
+    min-height: 48px; border: 0; border-radius: 12px;
+    font-size: 16px; font-weight: 780; cursor: pointer;
+}
+.report-cancel { background: #e9e9ed; color: var(--text); }
+.report-save { background: var(--brand-green); color: #000; }
+.report-save:disabled { opacity: 0.55; cursor: default; }
+</style></head>
+<body>
+<div class="test-ribbon" data-i18n="live.test_banner">Test page — live group facilitation</div>
+<div class="top-nav">
+<a data-i18n="nav.home" href="index.html">Home</a>
+<a data-i18n="nav.back_stories" href="stories-of-hope.html">← Stories of Hope</a>
+</div>
+<div class="container">
+<div class="auth-section" id="auth-section">
+<div id="auth-form" style="display:none">
+<input data-i18n-placeholder="auth.email_placeholder" id="auth-email" placeholder="Email" type="email"/>
+<input data-i18n-placeholder="auth.password_placeholder" id="auth-password" placeholder="Password" type="password"/>
+<div class="auth-buttons">
+<button class="auth-btn-primary" data-i18n="auth.log_in" onclick="authLogIn()">Log In</button>
+<button class="auth-btn-secondary" data-i18n="auth.sign_up" onclick="authSignUp()">Sign Up</button>
+</div>
+<button type="button" class="auth-forgot-btn" data-i18n="auth.forgot_password" onclick="authForgotPassword()" style="display:block;width:100%;margin-top:6px;padding:6px;background:none;border:none;color:#8e8e93;font-size:13px;cursor:pointer;text-align:center;font-family:inherit;">Forgot password?</button>
+</div>
+<div class="auth-status" id="auth-status" style="display:none">
+<span class="auth-status-text" id="auth-status-text">Not signed in</span>
+<button class="auth-logout-btn" data-i18n="auth.log_out" onclick="authLogOut()">Log Out</button>
+</div>
+</div>
+<div class="header">
+<h1 data-i18n="hope_rejected.title">HOPE FOR THE REJECTED</h1>
+<div class="scripture" data-i18n="hope_rejected.scripture">Luke 7:36–50</div>
+</div>
+<div class="live-toolbar" id="liveToolbar">
+<!-- Idle: start button. Facilitator: share toggle + panel. Participant: following label. -->
+<button class="facilitate-btn" id="facilitateBtn" type="button" onclick="LIVE.startFacilitation()">
+<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm-8 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm0 2c-2.7 0-5 1.34-5 3.5V19h7v-2.5c0-.9.36-1.7.98-2.34A7.7 7.7 0 0 0 8 13Zm8 0c-.35 0-.7.02-1.03.06.64.66 1.03 1.5 1.03 2.44V19h6v-2.5c0-2.16-2.3-3.5-6-3.5Z" fill="currentColor"/></svg>
+<span data-i18n="live.facilitate_button">Facilitate with a group</span>
+</button>
+
+<div class="following-label" id="followingLabel" hidden>
+<span class="live-dot" aria-hidden="true"></span>
+<span data-i18n="live.following_label">Following the group facilitator</span>
+</div>
+
+<button class="share-toggle" id="shareToggle" type="button" hidden onclick="LIVE.toggleSharePanel()">
+<span data-i18n="live.share_heading">Invite your group</span>
+<span class="chev" aria-hidden="true">▾</span>
+</button>
+
+<div class="share-panel" id="sharePanel" hidden>
+<div class="share-code-wrap">
+<div class="share-code-label" data-i18n="live.join_code_label">Join code</div>
+<div class="share-code" id="shareCode">····</div>
+<div class="share-hint" id="shareHint"></div>
+</div>
+<div class="share-qr" id="shareQr"></div>
+<div class="share-actions">
+<button class="share-btn-primary" id="nativeShareBtn" type="button" hidden onclick="LIVE.nativeShare()" data-i18n="live.native_share">Share</button>
+<button class="share-btn-secondary" id="copyLinkBtn" type="button" onclick="LIVE.copyLink()" data-i18n="live.copy_link">Copy link</button>
+</div>
+<div class="share-link" id="shareLink"></div>
+</div>
+</div>
+
+<div class="live-status-banner" id="liveStatusBanner" hidden></div>
+<div class="content">
+<div class="section-divider"><div class="section-divider-line"></div><div class="section-divider-text" data-i18n="common.look_back">Look Back</div><div class="section-divider-line"></div></div>
+<div class="card" data-card="care">
+<div class="card-main" onclick="toggleCard(this.closest('.card'))">
+<div class="card-content"><div class="card-icon care-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.care_story_title">Care</div><div class="card-description" data-i18n="common.care_desc">Everyone shares briefly how they are doing. Pray if appropriate.</div></div><div class="card-checkbox"></div></div>
+</div>
+</div>
+<div class="card" data-card="accountability">
+<div class="card-main" onclick="toggleCard(this.closest('.card'))">
+<div class="card-content"><div class="card-icon accountability-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.accountability_title">Loving Accountability</div><div class="card-description" data-i18n="common.accountability_desc_story">Follow: Share how you obeyed Jesus. Fish: Share who you shared the story with.</div></div><div class="card-checkbox"></div></div>
+</div>
+</div>
+<div class="section-divider"><div class="section-divider-line"></div><div class="section-divider-text" data-i18n="common.look_up">Look Up</div><div class="section-divider-line"></div></div>
+<div class="card" data-card="tell-story">
+<div class="card-main" onclick="toggleCard(this.closest('.card'))">
+<div class="card-content"><div class="card-icon discover-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.tell_story_title">Tell the Story</div><div class="card-description" data-i18n="hope_rejected.tell_story_desc">Tell the story of the Repentant Woman from memory.</div></div><div class="card-checkbox"></div></div>
+</div>
+</div>
+<div class="card" data-card="read-story">
+<div class="card-main" onclick="toggleCard(this.closest('.card'))">
+<div class="card-content">
+<div class="card-icon discover-icon"></div>
+<div class="card-text"><div class="card-title" data-i18n="common.read_story_title">Read the Story</div><div class="card-description" data-i18n="hope_rejected.read_story_desc">Read Luke 7:36–50 together.</div></div>
+<button class="bible-btn bible-btn-desktop" onclick="toggleBible(event)"><span>Luke 7:36–50 (CSB)</span><span class="bible-btn-icon">▼</span></button>
+<div class="card-checkbox"></div>
+</div>
+</div>
+<div class="bible-btn-mobile-wrap"><button class="bible-btn bible-btn-mobile" onclick="toggleBible(event)"><span>Luke 7:36–50 (CSB)</span><span class="bible-btn-icon">▼</span></button></div>
+<div class="bible-accordion" id="bible-accordion">
+<div class="bible-text">
+<div class="bible-translation">Christian Standard Bible</div>
+<p class="bible-verse"><span class="verse-num">36</span>Then one of the Pharisees invited him to eat with him. He entered the Pharisee's house and reclined at the table.</p>
+<p class="bible-verse"><span class="verse-num">37</span>And a woman in the town who was a sinner found out that Jesus was reclining at the table in the Pharisee's house. She brought an alabaster jar of perfume</p>
+<p class="bible-verse"><span class="verse-num">38</span>and stood behind him at his feet, weeping, and began to wash his feet with her tears. She wiped his feet with her hair, kissing them and anointing them with the perfume.</p>
+<p class="bible-verse"><span class="verse-num">39</span>When the Pharisee who had invited him saw this, he said to himself, "This man, if he were a prophet, would know who and what kind of woman this is who is touching him—she's a sinner!"</p>
+<p class="bible-verse"><span class="verse-num">40</span>Jesus replied to him, "Simon, I have something to say to you." He said, "Say it, teacher."</p>
+<p class="bible-verse"><span class="verse-num">41</span>"A creditor had two debtors. One owed five hundred denarii, and the other fifty.</p>
+<p class="bible-verse"><span class="verse-num">42</span>Since they could not pay it back, he graciously forgave them both. So, which of them will love him more?"</p>
+<p class="bible-verse"><span class="verse-num">43</span>Simon answered, "I suppose the one he forgave more." "You have judged correctly," he told him.</p>
+<p class="bible-verse"><span class="verse-num">44</span>Turning to the woman, he said to Simon, "Do you see this woman? I entered your house; you gave me no water for my feet, but she, with her tears, has washed my feet and wiped them with her hair.</p>
+<p class="bible-verse"><span class="verse-num">45</span>You gave me no kiss, but she hasn't stopped kissing my feet since I came in.</p>
+<p class="bible-verse"><span class="verse-num">46</span>You didn't anoint my head with olive oil, but she has anointed my feet with perfume.</p>
+<p class="bible-verse"><span class="verse-num">47</span>Therefore I tell you, her many sins have been forgiven; that's why she loved much. But the one who is forgiven little, loves little."</p>
+<p class="bible-verse"><span class="verse-num">48</span>Then he said to her, "Your sins are forgiven."</p>
+<p class="bible-verse"><span class="verse-num">49</span>The others who were at the table with him began to say among themselves, "Who is this man who even forgives sins?"</p>
+<p class="bible-verse"><span class="verse-num">50</span>And he said to the woman, "Your faith has saved you. Go in peace."</p>
+</div>
+</div>
+</div>
+<div class="card" data-card="retell-story">
+<div class="card-main" onclick="toggleCard(this.closest('.card'))">
+<div class="card-content"><div class="card-icon discover-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.retell_story_title">Retell the Story</div></div><div class="card-checkbox"></div></div>
+</div>
+</div>
+<div class="card" data-card="discuss-god">
+<div class="card-main" onclick="toggleCard(this.closest('.card'))">
+<div class="card-content"><div class="card-icon discover-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.discuss_god_title">What do we learn about God?</div></div><div class="card-checkbox"></div></div>
+</div>
+</div>
+<div class="card" data-card="discuss-people">
+<div class="card-main" onclick="toggleCard(this.closest('.card'))">
+<div class="card-content"><div class="card-icon discover-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.discuss_people_title">What do we learn about people?</div></div><div class="card-checkbox"></div></div>
+</div>
+</div>
+<div class="card" data-card="discuss-identify">
+<div class="card-main" onclick="toggleCard(this.closest('.card'))">
+<div class="card-content"><div class="card-icon discover-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.pray_listen_title_story">Pray and Listen</div></div><div class="card-checkbox"></div></div>
+</div>
+</div>
+<div class="card" data-card="discuss-obey">
+<div class="card-main" onclick="toggleCard(this.closest('.card'))">
+<div class="card-content"><div class="card-icon discover-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.how_obey_title">How will you obey?</div></div><div class="card-checkbox"></div></div>
+</div>
+</div>
+<div class="section-divider"><div class="section-divider-line"></div><div class="section-divider-text" data-i18n="common.look_forward">Look Forward</div><div class="section-divider-line"></div></div>
+<div class="card" data-card="practice">
+<div class="card-main" onclick="toggleCard(this.closest('.card'))">
+<div class="card-content"><div class="card-icon practice-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.practice_title">Practice</div><div class="card-description" data-i18n="hope_rejected.practice_desc">Tell the story of the Repentant Woman from memory.</div></div><div class="card-checkbox"></div></div>
+</div>
+</div>
+<div class="card" data-card="follow-goal">
+<div class="card-main" onclick="toggleCard(this.closest('.card'))">
+<div class="card-content"><div class="card-icon accountability-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.follow_goal_title">Follow Goal</div><div class="card-description" data-i18n="common.follow_goal_desc">What is Jesus asking you to obey this week?</div></div><div class="card-checkbox"></div></div>
+</div>
+</div>
+<div class="card" data-card="fish-goal">
+<div class="card-main" onclick="toggleCard(this.closest('.card'))">
+<div class="card-content"><div class="card-icon accountability-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.fish_goal_title">Fish Goal</div><div class="card-description" data-i18n="common.fish_goal_desc">Who needs to hear this story? Plan to share with them.</div></div><div class="card-checkbox"></div></div>
+</div>
+</div>
+<div class="card" data-card="pray">
+<div class="card-main" onclick="toggleCard(this.closest('.card'))">
+<div class="card-content"><div class="card-icon pray-icon"></div><div class="card-text"><div class="card-title" data-i18n="common.pray_title">Pray</div><div class="card-description" data-i18n="common.pray_desc">Close with prayer.</div></div><div class="card-checkbox"></div></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Sticky, quiet facilitator controls. Shown only in facilitator mode. -->
+<div class="facilitator-bar" id="facilitatorBar" hidden>
+<button class="fac-btn" id="facPrev" type="button" onclick="LIVE.prev()" data-i18n="live.prev">Previous</button>
+<button class="fac-btn" id="facNext" type="button" onclick="LIVE.next()" data-i18n="live.next">Next</button>
+<button class="fac-btn fac-done" id="facDone" type="button" onclick="LIVE.openReport()" data-i18n="live.done">Done</button>
+</div>
+<button class="goto-current" id="gotoCurrent" type="button" hidden onclick="LIVE.scrollToCurrent()">
+<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v14m0 0-6-6m6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+<span data-i18n="live.go_to_current">Go to current part</span>
+</button>
+<div class="popup-overlay" id="visionPopup" onclick="closeVisionPopup()"><div class="popup-content" onclick="event.stopPropagation()"><button class="popup-close" onclick="closeVisionPopup()">×</button><img alt="Church Circle" class="popup-image" src="assets/images/popups/vision-popup.jpg"/><div class="popup-text" data-i18n="common.vision_popup_text">Read Acts 2:36-47. Be a part of a church and start a church</div></div></div>
+<div class="popup-overlay" id="reportPopup" onclick="LIVE.closeReport()"><div class="popup-content report-content" onclick="event.stopPropagation()"><button class="popup-close" onclick="LIVE.closeReport()">×</button>
+<h2 data-i18n="live.report_heading">How did the group respond?</h2>
+<div class="stepper-row">
+<span class="stepper-label" data-i18n="live.people_present">People present</span>
+<span class="stepper">
+<button type="button" aria-label="minus" onclick="LIVE.stepReport('present',-1)">−</button>
+<input id="reportPresent" type="number" inputmode="numeric" min="0" value="0" onchange="LIVE.validateReport()"/>
+<button type="button" aria-label="plus" onclick="LIVE.stepReport('present',1)">+</button>
+</span>
+</div>
+<div class="stepper-row">
+<span class="stepper-label" data-i18n="live.people_set_goal">People who set a goal</span>
+<span class="stepper">
+<button type="button" aria-label="minus" onclick="LIVE.stepReport('goal',-1)">−</button>
+<input id="reportGoal" type="number" inputmode="numeric" min="0" value="0" onchange="LIVE.validateReport()"/>
+<button type="button" aria-label="plus" onclick="LIVE.stepReport('goal',1)">+</button>
+</span>
+</div>
+<p class="report-error" id="reportError" hidden></p>
+<div class="report-actions">
+<button class="report-cancel" type="button" onclick="LIVE.closeReport()" data-i18n="live.cancel">Cancel</button>
+<button class="report-save" id="reportSave" type="button" onclick="LIVE.saveReport()" data-i18n="live.save">Save</button>
+</div>
+</div></div>
+<script>
+/* Live group facilitation controller (TEST PAGE).
+ * Replaces the production per-item progress interaction. The story content in
+ * the hidden .content cards is preserved and reused as the data source. No
+ * per-item completion, checkmarks, percentages, or saved progress. */
+(function () {
+    var T   = function (k, v) { return window.t ? window.t(k, v) : k; };
+    var RAW = function (k) { return (window.i18n && window.i18n.raw) ? window.i18n.raw(k) : undefined; };
+
+    var PAGE      = 'hope_rejected';
+    var STORY_ID  = 'hope-for-the-rejected';
+    var TEST_PAGE = 'hope-for-the-rejected-live-test.html';
+    var JOIN_PAGE = 'live-join-test.html';
+    var STEP_MAX  = 8;
+
+    var SECTION_KEYS = ['lookback', 'lookup', 'lookforward'];
+
+    // Same logical step map as the production page (title/summary/intro/flow
+    // resolve from i18n at render time).
+    var steps = [
+        { number: 1, section: 'lookback',    primary: 'care',           ids: ['care'] },
+        { number: 2, section: 'lookback',    primary: 'accountability', ids: ['accountability'] },
+        { number: 3, section: 'lookup',      primary: 'read-story',     ids: ['tell-story', 'read-story', 'retell-story'], bible: true },
+        { number: 4, section: 'lookup',      primary: 'discuss-god',    ids: ['discuss-god', 'discuss-people', 'discuss-identify', 'discuss-obey'] },
+        { number: 5, section: 'lookforward', primary: 'practice',       ids: ['practice'] },
+        { number: 6, section: 'lookforward', primary: 'follow-goal',    ids: ['follow-goal'] },
+        { number: 7, section: 'lookforward', primary: 'fish-goal',      ids: ['fish-goal'] },
+        { number: 8, section: 'lookforward', primary: 'pray',           ids: ['pray'] }
+    ];
+
+    function sectionList() {
+        return SECTION_KEYS.map(function (key) {
+            return { key: key, title: T('story_study.sections.' + key + '.title'), range: T('story_study.sections.' + key + '.range') };
+        });
+    }
+    function stepText(step, field) {
+        if (step.number === 5 && field === 'intro') return T(PAGE + '.practice_intro');
+        return T('story_study.steps.' + step.number + '.' + field);
+    }
+    function stepFlow(step) {
+        if (step.number === 3) return [['1', T(PAGE + '.tell_story_desc')], ['2', T(PAGE + '.read_story_desc')], ['3', T('story_study.steps.3.retell')]];
+        var f = RAW('story_study.steps.' + step.number + '.flow');
+        return Array.isArray(f) ? f : null;
+    }
+    function stepReference(step) { return step.bible ? T(PAGE + '.scripture') : null; }
+    function getUnderlyingCard(id) { return document.querySelector('.content [data-card="' + id + '"]'); }
+
+    function flowMarkup(flow) {
+        if (!flow || !flow.length) return '';
+        return '<div class="guide-label">' + T('study_ui.what_to_do') + '</div><div class="guide-flow">' + flow.map(function (row) {
+            return '<div class="guide-flow-row"><div class="guide-flow-index">' + row[0] + '</div><div class="guide-flow-text">' + row[1] + '</div></div>';
+        }).join('') + '</div>';
+    }
+
+    // ---- shared UI helpers reused from the production page ----
+    window.showNotification = function (msg) {
+        var n = document.createElement('div');
+        n.className = 'notification';
+        n.textContent = msg;
+        document.body.appendChild(n);
+        setTimeout(function () { n.remove(); }, 3000);
+    };
+    window.showVisionPopup  = function () { var p = document.getElementById('visionPopup'); if (p) p.classList.add('active'); };
+    window.closeVisionPopup = function () { var p = document.getElementById('visionPopup'); if (p) p.classList.remove('active'); };
+    window.toggleBible = function (e) {
+        e.stopPropagation();
+        var accordion = document.getElementById('bible-accordion');
+        if (!accordion) return;
+        var isOpen = accordion.classList.toggle('open');
+        document.querySelectorAll('.bible-btn').forEach(function (btn) { btn.classList.toggle('open', isOpen); });
+    };
+    function closeExpandedBible() {
+        var bible = document.getElementById('bible-accordion');
+        if (bible) bible.classList.remove('open');
+        document.querySelectorAll('.bible-btn').forEach(function (b) { b.classList.remove('open'); });
+    }
+
+    // ---- accordion build ----
+    var accordionRoot = null;
+    var openStep    = 1;      // which panel is expanded (local view state)
+    var currentStep = null;   // shared highlight, live only (null = not live)
+    var mode        = 'idle'; // idle | facilitator | participant | ended
+
+    function createStep(step) {
+        var item = document.createElement('section');
+        item.className = 'accordion-step';
+        item.dataset.step = String(step.number);
+
+        var trigger = document.createElement('button');
+        trigger.type = 'button';
+        trigger.className = 'accordion-trigger';
+        trigger.setAttribute('aria-expanded', 'false');
+        trigger.setAttribute('aria-controls', 'accordion-panel-' + step.number);
+        trigger.innerHTML =
+            '<span class="accordion-number">' + step.number + '</span>' +
+            '<span class="accordion-copy"><span class="accordion-title">' + stepText(step, 'title') +
+                '<span class="current-badge">' + T('live.current_badge') + '</span></span>' +
+                '<span class="accordion-summary">' + stepText(step, 'summary') + '</span></span>' +
+            '<span class="accordion-chevron" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m6.5 9 5.5 5.5L17.5 9" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>';
+        trigger.addEventListener('click', function () { onTriggerClick(step); });
+
+        var panel = document.createElement('div');
+        panel.className = 'accordion-panel';
+        panel.id = 'accordion-panel-' + step.number;
+        panel.setAttribute('role', 'region');
+        panel.hidden = true;
+        panel.innerHTML =
+            '<p class="guide-intro">' + stepText(step, 'intro') + '</p>' +
+            (function () { var r = stepReference(step); return r ? '<div class="guide-reference">' + r + '</div>' : ''; })() +
+            flowMarkup(stepFlow(step));
+
+        if (step.bible) {
+            var teachingCard   = getUnderlyingCard(step.primary);
+            var bibleWrap      = teachingCard && teachingCard.querySelector('.bible-btn-mobile-wrap');
+            var bibleAccordion = teachingCard && teachingCard.querySelector('.bible-accordion');
+            if (bibleWrap && bibleAccordion) {
+                var inlineBible = document.createElement('div');
+                inlineBible.className = 'inline-bible-wrap';
+                inlineBible.appendChild(bibleWrap);
+                inlineBible.appendChild(bibleAccordion);
+                panel.appendChild(inlineBible);
+            }
+        }
+
+        item.appendChild(trigger);
+        item.appendChild(panel);
+        return item;
+    }
+
+    function createAccordion() {
+        var container    = document.querySelector('.container');
+        var content      = container && container.querySelector('.content');
+        if (!container || !content) return;
+
+        accordionRoot = document.createElement('main');
+        accordionRoot.className = 'accordion-overview';
+        accordionRoot.setAttribute('aria-label', 'Stories of Hope 3/3 process');
+
+        sectionList().forEach(function (section) {
+            var label = document.createElement('div');
+            label.className = 'accordion-section-label';
+            label.innerHTML = '<span>' + section.title + '</span><span>' + section.range + '</span>';
+            accordionRoot.appendChild(label);
+            steps.filter(function (s) { return s.section === section.key; }).forEach(function (s) {
+                accordionRoot.appendChild(createStep(s));
+            });
+        });
+
+        // Render right after the content placeholder (which stays hidden).
+        content.parentNode.insertBefore(accordionRoot, content.nextSibling);
+    }
+
+    function applyOpenState() {
+        if (!accordionRoot) return;
+        accordionRoot.querySelectorAll('.accordion-step').forEach(function (item) {
+            var num = Number(item.dataset.step);
+            var isOpen    = (num === openStep);
+            var isCurrent = (currentStep !== null && num === currentStep);
+            item.classList.toggle('open', isOpen);
+            item.classList.toggle('current', isCurrent);
+            var trigger = item.querySelector('.accordion-trigger');
+            var panel   = item.querySelector('.accordion-panel');
+            if (trigger) {
+                trigger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+                trigger.classList.toggle('readonly', mode === 'participant');
+            }
+            if (panel) panel.hidden = !isOpen;
+        });
+        if (openStep !== 3) closeExpandedBible();
+    }
+
+    function onTriggerClick(step) {
+        if (mode === 'facilitator') {
+            LIVE.setStep(step.number);
+        } else if (mode === 'participant') {
+            // Read-only follower — cannot change the shared highlight.
+            return;
+        } else {
+            openStep = (openStep === step.number) ? null : step.number;
+            applyOpenState();
+        }
+    }
+
+    // The shared account overlay (account-overlay.js, wired by the head
+    // script's initAuthSection) provides the sign-in trigger + panel. A
+    // signed-in leader's account is what live_end_session associates the
+    // report with; no per-page account UI is needed here.
+
+    // ---- toolbar / mode ----
+    function el(id) { return document.getElementById(id); }
+    function setMode(m) {
+        mode = m;
+        var showFacilitate = (m === 'idle');
+        el('facilitateBtn').hidden  = !showFacilitate;
+        el('followingLabel').hidden = (m !== 'participant');
+        el('shareToggle').hidden    = (m !== 'facilitator');
+        el('sharePanel').hidden     = (m !== 'facilitator') || !sharePanelOpen;
+        el('facilitatorBar').hidden = (m !== 'facilitator');
+        applyOpenState();
+        updateFacButtons();
+    }
+    function setStatusBanner(msg) {
+        var b = el('liveStatusBanner');
+        if (!msg) { b.hidden = true; b.textContent = ''; return; }
+        b.textContent = msg;
+        b.hidden = false;
+    }
+
+    // ---- live state ----
+    var state = { sessionId: null, hostToken: null, joinCode: null };
+    var channel = null;
+    var sharePanelOpen = true;
+
+    function sb() { return window.supabase; }
+    function clamp(n) { n = parseInt(n, 10); if (isNaN(n)) n = 1; return Math.max(1, Math.min(STEP_MAX, n)); }
+    function genHostToken() {
+        var a = new Uint8Array(24);
+        (window.crypto || window.msCrypto).getRandomValues(a);
+        return Array.prototype.map.call(a, function (b) { return ('0' + b.toString(16)).slice(-2); }).join('');
+    }
+    async function rpc(name, args) {
+        var res = await sb().rpc(name, args);
+        if (res.error) throw res.error;
+        return res.data;
+    }
+    function directLink() { return window.location.origin + '/' + TEST_PAGE + '?s=' + state.sessionId; }
+    function joinPageUrl() { return window.location.host + '/' + JOIN_PAGE; }
+
+    function subscribeRealtime(id) {
+        if (channel) { sb().removeChannel(channel); channel = null; }
+        channel = sb().channel('live-' + id)
+            .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'live_sessions', filter: 'id=eq.' + id }, function (payload) {
+                applyServerState(payload.new);
+            })
+            .subscribe();
+    }
+
+    function applyServerState(row) {
+        if (!row) return;
+        if (row.status === 'ended') {
+            handleEnded(mode === 'facilitator');
+            return;
+        }
+        currentStep = clamp(row.current_step);
+        openStep = currentStep;
+        applyOpenState();
+        updateFacButtons();
+        updateGotoObserver();
+    }
+
+    function updateFacButtons() {
+        if (mode !== 'facilitator') return;
+        var prev = el('facPrev'), next = el('facNext');
+        if (prev) prev.disabled = (currentStep || 1) <= 1;
+        if (next) next.disabled = (currentStep || 1) >= STEP_MAX;
+    }
+
+    // ---- "go to current" chip ----
+    var io = null;
+    function updateGotoObserver() {
+        var chip = el('gotoCurrent');
+        if (io) { io.disconnect(); io = null; }
+        if (currentStep === null || !accordionRoot) { chip.hidden = true; return; }
+        var target = accordionRoot.querySelector('.accordion-step[data-step="' + currentStep + '"]');
+        if (!target || !('IntersectionObserver' in window)) { chip.hidden = true; return; }
+        io = new IntersectionObserver(function (entries) {
+            chip.hidden = entries[0].isIntersecting;
+        }, { threshold: 0.2 });
+        io.observe(target);
+    }
+
+    // ---- QR ----
+    function renderQR(link) {
+        var box = el('shareQr');
+        box.innerHTML = '';
+        function fallback() {
+            var d = document.createElement('div');
+            d.className = 'share-qr-fallback';
+            d.textContent = T('live.qr_unavailable');
+            box.appendChild(d);
+        }
+        function draw() {
+            try {
+                var qr = window.qrcode(0, 'M');
+                qr.addData(link);
+                qr.make();
+                var img = new Image();
+                img.src = qr.createDataURL(6, 8);
+                img.alt = T('live.qr_alt');
+                box.innerHTML = '';
+                box.appendChild(img);
+                return true;
+            } catch (e) { return false; }
+        }
+        if (window.qrcode && draw()) return;
+        fallback();
+        // The QR library is deferred; retry briefly if it loads late.
+        var tries = 0;
+        var iv = setInterval(function () {
+            tries++;
+            if (window.qrcode && draw()) { clearInterval(iv); }
+            else if (tries > 20) { clearInterval(iv); }
+        }, 150);
+    }
+
+    function buildSharePanel() {
+        var link = directLink();
+        el('shareCode').textContent = state.joinCode || '····';
+        el('shareHint').textContent = T('live.join_hint', { url: joinPageUrl() });
+        el('shareLink').textContent = link;
+        el('nativeShareBtn').hidden = !(navigator.share);
+        renderQR(link);
+    }
+
+    // ---- public API (referenced by inline handlers) ----
+    var LIVE = {
+        toggleSharePanel: function () {
+            sharePanelOpen = !sharePanelOpen;
+            el('sharePanel').hidden = !sharePanelOpen;
+            el('shareToggle').classList.toggle('open', sharePanelOpen);
+        },
+        startFacilitation: async function () {
+            if (mode !== 'idle') return;
+            var btn = el('facilitateBtn');
+            btn.disabled = true;
+            window.showNotification(T('live.starting'));
+            var token = genHostToken();
+            try {
+                var data = await rpc('live_create_session', { p_story_id: STORY_ID, p_host_token: token });
+                var row = Array.isArray(data) ? data[0] : data;
+                if (!row) throw new Error('no session returned');
+                state.sessionId = row.session_id;
+                state.hostToken = token;
+                state.joinCode  = row.join_code;
+                try { localStorage.setItem('live-host-' + state.sessionId, token); } catch (e) {}
+                try { history.replaceState(null, '', '?s=' + state.sessionId); } catch (e) {}
+                currentStep = 1; openStep = 1;
+                sharePanelOpen = true;
+                setMode('facilitator');
+                el('shareToggle').classList.add('open');
+                buildSharePanel();
+                subscribeRealtime(state.sessionId);
+                updateGotoObserver();
+            } catch (e) {
+                btn.disabled = false;
+                window.showNotification(T('live.backend_unavailable'));
+            }
+        },
+        nativeShare: function () {
+            if (!navigator.share) return;
+            navigator.share({ title: document.title, text: T('live.native_share_text'), url: directLink() }).catch(function () {});
+        },
+        copyLink: function () {
+            var link = directLink();
+            var done = function () { window.showNotification(T('live.copy_link_done')); };
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(link).then(done, function () { window.showNotification(T('live.copy_failed')); });
+            } else {
+                window.showNotification(T('live.copy_failed'));
+            }
+        },
+        setStep: async function (n) {
+            n = clamp(n);
+            if (mode !== 'facilitator' || n === currentStep) return;
+            var prev = currentStep;
+            currentStep = n; openStep = n;
+            applyOpenState(); updateFacButtons(); updateGotoObserver();
+            try {
+                await rpc('live_set_step', { p_session_id: state.sessionId, p_host_token: state.hostToken, p_step: n });
+            } catch (e) {
+                currentStep = prev; openStep = prev == null ? 1 : prev;
+                applyOpenState(); updateFacButtons(); updateGotoObserver();
+                window.showNotification(T('live.reconnecting'));
+            }
+        },
+        prev: function () { LIVE.setStep((currentStep || 1) - 1); },
+        next: function () { LIVE.setStep((currentStep || 1) + 1); },
+        scrollToCurrent: function () {
+            if (currentStep === null || !accordionRoot) return;
+            var target = accordionRoot.querySelector('.accordion-step[data-step="' + currentStep + '"]');
+            if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        },
+        openReport: function () {
+            el('reportPresent').value = '0';
+            el('reportGoal').value = '0';
+            LIVE.validateReport();
+            el('reportPopup').classList.add('active');
+        },
+        closeReport: function () { el('reportPopup').classList.remove('active'); },
+        stepReport: function (which, delta) {
+            var input = el(which === 'present' ? 'reportPresent' : 'reportGoal');
+            var v = Math.max(0, (parseInt(input.value, 10) || 0) + delta);
+            input.value = v;
+            LIVE.validateReport();
+        },
+        validateReport: function () {
+            var present = Math.max(0, parseInt(el('reportPresent').value, 10) || 0);
+            var goal    = Math.max(0, parseInt(el('reportGoal').value, 10) || 0);
+            el('reportPresent').value = present;
+            el('reportGoal').value = goal;
+            var err = el('reportError'), save = el('reportSave');
+            if (goal > present) {
+                err.textContent = T('live.report_goal_error');
+                err.hidden = false;
+                save.disabled = true;
+                return false;
+            }
+            err.hidden = true;
+            save.disabled = false;
+            return true;
+        },
+        saveReport: async function () {
+            if (!LIVE.validateReport()) return;
+            var present = Math.max(0, parseInt(el('reportPresent').value, 10) || 0);
+            var goal    = Math.max(0, parseInt(el('reportGoal').value, 10) || 0);
+            var save = el('reportSave');
+            save.disabled = true;
+            var label = save.textContent;
+            save.textContent = T('live.report_saving');
+            try {
+                await rpc('live_end_session', {
+                    p_session_id: state.sessionId,
+                    p_host_token: state.hostToken,
+                    p_people_present: present,
+                    p_people_set_goal: goal
+                });
+                LIVE.closeReport();
+                handleEnded(true);
+            } catch (e) {
+                save.disabled = false;
+                save.textContent = label;
+                var err = el('reportError');
+                err.textContent = (e && e.message) ? e.message : T('live.report_goal_error');
+                err.hidden = false;
+            }
+        }
+    };
+    window.LIVE = LIVE;
+
+    function handleEnded(isFacilitator) {
+        currentStep = null;
+        openStep = 1;
+        if (channel) { sb().removeChannel(channel); channel = null; }
+        if (io) { io.disconnect(); io = null; }
+        el('gotoCurrent').hidden = true;
+        mode = 'ended';
+        el('facilitateBtn').hidden  = true;
+        el('followingLabel').hidden = true;
+        el('shareToggle').hidden    = true;
+        el('sharePanel').hidden     = true;
+        el('facilitatorBar').hidden = true;
+        setStatusBanner(T(isFacilitator ? 'live.session_ended_facilitator' : 'live.session_ended_participant'));
+        applyOpenState();
+    }
+
+    async function fetchSession(id) {
+        // join_code is non-secret (it is meant to be shared) so it is safe to
+        // read from the public row; it lets a facilitator reconnect show the
+        // real code after a refresh.
+        return await sb().from('live_sessions')
+            .select('id,story_id,current_step,status,expires_at,join_code')
+            .eq('id', id)
+            .maybeSingle();
+    }
+
+    async function initFromUrl() {
+        var params = new URLSearchParams(window.location.search);
+        var s = params.get('s');
+        if (!s) { setMode('idle'); openStep = 1; applyOpenState(); return; }
+
+        var storedToken = null;
+        try { storedToken = localStorage.getItem('live-host-' + s); } catch (e) {}
+
+        setStatusBanner(T('live.connecting'));
+        var res;
+        try { res = await fetchSession(s); } catch (e) { res = { error: e }; }
+
+        if (!res || res.error || !res.data) {
+            // Backend not deployed, or session missing.
+            setStatusBanner(T('live.session_not_found'));
+            setMode('idle');
+            return;
+        }
+        var row = res.data;
+        state.sessionId = s;
+
+        var expired = row.expires_at && (new Date(row.expires_at).getTime() < Date.now());
+        if (row.status === 'ended' || expired) {
+            handleEnded(!!storedToken);
+            return;
+        }
+
+        setStatusBanner(null);
+        currentStep = clamp(row.current_step);
+        openStep = currentStep;
+
+        if (storedToken) {
+            state.hostToken = storedToken;
+            state.joinCode = row.join_code || null;
+            // Reconnect as facilitator; keep the share panel collapsed but
+            // ready (a tap on "Invite your group" reveals code, link, and QR).
+            sharePanelOpen = false;
+            setMode('facilitator');
+            buildSharePanel();
+            el('shareToggle').classList.remove('open');
+        } else {
+            setMode('participant');
+        }
+        applyOpenState();
+        updateFacButtons();
+        subscribeRealtime(s);
+        updateGotoObserver();
+    }
+
+    // ---- boot ----
+    var built = false;
+    function boot() {
+        if (built) return;
+        if (!document.querySelector('.container')) return;
+        built = true;
+        createAccordion();
+        initFromUrl();
+    }
+    window.addEventListener('i18n:ready', boot);
+    document.addEventListener('DOMContentLoaded', function () { setTimeout(boot, 600); }, { once: true });
+
+    document.addEventListener('click', function (e) {
+        if (e.target.classList && e.target.classList.contains('popup-overlay')) {
+            window.closeVisionPopup();
+            LIVE.closeReport();
+        }
+    });
+})();
+</script></body>
+</html>
