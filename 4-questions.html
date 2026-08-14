@@ -521,6 +521,10 @@
         tab.tabIndex = selected ? 0 : -1;
         panels[i].hidden = !selected;
       });
+      // The subtitle only helps on the Intro tab; hide it elsewhere to reclaim
+      // vertical space and reduce clutter.
+      var subtitle = document.querySelector('.page-header .subtitle');
+      if (subtitle) subtitle.hidden = index !== 0;
       if (opts.focus !== false) tabs[index].focus({ preventScroll: true });
       if (opts.scroll) {
         // Anchor every tab to the very top of the page on switch.
