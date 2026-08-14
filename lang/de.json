@@ -896,6 +896,13 @@
   "four_questions": {
     "title": "4 Fragen",
     "subtitle": "Starte hier mit neuen Gläubigen <span class=\"green\">(grüne Lichter)</span> oder mit Gläubigen, die trainiert werden müssen, um loszulegen.",
+    "tab_intro": "Intro",
+    "tab_why": "Warum",
+    "tab_who": "Wer",
+    "tab_how": "Wie",
+    "tab_when": "Wann",
+    "nav_prev": "Zurück",
+    "nav_next": "Weiter",
     "progress_text": "{done} von {total} abgeschlossen",
     "reset": "ZURÜCKSETZEN",
     "reset_confirm": "Gesamten Fortschritt zurücksetzen?",

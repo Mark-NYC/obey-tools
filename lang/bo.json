@@ -908,6 +908,13 @@
   "four_questions": {
     "title": "དྲི་བ་ 4",
     "subtitle": "མི་ཞིག་གི <span class=\"green\">སྣང་བ</span> དང་ <span class=\"green\">ལས་ཀ</span> ། <span class=\"green\">ས་གནས</span> ། <span class=\"green\">མིང</span> ཤེས་པ་ནི་གྲོས་གླེང་དོན་ལྡན་བྱེད་པར་རོགས།",
+    "tab_intro": "Intro",
+    "tab_why": "Why",
+    "tab_who": "Who",
+    "tab_how": "How",
+    "tab_when": "When",
+    "nav_prev": "Previous",
+    "nav_next": "Next",
     "progress_text": "{done} of {total} completed",
     "reset": "RESET",
     "reset_confirm": "Reset all progress?",

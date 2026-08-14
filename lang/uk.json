@@ -896,6 +896,13 @@
   "four_questions": {
     "title": "4 запитання",
     "subtitle": "Починайте тут з новими віруючими <span class=\"green\">(зелене світло)</span> або з віруючими, яких потрібно навчити першим крокам.",
+    "tab_intro": "Вступ",
+    "tab_why": "Чому",
+    "tab_who": "Хто",
+    "tab_how": "Як",
+    "tab_when": "Коли",
+    "nav_prev": "Назад",
+    "nav_next": "Далі",
     "progress_text": "Завершено {done} з {total}",
     "reset": "СКИНУТИ",
     "reset_confirm": "Скинути весь прогрес?",

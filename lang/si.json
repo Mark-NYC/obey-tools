@@ -896,6 +896,13 @@
   "four_questions": {
     "title": "ප්‍රශ්න 4",
     "subtitle": "නව විශ්වාසවන්තයන් <span class=\"green\">(කොළ එළි)</span> හෝ ආරම්භ කිරීම පුහුණු කළ යුතු විශ්වාසවන්තයන් සමඟ මෙතැනින් අරඹන්න.",
+    "tab_intro": "ආරම්භය",
+    "tab_why": "ඇයි",
+    "tab_who": "කවුද",
+    "tab_how": "කෙසේද",
+    "tab_when": "කවදාද",
+    "nav_prev": "පෙර",
+    "nav_next": "ඊළඟ",
     "progress_text": "{total} න් {done} සම්පූර්ණයි",
     "reset": "යළි සකසන්න",
     "reset_confirm": "සියලු ප්‍රගතිය යළි සකසන්නද?",

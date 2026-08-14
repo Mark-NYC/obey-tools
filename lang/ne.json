@@ -896,6 +896,13 @@
   "four_questions": {
     "title": "४ प्रश्न",
     "subtitle": "नयाँ विश्वासीहरू <span class=\"green\">(हरियो बत्तीहरू)</span> वा सुरु गर्न तालिम चाहिने विश्वासीहरूसँग यहाँबाट सुरु गर्नुहोस्।",
+    "tab_intro": "परिचय",
+    "tab_why": "किन",
+    "tab_who": "को",
+    "tab_how": "कसरी",
+    "tab_when": "कहिले",
+    "nav_prev": "अघिल्लो",
+    "nav_next": "अर्को",
     "progress_text": "{total} मध्ये {done} पूरा भयो",
     "reset": "रिसेट",
     "reset_confirm": "सबै प्रगति रिसेट गर्ने?",

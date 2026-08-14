@@ -896,6 +896,13 @@
   "four_questions": {
     "title": "4 Preguntas",
     "subtitle": "Comienza aquí con nuevos creyentes <span class=\"green\">(luces verdes)</span> o creyentes que necesitan ser entrenados para comenzar.",
+    "tab_intro": "Intro",
+    "tab_why": "Por qué",
+    "tab_who": "Quién",
+    "tab_how": "Cómo",
+    "tab_when": "Cuándo",
+    "nav_prev": "Anterior",
+    "nav_next": "Siguiente",
     "progress_text": "{done} de {total} completados",
     "reset": "REINICIAR",
     "reset_confirm": "¿Reiniciar todo el progreso?",
