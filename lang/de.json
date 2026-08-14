@@ -903,6 +903,7 @@
     "tab_when": "Wann",
     "nav_prev": "Zurück",
     "nav_next": "Weiter",
+    "present": "Präsentieren",
     "progress_text": "{done} von {total} abgeschlossen",
     "reset": "ZURÜCKSETZEN",
     "reset_confirm": "Gesamten Fortschritt zurücksetzen?",

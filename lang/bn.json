@@ -903,6 +903,7 @@
     "tab_when": "কখন",
     "nav_prev": "পূর্ববর্তী",
     "nav_next": "পরবর্তী",
+    "present": "উপস্থাপন",
     "progress_text": "{total}টির মধ্যে {done} সম্পন্ন",
     "reset": "রিসেট",
     "reset_confirm": "সব অগ্রগতি রিসেট করবেন?",

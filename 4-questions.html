@@ -231,13 +231,100 @@
   @media (min-width: 1024px) {
     .panel-nav { display: none; }
   }
+  /* ── Presenter mode (desktop only) ── */
+  .present-row { display: none; }
+  @media (min-width: 1024px) {
+    .present-row { display: flex; justify-content: center; margin-top: 8px; }
+  }
+  .present-btn {
+    font-family: 'Bebas Neue', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 15px;
+    padding: 8px 20px;
+    border-radius: 50px;
+    border: 2px solid #000;
+    background: #00D084;
+    color: #000;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .present-btn:hover { background: #000; color: #fff; }
+  .present-btn:focus-visible { outline: 3px solid #00D084; outline-offset: 2px; }
+
+  #presenter-ui[hidden] { display: none; }
+  body.presenting { overflow: hidden; }
+  /* Hide all normal chrome while presenting */
+  body.presenting #home-bar,
+  body.presenting .auth-section,
+  body.presenting .page-header,
+  body.presenting .tabs-wrap,
+  body.presenting .panel-nav { display: none !important; }
+  /* The active panel becomes a full-screen stage */
+  body.presenting .tabpanel:not([hidden]) {
+    position: fixed; inset: 0; z-index: 200; margin: 0;
+    background: #fff; animation: none;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 8vh 5vw 12vh;
+  }
+  body.presenting .panel-inner {
+    background: transparent; box-shadow: none; border-radius: 0;
+    width: auto; max-width: 92vw; margin: 0; padding: 0;
+  }
+  body.presenting .panel-inner + .panel-inner { margin-top: 0; }
+  body.presenting .svg-wrap { max-width: none; width: auto; }
+  body.presenting .svg-wrap svg { height: 66vh; width: auto; max-width: 92vw; }
+  body.presenting #circles-img { max-height: 72vh !important; width: auto !important; max-width: 92vw !important; }
+  /* In-card section labels are redundant with the step heading — hide them */
+  body.presenting .label-top,
+  body.presenting .section-number { display: none; }
+  /* Larger type for screen-share readability */
+  body.presenting .verse { font-size: clamp(36px, 5vw, 64px); }
+  body.presenting .when-title { font-size: clamp(64px, 10vw, 128px); }
+  body.presenting .goals-label { font-size: clamp(24px, 3.5vw, 46px); }
+  body.presenting .goal-item { font-size: clamp(40px, 6vw, 84px); min-width: 36vw; }
+  /* How: show one tool at a time */
+  body.presenting #panel-how[data-part="a"] [data-how="b"],
+  body.presenting #panel-how[data-part="b"] [data-how="a"] { display: none; }
+  /* Click-to-build layers */
+  body.presenting [data-build] { visibility: hidden; }
+  body.presenting [data-build].pz-on { visibility: visible; }
+  /* Presenter chrome */
+  #presenter-ui { position: fixed; inset: 0; z-index: 300; pointer-events: none; }
+  #presenter-ui button { pointer-events: auto; }
+  .pz-step {
+    position: fixed; top: 20px; left: 26px; max-width: 60vw;
+    font-family: 'Bebas Neue', sans-serif; text-transform: uppercase;
+    letter-spacing: 0.06em; font-size: clamp(16px, 2vw, 26px); color: #000;
+  }
+  .pz-exit {
+    position: fixed; top: 16px; right: 20px; width: 44px; height: 44px;
+    border-radius: 50%; border: 2px solid #000; background: #fff;
+    font-size: 20px; line-height: 1; cursor: pointer;
+  }
+  .pz-controls {
+    position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%);
+    display: flex; align-items: center; gap: 18px;
+  }
+  .pz-btn {
+    width: 56px; height: 56px; border-radius: 50%; border: 2px solid #000;
+    background: #fff; color: #000; font-size: 26px; line-height: 1; cursor: pointer;
+    font-family: 'Bebas Neue', sans-serif;
+  }
+  .pz-btn:hover { background: #00D084; }
+  .pz-btn:disabled { opacity: 0.28; cursor: default; }
+  .pz-count {
+    font-family: 'Bebas Neue', sans-serif; letter-spacing: 0.12em;
+    font-size: 20px; min-width: 70px; text-align: center; color: #000;
+  }
+  .pz-btn:focus-visible, .pz-exit:focus-visible { outline: 3px solid #00D084; outline-offset: 2px; }
 </style>
     <script type="module" src="/i18n.js"></script>
     <script src="/pwa.js" defer></script>
 </head>
 <body>
 <!-- Home button -->
-<div style="width:100%; text-align:center; padding:20px 0 4px;">
+<div id="home-bar" style="width:100%; text-align:center; padding:20px 0 4px;">
   <a href="index.html" style="display:inline-block; background:#000; color:#fff; font-family:-apple-system,BlinkMacSystemFont,sans-serif; font-weight:700; font-size:17px; padding:12px 28px; border-radius:50px; text-decoration:none;" data-i18n="nav.home">Home</a>
 </div>
 <!-- Auth section -->
@@ -270,6 +357,9 @@
     <button class="tab" role="tab" id="tab-how"   aria-controls="panel-how"   aria-selected="false" tabindex="-1" data-i18n="four_questions.tab_how">How</button>
     <button class="tab" role="tab" id="tab-when"  aria-controls="panel-when"  aria-selected="false" tabindex="-1" data-i18n="four_questions.tab_when">When</button>
   </div>
+  <div class="present-row">
+    <button id="present-btn" class="present-btn" type="button" aria-label="Start presenter mode">▶ <span data-i18n="four_questions.present">Present</span></button>
+  </div>
 </div>
 
 <!-- ══════════════════════════════════════ -->
@@ -294,18 +384,18 @@
         <text x="241" y="80" font-family="Arial, sans-serif" font-size="18" fill="#333" text-anchor="middle" data-i18n="four_questions.diagram.primary_command_a">="Go... Make Disciples"</text>
         <text x="241" y="128" font-family="Arial, sans-serif" font-size="18" fill="#999" text-anchor="middle" data-i18n="four_questions.diagram.need_answers">We need answers to the following in order</text>
         <text x="241" y="150" font-family="Arial, sans-serif" font-size="18" fill="#999" text-anchor="middle" data-i18n="four_questions.diagram.to_obey">to obey this command:</text>
-        <ellipse cx="115" cy="200" rx="26" ry="17" fill="white" stroke="#111" stroke-width="2.2" filter="url(#pen1)"/>
-        <ellipse cx="115" cy="248" rx="26" ry="17" fill="white" stroke="#111" stroke-width="2.2" filter="url(#pen1)"/>
-        <ellipse cx="115" cy="296" rx="26" ry="17" fill="white" stroke="#111" stroke-width="2.2" filter="url(#pen1)"/>
-        <ellipse cx="115" cy="344" rx="26" ry="17" fill="white" stroke="#111" stroke-width="2.2" filter="url(#pen1)"/>
-        <text x="115" y="206" font-family="'Amatic SC',cursive" font-weight="700" font-size="19" fill="#111" stroke="#111" stroke-width="0.6" paint-order="stroke" text-anchor="middle">1</text>
-        <text x="115" y="254" font-family="'Amatic SC',cursive" font-weight="700" font-size="19" fill="#111" stroke="#111" stroke-width="0.6" paint-order="stroke" text-anchor="middle">2</text>
-        <text x="115" y="302" font-family="'Amatic SC',cursive" font-weight="700" font-size="19" fill="#111" stroke="#111" stroke-width="0.6" paint-order="stroke" text-anchor="middle">3</text>
-        <text x="115" y="350" font-family="'Amatic SC',cursive" font-weight="700" font-size="19" fill="#111" stroke="#111" stroke-width="0.6" paint-order="stroke" text-anchor="middle">4</text>
-        <text x="159" y="208" font-family="'Amatic SC',cursive" font-weight="700" font-size="32" fill="#111" stroke="#111" stroke-width="0.9" paint-order="stroke" text-anchor="start" data-i18n="four_questions.diagram.why">WHY?</text>
-        <text x="159" y="256" font-family="'Amatic SC',cursive" font-weight="700" font-size="32" fill="#111" stroke="#111" stroke-width="0.9" paint-order="stroke" text-anchor="start" data-i18n="four_questions.diagram.who">WHO?</text>
-        <text x="159" y="304" font-family="'Amatic SC',cursive" font-weight="700" font-size="32" fill="#111" stroke="#111" stroke-width="0.9" paint-order="stroke" text-anchor="start" data-i18n="four_questions.diagram.how">HOW?</text>
-        <text x="159" y="352" font-family="'Amatic SC',cursive" font-weight="700" font-size="32" fill="#111" stroke="#111" stroke-width="0.9" paint-order="stroke" text-anchor="start" data-i18n="four_questions.diagram.when">WHEN?</text>
+        <ellipse cx="115" cy="200" rx="26" ry="17" fill="white" stroke="#111" stroke-width="2.2" data-build="1" filter="url(#pen1)"/>
+        <ellipse cx="115" cy="248" rx="26" ry="17" fill="white" stroke="#111" stroke-width="2.2" data-build="2" filter="url(#pen1)"/>
+        <ellipse cx="115" cy="296" rx="26" ry="17" fill="white" stroke="#111" stroke-width="2.2" data-build="3" filter="url(#pen1)"/>
+        <ellipse cx="115" cy="344" rx="26" ry="17" fill="white" stroke="#111" stroke-width="2.2" data-build="4" filter="url(#pen1)"/>
+        <text x="115" y="206" font-family="'Amatic SC',cursive" font-weight="700" font-size="19" fill="#111" stroke="#111" stroke-width="0.6" paint-order="stroke" text-anchor="middle" data-build="1">1</text>
+        <text x="115" y="254" font-family="'Amatic SC',cursive" font-weight="700" font-size="19" fill="#111" stroke="#111" stroke-width="0.6" paint-order="stroke" text-anchor="middle" data-build="2">2</text>
+        <text x="115" y="302" font-family="'Amatic SC',cursive" font-weight="700" font-size="19" fill="#111" stroke="#111" stroke-width="0.6" paint-order="stroke" text-anchor="middle" data-build="3">3</text>
+        <text x="115" y="350" font-family="'Amatic SC',cursive" font-weight="700" font-size="19" fill="#111" stroke="#111" stroke-width="0.6" paint-order="stroke" text-anchor="middle" data-build="4">4</text>
+        <text x="159" y="208" font-family="'Amatic SC',cursive" font-weight="700" font-size="32" fill="#111" stroke="#111" stroke-width="0.9" paint-order="stroke" text-anchor="start" data-build="1" data-i18n="four_questions.diagram.why">WHY?</text>
+        <text x="159" y="256" font-family="'Amatic SC',cursive" font-weight="700" font-size="32" fill="#111" stroke="#111" stroke-width="0.9" paint-order="stroke" text-anchor="start" data-build="2" data-i18n="four_questions.diagram.who">WHO?</text>
+        <text x="159" y="304" font-family="'Amatic SC',cursive" font-weight="700" font-size="32" fill="#111" stroke="#111" stroke-width="0.9" paint-order="stroke" text-anchor="start" data-build="3" data-i18n="four_questions.diagram.how">HOW?</text>
+        <text x="159" y="352" font-family="'Amatic SC',cursive" font-weight="700" font-size="32" fill="#111" stroke="#111" stroke-width="0.9" paint-order="stroke" text-anchor="start" data-build="4" data-i18n="four_questions.diagram.when">WHEN?</text>
       </svg>
     </div>
   </div>
@@ -341,11 +431,11 @@
           fill="none" stroke="#111" stroke-width="1.2" stroke-linejoin="round" opacity="0.3" filter="url(#pen2)"/>
         <text x="200" y="64" font-family="'Amatic SC', cursive" font-weight="700" font-size="68" fill="#111" text-anchor="middle" letter-spacing="2" data-i18n="four_questions.diagram.mark_reference">MARK 1:17</text>
         <path d="M145,90 C138,110 120,140 104,170 C99.3,178.7 94.9,186.7 90.7,194.3"
-          fill="none" stroke="#111" stroke-width="3.0" stroke-linecap="round" marker-end="url(#arrowL)" filter="url(#pen2)"/>
+          fill="none" stroke="#111" stroke-width="3.0" stroke-linecap="round" marker-end="url(#arrowL)" data-build="1" filter="url(#pen2)"/>
         <path d="M250,90 C257,110 272,140 288,170 C292.7,178.7 297.1,186.7 301.3,194.3"
-          fill="none" stroke="#111" stroke-width="3.0" stroke-linecap="round" marker-end="url(#arrowR)" filter="url(#pen2)"/>
-        <text x="91" y="250" font-family="'Amatic SC', cursive" font-weight="700" font-size="56" fill="#111" text-anchor="middle" letter-spacing="2" data-i18n="four_questions.diagram.follow">FOLLOW</text>
-        <text x="301" y="250" font-family="'Amatic SC', cursive" font-weight="700" font-size="56" fill="#111" text-anchor="middle" letter-spacing="2" data-i18n="four_questions.diagram.fish">FISH</text>
+          fill="none" stroke="#111" stroke-width="3.0" stroke-linecap="round" marker-end="url(#arrowR)" data-build="2" filter="url(#pen2)"/>
+        <text x="91" y="250" font-family="'Amatic SC', cursive" font-weight="700" font-size="56" fill="#111" text-anchor="middle" letter-spacing="2" data-build="1" data-i18n="four_questions.diagram.follow">FOLLOW</text>
+        <text x="301" y="250" font-family="'Amatic SC', cursive" font-weight="700" font-size="56" fill="#111" text-anchor="middle" letter-spacing="2" data-build="2" data-i18n="four_questions.diagram.fish">FISH</text>
       </svg>
     </div>
   </div>
@@ -370,54 +460,58 @@
             <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.0" xChannelSelector="R" yChannelSelector="G"/>
           </filter>
         </defs>
-        <!-- spokes: center → four arms -->
-        <line x1="259.3" y1="272.9" x2="239.2" y2="259.5" stroke="#111" stroke-width="2.8" stroke-linecap="round"/>
-        <line x1="340.7" y1="272.9" x2="360.8" y2="259.5" stroke="#111" stroke-width="2.8" stroke-linecap="round"/>
-        <line x1="340.7" y1="327.1" x2="360.8" y2="340.5" stroke="#111" stroke-width="2.8" stroke-linecap="round"/>
-        <line x1="259.3" y1="327.1" x2="239.2" y2="340.5" stroke="#111" stroke-width="2.8" stroke-linecap="round"/>
-        <!-- branches: each arm → its two names (gray, level pair, angled off the arm) -->
-        <line x1="157.7" y1="211.2" x2="103.4" y2="182.6" stroke="#888" stroke-width="2.2" stroke-linecap="round"/>
-        <line x1="191" y1="201.5" x2="187.6" y2="190.6" stroke="#888" stroke-width="2.2" stroke-linecap="round"/>
-        <line x1="409" y1="201.5" x2="412.4" y2="190.6" stroke="#888" stroke-width="2.2" stroke-linecap="round"/>
-        <line x1="442.3" y1="211.2" x2="496.6" y2="182.6" stroke="#888" stroke-width="2.2" stroke-linecap="round"/>
-        <line x1="409" y1="398.5" x2="412.4" y2="409.4" stroke="#888" stroke-width="2.2" stroke-linecap="round"/>
-        <line x1="442.3" y1="388.8" x2="496.6" y2="417.4" stroke="#888" stroke-width="2.2" stroke-linecap="round"/>
-        <line x1="157.7" y1="388.8" x2="103.4" y2="417.4" stroke="#888" stroke-width="2.2" stroke-linecap="round"/>
-        <line x1="191" y1="398.5" x2="187.6" y2="409.4" stroke="#888" stroke-width="2.2" stroke-linecap="round"/>
-        <!-- name nodes: gray tier — each arm's two names sit as a level pair (top y=166, bottom y=434) -->
-        <ellipse cx="72" cy="166" rx="42" ry="25" fill="white" stroke="#888" stroke-width="2.8" filter="url(#pen3)"/>
-        <text x="72" y="174" font-family="'Amatic SC',cursive" font-weight="700" font-size="26" fill="#888" stroke="#888" stroke-width="1.2" paint-order="stroke" text-anchor="middle">Bob</text>
-        <ellipse cx="180" cy="166" rx="42" ry="25" fill="white" stroke="#888" stroke-width="2.8" filter="url(#pen3)"/>
-        <text x="180" y="174" font-family="'Amatic SC',cursive" font-weight="700" font-size="26" fill="#888" stroke="#888" stroke-width="1.2" paint-order="stroke" text-anchor="middle">Jim</text>
-        <ellipse cx="420" cy="166" rx="42" ry="25" fill="white" stroke="#888" stroke-width="2.8" filter="url(#pen3)"/>
-        <text x="420" y="174" font-family="'Amatic SC',cursive" font-weight="700" font-size="26" fill="#888" stroke="#888" stroke-width="1.2" paint-order="stroke" text-anchor="middle">Ann</text>
-        <ellipse cx="528" cy="166" rx="42" ry="25" fill="white" stroke="#888" stroke-width="2.8" filter="url(#pen3)"/>
-        <text x="528" y="174" font-family="'Amatic SC',cursive" font-weight="700" font-size="26" fill="#888" stroke="#888" stroke-width="1.2" paint-order="stroke" text-anchor="middle">Joe</text>
-        <ellipse cx="420" cy="434" rx="42" ry="25" fill="white" stroke="#888" stroke-width="2.8" filter="url(#pen3)"/>
-        <text x="420" y="442" font-family="'Amatic SC',cursive" font-weight="700" font-size="26" fill="#888" stroke="#888" stroke-width="1.2" paint-order="stroke" text-anchor="middle">Mary</text>
-        <ellipse cx="528" cy="434" rx="42" ry="25" fill="white" stroke="#888" stroke-width="2.8" filter="url(#pen3)"/>
-        <text x="528" y="442" font-family="'Amatic SC',cursive" font-weight="700" font-size="26" fill="#888" stroke="#888" stroke-width="1.2" paint-order="stroke" text-anchor="middle">Sam</text>
-        <ellipse cx="72" cy="434" rx="42" ry="25" fill="white" stroke="#888" stroke-width="2.8" filter="url(#pen3)"/>
-        <text x="72" y="442" font-family="'Amatic SC',cursive" font-weight="700" font-size="26" fill="#888" stroke="#888" stroke-width="1.2" paint-order="stroke" text-anchor="middle">Mark</text>
-        <ellipse cx="180" cy="434" rx="42" ry="25" fill="white" stroke="#888" stroke-width="2.8" filter="url(#pen3)"/>
-        <text x="180" y="442" font-family="'Amatic SC',cursive" font-weight="700" font-size="26" fill="#888" stroke="#888" stroke-width="1.2" paint-order="stroke" text-anchor="middle">James</text>
-        <!-- arm nodes -->
-        <ellipse cx="201" cy="234" rx="60" ry="33" fill="white" stroke="#111" stroke-width="3.2" filter="url(#pen3)"/>
-        <ellipse cx="201" cy="234" rx="60" ry="33" fill="none" stroke="#111" stroke-width="1.0" opacity="0.25" filter="url(#pen3)"/>
-        <text x="201" y="242" font-family="'Amatic SC',cursive" font-weight="700" font-size="30" fill="#111" stroke="#111" stroke-width="1.4" paint-order="stroke" text-anchor="middle" data-i18n="four_questions.diagram.passion">Passion</text>
-        <ellipse cx="399" cy="234" rx="60" ry="33" fill="white" stroke="#111" stroke-width="3.2" filter="url(#pen3)"/>
-        <ellipse cx="399" cy="234" rx="60" ry="33" fill="none" stroke="#111" stroke-width="1.0" opacity="0.25" filter="url(#pen3)"/>
-        <text x="399" y="242" font-family="'Amatic SC',cursive" font-weight="700" font-size="30" fill="#111" stroke="#111" stroke-width="1.4" paint-order="stroke" text-anchor="middle" data-i18n="four_questions.diagram.people">People</text>
-        <ellipse cx="399" cy="366" rx="60" ry="33" fill="white" stroke="#111" stroke-width="3.2" filter="url(#pen3)"/>
-        <ellipse cx="399" cy="366" rx="60" ry="33" fill="none" stroke="#111" stroke-width="1.0" opacity="0.25" filter="url(#pen3)"/>
-        <text x="399" y="374" font-family="'Amatic SC',cursive" font-weight="700" font-size="30" fill="#111" stroke="#111" stroke-width="1.4" paint-order="stroke" text-anchor="middle" data-i18n="four_questions.diagram.place">Place</text>
-        <ellipse cx="201" cy="366" rx="60" ry="33" fill="white" stroke="#111" stroke-width="3.2" filter="url(#pen3)"/>
-        <ellipse cx="201" cy="366" rx="60" ry="33" fill="none" stroke="#111" stroke-width="1.0" opacity="0.25" filter="url(#pen3)"/>
-        <text x="201" y="374" font-family="'Amatic SC',cursive" font-weight="700" font-size="26" fill="#111" stroke="#111" stroke-width="1.4" paint-order="stroke" text-anchor="middle" data-i18n="four_questions.diagram.profession">Profession</text>
-        <!-- center node -->
+        <!-- center node (always shown) -->
         <ellipse cx="300" cy="300" rx="62" ry="36" fill="white" stroke="#111" stroke-width="4.0" filter="url(#pen3)"/>
         <ellipse cx="300" cy="300" rx="62" ry="36" fill="none" stroke="#111" stroke-width="1.2" opacity="0.25" filter="url(#pen3)"/>
         <text x="300" y="309" font-family="'Amatic SC',cursive" font-weight="700" font-size="36" fill="#111" stroke="#111" stroke-width="1.6" paint-order="stroke" text-anchor="middle" data-i18n="four_questions.diagram.name_center">Name</text>
+        <g data-build="1"><!-- Passion cluster -->
+          <line x1="259.3" y1="272.9" x2="239.2" y2="259.5" stroke="#111" stroke-width="2.8" stroke-linecap="round"/>
+          <line x1="157.7" y1="211.2" x2="103.4" y2="182.6" stroke="#888" stroke-width="2.2" stroke-linecap="round"/>
+          <line x1="191" y1="201.5" x2="187.6" y2="190.6" stroke="#888" stroke-width="2.2" stroke-linecap="round"/>
+          <ellipse cx="72" cy="166" rx="42" ry="25" fill="white" stroke="#888" stroke-width="2.8" filter="url(#pen3)"/>
+          <text x="72" y="174" font-family="'Amatic SC',cursive" font-weight="700" font-size="26" fill="#888" stroke="#888" stroke-width="1.2" paint-order="stroke" text-anchor="middle">Bob</text>
+          <ellipse cx="180" cy="166" rx="42" ry="25" fill="white" stroke="#888" stroke-width="2.8" filter="url(#pen3)"/>
+          <text x="180" y="174" font-family="'Amatic SC',cursive" font-weight="700" font-size="26" fill="#888" stroke="#888" stroke-width="1.2" paint-order="stroke" text-anchor="middle">Jim</text>
+          <ellipse cx="201" cy="234" rx="60" ry="33" fill="white" stroke="#111" stroke-width="3.2" filter="url(#pen3)"/>
+          <ellipse cx="201" cy="234" rx="60" ry="33" fill="none" stroke="#111" stroke-width="1.0" opacity="0.25" filter="url(#pen3)"/>
+          <text x="201" y="242" font-family="'Amatic SC',cursive" font-weight="700" font-size="30" fill="#111" stroke="#111" stroke-width="1.4" paint-order="stroke" text-anchor="middle" data-i18n="four_questions.diagram.passion">Passion</text>
+        </g>
+        <g data-build="2"><!-- People cluster -->
+          <line x1="340.7" y1="272.9" x2="360.8" y2="259.5" stroke="#111" stroke-width="2.8" stroke-linecap="round"/>
+          <line x1="409" y1="201.5" x2="412.4" y2="190.6" stroke="#888" stroke-width="2.2" stroke-linecap="round"/>
+          <line x1="442.3" y1="211.2" x2="496.6" y2="182.6" stroke="#888" stroke-width="2.2" stroke-linecap="round"/>
+          <ellipse cx="420" cy="166" rx="42" ry="25" fill="white" stroke="#888" stroke-width="2.8" filter="url(#pen3)"/>
+          <text x="420" y="174" font-family="'Amatic SC',cursive" font-weight="700" font-size="26" fill="#888" stroke="#888" stroke-width="1.2" paint-order="stroke" text-anchor="middle">Ann</text>
+          <ellipse cx="528" cy="166" rx="42" ry="25" fill="white" stroke="#888" stroke-width="2.8" filter="url(#pen3)"/>
+          <text x="528" y="174" font-family="'Amatic SC',cursive" font-weight="700" font-size="26" fill="#888" stroke="#888" stroke-width="1.2" paint-order="stroke" text-anchor="middle">Joe</text>
+          <ellipse cx="399" cy="234" rx="60" ry="33" fill="white" stroke="#111" stroke-width="3.2" filter="url(#pen3)"/>
+          <ellipse cx="399" cy="234" rx="60" ry="33" fill="none" stroke="#111" stroke-width="1.0" opacity="0.25" filter="url(#pen3)"/>
+          <text x="399" y="242" font-family="'Amatic SC',cursive" font-weight="700" font-size="30" fill="#111" stroke="#111" stroke-width="1.4" paint-order="stroke" text-anchor="middle" data-i18n="four_questions.diagram.people">People</text>
+        </g>
+        <g data-build="3"><!-- Place cluster -->
+          <line x1="340.7" y1="327.1" x2="360.8" y2="340.5" stroke="#111" stroke-width="2.8" stroke-linecap="round"/>
+          <line x1="409" y1="398.5" x2="412.4" y2="409.4" stroke="#888" stroke-width="2.2" stroke-linecap="round"/>
+          <line x1="442.3" y1="388.8" x2="496.6" y2="417.4" stroke="#888" stroke-width="2.2" stroke-linecap="round"/>
+          <ellipse cx="420" cy="434" rx="42" ry="25" fill="white" stroke="#888" stroke-width="2.8" filter="url(#pen3)"/>
+          <text x="420" y="442" font-family="'Amatic SC',cursive" font-weight="700" font-size="26" fill="#888" stroke="#888" stroke-width="1.2" paint-order="stroke" text-anchor="middle">Mary</text>
+          <ellipse cx="528" cy="434" rx="42" ry="25" fill="white" stroke="#888" stroke-width="2.8" filter="url(#pen3)"/>
+          <text x="528" y="442" font-family="'Amatic SC',cursive" font-weight="700" font-size="26" fill="#888" stroke="#888" stroke-width="1.2" paint-order="stroke" text-anchor="middle">Sam</text>
+          <ellipse cx="399" cy="366" rx="60" ry="33" fill="white" stroke="#111" stroke-width="3.2" filter="url(#pen3)"/>
+          <ellipse cx="399" cy="366" rx="60" ry="33" fill="none" stroke="#111" stroke-width="1.0" opacity="0.25" filter="url(#pen3)"/>
+          <text x="399" y="374" font-family="'Amatic SC',cursive" font-weight="700" font-size="30" fill="#111" stroke="#111" stroke-width="1.4" paint-order="stroke" text-anchor="middle" data-i18n="four_questions.diagram.place">Place</text>
+        </g>
+        <g data-build="4"><!-- Profession cluster -->
+          <line x1="259.3" y1="327.1" x2="239.2" y2="340.5" stroke="#111" stroke-width="2.8" stroke-linecap="round"/>
+          <line x1="157.7" y1="388.8" x2="103.4" y2="417.4" stroke="#888" stroke-width="2.2" stroke-linecap="round"/>
+          <line x1="191" y1="398.5" x2="187.6" y2="409.4" stroke="#888" stroke-width="2.2" stroke-linecap="round"/>
+          <ellipse cx="72" cy="434" rx="42" ry="25" fill="white" stroke="#888" stroke-width="2.8" filter="url(#pen3)"/>
+          <text x="72" y="442" font-family="'Amatic SC',cursive" font-weight="700" font-size="26" fill="#888" stroke="#888" stroke-width="1.2" paint-order="stroke" text-anchor="middle">Mark</text>
+          <ellipse cx="180" cy="434" rx="42" ry="25" fill="white" stroke="#888" stroke-width="2.8" filter="url(#pen3)"/>
+          <text x="180" y="442" font-family="'Amatic SC',cursive" font-weight="700" font-size="26" fill="#888" stroke="#888" stroke-width="1.2" paint-order="stroke" text-anchor="middle">James</text>
+          <ellipse cx="201" cy="366" rx="60" ry="33" fill="white" stroke="#111" stroke-width="3.2" filter="url(#pen3)"/>
+          <ellipse cx="201" cy="366" rx="60" ry="33" fill="none" stroke="#111" stroke-width="1.0" opacity="0.25" filter="url(#pen3)"/>
+          <text x="201" y="374" font-family="'Amatic SC',cursive" font-weight="700" font-size="26" fill="#111" stroke="#111" stroke-width="1.4" paint-order="stroke" text-anchor="middle" data-i18n="four_questions.diagram.profession">Profession</text>
+        </g>
       </svg>
     </div>
     <div class="verse" data-i18n="four_questions.section3_verse">*JOHN 17:20</div>
@@ -432,7 +526,7 @@
 <!-- HOW — 15 Second Story + 3 Circles (was s4a + s4b) -->
 <!-- ══════════════════════════════════════ -->
 <section class="tabpanel" id="panel-how" role="tabpanel" aria-labelledby="tab-how" tabindex="0" hidden>
-  <div class="panel-inner">
+  <div class="panel-inner" data-how="a">
     <div class="label-top" data-i18n="four_questions.section4a_label">15 Second Story</div>
     <div class="section-number" data-i18n="four_questions.section4a_number">3. HOW?</div>
     <div class="svg-wrap" style="max-width:460px;">
@@ -474,7 +568,7 @@
       </svg>
     </div>
   </div>
-  <div class="panel-inner">
+  <div class="panel-inner" data-how="b">
     <div class="label-top" data-i18n="four_questions.section4b_label">3 Circles Gospel Tool</div>
     <img id="circles-img" src="assets/images/3 Circles Gospel Tool updated.webp" alt="3 Circles Gospel Tool"
       style="width:100%; max-width:460px; height:auto; display:block; border-radius: 8px;">
@@ -493,9 +587,9 @@
     <div class="when-title" data-i18n="four_questions.section5_title">4. WHEN?</div>
     <div class="goals-label" data-i18n="four_questions.section5_goals_label">GOALS</div>
     <div class="goals-list">
-      <div class="goal-item" data-i18n="four_questions.goal_share">Share?</div>
-      <div class="goal-item" data-i18n="four_questions.goal_pray">Pray?</div>
-      <div class="goal-item" data-i18n="four_questions.goal_meet">Meet?</div>
+      <div class="goal-item" data-build="1" data-i18n="four_questions.goal_share">Share?</div>
+      <div class="goal-item" data-build="2" data-i18n="four_questions.goal_pray">Pray?</div>
+      <div class="goal-item" data-build="3" data-i18n="four_questions.goal_meet">Meet?</div>
     </div>
   </div>
   <nav class="panel-nav only-prev" aria-label="Section navigation">
@@ -579,6 +673,161 @@
       if (circlesImg && window.i18n && window.i18n.getLang() !== 'en') {
         circlesImg.src = 'assets/images/3 Circles Gospel Tool updated no words.webp';
       }
+    });
+
+    // Expose the tab activator so the presenter controller can drive slides.
+    window.__ft = { selectTab: selectTab };
+  })();
+</script>
+<!-- Presenter mode chrome (desktop) -->
+<div id="presenter-ui" hidden>
+  <div class="pz-step" id="pz-step" aria-live="polite"></div>
+  <button class="pz-exit" id="pz-exit" type="button" aria-label="Exit presenter mode">✕</button>
+  <div class="pz-controls">
+    <button class="pz-btn" id="pz-prev" type="button" aria-label="Previous">‹</button>
+    <span class="pz-count" id="pz-count"></span>
+    <button class="pz-btn" id="pz-next" type="button" aria-label="Next">›</button>
+  </div>
+</div>
+<script>
+  (function () {
+    // Linear deck: How is split so each tool stands alone.
+    var slides = [
+      { tab: 0 },            // Intro
+      { tab: 1 },            // Why
+      { tab: 2 },            // Who
+      { tab: 3, part: 'a' }, // How — 15 Second Story
+      { tab: 3, part: 'b' }, // How — 3 Circles
+      { tab: 4 }             // When
+    ];
+    var idx = 0, level = 0;
+    var body = document.body;
+    var howPanel = document.getElementById('panel-how');
+    var ui = document.getElementById('presenter-ui');
+    var stepEl = document.getElementById('pz-step');
+    var countEl = document.getElementById('pz-count');
+    var prevBtn = document.getElementById('pz-prev');
+    var nextBtn = document.getElementById('pz-next');
+    var presentBtn = document.getElementById('present-btn');
+    var tabButtons = Array.prototype.slice.call(document.querySelectorAll('[role="tab"]'));
+
+    function activePanel() { return document.querySelector('.tabpanel:not([hidden])'); }
+
+    // Build groups within the currently visible content of the active slide.
+    function groups() {
+      var panel = activePanel();
+      var els = Array.prototype.slice.call(panel.querySelectorAll('[data-build]'));
+      var part = slides[idx].part;
+      if (part) els = els.filter(function (el) { return el.closest('[data-how="' + part + '"]'); });
+      var seen = {};
+      els.forEach(function (el) { seen[el.getAttribute('data-build')] = true; });
+      var keys = Object.keys(seen).map(Number).sort(function (a, b) { return a - b; });
+      return { els: els, keys: keys };
+    }
+    function applyBuilds() {
+      var g = groups();
+      var reveal = {};
+      for (var i = 0; i < level && i < g.keys.length; i++) reveal[g.keys[i]] = true;
+      g.els.forEach(function (el) {
+        if (reveal[+el.getAttribute('data-build')]) el.classList.add('pz-on');
+        else el.classList.remove('pz-on');
+      });
+    }
+    function maxLevel() { return groups().keys.length; }
+
+    function updateChrome() {
+      countEl.textContent = (idx + 1) + ' / ' + slides.length;
+      var label = tabButtons[slides[idx].tab].textContent.trim();
+      var part = slides[idx].part;
+      if (part) {
+        var lbl = howPanel.querySelector('[data-how="' + part + '"] .label-top');
+        if (lbl) label += ' — ' + lbl.textContent.trim();
+      }
+      stepEl.textContent = label;
+      prevBtn.disabled = (idx === 0 && level === 0);
+      nextBtn.disabled = (idx === slides.length - 1 && level >= maxLevel());
+    }
+    function show(i, lvl) {
+      idx = Math.max(0, Math.min(slides.length - 1, i));
+      var s = slides[idx];
+      window.__ft.selectTab(s.tab, { focus: false, scroll: false });
+      if (s.part) howPanel.setAttribute('data-part', s.part);
+      else howPanel.removeAttribute('data-part');
+      var mx = maxLevel();
+      level = (lvl === 'max') ? mx : Math.max(0, Math.min(lvl || 0, mx));
+      applyBuilds();
+      updateChrome();
+    }
+    function next() {
+      if (level < maxLevel()) { level++; applyBuilds(); updateChrome(); }
+      else if (idx < slides.length - 1) { show(idx + 1, 0); }
+    }
+    function prev() {
+      if (level > 0) { level--; applyBuilds(); updateChrome(); }
+      else if (idx > 0) { show(idx - 1, 'max'); }
+    }
+
+    function currentTabIndex() {
+      for (var i = 0; i < tabButtons.length; i++) {
+        if (tabButtons[i].getAttribute('aria-selected') === 'true') return i;
+      }
+      return 0;
+    }
+    function enter() {
+      if (window.innerWidth < 1024) return;
+      body.classList.add('presenting');
+      ui.hidden = false;
+      var ct = currentTabIndex(), start = 0;
+      for (var i = 0; i < slides.length; i++) { if (slides[i].tab === ct) { start = i; break; } }
+      if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen().catch(function () {});
+      }
+      show(start, 0);
+      nextBtn.focus();
+    }
+    function exit() {
+      if (!body.classList.contains('presenting')) return;
+      body.classList.remove('presenting');
+      ui.hidden = true;
+      howPanel.removeAttribute('data-part');
+      Array.prototype.slice.call(document.querySelectorAll('.pz-on'))
+        .forEach(function (el) { el.classList.remove('pz-on'); });
+      if (document.fullscreenElement) document.exitFullscreen().catch(function () {});
+      presentBtn.focus();
+    }
+
+    presentBtn.addEventListener('click', function (e) { e.stopPropagation(); enter(); });
+    document.getElementById('pz-exit').addEventListener('click', exit);
+    prevBtn.addEventListener('click', function (e) { e.stopPropagation(); prev(); });
+    nextBtn.addEventListener('click', function (e) { e.stopPropagation(); next(); });
+
+    // Click anywhere on the stage advances (reveal next layer, then next slide).
+    document.addEventListener('click', function (e) {
+      if (!body.classList.contains('presenting')) return;
+      if (e.target.closest('#presenter-ui')) return;
+      next();
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (!body.classList.contains('presenting')) return;
+      switch (e.key) {
+        case 'ArrowRight': case 'PageDown': case ' ': case 'Spacebar':
+          e.preventDefault(); next(); break;
+        case 'ArrowLeft': case 'PageUp':
+          e.preventDefault(); prev(); break;
+        case 'Home': e.preventDefault(); show(0, 0); break;
+        case 'End': e.preventDefault(); show(slides.length - 1, 'max'); break;
+        case 'Escape': e.preventDefault(); exit(); break;
+      }
+    });
+
+    // Leaving fullscreen (Esc / browser UI) exits presenter mode.
+    document.addEventListener('fullscreenchange', function () {
+      if (!document.fullscreenElement) exit();
+    });
+    // If the window shrinks to phone size mid-presentation, bow out gracefully.
+    window.addEventListener('resize', function () {
+      if (body.classList.contains('presenting') && window.innerWidth < 1024) exit();
     });
   })();
 </script>
