@@ -194,7 +194,6 @@
   .tabpanel { width: 100%; }
   .tabpanel[hidden] { display: none; }
   .tabpanel:not([hidden]) { animation: fadeIn 0.3s ease; }
-  .tabpanel { scroll-margin-top: var(--tabs-h, 64px); }
   /* ── Previous / Next nav ── */
   .panel-nav {
     width: calc(100% - 32px);
@@ -497,14 +496,6 @@
     var tabs = Array.prototype.slice.call(document.querySelectorAll('[role="tab"]'));
     var panels = tabs.map(function (t) { return document.getElementById(t.getAttribute('aria-controls')); });
 
-    // Keep the panels' scroll-margin in sync with the sticky tab row height.
-    function updateTabsHeight() {
-      var wrap = document.querySelector('.tabs-wrap');
-      if (wrap) {
-        document.documentElement.style.setProperty('--tabs-h', (wrap.offsetHeight + 8) + 'px');
-      }
-    }
-
     // Select a tab: update ARIA state, show its panel, hide the rest.
     function selectTab(index, opts) {
       opts = opts || {};
@@ -517,10 +508,8 @@
       });
       if (opts.focus !== false) tabs[index].focus({ preventScroll: true });
       if (opts.scroll) {
-        // Position the top of the new panel just below the sticky tab row.
-        window.requestAnimationFrame(function () {
-          panels[index].scrollIntoView({ block: 'start' });
-        });
+        // Anchor every tab to the very top of the page on switch.
+        window.scrollTo({ top: 0, left: 0 });
       }
     }
 
@@ -568,13 +557,7 @@
       });
     });
 
-    window.addEventListener('resize', updateTabsHeight);
-    window.addEventListener('load', updateTabsHeight);
-
     window.addEventListener('DOMContentLoaded', function () {
-      updateTabsHeight();
-      // Recompute once fonts/translations settle (tab row height can change).
-      window.addEventListener('i18n:ready', updateTabsHeight, { once: true });
       // Swap in the no-words 3 Circles image for non-English languages.
       var circlesImg = document.getElementById('circles-img');
       if (circlesImg && window.i18n && window.i18n.getLang() !== 'en') {
