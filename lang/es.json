@@ -42,7 +42,7 @@
   "index": {
     "conversation_box": "Caja de Conversación",
     "stories_of_hope": "Historias de Esperanza",
-    "four_questions": "4 Preguntas",
+    "four_questions": "4-1-1 (4 Preguntas)",
     "commands_of_christ": "Mandamientos de Cristo",
     "church_circle": "Círculo de Iglesia",
     "leader_tools": "Herramientas de Líder"
@@ -894,7 +894,7 @@
     "share_label_baptisms": "Bautismos:"
   },
   "four_questions": {
-    "title": "4 Preguntas",
+    "title": "4-1-1 (4 Preguntas)",
     "subtitle": "Comienza aquí con nuevos creyentes <span class=\"green\">(luces verdes)</span> o creyentes que necesitan ser entrenados para comenzar.",
     "tab_intro": "Intro",
     "tab_why": "Por qué",
@@ -935,6 +935,7 @@
       "passion": "Pasión",
       "place": "Lugar",
       "profession": "Profesión",
+      "people": "Personas",
       "name_center": "Nombre",
       "anxious": "Ansioso",
       "selfish": "Egoísta",
