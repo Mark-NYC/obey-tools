@@ -903,6 +903,7 @@
     "tab_when": "Коли",
     "nav_prev": "Назад",
     "nav_next": "Далі",
+    "present": "Презентація",
     "progress_text": "Завершено {done} з {total}",
     "reset": "СКИНУТИ",
     "reset_confirm": "Скинути весь прогрес?",

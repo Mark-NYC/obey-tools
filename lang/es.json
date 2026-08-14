@@ -903,6 +903,7 @@
     "tab_when": "Cuándo",
     "nav_prev": "Anterior",
     "nav_next": "Siguiente",
+    "present": "Presentar",
     "progress_text": "{done} de {total} completados",
     "reset": "REINICIAR",
     "reset_confirm": "¿Reiniciar todo el progreso?",

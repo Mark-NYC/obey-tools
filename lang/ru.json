@@ -903,6 +903,7 @@
     "tab_when": "Когда",
     "nav_prev": "Назад",
     "nav_next": "Далее",
+    "present": "Презентация",
     "progress_text": "{done} из {total} выполнено",
     "reset": "СБРОСИТЬ",
     "reset_confirm": "Сбросить весь прогресс?",
