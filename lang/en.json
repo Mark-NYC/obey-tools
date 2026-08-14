@@ -42,7 +42,7 @@
   "index": {
     "conversation_box": "Conversation Box",
     "stories_of_hope": "Stories of Hope",
-    "four_questions": "4 Questions",
+    "four_questions": "4-1-1 (4 Questions)",
     "commands_of_christ": "Commands of Christ",
     "church_circle": "Church Circle",
     "leader_tools": "Leader Tools"
@@ -894,7 +894,7 @@
     "share_label_baptisms": "Baptisms:"
   },
   "four_questions": {
-    "title": "4 Questions",
+    "title": "4-1-1 (4 Questions)",
     "subtitle": "Start here with new believers <span class=\"green\">(green lights)</span> or believers who need to be trained in getting started.",
     "tab_intro": "Intro",
     "tab_why": "Why",
@@ -935,6 +935,7 @@
       "passion": "Passion",
       "place": "Place",
       "profession": "Profession",
+      "people": "People",
       "name_center": "Name",
       "anxious": "Anxious",
       "selfish": "Selfish",

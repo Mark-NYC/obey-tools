@@ -42,7 +42,7 @@
   "index": {
     "conversation_box": "உரையாடல் பெட்டி",
     "stories_of_hope": "நம்பிக்கையின் கதைகள்",
-    "four_questions": "4 கேள்விகள்",
+    "four_questions": "4-1-1 (4 கேள்விகள்)",
     "commands_of_christ": "கிறிஸ்துவின் கட்டளைகள்",
     "church_circle": "சபை வட்டம்",
     "leader_tools": "தலைவர் கருவிகள்"
@@ -894,7 +894,7 @@
     "share_label_baptisms": "ஞானஸ்நானங்கள்:"
   },
   "four_questions": {
-    "title": "4 கேள்விகள்",
+    "title": "4-1-1 (4 கேள்விகள்)",
     "subtitle": "புதிய விசுவாசிகள் <span class=\"green\">(பச்சை விளக்குகள்)</span> அல்லது தொடங்குவதில் பயிற்சி தேவைப்படும் விசுவாசிகளுடன் இங்கே தொடங்குங்கள்.",
     "tab_intro": "அறிமுகம்",
     "tab_why": "ஏன்",
@@ -935,6 +935,7 @@
       "passion": "ஆர்வம்",
       "place": "இடம்",
       "profession": "தொழில்",
+      "people": "மக்கள்",
       "name_center": "பெயர்",
       "anxious": "கவலை",
       "selfish": "சுயநலம்",

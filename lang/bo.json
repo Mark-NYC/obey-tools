@@ -42,7 +42,7 @@
   "index": {
     "conversation_box": "གྲོས་གླེང་སྒམ།",
     "stories_of_hope": "རེ་བའི་གཏམ་རྒྱུད།",
-    "four_questions": "དྲི་བ་ 4",
+    "four_questions": "4-1-1 (དྲི་བ་ 4)",
     "commands_of_christ": "ཁྲིསིའི་བཀའ་རྒྱ།",
     "church_circle": "ཚོགས་ཁང་གི་འཁོར་ལོ།",
     "leader_tools": "འགོ་ཁྲིད་ཡོ་བྱད།"
@@ -906,7 +906,7 @@
     "share_label_baptisms": "Baptisms:"
   },
   "four_questions": {
-    "title": "དྲི་བ་ 4",
+    "title": "4-1-1 (དྲི་བ་ 4)",
     "subtitle": "མི་ཞིག་གི <span class=\"green\">སྣང་བ</span> དང་ <span class=\"green\">ལས་ཀ</span> ། <span class=\"green\">ས་གནས</span> ། <span class=\"green\">མིང</span> ཤེས་པ་ནི་གྲོས་གླེང་དོན་ལྡན་བྱེད་པར་རོགས།",
     "tab_intro": "Intro",
     "tab_why": "Why",
@@ -947,6 +947,7 @@
       "passion": "Passion",
       "place": "Place",
       "profession": "Profession",
+      "people": "People",
       "name_center": "Name",
       "anxious": "Anxious",
       "selfish": "Selfish",
