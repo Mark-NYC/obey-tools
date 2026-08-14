@@ -272,9 +272,11 @@
     width: auto; max-width: 92vw; margin: 0; padding: 0;
   }
   body.presenting .panel-inner + .panel-inner { margin-top: 0; }
-  body.presenting .svg-wrap { max-width: none; width: auto; }
-  body.presenting .svg-wrap svg { height: 66vh; width: auto; max-width: 92vw; }
-  body.presenting #circles-img { max-height: 72vh !important; width: auto !important; max-width: 92vw !important; }
+  /* Shrink the wrap to the diagram (overriding its inline max-width) so the
+     centered flex column can center it; the SVG is sized by height. */
+  body.presenting .svg-wrap { max-width: none !important; width: auto; display: flex; justify-content: center; }
+  body.presenting .svg-wrap svg { height: 68vh; width: auto; max-width: 88vw; display: block; margin: 0 auto; }
+  body.presenting #circles-img { max-height: 68vh !important; width: auto !important; max-width: 88vw !important; margin: 0 auto; }
   /* In-card section labels are redundant with the step heading — hide them */
   body.presenting .label-top,
   body.presenting .section-number { display: none; }
