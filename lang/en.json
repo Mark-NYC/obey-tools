@@ -896,6 +896,13 @@
   "four_questions": {
     "title": "4 Questions",
     "subtitle": "Start here with new believers <span class=\"green\">(green lights)</span> or believers who need to be trained in getting started.",
+    "tab_intro": "Intro",
+    "tab_why": "Why",
+    "tab_who": "Who",
+    "tab_how": "How",
+    "tab_when": "When",
+    "nav_prev": "Previous",
+    "nav_next": "Next",
     "progress_text": "{done} of {total} completed",
     "reset": "RESET",
     "reset_confirm": "Reset all progress?",

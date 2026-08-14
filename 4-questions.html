@@ -12,7 +12,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
     <meta name="apple-mobile-web-app-title" content="Obey Tools">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <link rel="preload" href="/assets/fonts/bebas-neue-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="/assets/fonts/amatic-sc-700-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="/fonts.css">
@@ -31,6 +31,8 @@
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html, body {
     width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
     background: #f2f2f7;
   }
   body {
@@ -39,31 +41,23 @@
     align-items: center;
     padding: 16px 0 0;
   }
-  /* ── Section wrapper ── */
-  .section {
-    width: 100%;
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  /* ── Content card (no longer tappable) ── */
+  .panel-inner {
+    width: calc(100% - 32px);
+    max-width: 520px;
+    margin: 16px auto 0;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     text-align: center;
-    padding: 48px 24px;
-    opacity: 0;
-    animation: fadeIn 0.5s ease forwards;
+    padding: 40px 24px;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.06);
   }
-  .divider {
-    width: calc(100% - 32px);
-    max-width: 520px;
-    display: block;
-    margin: 4px auto;
-  }
-  .section:nth-child(1) { animation-delay: 0.0s; }
-  .section:nth-child(2) { animation-delay: 0.15s; }
-  .section:nth-child(3) { animation-delay: 0.3s; }
-  .section:nth-child(4) { animation-delay: 0.45s; }
-  .section:nth-child(5) { animation-delay: 0.6s; }
-  .section:last-child { border-bottom: none; }
-  @keyframes fadeIn { to { opacity: 1; } }
+  .panel-inner + .panel-inner { margin-top: 16px; }
   .svg-wrap { width: 100%; max-width: 480px; }
   .svg-wrap svg { width: 100%; height: auto; display: block; }
   /* ── Labels ── */
@@ -90,7 +84,7 @@
     color: #111;
     margin-top: 10px;
   }
-  /* ── Section 5 (When / Goals) ── */
+  /* ── When / Goals ── */
   .when-title {
     font-family: 'Amatic SC', cursive;
     font-weight: 700;
@@ -124,131 +118,9 @@
     text-align: center;
   }
   @media (max-width: 600px) {
-    .section { padding: 36px 12px; }
+    .panel-inner { padding: 32px 12px; }
     .svg-wrap { max-width: 100%; }
   }
-  /* ── Tap-to-complete ── */
-  .section {
-    position: relative;
-    cursor: pointer;
-    transition: background 0.3s ease, box-shadow 0.3s ease;
-    user-select: none;
-    border-radius: 16px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.06);
-    margin: 8px 16px;
-    width: calc(100% - 32px);
-    max-width: 520px;
-  }
-  .section:active { transform: scale(0.98); }
-  .section.completed {
-    background: #00D084;
-    box-shadow: 0 4px 16px rgba(0,208,132,0.35), 0 1px 4px rgba(0,0,0,0.08);
-  }
-  .section.completed .label-top,
-  .section.completed .section-number,
-  .section.completed .verse,
-  .section.completed .when-title,
-  .section.completed .goals-label { color: rgba(255,255,255,0.95); }
-  .section.completed .goal-item {
-    color: #fff;
-    border-bottom-color: rgba(255,255,255,0.7);
-  }
-  /* SVG color overrides for completed state — replaces filter approach (broken on mobile Safari) */
-  .section.completed .svg-wrap svg [fill="#111"],
-  .section.completed .svg-wrap svg [fill="#333"],
-  .section.completed .svg-wrap svg [fill="#999"],
-  .section.completed .svg-wrap svg [fill="#aaa"] { fill: rgba(255,255,255,0.95) !important; }
-  .section.completed .svg-wrap svg [fill="white"] { fill: rgba(0,0,0,0.18) !important; }
-  .section.completed .svg-wrap svg [stroke="#111"] { stroke: rgba(255,255,255,0.85) !important; }
-  .section.completed img { filter: brightness(0) invert(1); opacity: 0.9; }
-  /* Checkbox */
-  .section-checkbox {
-    position: absolute;
-    top: 16px;
-    right: 16px;
-    width: 32px;
-    height: 32px;
-    border: 2.5px solid #c6c6c8;
-    border-radius: 50%;
-    background: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-    z-index: 10;
-    pointer-events: none;
-  }
-  .section-checkbox::after {
-    content: '✓';
-    color: #00D084;
-    font-size: 20px;
-    font-weight: 700;
-    opacity: 0;
-    transform: scale(0);
-    transition: all 0.2s ease;
-  }
-  .section.completed .section-checkbox {
-    background: #fff;
-    border-color: #fff;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-  }
-  .section.completed .section-checkbox::after {
-    opacity: 1;
-    transform: scale(1);
-  }
-  /* Progress bar */
-  .progress-bar-container {
-    width: 100%;
-    padding: 12px 24px;
-    background: #f2f2f7;
-    border-bottom: none;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-  .progress-bar {
-    height: 6px;
-    background: #e5e5ea;
-    border-radius: 4px;
-    overflow: hidden;
-  }
-  .progress-fill {
-    height: 100%;
-    background: #00D084;
-    width: 0%;
-    transition: width 0.5s ease;
-  }
-  .progress-text {
-    margin-top: 6px;
-    font-family: 'Amatic SC', cursive;
-    font-weight: 700;
-    font-size: 16px;
-    color: #8e8e93;
-    text-align: center;
-    letter-spacing: 0.05em;
-  }
-  /* Reset button */
-  .reset-bar {
-    width: 100%;
-    padding: 16px 24px 48px;
-    display: flex;
-    justify-content: center;
-  }
-  .reset-btn {
-    width: 100%;
-    max-width: 480px;
-    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-    font-weight: 600;
-    font-size: 16px;
-    padding: 14px;
-    border: none;
-    border-radius: 14px;
-    background: #ededf0;
-    color: #1c1c1e;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-  .reset-btn:active { background: #e5e5ea; transform: scale(0.97); }
   /* ── Auth section ── */
   .auth-section { width: calc(100% - 32px); max-width: 520px; padding: 12px 16px; background: #fff; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); margin: 8px 16px 0; visibility: hidden; }
   .auth-section input { width: 100%; padding: 10px 14px; border: 1px solid #c6c6c8; border-radius: 8px; font-size: 15px; background: #fff; outline: none; margin-bottom: 8px; font-family: inherit; }
@@ -265,6 +137,97 @@
   .page-header h1 { font-family: 'Bebas Neue', sans-serif; font-size: 52px; font-weight: 400; letter-spacing: 2px; color: #00D084; -webkit-text-stroke: 2px #000; line-height: 1; margin-bottom: 8px; }
   .page-header .subtitle { font-size: 14px; color: #8e8e93; line-height: 1.6; }
   .page-header .subtitle .green { color: #00D084; font-weight: 600; }
+  /* ── Tab navigation ── */
+  .tabs-wrap {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    width: 100%;
+    background: #f2f2f7;
+    padding: 8px 16px 10px;
+    padding-top: calc(8px + env(safe-area-inset-top, 0px));
+    box-shadow: 0 1px 0 rgba(0,0,0,0.06);
+  }
+  .tablist {
+    display: flex;
+    gap: 6px;
+    width: 100%;
+    max-width: 520px;
+    margin: 0 auto;
+  }
+  .tab {
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 6px 4px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(11px, 3.4vw, 16px);
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    line-height: 1.05;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #000;
+    background: #fff;
+    border: 2px solid #000;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+  }
+  .tab:hover { background: #f2f2f7; }
+  .tab[aria-selected="true"] {
+    background: #000;
+    color: #fff;
+    box-shadow: inset 0 -4px 0 #00D084;
+  }
+  .tab[aria-selected="true"]:hover { background: #000; }
+  .tab:focus-visible {
+    outline: 3px solid #00D084;
+    outline-offset: 2px;
+  }
+  /* ── Tab panels ── */
+  .tabpanel { width: 100%; }
+  .tabpanel[hidden] { display: none; }
+  .tabpanel:not([hidden]) { animation: fadeIn 0.3s ease; }
+  .tabpanel { scroll-margin-top: var(--tabs-h, 64px); }
+  /* ── Previous / Next nav ── */
+  .panel-nav {
+    width: calc(100% - 32px);
+    max-width: 520px;
+    margin: 20px auto 48px;
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .panel-nav.only-next { justify-content: flex-end; }
+  .panel-nav.only-prev { justify-content: flex-start; }
+  .pn-btn {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(14px, 3.6vw, 17px);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    min-height: 44px;
+    padding: 12px 22px;
+    border-radius: 50px;
+    border: 2px solid #000;
+    background: #fff;
+    color: #000;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
+  }
+  .pn-next { background: #000; color: #fff; }
+  .pn-prev:hover { background: #f2f2f7; }
+  .pn-next:hover { background: #00D084; border-color: #00D084; color: #000; }
+  .pn-btn:active { transform: scale(0.97); }
+  .pn-btn:focus-visible {
+    outline: 3px solid #00D084;
+    outline-offset: 2px;
+  }
 </style>
     <script type="module" src="/i18n.js"></script>
     <script src="/pwa.js" defer></script>
@@ -295,264 +258,330 @@
   <h1 data-i18n="four_questions.title">4 Questions</h1>
   <div class="subtitle" data-i18n-html="four_questions.subtitle">Start here with new believers <span class="green">(green lights)</span> or believers who need to be trained in getting started.</div>
 </div>
-<!-- Progress bar -->
-<div class="progress-bar-container">
-  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
-  <div class="progress-text" id="progressText">0 of 6 completed</div>
-</div>
-<!-- ══════════════════════════════════════ -->
-<!-- SECTION 1 — Matthew 28:18-20 Overview -->
-<!-- ══════════════════════════════════════ -->
-<div class="section" data-id="s1" onclick="toggleSection(this)">
-  <div class="section-checkbox"></div>
-  <div class="svg-wrap" style="max-width:483px;">
-    <svg viewBox="0 0 483 410" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <filter id="pen1" x="-8%" y="-8%" width="116%" height="116%">
-          <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" result="noise"/>
-          <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.0" xChannelSelector="R" yChannelSelector="G"/>
-        </filter>
-      </defs>
-      <path d="M16,10 Q90,6 241,7 Q392,6 465,9 Q468,8 469,13 L470,82 Q471,86 466,88 L241,90 Q110,92 18,89 Q13,88 12,84 L13,15 Q13,10 16,10 Z"
-        fill="white" stroke="#111" stroke-width="2.8" stroke-linejoin="round" filter="url(#pen1)"/>
-      <path d="M18,11 Q241,5 466,10 Q469,10 470,14 L469,81 Q468,87 464,88 L20,90 Q14,90 13,86 L14,16 Q14,11 18,11 Z"
-        fill="none" stroke="#111" stroke-width="0.9" stroke-linejoin="round" opacity="0.3" filter="url(#pen1)"/>
-      <text x="241" y="40" font-family="'Bebas Neue', sans-serif" font-size="27" fill="#111" text-anchor="middle" letter-spacing="1" data-i18n="four_questions.diagram.read_matthew">READ MATTHEW 28:18-20</text>
-      <text x="241" y="60" font-family="Arial, sans-serif" font-size="18" fill="#333" text-anchor="middle" data-i18n="four_questions.diagram.primary_command_q">What is the primary command?</text>
-      <text x="241" y="80" font-family="Arial, sans-serif" font-size="18" fill="#333" text-anchor="middle" data-i18n="four_questions.diagram.primary_command_a">="Go... Make Disciples"</text>
-      <text x="241" y="128" font-family="Arial, sans-serif" font-size="18" fill="#999" text-anchor="middle" data-i18n="four_questions.diagram.need_answers">We need answers to the following in order</text>
-      <text x="241" y="150" font-family="Arial, sans-serif" font-size="18" fill="#999" text-anchor="middle" data-i18n="four_questions.diagram.to_obey">to obey this command:</text>
-      <ellipse cx="115" cy="200" rx="26" ry="17" fill="white" stroke="#111" stroke-width="2.2" filter="url(#pen1)"/>
-      <ellipse cx="115" cy="248" rx="26" ry="17" fill="white" stroke="#111" stroke-width="2.2" filter="url(#pen1)"/>
-      <ellipse cx="115" cy="296" rx="26" ry="17" fill="white" stroke="#111" stroke-width="2.2" filter="url(#pen1)"/>
-      <ellipse cx="115" cy="344" rx="26" ry="17" fill="white" stroke="#111" stroke-width="2.2" filter="url(#pen1)"/>
-      <text x="115" y="206" font-family="'Amatic SC',cursive" font-weight="700" font-size="19" fill="#111" stroke="#111" stroke-width="0.6" paint-order="stroke" text-anchor="middle">1</text>
-      <text x="115" y="254" font-family="'Amatic SC',cursive" font-weight="700" font-size="19" fill="#111" stroke="#111" stroke-width="0.6" paint-order="stroke" text-anchor="middle">2</text>
-      <text x="115" y="302" font-family="'Amatic SC',cursive" font-weight="700" font-size="19" fill="#111" stroke="#111" stroke-width="0.6" paint-order="stroke" text-anchor="middle">3</text>
-      <text x="115" y="350" font-family="'Amatic SC',cursive" font-weight="700" font-size="19" fill="#111" stroke="#111" stroke-width="0.6" paint-order="stroke" text-anchor="middle">4</text>
-      <text x="159" y="208" font-family="'Amatic SC',cursive" font-weight="700" font-size="32" fill="#111" stroke="#111" stroke-width="0.9" paint-order="stroke" text-anchor="start" data-i18n="four_questions.diagram.why">WHY?</text>
-      <text x="159" y="256" font-family="'Amatic SC',cursive" font-weight="700" font-size="32" fill="#111" stroke="#111" stroke-width="0.9" paint-order="stroke" text-anchor="start" data-i18n="four_questions.diagram.who">WHO?</text>
-      <text x="159" y="304" font-family="'Amatic SC',cursive" font-weight="700" font-size="32" fill="#111" stroke="#111" stroke-width="0.9" paint-order="stroke" text-anchor="start" data-i18n="four_questions.diagram.how">HOW?</text>
-      <text x="159" y="352" font-family="'Amatic SC',cursive" font-weight="700" font-size="32" fill="#111" stroke="#111" stroke-width="0.9" paint-order="stroke" text-anchor="start" data-i18n="four_questions.diagram.when">WHEN?</text>
-    </svg>
+<!-- Tab navigation (sticky) -->
+<div class="tabs-wrap">
+  <div class="tablist" role="tablist" aria-label="4 Questions">
+    <button class="tab" role="tab" id="tab-intro" aria-controls="panel-intro" aria-selected="true"  tabindex="0"  data-i18n="four_questions.tab_intro">Intro</button>
+    <button class="tab" role="tab" id="tab-why"   aria-controls="panel-why"   aria-selected="false" tabindex="-1" data-i18n="four_questions.tab_why">Why</button>
+    <button class="tab" role="tab" id="tab-who"   aria-controls="panel-who"   aria-selected="false" tabindex="-1" data-i18n="four_questions.tab_who">Who</button>
+    <button class="tab" role="tab" id="tab-how"   aria-controls="panel-how"   aria-selected="false" tabindex="-1" data-i18n="four_questions.tab_how">How</button>
+    <button class="tab" role="tab" id="tab-when"  aria-controls="panel-when"  aria-selected="false" tabindex="-1" data-i18n="four_questions.tab_when">When</button>
   </div>
 </div>
-<!-- ══════════════════════════════════════ -->
-<img src="assets/images/divider.svg" alt="" class="divider">
-<!-- SECTION 2 — WHY? / Identity / Mark 1:17 -->
-<!-- ══════════════════════════════════════ -->
-<div class="section" data-id="s2" onclick="toggleSection(this)">
-  <div class="section-checkbox"></div>
-  <div class="label-top" data-i18n="four_questions.section2_label">Identity</div>
-  <div class="section-number" data-i18n="four_questions.section2_number">1. WHY?</div>
-  <div class="svg-wrap" style="max-width:400px;">
-    <svg viewBox="0 0 400 340" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <filter id="pen2" x="-5%" y="-5%" width="110%" height="110%">
-          <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" result="noise"/>
-          <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.0" xChannelSelector="R" yChannelSelector="G"/>
-        </filter>
-        <marker id="arrowL" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto">
-          <path d="M0,1 L5,5 L0,9" fill="none" stroke="#111" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-        </marker>
-        <marker id="arrowR" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto">
-          <path d="M0,1 L5,5 L0,9" fill="none" stroke="#111" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-        </marker>
-      </defs>
-      <path d="M30,10 Q100,5 200,6 Q300,5 368,8 Q372,7 373,12 L374,78 Q375,83 370,85 L200,87 Q100,89 32,86 Q27,85 26,80 L27,14 Q27,10 30,10 Z"
-        fill="white" stroke="#111" stroke-width="3.5" stroke-linejoin="round" filter="url(#pen2)"/>
-      <path d="M32,11 Q200,4 369,9 Q373,9 374,13 L373,77 Q372,83 368,84 L34,86 Q28,86 27,82 L28,15 Q28,11 32,11 Z"
-        fill="none" stroke="#111" stroke-width="1.2" stroke-linejoin="round" opacity="0.3" filter="url(#pen2)"/>
-      <text x="200" y="64" font-family="'Amatic SC', cursive" font-weight="700" font-size="68" fill="#111" text-anchor="middle" letter-spacing="2" data-i18n="four_questions.diagram.mark_reference">MARK 1:17</text>
-      <path d="M145,90 C138,110 120,140 104,170 C90,196 78,216 68,238"
-        fill="none" stroke="#111" stroke-width="3.0" stroke-linecap="round" marker-end="url(#arrowL)" filter="url(#pen2)"/>
-      <path d="M250,90 C257,110 272,140 288,170 C302,196 314,216 324,238"
-        fill="none" stroke="#111" stroke-width="3.0" stroke-linecap="round" marker-end="url(#arrowR)" filter="url(#pen2)"/>
-      <text x="68" y="295" font-family="'Amatic SC', cursive" font-weight="700" font-size="56" fill="#111" text-anchor="middle" letter-spacing="2" data-i18n="four_questions.diagram.follow">FOLLOW</text>
-      <text x="324" y="295" font-family="'Amatic SC', cursive" font-weight="700" font-size="56" fill="#111" text-anchor="middle" letter-spacing="2" data-i18n="four_questions.diagram.fish">FISH</text>
-    </svg>
-  </div>
-</div>
-<!-- ══════════════════════════════════════ -->
-<img src="assets/images/divider.svg" alt="" class="divider">
-<!-- SECTION 3 — WHO? / Oikos Map          -->
-<!-- ══════════════════════════════════════ -->
-<div class="section" data-id="s3" onclick="toggleSection(this)">
-  <div class="section-checkbox"></div>
-  <div class="label-top" data-i18n="four_questions.section3_label">Oikos Map</div>
-  <div class="section-number" data-i18n="four_questions.section3_number">2. WHO?</div>
-  <div class="svg-wrap" style="max-width:420px;">
-    <svg viewBox="0 0 580 480" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <filter id="pen3" x="-15%" y="-15%" width="130%" height="130%">
-          <feTurbulence type="fractalNoise" baseFrequency="0.6" numOctaves="3" stitchTiles="stitch" result="noise"/>
-          <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.0" xChannelSelector="R" yChannelSelector="G"/>
-        </filter>
-      </defs>
-      <!-- spokes: center→Passion (top), center→Place (bottom-right), center→Profession (bottom-left) -->
-      <line x1="300" y1="237" x2="300" y2="178" stroke="#111" stroke-width="2.8" stroke-linecap="round"/>
-      <line x1="361" y1="287" x2="358" y2="328" stroke="#111" stroke-width="2.8" stroke-linecap="round"/>
-      <line x1="239" y1="287" x2="242" y2="328" stroke="#111" stroke-width="2.8" stroke-linecap="round"/>
-      <!-- branches: Passion→Bob, Passion→Jim -->
-      <line x1="267" y1="118" x2="233" y2="89" stroke="#111" stroke-width="2.2" stroke-linecap="round"/>
-      <line x1="333" y1="118" x2="367" y2="89" stroke="#111" stroke-width="2.2" stroke-linecap="round"/>
-      <!-- branches: Place→Sam, Place→Mary -->
-      <line x1="462" y1="322" x2="489" y2="313" stroke="#111" stroke-width="2.2" stroke-linecap="round"/>
-      <line x1="444" y1="368" x2="431" y2="431" stroke="#111" stroke-width="2.2" stroke-linecap="round"/>
-      <!-- branches: Profession→James, Profession→Mark -->
-      <line x1="138" y1="322" x2="111" y2="313" stroke="#111" stroke-width="2.2" stroke-linecap="round"/>
-      <line x1="156" y1="368" x2="169" y2="431" stroke="#111" stroke-width="2.2" stroke-linecap="round"/>
-      <!-- name nodes -->
-      <ellipse cx="208" cy="68" rx="44" ry="26" fill="white" stroke="#111" stroke-width="2.8" filter="url(#pen3)"/>
-      <text x="208" y="76" font-family="'Amatic SC',cursive" font-weight="700" font-size="26" fill="#111" stroke="#111" stroke-width="1.2" paint-order="stroke" text-anchor="middle">Bob</text>
-      <ellipse cx="392" cy="68" rx="44" ry="26" fill="white" stroke="#111" stroke-width="2.8" filter="url(#pen3)"/>
-      <text x="392" y="76" font-family="'Amatic SC',cursive" font-weight="700" font-size="26" fill="#111" stroke="#111" stroke-width="1.2" paint-order="stroke" text-anchor="middle">Jim</text>
-      <ellipse cx="526" cy="299" rx="44" ry="26" fill="white" stroke="#111" stroke-width="2.8" filter="url(#pen3)"/>
-      <text x="526" y="307" font-family="'Amatic SC',cursive" font-weight="700" font-size="26" fill="#111" stroke="#111" stroke-width="1.2" paint-order="stroke" text-anchor="middle">Sam</text>
-      <ellipse cx="454" cy="453" rx="44" ry="26" fill="white" stroke="#111" stroke-width="2.8" filter="url(#pen3)"/>
-      <text x="454" y="461" font-family="'Amatic SC',cursive" font-weight="700" font-size="26" fill="#111" stroke="#111" stroke-width="1.2" paint-order="stroke" text-anchor="middle">Mary</text>
-      <ellipse cx="74" cy="299" rx="44" ry="26" fill="white" stroke="#111" stroke-width="2.8" filter="url(#pen3)"/>
-      <text x="74" y="307" font-family="'Amatic SC',cursive" font-weight="700" font-size="26" fill="#111" stroke="#111" stroke-width="1.2" paint-order="stroke" text-anchor="middle">James</text>
-      <ellipse cx="146" cy="453" rx="44" ry="26" fill="white" stroke="#111" stroke-width="2.8" filter="url(#pen3)"/>
-      <text x="146" y="461" font-family="'Amatic SC',cursive" font-weight="700" font-size="26" fill="#111" stroke="#111" stroke-width="1.2" paint-order="stroke" text-anchor="middle">Mark</text>
-      <!-- arm nodes -->
-      <ellipse cx="300" cy="145" rx="58" ry="33" fill="white" stroke="#111" stroke-width="3.2" filter="url(#pen3)"/>
-      <ellipse cx="300" cy="145" rx="58" ry="33" fill="none" stroke="#111" stroke-width="1.0" opacity="0.25" filter="url(#pen3)"/>
-      <text x="300" y="153" font-family="'Amatic SC',cursive" font-weight="700" font-size="30" fill="#111" stroke="#111" stroke-width="1.4" paint-order="stroke" text-anchor="middle" data-i18n="four_questions.diagram.passion">Passion</text>
-      <ellipse cx="413" cy="340" rx="58" ry="33" fill="white" stroke="#111" stroke-width="3.2" filter="url(#pen3)"/>
-      <ellipse cx="413" cy="340" rx="58" ry="33" fill="none" stroke="#111" stroke-width="1.0" opacity="0.25" filter="url(#pen3)"/>
-      <text x="413" y="348" font-family="'Amatic SC',cursive" font-weight="700" font-size="30" fill="#111" stroke="#111" stroke-width="1.4" paint-order="stroke" text-anchor="middle" data-i18n="four_questions.diagram.place">Place</text>
-      <ellipse cx="187" cy="340" rx="64" ry="33" fill="white" stroke="#111" stroke-width="3.2" filter="url(#pen3)"/>
-      <ellipse cx="187" cy="340" rx="64" ry="33" fill="none" stroke="#111" stroke-width="1.0" opacity="0.25" filter="url(#pen3)"/>
-      <text x="187" y="348" font-family="'Amatic SC',cursive" font-weight="700" font-size="28" fill="#111" stroke="#111" stroke-width="1.4" paint-order="stroke" text-anchor="middle" data-i18n="four_questions.diagram.profession">Profession</text>
-      <!-- center node -->
-      <ellipse cx="300" cy="275" rx="64" ry="38" fill="white" stroke="#111" stroke-width="4.0" filter="url(#pen3)"/>
-      <ellipse cx="300" cy="275" rx="64" ry="38" fill="none" stroke="#111" stroke-width="1.2" opacity="0.25" filter="url(#pen3)"/>
-      <text x="300" y="283" font-family="'Amatic SC',cursive" font-weight="700" font-size="36" fill="#111" stroke="#111" stroke-width="1.6" paint-order="stroke" text-anchor="middle" data-i18n="four_questions.diagram.name_center">Name</text>
-    </svg>
-  </div>
-  <div class="verse" data-i18n="four_questions.section3_verse">*JOHN 17:20</div>
-</div>
-<!-- ══════════════════════════════════════ -->
-<img src="assets/images/divider.svg" alt="" class="divider">
-<!-- SECTION 4a — HOW? / 15 Second Story -->
-<!-- ══════════════════════════════════════ -->
-<div class="section" data-id="s4a" onclick="toggleSection(this)">
-  <div class="section-checkbox"></div>
-  <div class="label-top" data-i18n="four_questions.section4a_label">15 Second Story</div>
-  <div class="section-number" data-i18n="four_questions.section4a_number">3. HOW?</div>
-  <div class="svg-wrap" style="max-width:460px;">
-    <svg viewBox="0 0 460 300" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <filter id="pen4" x="-8%" y="-8%" width="116%" height="116%">
-          <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" result="noise"/>
-          <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.0" xChannelSelector="R" yChannelSelector="G"/>
-        </filter>
-      </defs>
-      <line x1="230" y1="95" x2="230" y2="195" stroke="#111" stroke-width="2.6" stroke-linecap="round"/>
-      <line x1="208" y1="120" x2="252" y2="120" stroke="#111" stroke-width="2.6" stroke-linecap="round"/>
-      <line x1="188" y1="120" x2="150" y2="120" stroke="#111" stroke-width="2.2" stroke-linecap="round"/>
-      <polyline points="159,113 150,120 159,127" fill="none" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-      <line x1="272" y1="120" x2="310" y2="120" stroke="#111" stroke-width="2.2" stroke-linecap="round"/>
-      <polyline points="301,113 310,120 301,127" fill="none" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-      <line x1="80" y1="145" x2="148" y2="145" stroke="#111" stroke-width="1.6" stroke-linecap="round"/>
-      <line x1="84" y1="167" x2="148" y2="167" stroke="#111" stroke-width="1.6" stroke-linecap="round"/>
-      <line x1="312" y1="145" x2="378" y2="145" stroke="#111" stroke-width="1.6" stroke-linecap="round"/>
-      <line x1="312" y1="167" x2="378" y2="167" stroke="#111" stroke-width="1.6" stroke-linecap="round"/>
-      <line x1="186" y1="242" x2="274" y2="242" stroke="#111" stroke-width="1.6" stroke-linecap="round"/>
-      <line x1="18" y1="94" x2="74" y2="94" stroke="#111" stroke-width="1.4" stroke-linecap="round"/>
-      <line x1="386" y1="94" x2="444" y2="94" stroke="#111" stroke-width="1.4" stroke-linecap="round"/>
-      <text x="230" y="87" font-family="'Amatic SC',cursive" font-weight="700" font-size="26" fill="#111" stroke="#111" stroke-width="0.8" paint-order="stroke" text-anchor="middle">Jesus</text>
-      <text x="114" y="141" font-family="'Amatic SC',cursive" font-weight="700" font-size="21" fill="#111" stroke="#111" stroke-width="0.7" paint-order="stroke" text-anchor="middle" data-i18n="four_questions.diagram.anxious">Anxious</text>
-      <text x="114" y="163" font-family="'Amatic SC',cursive" font-weight="700" font-size="21" fill="#111" stroke="#111" stroke-width="0.7" paint-order="stroke" text-anchor="middle" data-i18n="four_questions.diagram.selfish">Selfish</text>
-      <text x="345" y="141" font-family="'Amatic SC',cursive" font-weight="700" font-size="21" fill="#111" stroke="#111" stroke-width="0.7" paint-order="stroke" text-anchor="middle" data-i18n="four_questions.diagram.joy">Joy</text>
-      <text x="345" y="163" font-family="'Amatic SC',cursive" font-weight="700" font-size="21" fill="#111" stroke="#111" stroke-width="0.7" paint-order="stroke" text-anchor="middle" data-i18n="four_questions.diagram.purpose">Purpose</text>
-      <text x="230" y="238" font-family="'Amatic SC',cursive" font-weight="700" font-size="21" fill="#111" stroke="#111" stroke-width="0.7" paint-order="stroke" text-anchor="middle" data-i18n="four_questions.diagram.forgiven">Forgiven</text>
-      <text x="230" y="264" font-family="'Amatic SC',cursive" font-weight="700" font-size="21" fill="#111" stroke="#111" stroke-width="0.7" paint-order="stroke" text-anchor="middle" data-i18n="four_questions.diagram.follow_life">Follow</text>
-      <text x="46" y="88" font-family="'Amatic SC',cursive" font-weight="700" font-size="15" fill="#111" stroke="#111" stroke-width="0.4" paint-order="stroke" text-anchor="middle" data-i18n="four_questions.diagram.intro_label">INTRO:</text>
-      <text x="46" y="110" font-family="'Amatic SC',cursive" font-weight="700" font-size="15" fill="#111" stroke="#111" stroke-width="0.4" paint-order="stroke" text-anchor="middle" data-i18n="four_questions.diagram.intro_line1">There was</text>
-      <text x="46" y="126" font-family="'Amatic SC',cursive" font-weight="700" font-size="15" fill="#111" stroke="#111" stroke-width="0.4" paint-order="stroke" text-anchor="middle" data-i18n="four_questions.diagram.intro_line2">a time in</text>
-      <text x="46" y="142" font-family="'Amatic SC',cursive" font-weight="700" font-size="15" fill="#111" stroke="#111" stroke-width="0.4" paint-order="stroke" text-anchor="middle" data-i18n="four_questions.diagram.intro_line3">my life...</text>
-      <text x="415" y="88" font-family="'Amatic SC',cursive" font-weight="700" font-size="15" fill="#111" stroke="#111" stroke-width="0.4" paint-order="stroke" text-anchor="middle" data-i18n="four_questions.diagram.question_label">QUESTION:</text>
-      <text x="415" y="110" font-family="'Amatic SC',cursive" font-weight="700" font-size="15" fill="#111" stroke="#111" stroke-width="0.4" paint-order="stroke" text-anchor="middle" data-i18n="four_questions.diagram.question_line1">Do you</text>
-      <text x="415" y="126" font-family="'Amatic SC',cursive" font-weight="700" font-size="15" fill="#111" stroke="#111" stroke-width="0.4" paint-order="stroke" text-anchor="middle" data-i18n="four_questions.diagram.question_line2">have a story</text>
-      <text x="415" y="142" font-family="'Amatic SC',cursive" font-weight="700" font-size="15" fill="#111" stroke="#111" stroke-width="0.4" paint-order="stroke" text-anchor="middle" data-i18n="four_questions.diagram.question_line3">like that?</text>
-    </svg>
-  </div>
-</div>
-<!-- SECTION 4b — HOW? / 3 Circles -->
-<div class="section" data-id="s4b" onclick="toggleSection(this)">
-  <div class="section-checkbox"></div>
-  <div class="label-top" data-i18n="four_questions.section4b_label">3 Circles Gospel Tool</div>
-  <img id="circles-img" src="assets/images/3 Circles Gospel Tool updated.webp" alt="3 Circles Gospel Tool"
-    style="width:100%; max-width:460px; height:auto; display:block; border-radius: 8px;">
-</div>
-<!-- ══════════════════════════════════════ -->
-<img src="assets/images/divider.svg" alt="" class="divider">
-<!-- SECTION 5 — WHEN? / Goals             -->
-<!-- ══════════════════════════════════════ -->
-<div class="section" data-id="s5" onclick="toggleSection(this)" style="padding-bottom: 64px;">
-  <div class="section-checkbox"></div>
-  <div class="section-number" style="font-size: clamp(14px,3.5vw,18px); letter-spacing:0.28em;"></div>
-  <div class="when-title" data-i18n="four_questions.section5_title">4. WHEN?</div>
-  <div class="goals-label" data-i18n="four_questions.section5_goals_label">GOALS</div>
-  <div class="goals-list">
-    <div class="goal-item" data-i18n="four_questions.goal_share">Share?</div>
-    <div class="goal-item" data-i18n="four_questions.goal_pray">Pray?</div>
-    <div class="goal-item" data-i18n="four_questions.goal_meet">Meet?</div>
-  </div>
-</div>
-<div class="reset-bar">
-  <button class="reset-btn" onclick="resetAll(event)" data-i18n="common.reset">RESET</button>
-</div>
-<script>
-  const STORAGE_KEY = 'discipleship-guide-progress';
-  const TOTAL = 6;
-  function toggleSection(el) {
-    const id = el.dataset.id;
-    el.classList.toggle('completed');
-    saveProgress();
-    updateProgress();
-  }
-  function saveProgress() {
-    const completed = [];
-    document.querySelectorAll('.section.completed').forEach(function(s) {
-      completed.push(s.dataset.id);
-    });
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(completed));
-  }
-  function loadProgress() {
-    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-    saved.forEach(function(id) {
-      const el = document.querySelector('[data-id="' + id + '"]');
-      if (el) el.classList.add('completed');
-    });
-  }
-  function updateProgress() {
-    const completed = document.querySelectorAll('.section.completed').length;
-    const pct = (completed / TOTAL) * 100;
-    document.getElementById('progressFill').style.width = pct + '%';
-    document.getElementById('progressText').textContent = window.t('common.completed_of', { done: completed, total: TOTAL });
-  }
-  function resetAll(e) {
-    e.stopPropagation();
-    if (confirm(window.t('common.reset_confirm'))) {
-      document.querySelectorAll('.section.completed').forEach(function(s) {
-        s.classList.remove('completed');
-      });
-      localStorage.removeItem(STORAGE_KEY);
-      updateProgress();
-    }
-  }
 
-  window.addEventListener('DOMContentLoaded', function() {
-    loadProgress();
-    window.addEventListener('i18n:ready', updateProgress, { once: true });
-    var circlesImg = document.getElementById('circles-img');
-    if (circlesImg && window.i18n && window.i18n.getLang() !== 'en') {
-      circlesImg.src = 'assets/images/3 Circles Gospel Tool updated no words.webp';
+<!-- ══════════════════════════════════════ -->
+<!-- INTRO — Matthew 28:18-20 Overview (was s1) -->
+<!-- ══════════════════════════════════════ -->
+<section class="tabpanel" id="panel-intro" role="tabpanel" aria-labelledby="tab-intro" tabindex="0">
+  <div class="panel-inner">
+    <div class="svg-wrap" style="max-width:483px;">
+      <svg viewBox="0 0 483 410" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <filter id="pen1" x="-8%" y="-8%" width="116%" height="116%">
+            <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" result="noise"/>
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.0" xChannelSelector="R" yChannelSelector="G"/>
+          </filter>
+        </defs>
+        <path d="M16,10 Q90,6 241,7 Q392,6 465,9 Q468,8 469,13 L470,82 Q471,86 466,88 L241,90 Q110,92 18,89 Q13,88 12,84 L13,15 Q13,10 16,10 Z"
+          fill="white" stroke="#111" stroke-width="2.8" stroke-linejoin="round" filter="url(#pen1)"/>
+        <path d="M18,11 Q241,5 466,10 Q469,10 470,14 L469,81 Q468,87 464,88 L20,90 Q14,90 13,86 L14,16 Q14,11 18,11 Z"
+          fill="none" stroke="#111" stroke-width="0.9" stroke-linejoin="round" opacity="0.3" filter="url(#pen1)"/>
+        <text x="241" y="40" font-family="'Bebas Neue', sans-serif" font-size="27" fill="#111" text-anchor="middle" letter-spacing="1" data-i18n="four_questions.diagram.read_matthew">READ MATTHEW 28:18-20</text>
+        <text x="241" y="60" font-family="Arial, sans-serif" font-size="18" fill="#333" text-anchor="middle" data-i18n="four_questions.diagram.primary_command_q">What is the primary command?</text>
+        <text x="241" y="80" font-family="Arial, sans-serif" font-size="18" fill="#333" text-anchor="middle" data-i18n="four_questions.diagram.primary_command_a">="Go... Make Disciples"</text>
+        <text x="241" y="128" font-family="Arial, sans-serif" font-size="18" fill="#999" text-anchor="middle" data-i18n="four_questions.diagram.need_answers">We need answers to the following in order</text>
+        <text x="241" y="150" font-family="Arial, sans-serif" font-size="18" fill="#999" text-anchor="middle" data-i18n="four_questions.diagram.to_obey">to obey this command:</text>
+        <ellipse cx="115" cy="200" rx="26" ry="17" fill="white" stroke="#111" stroke-width="2.2" filter="url(#pen1)"/>
+        <ellipse cx="115" cy="248" rx="26" ry="17" fill="white" stroke="#111" stroke-width="2.2" filter="url(#pen1)"/>
+        <ellipse cx="115" cy="296" rx="26" ry="17" fill="white" stroke="#111" stroke-width="2.2" filter="url(#pen1)"/>
+        <ellipse cx="115" cy="344" rx="26" ry="17" fill="white" stroke="#111" stroke-width="2.2" filter="url(#pen1)"/>
+        <text x="115" y="206" font-family="'Amatic SC',cursive" font-weight="700" font-size="19" fill="#111" stroke="#111" stroke-width="0.6" paint-order="stroke" text-anchor="middle">1</text>
+        <text x="115" y="254" font-family="'Amatic SC',cursive" font-weight="700" font-size="19" fill="#111" stroke="#111" stroke-width="0.6" paint-order="stroke" text-anchor="middle">2</text>
+        <text x="115" y="302" font-family="'Amatic SC',cursive" font-weight="700" font-size="19" fill="#111" stroke="#111" stroke-width="0.6" paint-order="stroke" text-anchor="middle">3</text>
+        <text x="115" y="350" font-family="'Amatic SC',cursive" font-weight="700" font-size="19" fill="#111" stroke="#111" stroke-width="0.6" paint-order="stroke" text-anchor="middle">4</text>
+        <text x="159" y="208" font-family="'Amatic SC',cursive" font-weight="700" font-size="32" fill="#111" stroke="#111" stroke-width="0.9" paint-order="stroke" text-anchor="start" data-i18n="four_questions.diagram.why">WHY?</text>
+        <text x="159" y="256" font-family="'Amatic SC',cursive" font-weight="700" font-size="32" fill="#111" stroke="#111" stroke-width="0.9" paint-order="stroke" text-anchor="start" data-i18n="four_questions.diagram.who">WHO?</text>
+        <text x="159" y="304" font-family="'Amatic SC',cursive" font-weight="700" font-size="32" fill="#111" stroke="#111" stroke-width="0.9" paint-order="stroke" text-anchor="start" data-i18n="four_questions.diagram.how">HOW?</text>
+        <text x="159" y="352" font-family="'Amatic SC',cursive" font-weight="700" font-size="32" fill="#111" stroke="#111" stroke-width="0.9" paint-order="stroke" text-anchor="start" data-i18n="four_questions.diagram.when">WHEN?</text>
+      </svg>
+    </div>
+  </div>
+  <nav class="panel-nav only-next" aria-label="Section navigation">
+    <button class="pn-btn pn-next" data-goto="1"><span data-i18n="four_questions.nav_next">Next</span> ›</button>
+  </nav>
+</section>
+
+<!-- ══════════════════════════════════════ -->
+<!-- WHY — Identity / Mark 1:17 (was s2) -->
+<!-- ══════════════════════════════════════ -->
+<section class="tabpanel" id="panel-why" role="tabpanel" aria-labelledby="tab-why" tabindex="0" hidden>
+  <div class="panel-inner">
+    <div class="label-top" data-i18n="four_questions.section2_label">Identity</div>
+    <div class="section-number" data-i18n="four_questions.section2_number">1. WHY?</div>
+    <div class="svg-wrap" style="max-width:400px;">
+      <svg viewBox="0 0 400 340" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <filter id="pen2" x="-5%" y="-5%" width="110%" height="110%">
+            <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" result="noise"/>
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.0" xChannelSelector="R" yChannelSelector="G"/>
+          </filter>
+          <marker id="arrowL" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto">
+            <path d="M0,1 L5,5 L0,9" fill="none" stroke="#111" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </marker>
+          <marker id="arrowR" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto">
+            <path d="M0,1 L5,5 L0,9" fill="none" stroke="#111" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </marker>
+        </defs>
+        <path d="M30,10 Q100,5 200,6 Q300,5 368,8 Q372,7 373,12 L374,78 Q375,83 370,85 L200,87 Q100,89 32,86 Q27,85 26,80 L27,14 Q27,10 30,10 Z"
+          fill="white" stroke="#111" stroke-width="3.5" stroke-linejoin="round" filter="url(#pen2)"/>
+        <path d="M32,11 Q200,4 369,9 Q373,9 374,13 L373,77 Q372,83 368,84 L34,86 Q28,86 27,82 L28,15 Q28,11 32,11 Z"
+          fill="none" stroke="#111" stroke-width="1.2" stroke-linejoin="round" opacity="0.3" filter="url(#pen2)"/>
+        <text x="200" y="64" font-family="'Amatic SC', cursive" font-weight="700" font-size="68" fill="#111" text-anchor="middle" letter-spacing="2" data-i18n="four_questions.diagram.mark_reference">MARK 1:17</text>
+        <path d="M145,90 C138,110 120,140 104,170 C90,196 78,216 68,238"
+          fill="none" stroke="#111" stroke-width="3.0" stroke-linecap="round" marker-end="url(#arrowL)" filter="url(#pen2)"/>
+        <path d="M250,90 C257,110 272,140 288,170 C302,196 314,216 324,238"
+          fill="none" stroke="#111" stroke-width="3.0" stroke-linecap="round" marker-end="url(#arrowR)" filter="url(#pen2)"/>
+        <text x="68" y="295" font-family="'Amatic SC', cursive" font-weight="700" font-size="56" fill="#111" text-anchor="middle" letter-spacing="2" data-i18n="four_questions.diagram.follow">FOLLOW</text>
+        <text x="324" y="295" font-family="'Amatic SC', cursive" font-weight="700" font-size="56" fill="#111" text-anchor="middle" letter-spacing="2" data-i18n="four_questions.diagram.fish">FISH</text>
+      </svg>
+    </div>
+  </div>
+  <nav class="panel-nav" aria-label="Section navigation">
+    <button class="pn-btn pn-prev" data-goto="0">‹ <span data-i18n="four_questions.nav_prev">Previous</span></button>
+    <button class="pn-btn pn-next" data-goto="2"><span data-i18n="four_questions.nav_next">Next</span> ›</button>
+  </nav>
+</section>
+
+<!-- ══════════════════════════════════════ -->
+<!-- WHO — Oikos Map / John 17:20 (was s3) -->
+<!-- ══════════════════════════════════════ -->
+<section class="tabpanel" id="panel-who" role="tabpanel" aria-labelledby="tab-who" tabindex="0" hidden>
+  <div class="panel-inner">
+    <div class="label-top" data-i18n="four_questions.section3_label">Oikos Map</div>
+    <div class="section-number" data-i18n="four_questions.section3_number">2. WHO?</div>
+    <div class="svg-wrap" style="max-width:420px;">
+      <svg viewBox="0 0 580 480" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <filter id="pen3" x="-15%" y="-15%" width="130%" height="130%">
+            <feTurbulence type="fractalNoise" baseFrequency="0.6" numOctaves="3" stitchTiles="stitch" result="noise"/>
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.0" xChannelSelector="R" yChannelSelector="G"/>
+          </filter>
+        </defs>
+        <!-- spokes: center→Passion (top), center→Place (bottom-right), center→Profession (bottom-left) -->
+        <line x1="300" y1="237" x2="300" y2="178" stroke="#111" stroke-width="2.8" stroke-linecap="round"/>
+        <line x1="361" y1="287" x2="358" y2="328" stroke="#111" stroke-width="2.8" stroke-linecap="round"/>
+        <line x1="239" y1="287" x2="242" y2="328" stroke="#111" stroke-width="2.8" stroke-linecap="round"/>
+        <!-- branches: Passion→Bob, Passion→Jim -->
+        <line x1="267" y1="118" x2="233" y2="89" stroke="#111" stroke-width="2.2" stroke-linecap="round"/>
+        <line x1="333" y1="118" x2="367" y2="89" stroke="#111" stroke-width="2.2" stroke-linecap="round"/>
+        <!-- branches: Place→Sam, Place→Mary -->
+        <line x1="462" y1="322" x2="489" y2="313" stroke="#111" stroke-width="2.2" stroke-linecap="round"/>
+        <line x1="444" y1="368" x2="431" y2="431" stroke="#111" stroke-width="2.2" stroke-linecap="round"/>
+        <!-- branches: Profession→James, Profession→Mark -->
+        <line x1="138" y1="322" x2="111" y2="313" stroke="#111" stroke-width="2.2" stroke-linecap="round"/>
+        <line x1="156" y1="368" x2="169" y2="431" stroke="#111" stroke-width="2.2" stroke-linecap="round"/>
+        <!-- name nodes -->
+        <ellipse cx="208" cy="68" rx="44" ry="26" fill="white" stroke="#111" stroke-width="2.8" filter="url(#pen3)"/>
+        <text x="208" y="76" font-family="'Amatic SC',cursive" font-weight="700" font-size="26" fill="#111" stroke="#111" stroke-width="1.2" paint-order="stroke" text-anchor="middle">Bob</text>
+        <ellipse cx="392" cy="68" rx="44" ry="26" fill="white" stroke="#111" stroke-width="2.8" filter="url(#pen3)"/>
+        <text x="392" y="76" font-family="'Amatic SC',cursive" font-weight="700" font-size="26" fill="#111" stroke="#111" stroke-width="1.2" paint-order="stroke" text-anchor="middle">Jim</text>
+        <ellipse cx="526" cy="299" rx="44" ry="26" fill="white" stroke="#111" stroke-width="2.8" filter="url(#pen3)"/>
+        <text x="526" y="307" font-family="'Amatic SC',cursive" font-weight="700" font-size="26" fill="#111" stroke="#111" stroke-width="1.2" paint-order="stroke" text-anchor="middle">Sam</text>
+        <ellipse cx="454" cy="453" rx="44" ry="26" fill="white" stroke="#111" stroke-width="2.8" filter="url(#pen3)"/>
+        <text x="454" y="461" font-family="'Amatic SC',cursive" font-weight="700" font-size="26" fill="#111" stroke="#111" stroke-width="1.2" paint-order="stroke" text-anchor="middle">Mary</text>
+        <ellipse cx="74" cy="299" rx="44" ry="26" fill="white" stroke="#111" stroke-width="2.8" filter="url(#pen3)"/>
+        <text x="74" y="307" font-family="'Amatic SC',cursive" font-weight="700" font-size="26" fill="#111" stroke="#111" stroke-width="1.2" paint-order="stroke" text-anchor="middle">James</text>
+        <ellipse cx="146" cy="453" rx="44" ry="26" fill="white" stroke="#111" stroke-width="2.8" filter="url(#pen3)"/>
+        <text x="146" y="461" font-family="'Amatic SC',cursive" font-weight="700" font-size="26" fill="#111" stroke="#111" stroke-width="1.2" paint-order="stroke" text-anchor="middle">Mark</text>
+        <!-- arm nodes -->
+        <ellipse cx="300" cy="145" rx="58" ry="33" fill="white" stroke="#111" stroke-width="3.2" filter="url(#pen3)"/>
+        <ellipse cx="300" cy="145" rx="58" ry="33" fill="none" stroke="#111" stroke-width="1.0" opacity="0.25" filter="url(#pen3)"/>
+        <text x="300" y="153" font-family="'Amatic SC',cursive" font-weight="700" font-size="30" fill="#111" stroke="#111" stroke-width="1.4" paint-order="stroke" text-anchor="middle" data-i18n="four_questions.diagram.passion">Passion</text>
+        <ellipse cx="413" cy="340" rx="58" ry="33" fill="white" stroke="#111" stroke-width="3.2" filter="url(#pen3)"/>
+        <ellipse cx="413" cy="340" rx="58" ry="33" fill="none" stroke="#111" stroke-width="1.0" opacity="0.25" filter="url(#pen3)"/>
+        <text x="413" y="348" font-family="'Amatic SC',cursive" font-weight="700" font-size="30" fill="#111" stroke="#111" stroke-width="1.4" paint-order="stroke" text-anchor="middle" data-i18n="four_questions.diagram.place">Place</text>
+        <ellipse cx="187" cy="340" rx="64" ry="33" fill="white" stroke="#111" stroke-width="3.2" filter="url(#pen3)"/>
+        <ellipse cx="187" cy="340" rx="64" ry="33" fill="none" stroke="#111" stroke-width="1.0" opacity="0.25" filter="url(#pen3)"/>
+        <text x="187" y="348" font-family="'Amatic SC',cursive" font-weight="700" font-size="28" fill="#111" stroke="#111" stroke-width="1.4" paint-order="stroke" text-anchor="middle" data-i18n="four_questions.diagram.profession">Profession</text>
+        <!-- center node -->
+        <ellipse cx="300" cy="275" rx="64" ry="38" fill="white" stroke="#111" stroke-width="4.0" filter="url(#pen3)"/>
+        <ellipse cx="300" cy="275" rx="64" ry="38" fill="none" stroke="#111" stroke-width="1.2" opacity="0.25" filter="url(#pen3)"/>
+        <text x="300" y="283" font-family="'Amatic SC',cursive" font-weight="700" font-size="36" fill="#111" stroke="#111" stroke-width="1.6" paint-order="stroke" text-anchor="middle" data-i18n="four_questions.diagram.name_center">Name</text>
+      </svg>
+    </div>
+    <div class="verse" data-i18n="four_questions.section3_verse">*JOHN 17:20</div>
+  </div>
+  <nav class="panel-nav" aria-label="Section navigation">
+    <button class="pn-btn pn-prev" data-goto="1">‹ <span data-i18n="four_questions.nav_prev">Previous</span></button>
+    <button class="pn-btn pn-next" data-goto="3"><span data-i18n="four_questions.nav_next">Next</span> ›</button>
+  </nav>
+</section>
+
+<!-- ══════════════════════════════════════ -->
+<!-- HOW — 15 Second Story + 3 Circles (was s4a + s4b) -->
+<!-- ══════════════════════════════════════ -->
+<section class="tabpanel" id="panel-how" role="tabpanel" aria-labelledby="tab-how" tabindex="0" hidden>
+  <div class="panel-inner">
+    <div class="label-top" data-i18n="four_questions.section4a_label">15 Second Story</div>
+    <div class="section-number" data-i18n="four_questions.section4a_number">3. HOW?</div>
+    <div class="svg-wrap" style="max-width:460px;">
+      <svg viewBox="0 0 460 300" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <filter id="pen4" x="-8%" y="-8%" width="116%" height="116%">
+            <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" result="noise"/>
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.0" xChannelSelector="R" yChannelSelector="G"/>
+          </filter>
+        </defs>
+        <line x1="230" y1="95" x2="230" y2="195" stroke="#111" stroke-width="2.6" stroke-linecap="round"/>
+        <line x1="208" y1="120" x2="252" y2="120" stroke="#111" stroke-width="2.6" stroke-linecap="round"/>
+        <line x1="188" y1="120" x2="150" y2="120" stroke="#111" stroke-width="2.2" stroke-linecap="round"/>
+        <polyline points="159,113 150,120 159,127" fill="none" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        <line x1="272" y1="120" x2="310" y2="120" stroke="#111" stroke-width="2.2" stroke-linecap="round"/>
+        <polyline points="301,113 310,120 301,127" fill="none" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        <line x1="80" y1="145" x2="148" y2="145" stroke="#111" stroke-width="1.6" stroke-linecap="round"/>
+        <line x1="84" y1="167" x2="148" y2="167" stroke="#111" stroke-width="1.6" stroke-linecap="round"/>
+        <line x1="312" y1="145" x2="378" y2="145" stroke="#111" stroke-width="1.6" stroke-linecap="round"/>
+        <line x1="312" y1="167" x2="378" y2="167" stroke="#111" stroke-width="1.6" stroke-linecap="round"/>
+        <line x1="186" y1="242" x2="274" y2="242" stroke="#111" stroke-width="1.6" stroke-linecap="round"/>
+        <line x1="18" y1="94" x2="74" y2="94" stroke="#111" stroke-width="1.4" stroke-linecap="round"/>
+        <line x1="386" y1="94" x2="444" y2="94" stroke="#111" stroke-width="1.4" stroke-linecap="round"/>
+        <text x="230" y="87" font-family="'Amatic SC',cursive" font-weight="700" font-size="26" fill="#111" stroke="#111" stroke-width="0.8" paint-order="stroke" text-anchor="middle">Jesus</text>
+        <text x="114" y="141" font-family="'Amatic SC',cursive" font-weight="700" font-size="21" fill="#111" stroke="#111" stroke-width="0.7" paint-order="stroke" text-anchor="middle" data-i18n="four_questions.diagram.anxious">Anxious</text>
+        <text x="114" y="163" font-family="'Amatic SC',cursive" font-weight="700" font-size="21" fill="#111" stroke="#111" stroke-width="0.7" paint-order="stroke" text-anchor="middle" data-i18n="four_questions.diagram.selfish">Selfish</text>
+        <text x="345" y="141" font-family="'Amatic SC',cursive" font-weight="700" font-size="21" fill="#111" stroke="#111" stroke-width="0.7" paint-order="stroke" text-anchor="middle" data-i18n="four_questions.diagram.joy">Joy</text>
+        <text x="345" y="163" font-family="'Amatic SC',cursive" font-weight="700" font-size="21" fill="#111" stroke="#111" stroke-width="0.7" paint-order="stroke" text-anchor="middle" data-i18n="four_questions.diagram.purpose">Purpose</text>
+        <text x="230" y="238" font-family="'Amatic SC',cursive" font-weight="700" font-size="21" fill="#111" stroke="#111" stroke-width="0.7" paint-order="stroke" text-anchor="middle" data-i18n="four_questions.diagram.forgiven">Forgiven</text>
+        <text x="230" y="264" font-family="'Amatic SC',cursive" font-weight="700" font-size="21" fill="#111" stroke="#111" stroke-width="0.7" paint-order="stroke" text-anchor="middle" data-i18n="four_questions.diagram.follow_life">Follow</text>
+        <text x="46" y="88" font-family="'Amatic SC',cursive" font-weight="700" font-size="15" fill="#111" stroke="#111" stroke-width="0.4" paint-order="stroke" text-anchor="middle" data-i18n="four_questions.diagram.intro_label">INTRO:</text>
+        <text x="46" y="110" font-family="'Amatic SC',cursive" font-weight="700" font-size="15" fill="#111" stroke="#111" stroke-width="0.4" paint-order="stroke" text-anchor="middle" data-i18n="four_questions.diagram.intro_line1">There was</text>
+        <text x="46" y="126" font-family="'Amatic SC',cursive" font-weight="700" font-size="15" fill="#111" stroke="#111" stroke-width="0.4" paint-order="stroke" text-anchor="middle" data-i18n="four_questions.diagram.intro_line2">a time in</text>
+        <text x="46" y="142" font-family="'Amatic SC',cursive" font-weight="700" font-size="15" fill="#111" stroke="#111" stroke-width="0.4" paint-order="stroke" text-anchor="middle" data-i18n="four_questions.diagram.intro_line3">my life...</text>
+        <text x="415" y="88" font-family="'Amatic SC',cursive" font-weight="700" font-size="15" fill="#111" stroke="#111" stroke-width="0.4" paint-order="stroke" text-anchor="middle" data-i18n="four_questions.diagram.question_label">QUESTION:</text>
+        <text x="415" y="110" font-family="'Amatic SC',cursive" font-weight="700" font-size="15" fill="#111" stroke="#111" stroke-width="0.4" paint-order="stroke" text-anchor="middle" data-i18n="four_questions.diagram.question_line1">Do you</text>
+        <text x="415" y="126" font-family="'Amatic SC',cursive" font-weight="700" font-size="15" fill="#111" stroke="#111" stroke-width="0.4" paint-order="stroke" text-anchor="middle" data-i18n="four_questions.diagram.question_line2">have a story</text>
+        <text x="415" y="142" font-family="'Amatic SC',cursive" font-weight="700" font-size="15" fill="#111" stroke="#111" stroke-width="0.4" paint-order="stroke" text-anchor="middle" data-i18n="four_questions.diagram.question_line3">like that?</text>
+      </svg>
+    </div>
+  </div>
+  <div class="panel-inner">
+    <div class="label-top" data-i18n="four_questions.section4b_label">3 Circles Gospel Tool</div>
+    <img id="circles-img" src="assets/images/3 Circles Gospel Tool updated.webp" alt="3 Circles Gospel Tool"
+      style="width:100%; max-width:460px; height:auto; display:block; border-radius: 8px;">
+  </div>
+  <nav class="panel-nav" aria-label="Section navigation">
+    <button class="pn-btn pn-prev" data-goto="2">‹ <span data-i18n="four_questions.nav_prev">Previous</span></button>
+    <button class="pn-btn pn-next" data-goto="4"><span data-i18n="four_questions.nav_next">Next</span> ›</button>
+  </nav>
+</section>
+
+<!-- ══════════════════════════════════════ -->
+<!-- WHEN — Goals (was s5) -->
+<!-- ══════════════════════════════════════ -->
+<section class="tabpanel" id="panel-when" role="tabpanel" aria-labelledby="tab-when" tabindex="0" hidden>
+  <div class="panel-inner">
+    <div class="when-title" data-i18n="four_questions.section5_title">4. WHEN?</div>
+    <div class="goals-label" data-i18n="four_questions.section5_goals_label">GOALS</div>
+    <div class="goals-list">
+      <div class="goal-item" data-i18n="four_questions.goal_share">Share?</div>
+      <div class="goal-item" data-i18n="four_questions.goal_pray">Pray?</div>
+      <div class="goal-item" data-i18n="four_questions.goal_meet">Meet?</div>
+    </div>
+  </div>
+  <nav class="panel-nav only-prev" aria-label="Section navigation">
+    <button class="pn-btn pn-prev" data-goto="3">‹ <span data-i18n="four_questions.nav_prev">Previous</span></button>
+  </nav>
+</section>
+
+<script>
+  (function () {
+    var tabs = Array.prototype.slice.call(document.querySelectorAll('[role="tab"]'));
+    var panels = tabs.map(function (t) { return document.getElementById(t.getAttribute('aria-controls')); });
+
+    // Keep the panels' scroll-margin in sync with the sticky tab row height.
+    function updateTabsHeight() {
+      var wrap = document.querySelector('.tabs-wrap');
+      if (wrap) {
+        document.documentElement.style.setProperty('--tabs-h', (wrap.offsetHeight + 8) + 'px');
+      }
     }
-  });
+
+    // Select a tab: update ARIA state, show its panel, hide the rest.
+    function selectTab(index, opts) {
+      opts = opts || {};
+      if (index < 0 || index >= tabs.length) return;
+      tabs.forEach(function (tab, i) {
+        var selected = i === index;
+        tab.setAttribute('aria-selected', selected ? 'true' : 'false');
+        tab.tabIndex = selected ? 0 : -1;
+        panels[i].hidden = !selected;
+      });
+      if (opts.focus !== false) tabs[index].focus({ preventScroll: true });
+      if (opts.scroll) {
+        // Position the top of the new panel just below the sticky tab row.
+        window.requestAnimationFrame(function () {
+          panels[index].scrollIntoView({ block: 'start' });
+        });
+      }
+    }
+
+    // Move keyboard focus between tabs without activating them (manual activation).
+    function focusTab(index) {
+      tabs.forEach(function (tab, i) { tab.tabIndex = i === index ? 0 : -1; });
+      tabs[index].focus();
+    }
+
+    tabs.forEach(function (tab, i) {
+      tab.addEventListener('click', function () {
+        selectTab(i, { scroll: true, focus: false });
+      });
+    });
+
+    var tablist = document.querySelector('[role="tablist"]');
+    tablist.addEventListener('keydown', function (e) {
+      var current = tabs.indexOf(document.activeElement);
+      if (current < 0) return;
+      var target = null;
+      switch (e.key) {
+        case 'ArrowRight':
+        case 'ArrowDown': target = (current + 1) % tabs.length; break;
+        case 'ArrowLeft':
+        case 'ArrowUp':   target = (current - 1 + tabs.length) % tabs.length; break;
+        case 'Home':      target = 0; break;
+        case 'End':       target = tabs.length - 1; break;
+        case 'Enter':
+        case ' ':
+        case 'Spacebar':
+          e.preventDefault();
+          selectTab(current, { scroll: true });
+          return;
+        default: return;
+      }
+      e.preventDefault();
+      focusTab(target);
+    });
+
+    // Previous / Next buttons within each panel.
+    document.querySelectorAll('.pn-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var target = parseInt(btn.getAttribute('data-goto'), 10);
+        selectTab(target, { scroll: true });
+      });
+    });
+
+    window.addEventListener('resize', updateTabsHeight);
+    window.addEventListener('load', updateTabsHeight);
+
+    window.addEventListener('DOMContentLoaded', function () {
+      updateTabsHeight();
+      // Recompute once fonts/translations settle (tab row height can change).
+      window.addEventListener('i18n:ready', updateTabsHeight, { once: true });
+      // Swap in the no-words 3 Circles image for non-English languages.
+      var circlesImg = document.getElementById('circles-img');
+      if (circlesImg && window.i18n && window.i18n.getLang() !== 'en') {
+        circlesImg.src = 'assets/images/3 Circles Gospel Tool updated no words.webp';
+      }
+    });
+  })();
 </script>
 </body>
 </html>

@@ -896,6 +896,13 @@
   "four_questions": {
     "title": "4 вопроса",
     "subtitle": "Начните здесь с новыми верующими <span class=\"green\">(зелёный свет)</span> или верующими, которым нужно обучение начальным шагам.",
+    "tab_intro": "Обзор",
+    "tab_why": "Почему",
+    "tab_who": "Кто",
+    "tab_how": "Как",
+    "tab_when": "Когда",
+    "nav_prev": "Назад",
+    "nav_next": "Далее",
     "progress_text": "{done} из {total} выполнено",
     "reset": "СБРОСИТЬ",
     "reset_confirm": "Сбросить весь прогресс?",
