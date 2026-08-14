@@ -232,9 +232,9 @@
     .panel-nav { display: none; }
   }
   /* ── Presenter mode (desktop only) ── */
-  .present-row { display: none; }
+  .present-btn { display: none; }
   @media (min-width: 1024px) {
-    .present-row { display: flex; justify-content: center; margin-top: 8px; }
+    .present-btn { display: inline-block; }
   }
   .present-btn {
     font-family: 'Bebas Neue', sans-serif;
@@ -259,7 +259,9 @@
   body.presenting .auth-section,
   body.presenting .page-header,
   body.presenting .tabs-wrap,
-  body.presenting .panel-nav { display: none !important; }
+  body.presenting .panel-nav,
+  body.presenting .acct-icon-btn,
+  body.presenting .account-overlay { display: none !important; }
   /* The active panel becomes a full-screen stage */
   body.presenting .tabpanel:not([hidden]) {
     position: fixed; inset: 0; z-index: 200; margin: 0;
@@ -325,9 +327,10 @@
     <script src="/pwa.js" defer></script>
 </head>
 <body>
-<!-- Home button -->
-<div id="home-bar" style="width:100%; text-align:center; padding:20px 0 4px;">
+<!-- Home button (+ desktop Present) -->
+<div id="home-bar" style="width:100%; display:flex; justify-content:center; align-items:center; gap:12px; padding:20px 0 4px;">
   <a href="index.html" style="display:inline-block; background:#000; color:#fff; font-family:-apple-system,BlinkMacSystemFont,sans-serif; font-weight:700; font-size:17px; padding:12px 28px; border-radius:50px; text-decoration:none;" data-i18n="nav.home">Home</a>
+  <button id="present-btn" class="present-btn" type="button" aria-label="Start presenter mode">▶ <span data-i18n="four_questions.present">Present</span></button>
 </div>
 <!-- Auth section -->
 <div class="auth-section" id="auth-section">
@@ -358,9 +361,6 @@
     <button class="tab" role="tab" id="tab-who"   aria-controls="panel-who"   aria-selected="false" tabindex="-1" data-i18n="four_questions.tab_who">Who</button>
     <button class="tab" role="tab" id="tab-how"   aria-controls="panel-how"   aria-selected="false" tabindex="-1" data-i18n="four_questions.tab_how">How</button>
     <button class="tab" role="tab" id="tab-when"  aria-controls="panel-when"  aria-selected="false" tabindex="-1" data-i18n="four_questions.tab_when">When</button>
-  </div>
-  <div class="present-row">
-    <button id="present-btn" class="present-btn" type="button" aria-label="Start presenter mode">▶ <span data-i18n="four_questions.present">Present</span></button>
   </div>
 </div>
 
