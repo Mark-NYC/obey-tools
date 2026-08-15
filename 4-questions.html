@@ -231,11 +231,8 @@
   @media (min-width: 1024px) {
     .panel-nav { display: none; }
   }
-  /* ── Presenter mode (desktop only) ── */
-  .present-btn { display: none; }
-  @media (min-width: 1024px) {
-    .present-btn { display: inline-block; }
-  }
+  /* ── Presenter mode (desktop + mobile) ── */
+  .present-btn { display: inline-block; }
   .present-btn {
     font-family: 'Bebas Neue', sans-serif;
     text-transform: uppercase;
@@ -297,17 +294,17 @@
   #presenter-ui { position: fixed; inset: 0; z-index: 300; pointer-events: none; }
   #presenter-ui button { pointer-events: auto; }
   .pz-step {
-    position: fixed; top: 20px; left: 26px; max-width: 60vw;
+    position: fixed; top: calc(20px + env(safe-area-inset-top)); left: calc(26px + env(safe-area-inset-left)); max-width: 60vw;
     font-family: 'Bebas Neue', sans-serif; text-transform: uppercase;
     letter-spacing: 0.06em; font-size: clamp(16px, 2vw, 26px); color: #000;
   }
   .pz-exit {
-    position: fixed; top: 16px; right: 20px; width: 44px; height: 44px;
+    position: fixed; top: calc(14px + env(safe-area-inset-top)); right: calc(18px + env(safe-area-inset-right)); width: 44px; height: 44px;
     border-radius: 50%; border: 2px solid #000; background: #fff;
     font-size: 20px; line-height: 1; cursor: pointer;
   }
   .pz-controls {
-    position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%);
+    position: fixed; bottom: calc(22px + env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%);
     display: flex; align-items: center; gap: 18px;
   }
   .pz-btn {
@@ -322,6 +319,23 @@
     font-size: 20px; min-width: 70px; text-align: center; color: #000;
   }
   .pz-btn:focus-visible, .pz-exit:focus-visible { outline: 3px solid #00D084; outline-offset: 2px; }
+  /* ── Mobile / tablet presenter: size to width, fill the small viewport ── */
+  @media (max-width: 1023px) {
+    body.presenting .tabpanel:not([hidden]) {
+      height: 100vh; height: 100dvh;
+      padding: calc(9vh + env(safe-area-inset-top)) 4vw calc(13vh + env(safe-area-inset-bottom));
+    }
+    body.presenting .panel-inner { max-width: 96vw; }
+    body.presenting .svg-wrap svg {
+      height: auto; width: 94vw; max-width: 94vw; max-height: 74dvh;
+    }
+    body.presenting #circles-img {
+      height: auto !important; width: 94vw !important; max-width: 94vw !important; max-height: 74dvh !important;
+    }
+    /* Slightly smaller chrome so it never crowds the diagram on a phone */
+    .pz-btn { width: 52px; height: 52px; font-size: 24px; }
+    .pz-controls { gap: 14px; }
+  }
 </style>
     <script type="module" src="/i18n.js"></script>
     <script src="/pwa.js" defer></script>
@@ -776,16 +790,18 @@
       return 0;
     }
     function enter() {
-      if (window.innerWidth < 1024) return;
       body.classList.add('presenting');
       ui.hidden = false;
       var ct = currentTabIndex(), start = 0;
       for (var i = 0; i < slides.length; i++) { if (slides[i].tab === ct) { start = i; break; } }
+      // Fullscreen where supported (desktop, Android); iOS Safari falls back to
+      // the full-viewport overlay since it can't fullscreen arbitrary elements.
       if (document.documentElement.requestFullscreen) {
         document.documentElement.requestFullscreen().catch(function () {});
       }
       show(start, 0);
       nextBtn.focus();
+      requestWake();
     }
     function exit() {
       if (!body.classList.contains('presenting')) return;
@@ -795,6 +811,7 @@
       Array.prototype.slice.call(document.querySelectorAll('.pz-on'))
         .forEach(function (el) { el.classList.remove('pz-on'); });
       if (document.fullscreenElement) document.exitFullscreen().catch(function () {});
+      releaseWake();
       presentBtn.focus();
     }
 
@@ -803,11 +820,15 @@
     prevBtn.addEventListener('click', function (e) { e.stopPropagation(); prev(); });
     nextBtn.addEventListener('click', function (e) { e.stopPropagation(); next(); });
 
-    // Click anywhere on the stage advances (reveal next layer, then next slide).
+    // Tap/click the stage to advance (reveal next layer, then next slide).
+    // On touch-sized screens the left third goes back, like an e-reader.
+    var suppressTap = false;
     document.addEventListener('click', function (e) {
       if (!body.classList.contains('presenting')) return;
       if (e.target.closest('#presenter-ui')) return;
-      next();
+      if (suppressTap) { suppressTap = false; return; }
+      if (window.innerWidth < 1024 && e.clientX < window.innerWidth * 0.30) prev();
+      else next();
     });
 
     document.addEventListener('keydown', function (e) {
@@ -827,9 +848,42 @@
     document.addEventListener('fullscreenchange', function () {
       if (!document.fullscreenElement) exit();
     });
-    // If the window shrinks to phone size mid-presentation, bow out gracefully.
-    window.addEventListener('resize', function () {
-      if (body.classList.contains('presenting') && window.innerWidth < 1024) exit();
+
+    // Touch: swipe left/right to change slides, swipe down to exit.
+    var tsx = 0, tsy = 0;
+    document.addEventListener('touchstart', function (e) {
+      if (!body.classList.contains('presenting')) return;
+      if (e.target.closest('#presenter-ui')) return;
+      var t = e.changedTouches[0]; tsx = t.clientX; tsy = t.clientY;
+    }, { passive: true });
+    document.addEventListener('touchend', function (e) {
+      if (!body.classList.contains('presenting')) return;
+      if (e.target.closest('#presenter-ui')) return;
+      var t = e.changedTouches[0];
+      var dx = t.clientX - tsx, dy = t.clientY - tsy;
+      var ax = Math.abs(dx), ay = Math.abs(dy);
+      if (ax < 30 && ay < 30) return;   // a tap — let the click handler act
+      suppressTap = true;               // a gesture — don't also advance on the click
+      if (ax > ay && ax > 50) {
+        if (dx < 0) { if (idx < slides.length - 1) show(idx + 1, 0); }
+        else { if (idx > 0) show(idx - 1, 'max'); }
+      } else if (ay > ax && dy > 90) {
+        exit();
+      }
+    }, { passive: true });
+
+    // Keep the screen awake while presenting (mobile teaching sessions).
+    var wakeLock = null;
+    function requestWake() {
+      if ('wakeLock' in navigator) {
+        navigator.wakeLock.request('screen').then(function (w) { wakeLock = w; }).catch(function () {});
+      }
+    }
+    function releaseWake() {
+      if (wakeLock) { try { wakeLock.release(); } catch (e) {} wakeLock = null; }
+    }
+    document.addEventListener('visibilitychange', function () {
+      if (document.visibilityState === 'visible' && body.classList.contains('presenting')) requestWake();
     });
   })();
 </script>
