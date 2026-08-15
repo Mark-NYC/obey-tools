@@ -904,6 +904,7 @@
     "nav_prev": "Anterior",
     "nav_next": "Siguiente",
     "present": "Presentar",
+    "rotate_hint": "Gira para verlo más grande",
     "progress_text": "{done} de {total} completados",
     "reset": "REINICIAR",
     "reset_confirm": "¿Reiniciar todo el progreso?",

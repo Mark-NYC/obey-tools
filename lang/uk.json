@@ -904,6 +904,7 @@
     "nav_prev": "Назад",
     "nav_next": "Далі",
     "present": "Презентація",
+    "rotate_hint": "Поверніть для більшого перегляду",
     "progress_text": "Завершено {done} з {total}",
     "reset": "СКИНУТИ",
     "reset_confirm": "Скинути весь прогрес?",

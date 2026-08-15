@@ -904,6 +904,7 @@
     "nav_prev": "Zurück",
     "nav_next": "Weiter",
     "present": "Präsentieren",
+    "rotate_hint": "Zum Vergrößern drehen",
     "progress_text": "{done} von {total} abgeschlossen",
     "reset": "ZURÜCKSETZEN",
     "reset_confirm": "Gesamten Fortschritt zurücksetzen?",
