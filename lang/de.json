@@ -42,7 +42,7 @@
   "index": {
     "conversation_box": "Gesprächsbox",
     "stories_of_hope": "Geschichten der Hoffnung",
-    "four_questions": "4-1-1 (4 Fragen)",
+    "four_questions": "4-1-1 <span class=\"btn-paren\">(4 Fragen)</span>",
     "commands_of_christ": "Gebote Christi",
     "church_circle": "Kirchenkreis",
     "leader_tools": "Leiter-Tools"
@@ -894,7 +894,7 @@
     "share_label_baptisms": "Taufen:"
   },
   "four_questions": {
-    "title": "4-1-1 (4 Fragen)",
+    "title": "4-1-1 <span class=\"ttl-paren\">(4 Fragen)</span>",
     "subtitle": "Starte hier mit neuen Gläubigen <span class=\"green\">(grüne Lichter)</span> oder mit Gläubigen, die trainiert werden müssen, um loszulegen.",
     "tab_intro": "Intro",
     "tab_why": "Warum",
@@ -905,6 +905,7 @@
     "nav_next": "Weiter",
     "present": "Präsentieren",
     "rotate_hint": "Zum Vergrößern drehen",
+    "fullscreen_hint": "Zum Vollbild zum Home-Bildschirm hinzufügen",
     "progress_text": "{done} von {total} abgeschlossen",
     "reset": "ZURÜCKSETZEN",
     "reset_confirm": "Gesamten Fortschritt zurücksetzen?",

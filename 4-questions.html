@@ -10,6 +10,7 @@
     <link rel="icon" type="image/png" sizes="512x512" href="assets/images/favicons/android-chrome-512x512.png">
     <link rel="manifest" href="/manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
     <meta name="apple-mobile-web-app-title" content="Obey Tools">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -135,6 +136,7 @@
   /* ── Page header ── */
   .page-header { width: calc(100% - 32px); max-width: 520px; margin: 12px 16px 0; padding: 20px 24px 16px; text-align: center; }
   .page-header h1 { font-family: 'Bebas Neue', sans-serif; font-size: clamp(34px, 9vw, 52px); font-weight: 400; letter-spacing: 2px; color: #00D084; -webkit-text-stroke: 2px #000; line-height: 1; margin-bottom: 8px; }
+  .page-header h1 .ttl-paren { color: #8e8e93; -webkit-text-stroke: 0; }
   .page-header .subtitle { font-size: 14px; color: #8e8e93; line-height: 1.6; }
   .page-header .subtitle .green { color: #00D084; font-weight: 600; }
   /* ── Tab navigation ── */
@@ -335,6 +337,10 @@
     pointer-events: auto; opacity: 0; transition: opacity 0.25s ease; display: none;
   }
   .pz-hint.show { display: block; opacity: 1; }
+  .pz-hint-install {
+    top: calc(58px + env(safe-area-inset-top)); bottom: auto;
+    max-width: 86vw; white-space: normal; text-align: center;
+  }
   /* ── Mobile / tablet presenter: size to width, fill the small viewport ── */
   @media (max-width: 1023px) {
     body.presenting .tabpanel:not([hidden]) {
@@ -394,7 +400,7 @@
 </div>
 <!-- Page header -->
 <div class="page-header">
-  <h1 data-i18n="four_questions.title">4-1-1 (4 Questions)</h1>
+  <h1 data-i18n-html="four_questions.title">4-1-1 <span class="ttl-paren">(4 Questions)</span></h1>
   <div class="subtitle" data-i18n-html="four_questions.subtitle">Start here with new believers <span class="green">(green lights)</span> or believers who need to be trained in getting started.</div>
 </div>
 <!-- Tab navigation (sticky) -->
@@ -729,7 +735,7 @@
 <div id="presenter-ui" hidden>
   <div class="pz-step" id="pz-step" aria-live="polite"></div>
   <button class="pz-exit" id="pz-exit" type="button" aria-label="Exit presenter mode">✕</button>
-  <div class="pz-hint" id="pz-hint">⤢ <span data-i18n="four_questions.rotate_hint">Rotate for a bigger view</span></div>
+  <div class="pz-hint pz-hint-install" id="pz-install">⤒ <span data-i18n="four_questions.fullscreen_hint">Add to Home Screen for full screen</span></div>
   <div class="pz-controls">
     <button class="pz-btn" id="pz-prev" type="button" aria-label="Previous">‹</button>
     <span class="pz-count" id="pz-count"></span>
@@ -855,7 +861,7 @@
       show(start, 0);
       nextBtn.focus();
       requestWake();
-      maybeRotateHint();
+      maybeInstallHint();
     }
     function exit() {
       if (!body.classList.contains('presenting')) return;
@@ -988,18 +994,24 @@
       if (document.visibilityState === 'visible' && body.classList.contains('presenting')) requestWake();
     });
 
-    // One-time "rotate for a bigger view" nudge on portrait phones.
-    var hintShown = false;
-    var hintEl = document.getElementById('pz-hint');
-    function maybeRotateHint() {
-      if (hintShown || !hintEl) return;
-      if (window.innerWidth < 768 && window.innerHeight > window.innerWidth) {
-        hintShown = true;
-        hintEl.classList.add('show');
-        setTimeout(function () { hintEl.classList.remove('show'); }, 3500);
+    // iOS Safari can't hide its own tab/URL bars — only an installed (Home
+    // Screen / standalone) launch is truly full screen. Nudge iOS Safari users.
+    function isStandalone() {
+      return (window.matchMedia && (matchMedia('(display-mode: standalone)').matches ||
+              matchMedia('(display-mode: fullscreen)').matches)) || window.navigator.standalone === true;
+    }
+    var isIOS = /iP(hone|od|ad)/.test(navigator.userAgent);
+    var installHintShown = false;
+    var installEl = document.getElementById('pz-install');
+    function maybeInstallHint() {
+      if (installHintShown || !installEl) return;
+      if (isIOS && !isStandalone()) {
+        installHintShown = true;
+        installEl.classList.add('show');
+        setTimeout(function () { installEl.classList.remove('show'); }, 5000);
       }
     }
-    hintEl.addEventListener('click', function (e) { e.stopPropagation(); hintEl.classList.remove('show'); });
+    installEl.addEventListener('click', function (e) { e.stopPropagation(); installEl.classList.remove('show'); });
   })();
 </script>
 </body>

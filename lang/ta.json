@@ -42,7 +42,7 @@
   "index": {
     "conversation_box": "உரையாடல் பெட்டி",
     "stories_of_hope": "நம்பிக்கையின் கதைகள்",
-    "four_questions": "4-1-1 (4 கேள்விகள்)",
+    "four_questions": "4-1-1 <span class=\"btn-paren\">(4 கேள்விகள்)</span>",
     "commands_of_christ": "கிறிஸ்துவின் கட்டளைகள்",
     "church_circle": "சபை வட்டம்",
     "leader_tools": "தலைவர் கருவிகள்"
@@ -894,7 +894,7 @@
     "share_label_baptisms": "ஞானஸ்நானங்கள்:"
   },
   "four_questions": {
-    "title": "4-1-1 (4 கேள்விகள்)",
+    "title": "4-1-1 <span class=\"ttl-paren\">(4 கேள்விகள்)</span>",
     "subtitle": "புதிய விசுவாசிகள் <span class=\"green\">(பச்சை விளக்குகள்)</span> அல்லது தொடங்குவதில் பயிற்சி தேவைப்படும் விசுவாசிகளுடன் இங்கே தொடங்குங்கள்.",
     "tab_intro": "அறிமுகம்",
     "tab_why": "ஏன்",
@@ -905,6 +905,7 @@
     "nav_next": "அடுத்து",
     "present": "வழங்கு",
     "rotate_hint": "பெரிதாகக் காண சுழற்றவும்",
+    "fullscreen_hint": "முழுத்திரைக்கு முகப்புத் திரையில் சேர்க்கவும்",
     "progress_text": "{total} இல் {done} முடிந்தது",
     "reset": "மீட்டமை",
     "reset_confirm": "அனைத்து முன்னேற்றத்தையும் மீட்டமைக்கவா?",

@@ -42,7 +42,7 @@
   "index": {
     "conversation_box": "සංවාද පෙට්ටිය",
     "stories_of_hope": "බලාපොරොත්තුවේ කථා",
-    "four_questions": "4-1-1 (ප්‍රශ්න 4)",
+    "four_questions": "4-1-1 <span class=\"btn-paren\">(ප්‍රශ්න 4)</span>",
     "commands_of_christ": "ක්‍රිස්තුස්ගේ ආඥා",
     "church_circle": "සභා කවය",
     "leader_tools": "නායක මෙවලම්"
@@ -894,7 +894,7 @@
     "share_label_baptisms": "බව්තීස්ම:"
   },
   "four_questions": {
-    "title": "4-1-1 (ප්‍රශ්න 4)",
+    "title": "4-1-1 <span class=\"ttl-paren\">(ප්‍රශ්න 4)</span>",
     "subtitle": "නව විශ්වාසවන්තයන් <span class=\"green\">(කොළ එළි)</span> හෝ ආරම්භ කිරීම පුහුණු කළ යුතු විශ්වාසවන්තයන් සමඟ මෙතැනින් අරඹන්න.",
     "tab_intro": "ආරම්භය",
     "tab_why": "ඇයි",
@@ -905,6 +905,7 @@
     "nav_next": "ඊළඟ",
     "present": "ඉදිරිපත් කරන්න",
     "rotate_hint": "විශාල දසුනකට කරකවන්න",
+    "fullscreen_hint": "සම්පූර්ණ තිරය සඳහා මුල් තිරයට එක් කරන්න",
     "progress_text": "{total} න් {done} සම්පූර්ණයි",
     "reset": "යළි සකසන්න",
     "reset_confirm": "සියලු ප්‍රගතිය යළි සකසන්නද?",

@@ -42,7 +42,7 @@
   "index": {
     "conversation_box": "Conversation Box",
     "stories_of_hope": "Stories of Hope",
-    "four_questions": "4-1-1 (4 Questions)",
+    "four_questions": "4-1-1 <span class=\"btn-paren\">(4 Questions)</span>",
     "commands_of_christ": "Commands of Christ",
     "church_circle": "Church Circle",
     "leader_tools": "Leader Tools"
@@ -894,7 +894,7 @@
     "share_label_baptisms": "Baptisms:"
   },
   "four_questions": {
-    "title": "4-1-1 (4 Questions)",
+    "title": "4-1-1 <span class=\"ttl-paren\">(4 Questions)</span>",
     "subtitle": "Start here with new believers <span class=\"green\">(green lights)</span> or believers who need to be trained in getting started.",
     "tab_intro": "Intro",
     "tab_why": "Why",
@@ -905,6 +905,7 @@
     "nav_next": "Next",
     "present": "Present",
     "rotate_hint": "Rotate for a bigger view",
+    "fullscreen_hint": "Add to Home Screen for full screen",
     "progress_text": "{done} of {total} completed",
     "reset": "RESET",
     "reset_confirm": "Reset all progress?",
