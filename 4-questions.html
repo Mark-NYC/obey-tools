@@ -248,6 +248,7 @@
   }
   .present-btn:hover { background: #000; color: #fff; }
   .present-btn:focus-visible { outline: 3px solid #00D084; outline-offset: 2px; }
+  .present-ico { width: 0.8em; height: 0.8em; margin-right: 6px; vertical-align: -1px; }
 
   #presenter-ui[hidden] { display: none; }
   body.presenting { overflow: hidden; }
@@ -346,9 +347,8 @@
     body.presenting #circles-img {
       height: auto !important; width: 94vw !important; max-width: 94vw !important; max-height: 74dvh !important;
     }
-    /* Slightly smaller chrome so it never crowds the diagram on a phone */
-    .pz-btn { width: 52px; height: 52px; font-size: 24px; }
-    .pz-controls { gap: 14px; }
+    /* Mobile uses tap zones + swipe, so drop the on-screen prev/next buttons */
+    body.presenting .pz-btn { display: none; }
   }
 </style>
     <script type="module" src="/i18n.js"></script>
@@ -358,7 +358,7 @@
 <!-- Home button (+ desktop Present) -->
 <div id="home-bar" style="width:100%; display:flex; justify-content:center; align-items:center; gap:12px; padding:20px 0 4px;">
   <a href="index.html" style="display:inline-block; background:#000; color:#fff; font-family:-apple-system,BlinkMacSystemFont,sans-serif; font-weight:700; font-size:17px; padding:12px 28px; border-radius:50px; text-decoration:none;" data-i18n="nav.home">Home</a>
-  <button id="present-btn" class="present-btn" type="button" aria-label="Start presenter mode">▶ <span data-i18n="four_questions.present">Present</span></button>
+  <button id="present-btn" class="present-btn" type="button" aria-label="Start presenter mode"><svg class="present-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 4.5v15l12-7.5z" fill="currentColor"/></svg><span data-i18n="four_questions.present">Present</span></button>
 </div>
 <!-- Auth section -->
 <div class="auth-section" id="auth-section">
