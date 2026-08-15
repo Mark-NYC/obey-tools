@@ -265,6 +265,7 @@
     background: #fff; animation: none;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     padding: 8vh 5vw 12vh;
+    touch-action: none;   /* we handle pan/zoom/swipe ourselves */
   }
   body.presenting .panel-inner {
     background: transparent; box-shadow: none; border-radius: 0;
@@ -319,6 +320,19 @@
     font-size: 20px; min-width: 70px; text-align: center; color: #000;
   }
   .pz-btn:focus-visible, .pz-exit:focus-visible { outline: 3px solid #00D084; outline-offset: 2px; }
+  /* Zoomable media (pinch / wheel) */
+  body.presenting .svg-wrap svg,
+  body.presenting #circles-img { touch-action: none; will-change: transform; }
+  /* Rotate hint (portrait phones) */
+  .pz-hint {
+    position: fixed; left: 50%; transform: translateX(-50%);
+    bottom: calc(94px + env(safe-area-inset-bottom));
+    background: rgba(0,0,0,0.9); color: #fff;
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-size: 13px;
+    padding: 9px 16px; border-radius: 50px; white-space: nowrap;
+    pointer-events: auto; opacity: 0; transition: opacity 0.25s ease; display: none;
+  }
+  .pz-hint.show { display: block; opacity: 1; }
   /* ── Mobile / tablet presenter: size to width, fill the small viewport ── */
   @media (max-width: 1023px) {
     body.presenting .tabpanel:not([hidden]) {
@@ -699,6 +713,7 @@
 <div id="presenter-ui" hidden>
   <div class="pz-step" id="pz-step" aria-live="polite"></div>
   <button class="pz-exit" id="pz-exit" type="button" aria-label="Exit presenter mode">✕</button>
+  <div class="pz-hint" id="pz-hint">⤢ <span data-i18n="four_questions.rotate_hint">Rotate for a bigger view</span></div>
   <div class="pz-controls">
     <button class="pz-btn" id="pz-prev" type="button" aria-label="Previous">‹</button>
     <span class="pz-count" id="pz-count"></span>
@@ -751,6 +766,25 @@
     }
     function maxLevel() { return groups().keys.length; }
 
+    // ── Pinch / wheel zoom + pan on the current diagram ──
+    var zoom = { scale: 1, tx: 0, ty: 0 };
+    function zoomEl() {
+      var p = activePanel(); if (!p) return null;
+      var part = slides[idx].part;
+      var scope = (part && p.querySelector('[data-how="' + part + '"]')) || p;
+      return scope.querySelector('svg') || scope.querySelector('img');
+    }
+    function applyZoom() {
+      var el = zoomEl(); if (!el) return;
+      el.style.transformOrigin = 'center center';
+      el.style.transform = 'translate(' + zoom.tx + 'px,' + zoom.ty + 'px) scale(' + zoom.scale + ')';
+    }
+    function resetZoom() {
+      var el = zoomEl();
+      if (el) el.style.transform = '';
+      zoom.scale = 1; zoom.tx = 0; zoom.ty = 0;
+    }
+
     function updateChrome() {
       countEl.textContent = (idx + 1) + ' / ' + slides.length;
       var label = tabButtons[slides[idx].tab].textContent.trim();
@@ -764,6 +798,7 @@
       nextBtn.disabled = (idx === slides.length - 1 && level >= maxLevel());
     }
     function show(i, lvl) {
+      resetZoom();
       idx = Math.max(0, Math.min(slides.length - 1, i));
       var s = slides[idx];
       window.__ft.selectTab(s.tab, { focus: false, scroll: false });
@@ -775,10 +810,12 @@
       updateChrome();
     }
     function next() {
+      resetZoom();
       if (level < maxLevel()) { level++; applyBuilds(); updateChrome(); }
       else if (idx < slides.length - 1) { show(idx + 1, 0); }
     }
     function prev() {
+      resetZoom();
       if (level > 0) { level--; applyBuilds(); updateChrome(); }
       else if (idx > 0) { show(idx - 1, 'max'); }
     }
@@ -802,6 +839,7 @@
       show(start, 0);
       nextBtn.focus();
       requestWake();
+      maybeRotateHint();
     }
     function exit() {
       if (!body.classList.contains('presenting')) return;
@@ -849,19 +887,46 @@
       if (!document.fullscreenElement) exit();
     });
 
-    // Touch: swipe left/right to change slides, swipe down to exit.
-    var tsx = 0, tsy = 0;
+    // Touch gestures: 2 fingers = pinch-zoom; 1 finger = pan (when zoomed) or
+    // swipe/tap (at 1x). Swipe left/right changes slides; swipe down exits.
+    var gStart = { x: 0, y: 0 }, gMode = null;
+    var gStartDist = 0, gStartScale = 1, gStartTx = 0, gStartTy = 0;
+    function dist(a, b) { return Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY); }
+
     document.addEventListener('touchstart', function (e) {
       if (!body.classList.contains('presenting')) return;
       if (e.target.closest('#presenter-ui')) return;
-      var t = e.changedTouches[0]; tsx = t.clientX; tsy = t.clientY;
+      suppressTap = false;
+      if (e.touches.length === 2) {
+        gMode = 'pinch'; gStartDist = dist(e.touches[0], e.touches[1]); gStartScale = zoom.scale;
+      } else {
+        var t = e.changedTouches[0]; gStart.x = t.clientX; gStart.y = t.clientY;
+        if (zoom.scale > 1) { gMode = 'pan'; gStartTx = zoom.tx; gStartTy = zoom.ty; }
+        else { gMode = 'tap'; }
+      }
     }, { passive: true });
+
+    document.addEventListener('touchmove', function (e) {
+      if (!body.classList.contains('presenting')) return;
+      if (gMode === 'pinch' && e.touches.length >= 2) {
+        zoom.scale = Math.min(4, Math.max(1, gStartScale * (dist(e.touches[0], e.touches[1]) / gStartDist)));
+        applyZoom(); e.preventDefault();
+      } else if (gMode === 'pan' && e.touches.length === 1) {
+        var t = e.touches[0];
+        zoom.tx = gStartTx + (t.clientX - gStart.x);
+        zoom.ty = gStartTy + (t.clientY - gStart.y);
+        applyZoom(); e.preventDefault();
+      }
+    }, { passive: false });
+
     document.addEventListener('touchend', function (e) {
       if (!body.classList.contains('presenting')) return;
       if (e.target.closest('#presenter-ui')) return;
+      if (gMode === 'pinch') { if (zoom.scale <= 1.03) resetZoom(); gMode = null; suppressTap = true; return; }
+      if (gMode === 'pan') { gMode = null; suppressTap = true; return; }
+      gMode = null;
       var t = e.changedTouches[0];
-      var dx = t.clientX - tsx, dy = t.clientY - tsy;
-      var ax = Math.abs(dx), ay = Math.abs(dy);
+      var dx = t.clientX - gStart.x, dy = t.clientY - gStart.y, ax = Math.abs(dx), ay = Math.abs(dy);
       if (ax < 30 && ay < 30) return;   // a tap — let the click handler act
       suppressTap = true;               // a gesture — don't also advance on the click
       if (ax > ay && ax > 50) {
@@ -871,6 +936,27 @@
         exit();
       }
     }, { passive: true });
+
+    // Desktop: wheel to zoom, drag to pan when zoomed.
+    document.addEventListener('wheel', function (e) {
+      if (!body.classList.contains('presenting')) return;
+      if (e.target.closest('#presenter-ui') || !zoomEl()) return;
+      e.preventDefault();
+      zoom.scale = Math.min(4, Math.max(1, zoom.scale * (e.deltaY < 0 ? 1.12 : 1 / 1.12)));
+      if (zoom.scale === 1) { zoom.tx = 0; zoom.ty = 0; }
+      applyZoom();
+    }, { passive: false });
+    var mDrag = false, mdx = 0, mdy = 0, mtx = 0, mty = 0;
+    document.addEventListener('mousedown', function (e) {
+      if (!body.classList.contains('presenting')) return;
+      if (e.target.closest('#presenter-ui') || zoom.scale <= 1) return;
+      mDrag = true; mdx = e.clientX; mdy = e.clientY; mtx = zoom.tx; mty = zoom.ty;
+    });
+    document.addEventListener('mousemove', function (e) {
+      if (!mDrag) return;
+      zoom.tx = mtx + (e.clientX - mdx); zoom.ty = mty + (e.clientY - mdy); applyZoom();
+    });
+    document.addEventListener('mouseup', function () { if (mDrag) { mDrag = false; suppressTap = true; } });
 
     // Keep the screen awake while presenting (mobile teaching sessions).
     var wakeLock = null;
@@ -885,6 +971,19 @@
     document.addEventListener('visibilitychange', function () {
       if (document.visibilityState === 'visible' && body.classList.contains('presenting')) requestWake();
     });
+
+    // One-time "rotate for a bigger view" nudge on portrait phones.
+    var hintShown = false;
+    var hintEl = document.getElementById('pz-hint');
+    function maybeRotateHint() {
+      if (hintShown || !hintEl) return;
+      if (window.innerWidth < 768 && window.innerHeight > window.innerWidth) {
+        hintShown = true;
+        hintEl.classList.add('show');
+        setTimeout(function () { hintEl.classList.remove('show'); }, 3500);
+      }
+    }
+    hintEl.addEventListener('click', function (e) { e.stopPropagation(); hintEl.classList.remove('show'); });
   })();
 </script>
 </body>

@@ -904,6 +904,7 @@
     "nav_prev": "Назад",
     "nav_next": "Далее",
     "present": "Презентация",
+    "rotate_hint": "Поверните для увеличения",
     "progress_text": "{done} из {total} выполнено",
     "reset": "СБРОСИТЬ",
     "reset_confirm": "Сбросить весь прогресс?",

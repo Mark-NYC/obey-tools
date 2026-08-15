@@ -904,6 +904,7 @@
     "nav_prev": "अघिल्लो",
     "nav_next": "अर्को",
     "present": "प्रस्तुत",
+    "rotate_hint": "ठूलो दृश्यका लागि घुमाउनुहोस्",
     "progress_text": "{total} मध्ये {done} पूरा भयो",
     "reset": "रिसेट",
     "reset_confirm": "सबै प्रगति रिसेट गर्ने?",
