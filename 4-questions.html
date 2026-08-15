@@ -205,24 +205,25 @@
   }
   .panel-nav.only-next { justify-content: flex-end; }
   .panel-nav.only-prev { justify-content: flex-start; }
+  /* Section Prev/Next: understated inline text links, not pill buttons */
   .pn-btn {
     font-family: 'Bebas Neue', sans-serif;
     font-size: clamp(14px, 3.6vw, 17px);
     letter-spacing: 0.06em;
     text-transform: uppercase;
     min-height: 44px;
-    padding: 12px 22px;
-    border-radius: 50px;
-    border: 2px solid #000;
-    background: #fff;
-    color: #000;
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 4px;
+    border: none;
+    background: none;
+    color: #3a3a3c;
     cursor: pointer;
-    transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
+    -webkit-tap-highlight-color: transparent;
+    transition: color 0.15s ease, opacity 0.1s ease;
   }
-  .pn-next { background: #000; color: #fff; }
-  .pn-prev:hover { background: #f2f2f7; }
-  .pn-next:hover { background: #00D084; border-color: #00D084; color: #000; }
-  .pn-btn:active { transform: scale(0.97); }
+  .pn-btn:hover { color: #000; }
+  .pn-btn:active { opacity: 0.55; }
   .pn-btn:focus-visible {
     outline: 3px solid #00D084;
     outline-offset: 2px;
@@ -347,8 +348,9 @@
     body.presenting #circles-img {
       height: auto !important; width: 94vw !important; max-width: 94vw !important; max-height: 74dvh !important;
     }
-    /* Mobile uses tap zones + swipe, so drop the on-screen prev/next buttons */
-    body.presenting .pz-btn { display: none; }
+    /* Slightly smaller presenter chrome so it never crowds the diagram */
+    .pz-btn { width: 52px; height: 52px; font-size: 24px; }
+    .pz-controls { gap: 14px; }
   }
 </style>
     <script type="module" src="/i18n.js"></script>
