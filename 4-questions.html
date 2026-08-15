@@ -352,6 +352,20 @@
     .pz-btn { width: 52px; height: 52px; font-size: 24px; }
     .pz-controls { gap: 14px; }
   }
+  /* Landscape phone: viewport is short, so height is the limiting dimension —
+     size the media by height (like desktop) and reserve room for the chrome. */
+  @media (max-width: 1023px) and (orientation: landscape) {
+    body.presenting .tabpanel:not([hidden]) {
+      padding: calc(50px + env(safe-area-inset-top)) 5vw calc(78px + env(safe-area-inset-bottom));
+    }
+    body.presenting .svg-wrap svg {
+      width: auto; height: 54dvh; max-height: 54dvh; max-width: 92vw;
+    }
+    body.presenting #circles-img {
+      height: auto !important; width: auto !important; max-height: 56dvh !important; max-width: 84vw !important;
+    }
+    body.presenting .verse { font-size: clamp(20px, 3vh, 34px); margin-top: 4px; }
+  }
 </style>
     <script type="module" src="/i18n.js"></script>
     <script src="/pwa.js" defer></script>
