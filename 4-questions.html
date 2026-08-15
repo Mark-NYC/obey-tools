@@ -136,6 +136,7 @@
   /* ── Page header ── */
   .page-header { width: calc(100% - 32px); max-width: 520px; margin: 12px 16px 0; padding: 20px 24px 16px; text-align: center; }
   .page-header h1 { font-family: 'Bebas Neue', sans-serif; font-size: clamp(34px, 9vw, 52px); font-weight: 400; letter-spacing: 2px; color: #00D084; -webkit-text-stroke: 2px #000; line-height: 1; margin-bottom: 8px; }
+  .page-header h1 .ttl-paren { color: #8e8e93; -webkit-text-stroke: 0; }
   .page-header .subtitle { font-size: 14px; color: #8e8e93; line-height: 1.6; }
   .page-header .subtitle .green { color: #00D084; font-weight: 600; }
   /* ── Tab navigation ── */
@@ -399,7 +400,7 @@
 </div>
 <!-- Page header -->
 <div class="page-header">
-  <h1 data-i18n="four_questions.title">4-1-1 (4 Questions)</h1>
+  <h1 data-i18n-html="four_questions.title">4-1-1 <span class="ttl-paren">(4 Questions)</span></h1>
   <div class="subtitle" data-i18n-html="four_questions.subtitle">Start here with new believers <span class="green">(green lights)</span> or believers who need to be trained in getting started.</div>
 </div>
 <!-- Tab navigation (sticky) -->
