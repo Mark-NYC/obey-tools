@@ -917,6 +917,7 @@
     "nav_next": "Next",
     "present": "Present",
     "rotate_hint": "Rotate for a bigger view",
+    "fullscreen_hint": "Add to Home Screen for full screen",
     "progress_text": "{done} of {total} completed",
     "reset": "RESET",
     "reset_confirm": "Reset all progress?",

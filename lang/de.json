@@ -905,6 +905,7 @@
     "nav_next": "Weiter",
     "present": "Präsentieren",
     "rotate_hint": "Zum Vergrößern drehen",
+    "fullscreen_hint": "Zum Vollbild zum Home-Bildschirm hinzufügen",
     "progress_text": "{done} von {total} abgeschlossen",
     "reset": "ZURÜCKSETZEN",
     "reset_confirm": "Gesamten Fortschritt zurücksetzen?",
