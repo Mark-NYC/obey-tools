@@ -42,7 +42,7 @@
   "index": {
     "conversation_box": "Блок разговоров",
     "stories_of_hope": "Истории надежды",
-    "four_questions": "4-1-1 <span class=\"btn-paren\">(4 вопроса)</span>",
+    "four_questions": "4-1-1 (4 вопроса)",
     "commands_of_christ": "Заповеди Христа",
     "church_circle": "Церковный круг",
     "leader_tools": "Инструменты лидера"
@@ -894,7 +894,8 @@
     "share_label_baptisms": "Крещения:"
   },
   "four_questions": {
-    "title": "4-1-1 <span class=\"ttl-paren\">(4 вопроса)</span>",
+    "title": "4-1-1 (4 вопроса)",
+    "title_paren": "(4 вопроса)",
     "subtitle": "Начните здесь с новыми верующими <span class=\"green\">(зелёный свет)</span> или верующими, которым нужно обучение начальным шагам.",
     "tab_intro": "Обзор",
     "tab_why": "Почему",

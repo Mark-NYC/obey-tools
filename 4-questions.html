@@ -89,9 +89,9 @@
   .when-title {
     font-family: 'Amatic SC', cursive;
     font-weight: 700;
-    font-size: clamp(52px, 8vw, 68px);
-    color: #111;
-    letter-spacing: 0.08em;
+    font-size: clamp(28px, 7vw, 36px);
+    color: #aaa;
+    letter-spacing: 0.1em;
     margin-bottom: 6px;
   }
   .goals-label {
@@ -284,9 +284,13 @@
   /* In-card section labels are redundant with the step heading — hide them */
   body.presenting .label-top,
   body.presenting .section-number { display: none; }
+  /* Keep the "Identity" label on the Why slide */
+  body.presenting #panel-why .label-top {
+    display: block; font-size: clamp(18px, 2.4vw, 30px); color: #555; margin-bottom: 16px;
+  }
   /* Larger type for screen-share readability */
   body.presenting .verse { font-size: clamp(36px, 5vw, 64px); }
-  body.presenting .when-title { font-size: clamp(64px, 10vw, 128px); }
+  body.presenting .when-title { font-size: clamp(64px, 10vw, 128px); color: #111; }
   body.presenting .goals-label { font-size: clamp(24px, 3.5vw, 46px); }
   body.presenting .goal-item { font-size: clamp(40px, 6vw, 84px); min-width: 36vw; }
   /* How: show one tool at a time */
@@ -400,7 +404,7 @@
 </div>
 <!-- Page header -->
 <div class="page-header">
-  <h1 data-i18n-html="four_questions.title">4-1-1 <span class="ttl-paren">(4 Questions)</span></h1>
+  <h1 aria-label="4-1-1 (4 Questions)">4-1-1 <span class="ttl-paren" data-i18n="four_questions.title_paren">(4 Questions)</span></h1>
   <div class="subtitle" data-i18n-html="four_questions.subtitle">Start here with new believers <span class="green">(green lights)</span> or believers who need to be trained in getting started.</div>
 </div>
 <!-- Tab navigation (sticky) -->
@@ -433,21 +437,21 @@
           fill="none" stroke="#111" stroke-width="0.9" stroke-linejoin="round" opacity="0.3" filter="url(#pen1)"/>
         <text x="241" y="40" font-family="'Bebas Neue', sans-serif" font-size="27" fill="#111" text-anchor="middle" letter-spacing="1" data-i18n="four_questions.diagram.read_matthew">READ MATTHEW 28:18-20</text>
         <text x="241" y="60" font-family="Arial, sans-serif" font-size="18" fill="#333" text-anchor="middle" data-i18n="four_questions.diagram.primary_command_q">What is the primary command?</text>
-        <text x="241" y="80" font-family="Arial, sans-serif" font-size="18" fill="#333" text-anchor="middle" data-i18n="four_questions.diagram.primary_command_a">="Go... Make Disciples"</text>
+        <text x="241" y="80" font-family="Arial, sans-serif" font-size="18" fill="#333" text-anchor="middle" data-build="1" data-i18n="four_questions.diagram.primary_command_a">="Go... Make Disciples"</text>
         <text x="241" y="128" font-family="Arial, sans-serif" font-size="18" fill="#999" text-anchor="middle" data-i18n="four_questions.diagram.need_answers">We need answers to the following in order</text>
         <text x="241" y="150" font-family="Arial, sans-serif" font-size="18" fill="#999" text-anchor="middle" data-i18n="four_questions.diagram.to_obey">to obey this command:</text>
-        <ellipse cx="115" cy="200" rx="26" ry="17" fill="white" stroke="#111" stroke-width="2.2" data-build="1" filter="url(#pen1)"/>
-        <ellipse cx="115" cy="248" rx="26" ry="17" fill="white" stroke="#111" stroke-width="2.2" data-build="2" filter="url(#pen1)"/>
-        <ellipse cx="115" cy="296" rx="26" ry="17" fill="white" stroke="#111" stroke-width="2.2" data-build="3" filter="url(#pen1)"/>
-        <ellipse cx="115" cy="344" rx="26" ry="17" fill="white" stroke="#111" stroke-width="2.2" data-build="4" filter="url(#pen1)"/>
-        <text x="115" y="206" font-family="'Amatic SC',cursive" font-weight="700" font-size="19" fill="#111" stroke="#111" stroke-width="0.6" paint-order="stroke" text-anchor="middle" data-build="1">1</text>
-        <text x="115" y="254" font-family="'Amatic SC',cursive" font-weight="700" font-size="19" fill="#111" stroke="#111" stroke-width="0.6" paint-order="stroke" text-anchor="middle" data-build="2">2</text>
-        <text x="115" y="302" font-family="'Amatic SC',cursive" font-weight="700" font-size="19" fill="#111" stroke="#111" stroke-width="0.6" paint-order="stroke" text-anchor="middle" data-build="3">3</text>
-        <text x="115" y="350" font-family="'Amatic SC',cursive" font-weight="700" font-size="19" fill="#111" stroke="#111" stroke-width="0.6" paint-order="stroke" text-anchor="middle" data-build="4">4</text>
-        <text x="159" y="208" font-family="'Amatic SC',cursive" font-weight="700" font-size="32" fill="#111" stroke="#111" stroke-width="0.9" paint-order="stroke" text-anchor="start" data-build="1" data-i18n="four_questions.diagram.why">WHY?</text>
-        <text x="159" y="256" font-family="'Amatic SC',cursive" font-weight="700" font-size="32" fill="#111" stroke="#111" stroke-width="0.9" paint-order="stroke" text-anchor="start" data-build="2" data-i18n="four_questions.diagram.who">WHO?</text>
-        <text x="159" y="304" font-family="'Amatic SC',cursive" font-weight="700" font-size="32" fill="#111" stroke="#111" stroke-width="0.9" paint-order="stroke" text-anchor="start" data-build="3" data-i18n="four_questions.diagram.how">HOW?</text>
-        <text x="159" y="352" font-family="'Amatic SC',cursive" font-weight="700" font-size="32" fill="#111" stroke="#111" stroke-width="0.9" paint-order="stroke" text-anchor="start" data-build="4" data-i18n="four_questions.diagram.when">WHEN?</text>
+        <ellipse cx="115" cy="200" rx="26" ry="17" fill="white" stroke="#111" stroke-width="2.2" data-build="2" filter="url(#pen1)"/>
+        <ellipse cx="115" cy="248" rx="26" ry="17" fill="white" stroke="#111" stroke-width="2.2" data-build="3" filter="url(#pen1)"/>
+        <ellipse cx="115" cy="296" rx="26" ry="17" fill="white" stroke="#111" stroke-width="2.2" data-build="4" filter="url(#pen1)"/>
+        <ellipse cx="115" cy="344" rx="26" ry="17" fill="white" stroke="#111" stroke-width="2.2" data-build="5" filter="url(#pen1)"/>
+        <text x="115" y="206" font-family="'Amatic SC',cursive" font-weight="700" font-size="19" fill="#111" stroke="#111" stroke-width="0.6" paint-order="stroke" text-anchor="middle" data-build="2">1</text>
+        <text x="115" y="254" font-family="'Amatic SC',cursive" font-weight="700" font-size="19" fill="#111" stroke="#111" stroke-width="0.6" paint-order="stroke" text-anchor="middle" data-build="3">2</text>
+        <text x="115" y="302" font-family="'Amatic SC',cursive" font-weight="700" font-size="19" fill="#111" stroke="#111" stroke-width="0.6" paint-order="stroke" text-anchor="middle" data-build="4">3</text>
+        <text x="115" y="350" font-family="'Amatic SC',cursive" font-weight="700" font-size="19" fill="#111" stroke="#111" stroke-width="0.6" paint-order="stroke" text-anchor="middle" data-build="5">4</text>
+        <text x="159" y="208" font-family="'Amatic SC',cursive" font-weight="700" font-size="32" fill="#111" stroke="#111" stroke-width="0.9" paint-order="stroke" text-anchor="start" data-build="2" data-i18n="four_questions.diagram.why">WHY?</text>
+        <text x="159" y="256" font-family="'Amatic SC',cursive" font-weight="700" font-size="32" fill="#111" stroke="#111" stroke-width="0.9" paint-order="stroke" text-anchor="start" data-build="3" data-i18n="four_questions.diagram.who">WHO?</text>
+        <text x="159" y="304" font-family="'Amatic SC',cursive" font-weight="700" font-size="32" fill="#111" stroke="#111" stroke-width="0.9" paint-order="stroke" text-anchor="start" data-build="4" data-i18n="four_questions.diagram.how">HOW?</text>
+        <text x="159" y="352" font-family="'Amatic SC',cursive" font-weight="700" font-size="32" fill="#111" stroke="#111" stroke-width="0.9" paint-order="stroke" text-anchor="start" data-build="5" data-i18n="four_questions.diagram.when">WHEN?</text>
       </svg>
     </div>
   </div>
@@ -566,7 +570,7 @@
         </g>
       </svg>
     </div>
-    <div class="verse" data-i18n="four_questions.section3_verse">*JOHN 17:20</div>
+    <div class="verse" data-build="5" data-i18n="four_questions.section3_verse">*JOHN 17:20</div>
   </div>
   <nav class="panel-nav" aria-label="Section navigation">
     <button class="pn-btn pn-prev" data-goto="1">‹ <span data-i18n="four_questions.nav_prev">Previous</span></button>
