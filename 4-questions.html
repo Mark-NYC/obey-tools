@@ -734,7 +734,6 @@
 <div id="presenter-ui" hidden>
   <div class="pz-step" id="pz-step" aria-live="polite"></div>
   <button class="pz-exit" id="pz-exit" type="button" aria-label="Exit presenter mode">✕</button>
-  <div class="pz-hint" id="pz-hint">⤢ <span data-i18n="four_questions.rotate_hint">Rotate for a bigger view</span></div>
   <div class="pz-hint pz-hint-install" id="pz-install">⤒ <span data-i18n="four_questions.fullscreen_hint">Add to Home Screen for full screen</span></div>
   <div class="pz-controls">
     <button class="pz-btn" id="pz-prev" type="button" aria-label="Previous">‹</button>
@@ -861,7 +860,6 @@
       show(start, 0);
       nextBtn.focus();
       requestWake();
-      maybeRotateHint();
       maybeInstallHint();
     }
     function exit() {
@@ -994,19 +992,6 @@
     document.addEventListener('visibilitychange', function () {
       if (document.visibilityState === 'visible' && body.classList.contains('presenting')) requestWake();
     });
-
-    // One-time "rotate for a bigger view" nudge on portrait phones.
-    var hintShown = false;
-    var hintEl = document.getElementById('pz-hint');
-    function maybeRotateHint() {
-      if (hintShown || !hintEl) return;
-      if (window.innerWidth < 768 && window.innerHeight > window.innerWidth) {
-        hintShown = true;
-        hintEl.classList.add('show');
-        setTimeout(function () { hintEl.classList.remove('show'); }, 3500);
-      }
-    }
-    hintEl.addEventListener('click', function (e) { e.stopPropagation(); hintEl.classList.remove('show'); });
 
     // iOS Safari can't hide its own tab/URL bars — only an installed (Home
     // Screen / standalone) launch is truly full screen. Nudge iOS Safari users.
