@@ -1,0 +1,157 @@
+{
+  "generated_at": "2026-08-17T22:12:40.567Z",
+  "source": "en",
+  "totals": {
+    "languages": 10,
+    "english_keys": 766
+  },
+  "value_types": {
+    "string": 762,
+    "html": 4
+  },
+  "array_groups": [
+    "cmd_study.steps.1.flow",
+    "cmd_study.steps.2.flow",
+    "cmd_study.steps.3.flow",
+    "cmd_study.steps.5.flow",
+    "cmd_study.steps.6.flow",
+    "cmd_study.steps.7.flow",
+    "cmd_study.steps.8.flow",
+    "story_study.steps.1.flow",
+    "story_study.steps.2.flow",
+    "story_study.steps.4.flow",
+    "story_study.steps.5.flow",
+    "story_study.steps.6.flow",
+    "story_study.steps.7.flow",
+    "story_study.steps.8.flow"
+  ],
+  "html_keys": [
+    {
+      "key": "cmd_study.steps.3.flow.1.1",
+      "signature": "<br><a class=conversation-box-link href=https://obey.tools/conversation-box.html rel=noopener target=_blank><span aria-hidden=true></span></a>␞"
+    },
+    {
+      "key": "story_study.steps.2.flow.1.1",
+      "signature": "<br><a class=conversation-box-link href=https://obey.tools/conversation-box.html rel=noopener target=_blank><span aria-hidden=true></span></a>␞"
+    },
+    {
+      "key": "how_were_doing.popup_convos_type",
+      "signature": "<br>␞n,type"
+    },
+    {
+      "key": "four_questions.subtitle",
+      "signature": "<span class=green></span>␞"
+    }
+  ],
+  "languages": {
+    "bn": {
+      "leaf_count": 766,
+      "matched": 766,
+      "missing": 0,
+      "orphans": 0,
+      "placeholder_issues": 0,
+      "html_issues": 0
+    },
+    "bo": {
+      "leaf_count": 778,
+      "matched": 766,
+      "missing": 0,
+      "orphans": 12,
+      "placeholder_issues": 0,
+      "html_issues": 1
+    },
+    "de": {
+      "leaf_count": 766,
+      "matched": 766,
+      "missing": 0,
+      "orphans": 0,
+      "placeholder_issues": 0,
+      "html_issues": 0
+    },
+    "es": {
+      "leaf_count": 766,
+      "matched": 766,
+      "missing": 0,
+      "orphans": 0,
+      "placeholder_issues": 0,
+      "html_issues": 0
+    },
+    "ne": {
+      "leaf_count": 766,
+      "matched": 766,
+      "missing": 0,
+      "orphans": 0,
+      "placeholder_issues": 0,
+      "html_issues": 0
+    },
+    "ru": {
+      "leaf_count": 766,
+      "matched": 766,
+      "missing": 0,
+      "orphans": 0,
+      "placeholder_issues": 0,
+      "html_issues": 0
+    },
+    "si": {
+      "leaf_count": 766,
+      "matched": 766,
+      "missing": 0,
+      "orphans": 0,
+      "placeholder_issues": 0,
+      "html_issues": 0
+    },
+    "ta": {
+      "leaf_count": 766,
+      "matched": 766,
+      "missing": 0,
+      "orphans": 0,
+      "placeholder_issues": 0,
+      "html_issues": 0
+    },
+    "uk": {
+      "leaf_count": 766,
+      "matched": 766,
+      "missing": 0,
+      "orphans": 0,
+      "placeholder_issues": 0,
+      "html_issues": 0
+    }
+  },
+  "roundtrip": {
+    "bn": "IDENTICAL",
+    "bo": "IDENTICAL",
+    "de": "IDENTICAL",
+    "es": "IDENTICAL",
+    "ne": "IDENTICAL",
+    "ru": "IDENTICAL",
+    "si": "IDENTICAL",
+    "ta": "IDENTICAL",
+    "uk": "IDENTICAL",
+    "en": "IDENTICAL"
+  },
+  "orphans": {
+    "bo": [
+      "settings.theme",
+      "settings.language",
+      "settings.english",
+      "settings.spanish",
+      "settings.ukrainian",
+      "settings.nepali",
+      "settings.bangla",
+      "settings.tibetan",
+      "section_keys.casual",
+      "section_keys.meaningful",
+      "section_keys.spiritual",
+      "mawl.subtitle"
+    ]
+  },
+  "placeholder_issues": {},
+  "html_issues": {
+    "bo": [
+      {
+        "key": "four_questions.subtitle",
+        "kind": "markup_drift"
+      }
+    ]
+  }
+}
