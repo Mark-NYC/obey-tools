@@ -58,11 +58,56 @@ node tests/translations/run.mjs
   (`settings.*` ×8, `section_keys.*` ×3, `mawl.subtitle`) are reported and never
   imported, promoted, or published.
 
-## Two items need a human decision (see report.md)
+## Locked decisions (v1)
 
-1. **`bo.four_questions.subtitle`** uses four `<span class="green">` wrappers
-   where English has one. Strict markup-lock (the binding rule) blocks it, so it
-   imports as `needs_review`. Decide: keep strict structural-equality, or relax
-   to an allowlist that permits repeating an already-approved tag/class.
-2. **HTML validation depth.** Signature comparison (regex) covers today's 4 HTML
-   keys. If future keys use richer markup, a parser (Edge Function) may be needed.
+1. **Strict structural equality for HTML.** No allowlist for repeated
+   tags/classes. `bo.four_questions.subtitle` (four `<span class="green">` vs
+   one) stays `needs_review` until its markup is normalized to the English
+   structure — the Tibetan content gets fixed, the invariant does not weaken.
+2. **Signature-based HTML validation is the v1 boundary.** v1 supports the
+   current constrained HTML vocabulary and requires structural signature
+   equality (tag names, attributes, classes, nesting, and placeholders must
+   match English exactly; only text nodes may change). This is sufficient for
+   the 4 HTML keys we have today. **If richer or nested markup is introduced
+   later, move to parser-based structural comparison _before_ allowing that
+   markup to publish.** The parser is intentionally NOT built now.
+
+---
+
+# Phase 1 — private admin dashboard & editor
+
+Adds the internal translation-management tool. **Still no runtime changes**: the
+public site keeps serving static `/lang/*.json`; nothing is published.
+
+| File | Purpose |
+|---|---|
+| `05_phase1_admin.sql` | `translation_language_stats` view (RLS-scoped) + admin RPCs `assign_translator_by_email`, `list_translation_access` |
+| `06_phase1_authz_tests.sql` | Phase 1 authorization proofs (self-rolls-back) |
+| `../../translations-admin.html` | The admin page (self-gating; not linked from public nav) |
+| `../../translations-admin.js` | Dashboard + editor logic; reads RLS-scoped, mutates only via Phase 0 RPCs |
+| `../../tools/i18n/status.mjs` | Shared pure derived-state/validation (editor + tests) |
+| `../../tests/translations/phase1.mjs` | Phase 1 logic proofs |
+
+Reach the tool at `/translations-admin.html`. Access requires either
+`profiles.is_translation_admin = true` (admin) or a `translator_language_access`
+row (translator). The `leader` role grants nothing here.
+
+Apply order (after Phase 0): `05_phase1_admin.sql`, then verify with
+`06_phase1_authz_tests.sql`.
+
+## What the tool does
+
+- **Dashboard:** per-language translated %/approved %, missing, outdated,
+  needs-review, published version; a quarantined-orphan banner.
+- **Editor:** English source read-only beside an editable translation; key path,
+  area/namespace context; search; area filter; All/Missing/Draft/Needs
+  review/Approved/Outdated/Invalid filters; live completion + approved progress;
+  per-key badges (missing/draft/needs-review/approved, plus outdated / invalid /
+  "will publish"); inline validation reasons.
+- **Atomic arrays** render as one bordered unit with an all-or-English banner:
+  if any cell is missing/unapproved/outdated/invalid, the banner states the
+  whole group falls back to English. Every flow cell is treated as translatable.
+- **Workflow:** Save draft → Submit for review → (admin) Approve/Reject, all via
+  the Phase 0 RPCs.
+- **Admin:** assign/revoke translators by email; orphan diagnostics (read-only,
+  cannot enter the workflow).

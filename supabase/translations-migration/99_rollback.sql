@@ -8,6 +8,10 @@
 
 begin;
 
+drop view if exists public.translation_language_stats;
+drop function if exists public.assign_translator_by_email(text,text);
+drop function if exists public.list_translation_access();
+
 drop view if exists public.public_releases;
 drop view if exists public.public_languages;
 
