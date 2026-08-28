@@ -10,6 +10,7 @@
 
 const LANG_KEY = 'obeytools_lang'
 const DEFAULT  = 'en'
+const RTL_LANGS = new Set(['ar'])
 
 let _lang    = localStorage.getItem(LANG_KEY) || DEFAULT
 let _strings = {}
@@ -73,6 +74,7 @@ export function applyTranslations() {
         if (val !== el.dataset.i18nAriaLabel) el.setAttribute('aria-label', val)
     })
     document.documentElement.lang = _lang
+    document.documentElement.dir = RTL_LANGS.has(_lang) ? 'rtl' : 'ltr'
 }
 
 // ── Initialisation ──────────────────────────────────────────────────────────
