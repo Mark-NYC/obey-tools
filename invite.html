@@ -148,19 +148,19 @@
 
         /* Page header */
         .page-header { padding: 28px 16px 20px; background: #fff; text-align: center; border-bottom: 0.5px solid #c6c6c8; }
-        .page-title { font-family: 'Bebas Neue', cursive; font-size: 52px; font-weight: 400; letter-spacing: 2px; color: #00D084; -webkit-text-stroke: 2px #000; }
-        .accent-bar { width: 48px; height: 5px; background: #00B884; border-radius: 3px; margin: 12px auto 0; }
+        .page-title { font-family: 'Bebas Neue', cursive; font-size: 52px; font-weight: 400; letter-spacing: 2px; color: var(--ot-accent); -webkit-text-stroke: 2px #000; }
+        .accent-bar { width: 48px; height: 5px; background: var(--ot-accent); border-radius: 3px; margin: 12px auto 0; }
 
         /* State sections */
         .state-section { padding: 48px 24px; text-align: center; }
         .state-indicator { width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 24px; font-weight: 700; }
-        .state-indicator.success { background: #00B884; color: #fff; }
+        .state-indicator.success { background: var(--ot-accent); color: #fff; }
         .state-indicator.warning { background: #f2f2f7; color: #3a3a3c; border: 2px solid #c6c6c8; }
         .state-indicator.pending { background: #f2f2f7; color: #8e8e93; }
         .state-title { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
         .state-msg { font-size: 15px; color: #6e6e73; margin-bottom: 28px; }
         .state-btn { display: inline-block; background: #000; color: #fff; font-weight: 700; font-size: 15px; padding: 13px 32px; border-radius: 50px; text-decoration: none; }
-        .state-btn.green { background: #00B884; }
+        .state-btn.green { background: var(--ot-accent); }
 
         /* Auth form inside login state */
         .auth-form { text-align: left; margin-top: 24px; }
@@ -178,6 +178,7 @@
     </style>
     <script type="module" src="/i18n.js"></script>
     <script src="/pwa.js" defer></script>
+    <link rel="stylesheet" href="/buttons.css">
 </head>
 <body>
 
