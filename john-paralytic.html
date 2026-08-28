@@ -31,12 +31,12 @@
         body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif; background: #f2f2f7; min-height: 100vh; color: #000; line-height: 1.5; padding-bottom: 100px; }
         .container { max-width: 430px; margin: 0 auto; background: #ffffff; min-height: 100vh; }
         .header { padding: 30px 20px 20px; background: #f2f2f7; border-bottom: 0.5px solid #c6c6c8; text-align: center; }
-        .header h1 { font-family: 'Bebas Neue', cursive; font-size: 42px; font-weight: 400; margin-bottom: 8px; letter-spacing: 2px; color: #FCB900; -webkit-text-stroke: 2px #000; }
+        .header h1 { font-family: 'Bebas Neue', cursive; font-size: 42px; font-weight: 400; margin-bottom: 8px; letter-spacing: 2px; color: var(--ot-accent-gold); -webkit-text-stroke: 2px #000; }
         .header .scripture { font-size: 15px; color: #8e8e93; font-weight: 500; }
 .scripture { text-wrap: balance; } /* P3: break between references, not inside one */
         .progress-bar-container { padding: 16px 20px; background: #fff; border-bottom: 0.5px solid #c6c6c8; }
         .progress-bar { height: 8px; background: #e5e5ea; border-radius: 4px; overflow: hidden; }
-        .progress-fill { height: 100%; background: #FCB900; width: 0%; transition: width 0.5s ease; }
+        .progress-fill { height: 100%; background: var(--ot-accent-gold); width: 0%; transition: width 0.5s ease; }
         .progress-text { margin-top: 8px; font-size: 13px; color: #8e8e93; text-align: center; font-weight: 500; }
         .content { padding: 16px; }
         .section-divider { display: flex; align-items: center; gap: 12px; margin: 24px 0 12px; padding: 0 4px; }
@@ -45,7 +45,7 @@
         .card { background: #fff; margin-bottom: 12px; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); user-select: none; }
         .card-main { cursor: pointer; transition: all 0.3s ease; }
         .card-main:active { transform: scale(0.98); }
-        .card.completed .card-main { background: #FCB900; }
+        .card.completed .card-main { background: var(--ot-accent-gold); }
         .card-content { padding: 18px 20px; display: flex; align-items: center; gap: 16px; }
         .card-icon { width: 48px; height: 48px; border-radius: 10px; background-size: cover; background-position: center; flex-shrink: 0; transition: all 0.3s ease; }
         .card.completed .card-icon { box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
@@ -61,9 +61,9 @@
         .card.completed .card-main .card-description { color: rgba(255,255,255,0.9); }
         .card-checkbox { width: 28px; height: 28px; border: 2px solid #c6c6c8; border-radius: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.3s ease; }
         .card.completed .card-main .card-checkbox { background: #fff; border-color: #fff; }
-        .card-checkbox::after { content: '✓'; color: #FCB900; font-size: 18px; font-weight: 700; opacity: 0; transform: scale(0); transition: all 0.2s ease; }
+        .card-checkbox::after { content: '✓'; color: var(--ot-accent-gold); font-size: 18px; font-weight: 700; opacity: 0; transform: scale(0); transition: all 0.2s ease; }
         .card.completed .card-main .card-checkbox::after { opacity: 1; transform: scale(1); }
-        .bible-btn { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 7px 12px; background: #f2f2f7; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; color: #3a3a3c; transition: background 0.2s ease; white-space: nowrap; flex-shrink: 0; }
+        .bible-btn { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 7px 12px; background: var(--ot-secondary); border: none; border-radius: var(--ot-radius); cursor: pointer; font-size: 13px; font-weight: 700; color: var(--ot-secondary-ink); transition: background 0.2s ease; white-space: nowrap; flex-shrink: 0; }
         .card.completed .card-main .bible-btn { background: rgba(255,255,255,0.25); color: #fff; }
         .bible-btn:active { background: #e5e5ea; }
         .bible-btn-desktop { display: none; }
@@ -79,7 +79,7 @@
         .bible-verse { font-size: 14px; line-height: 1.65; color: #3a3a3c; margin-bottom: 6px; }
         .verse-num { font-size: 11px; font-weight: 700; vertical-align: super; margin-right: 2px; opacity: 0.6; }
         .reset-section { background: #fff; border-top: 0.5px solid #c6c6c8; padding: 16px; padding-bottom: calc(16px + env(safe-area-inset-bottom)); }
-        .btn { width: 100%; padding: 14px; border: none; border-radius: 8px; font-weight: 600; font-size: 15px; cursor: pointer; background: #f2f2f7; color: #3a3a3c; transition: all 0.2s ease; }
+        .btn { width: 100%; padding: 14px; border: none; border-radius: var(--ot-radius); font-weight: 700; font-size: 15px; cursor: pointer; background: var(--ot-secondary); color: var(--ot-secondary-ink); transition: all 0.2s ease; }
         .btn:active { background: #e5e5ea; transform: scale(0.98); }
         .notification { position: fixed; top: 60px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.86); color: #fff; padding: 11px 15px; border-radius: 12px; font-size: 15px; font-weight: 650; z-index: 1000; opacity: 0; animation: notificationSlide 3s ease; }
         @keyframes notificationSlide { 0% { opacity: 0; transform: translateX(-50%) translateY(-20px); } 10% { opacity: 1; transform: translateX(-50%) translateY(0); } 90% { opacity: 1; transform: translateX(-50%) translateY(0); } 100% { opacity: 0; transform: translateX(-50%) translateY(-20px); } }
@@ -99,11 +99,12 @@
 </style>
     <script type="module" src="/i18n.js"></script>
     <script src="/pwa.js" defer></script>
+    <link rel="stylesheet" href="/buttons.css">
 </head>
 <body>
     <div style="display:flex; gap:10px; justify-content:center; padding:20px 16px 8px;">
         <a href="index.html" data-i18n="nav.home" style="display:inline-block; background:#000; color:#fff; font-weight:700; font-size:15px; padding:11px 22px; border-radius:50px; text-decoration:none; white-space:nowrap;">Home</a>
-        <a href="signs-of-john.html" data-i18n="nav.back_john" style="display:inline-block; background:#FCB900; color:#000; font-weight:700; font-size:15px; padding:11px 22px; border-radius:50px; text-decoration:none; white-space:nowrap;">← Signs of John</a>
+        <a href="signs-of-john.html" data-i18n="nav.back_john" style="display:inline-block; background:var(--ot-accent-gold); color:#000; font-weight:700; font-size:15px; padding:11px 22px; border-radius:50px; text-decoration:none; white-space:nowrap;">← Signs of John</a>
     </div>
     <div class="container">
         <div class="auth-section" id="auth-section">
