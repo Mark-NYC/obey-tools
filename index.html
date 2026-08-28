@@ -15,6 +15,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="preload" href="/assets/fonts/bebas-neue-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="/fonts.css">
+    <link rel="stylesheet" href="/buttons.css">
     <title>OBEY.TOOLS</title>
     <script type="module">
         import { supabase } from './supabase.js'
@@ -146,11 +147,13 @@
             margin-bottom: 60px;
         }
 
+        /* Home nav: color-coded wayfinding pills. Colors come from the shared
+           button system (buttons.css); each destination keeps its own hue. */
         .btn {
             display: block;
             width: 100%;
             padding: 16px 32px;
-            border-radius: 50px;
+            border-radius: var(--ot-radius-pill);
             font-size: 18px;
             font-weight: 700;
             text-align: center;
@@ -169,31 +172,31 @@
             border: 1.5px solid #bbb;
         }
 
-        /* Stories of Hope — placeholder */
+        /* Stories of Hope — gold section accent */
         .btn-stories {
-            background: #FCB900;
-            color: #1a1a1a;
+            background: var(--ot-accent-gold);
+            color: var(--ot-accent-gold-ink);
         }
 
-        /* 4 Questions — placeholder */
+        /* 4 Questions — earlier step in the disciple-making sequence (lighter green) */
         .btn-questions {
-            background: #2ECC71;
-            color: #1a1a1a;
+            background: var(--ot-nav-green-light);
+            color: var(--ot-nav-green-light-ink);
         }
-        .btn-questions .btn-paren { color: #0a5c36; }
+        .btn-questions .btn-paren { color: var(--ot-nav-green-deep-ink); }
 
-        /* Commands of Christ — placeholder */
-        /* Darker green than 4 Questions above it: the tint step signals that
-           4 Questions precedes Commands of Christ in the disciple-making sequence. */
+        /* Commands of Christ — later step in the sequence (deeper green).
+           The light→deep green step signals that 4 Questions precedes
+           Commands of Christ in the disciple-making sequence. */
         .btn-commands {
-            background: #00A86B;
-            color: #1a1a1a;
+            background: var(--ot-nav-green-deep);
+            color: var(--ot-nav-green-deep-ink);
         }
 
-        /* Church Circle — placeholder */
+        /* Church Circle — nav pill black */
         .btn-church {
-            background: #000;
-            color: #fff;
+            background: var(--ot-nav-pill);
+            color: var(--ot-nav-pill-ink);
         }
 
         /* Leader Tools — background matches page so it feels integrated */

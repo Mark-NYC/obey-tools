@@ -15,6 +15,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="preload" href="/assets/fonts/bebas-neue-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="/fonts.css">
+    <link rel="stylesheet" href="/buttons.css">
     <title>Church Assessment Tool</title>
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <script type="module">
@@ -100,7 +101,7 @@
     </div>
 
     <div class="reset-section">
-        <button class="btn btn-secondary" style="width:100%; flex:none; padding:14px; border-radius:14px; background:#ededf0; color:#1c1c1e; font-size:16px;" onclick="showResetPrompt()" data-i18n="common.reset">RESET</button>
+        <button class="btn btn-secondary" style="width:100%; flex:none; padding:14px; border-radius:var(--ot-radius); font-size:16px;" onclick="showResetPrompt()" data-i18n="common.reset">RESET</button>
     </div>
 
     <div class="name-prompt" id="name-prompt">
@@ -192,11 +193,11 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-se
 .users-info { color: #8e8e93; font-size: 13px; }
 .controls { padding: 0 16px 20px; background: #fff; border-bottom: 0.5px solid #c6c6c8; }
 .btn-group { display: flex; gap: 8px; }
-.btn { flex: 1; padding: 11px 16px; border: none; border-radius: 8px; font-weight: 600; font-size: 15px; cursor: pointer; transition: all 0.2s ease; }
-.btn-primary { background: #3a3a3c; color: white; }
-.btn-primary:active { background: #2c2c2e; transform: scale(0.98); }
-.btn-secondary { background: #f2f2f7; color: #3a3a3c; }
-.btn-secondary:active { background: #e5e5ea; transform: scale(0.98); }
+.btn { flex: 1; padding: 13px 16px; border: none; border-radius: var(--ot-radius); font-weight: 700; font-size: 15px; cursor: pointer; transition: all 0.2s ease; }
+.btn-primary { background: var(--ot-primary); color: var(--ot-primary-ink); }
+.btn-primary:active { background: var(--ot-primary-press); transform: scale(0.98); }
+.btn-secondary { background: var(--ot-secondary); color: var(--ot-secondary-ink); }
+.btn-secondary:active { background: var(--ot-secondary-press); transform: scale(0.98); }
 .assessment-container { padding: 20px 16px; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 60vh; gap: 20px; }
 .church-circle { position: relative; width: 320px; height: 320px; border: 4px solid #333; border-radius: 50%; background-color: white; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
 .church-circle.dotted { border-style: dashed; }

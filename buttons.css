@@ -1,0 +1,92 @@
+/* ============================================================
+   Obey Tools — shared button system
+   Single source of truth for button color, shape, and weight.
+   Import on any page:  <link rel="stylesheet" href="/buttons.css">
+   ============================================================ */
+
+:root {
+  /* --- action button roles --- */
+  --ot-primary:            #3A3A3C;
+  --ot-primary-press:      #2C2C2E;
+  --ot-primary-ink:        #FFFFFF;
+
+  --ot-secondary:          #EDEDF0;
+  --ot-secondary-press:    #E0E0E5;
+  --ot-secondary-ink:      #1C1C1E;
+
+  --ot-danger:             #FF745B;
+  --ot-danger-press:       #EC5C44;
+  --ot-danger-ink:         #FFFFFF;
+
+  /* --- section accents --- */
+  --ot-accent:             #00D084;   /* default "go" accent */
+  --ot-accent-press:       #00B472;
+  --ot-accent-ink:         #FFFFFF;
+
+  --ot-accent-gold:        #FCB900;   /* Stories of Hope & John */
+  --ot-accent-gold-press:  #E3A600;
+  --ot-accent-gold-ink:    #1C1C1E;
+
+  /* --- home nav wayfinding (Option A: sequence coding kept) --- */
+  --ot-nav-pill:           #000000;
+  --ot-nav-pill-ink:       #FFFFFF;
+  --ot-nav-green-light:    #2ED47E;   /* 4 Questions — earlier in the sequence */
+  --ot-nav-green-light-ink:#0A3D24;
+  --ot-nav-green-deep:     #00A468;   /* Commands of Christ — later in the sequence */
+  --ot-nav-green-deep-ink: #08301F;
+
+  /* --- geometry --- */
+  --ot-radius:             12px;
+  --ot-radius-pill:        999px;
+  --ot-focus:              #007AFF;
+}
+
+/* ---------- base button ---------- */
+.ot-btn {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 15px;
+  line-height: 1;
+  padding: 13px 18px;
+  border-radius: var(--ot-radius);
+  transition: background .12s ease, transform .12s ease;
+}
+.ot-btn:focus-visible { outline: 3px solid var(--ot-focus); outline-offset: 2px; }
+.ot-btn--block { width: 100%; }
+
+/* ---------- roles ---------- */
+.ot-btn--primary   { background: var(--ot-primary);      color: var(--ot-primary-ink); }
+.ot-btn--primary:active,   .ot-btn--primary.is-pressed   { background: var(--ot-primary-press);   transform: scale(.97); }
+
+.ot-btn--secondary { background: var(--ot-secondary);    color: var(--ot-secondary-ink); }
+.ot-btn--secondary:active, .ot-btn--secondary.is-pressed { background: var(--ot-secondary-press); transform: scale(.97); }
+
+.ot-btn--accent    { background: var(--ot-accent);       color: var(--ot-accent-ink); }
+.ot-btn--accent:active,    .ot-btn--accent.is-pressed    { background: var(--ot-accent-press);    transform: scale(.97); }
+
+.ot-btn--gold      { background: var(--ot-accent-gold);  color: var(--ot-accent-gold-ink); }
+.ot-btn--gold:active,      .ot-btn--gold.is-pressed      { background: var(--ot-accent-gold-press); transform: scale(.97); }
+
+.ot-btn--danger    { background: var(--ot-danger);       color: var(--ot-danger-ink); }
+.ot-btn--danger:active,    .ot-btn--danger.is-pressed    { background: var(--ot-danger-press);    transform: scale(.97); }
+
+/* ---------- nav pill (Home / top nav) ---------- */
+.ot-btn--pill {
+  background: var(--ot-nav-pill);
+  color: var(--ot-nav-pill-ink);
+  border-radius: var(--ot-radius-pill);
+  padding: 12px 28px;
+  font-size: 17px;
+}
+.ot-btn--pill:active, .ot-btn--pill.is-pressed { transform: scale(.97); filter: brightness(1.15); }
+
+@media (prefers-reduced-motion: reduce) {
+  .ot-btn { transition: none; }
+}

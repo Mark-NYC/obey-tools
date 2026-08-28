@@ -12,6 +12,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="preload" href="/assets/fonts/bebas-neue-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="/fonts.css">
+    <link rel="stylesheet" href="/buttons.css">
     <title>Church Circle (Test)</title>
 </head>
 <body>
@@ -54,8 +55,8 @@
 
         <div class="controls">
             <div class="btn-group">
-                <button class="btn btn-primary" onclick="startPresentation()">PRESENT</button>
-                <a class="btn btn-secondary" href="church-assessment.html" style="display:flex; align-items:center; justify-content:center; text-decoration:none;">ASSESS HEALTH</a>
+                <button class="btn btn-accent" onclick="startPresentation()">PRESENT</button>
+                <a class="btn btn-primary" href="church-assessment.html" style="display:flex; align-items:center; justify-content:center; text-decoration:none;">ASSESS HEALTH</a>
             </div>
         </div>
 
@@ -124,11 +125,13 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-se
 
 .controls { padding: 0 16px 20px; background: #fff; }
 .btn-group { display: flex; gap: 8px; }
-.btn { flex: 1; padding: 14px 16px; border: none; border-radius: 10px; font-weight: 700; font-size: 15px; letter-spacing: 0.5px; cursor: pointer; transition: all 0.2s ease; }
-.btn-primary { background: #3a3a3c; color: white; }
-.btn-primary:active { background: #2c2c2e; transform: scale(0.98); }
-.btn-secondary { background: #f2f2f7; color: #3a3a3c; border: 1.5px solid #d1d1d6; }
-.btn-secondary:active { background: #e5e5ea; transform: scale(0.98); }
+.btn { flex: 1; padding: 14px 16px; border: none; border-radius: var(--ot-radius); font-weight: 700; font-size: 15px; letter-spacing: 0.5px; cursor: pointer; transition: all 0.2s ease; }
+.btn-primary { background: var(--ot-primary); color: var(--ot-primary-ink); }
+.btn-primary:active { background: var(--ot-primary-press); transform: scale(0.98); }
+.btn-accent { background: var(--ot-accent); color: var(--ot-accent-ink); }
+.btn-accent:active { background: var(--ot-accent-press); transform: scale(0.98); }
+.btn-secondary { background: var(--ot-secondary); color: var(--ot-secondary-ink); }
+.btn-secondary:active { background: var(--ot-secondary-press); transform: scale(0.98); }
 
 .assessment-container { padding: 20px 16px; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 50vh; gap: 20px; }
 .church-circle { position: relative; width: 320px; height: 320px; border: 4px solid #333; border-radius: 50%; background-color: white; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
@@ -191,12 +194,12 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-se
 .verse-text { font-size: 16px; line-height: 1.55; color: #1c1c1e; }
 
 .present-controls { display: flex; gap: 8px; padding: 0 16px; }
-.present-nav, .present-play { flex: 1; padding: 13px 12px; border: none; border-radius: 10px; font-weight: 700; font-size: 15px; cursor: pointer; transition: all 0.15s ease; }
-.present-nav { background: #ededf0; color: #1c1c1e; }
-.present-nav:active { background: #e0e0e5; transform: scale(0.98); }
+.present-nav, .present-play { flex: 1; padding: 13px 12px; border: none; border-radius: var(--ot-radius); font-weight: 700; font-size: 15px; cursor: pointer; transition: all 0.15s ease; }
+.present-nav { background: var(--ot-secondary); color: var(--ot-secondary-ink); }
+.present-nav:active { background: var(--ot-secondary-press); transform: scale(0.98); }
 .present-nav:disabled { opacity: 0.4; cursor: default; }
-.present-play { background: #3a3a3c; color: #fff; flex: 1.3; }
-.present-play:active { background: #2c2c2e; transform: scale(0.98); }
+.present-play { background: var(--ot-primary); color: var(--ot-primary-ink); flex: 1.3; }
+.present-play:active { background: var(--ot-primary-press); transform: scale(0.98); }
 .present-restart-row { display: flex; justify-content: center; padding: 14px 16px 4px; }
 .present-restart { background: none; border: none; color: #8e8e93; font-size: 14px; font-weight: 600; cursor: pointer; }
 .present-attribution { text-align: center; font-size: 11px; color: #b0b0b5; padding: 10px 24px 28px; }
