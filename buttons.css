@@ -27,6 +27,11 @@
   --ot-accent-gold-press:  #E3A600;
   --ot-accent-gold-ink:    #1C1C1E;
 
+  /* --- semantic status (Church Circle health traffic-light) --- */
+  --ot-status-healthy:     var(--ot-accent);       /* #00D084 — Happening & Healthy */
+  --ot-status-partial:     var(--ot-accent-gold);  /* #FCB900 — Happening */
+  --ot-status-none:        var(--ot-danger);       /* #FF745B — Nonexistent / Unhealthy */
+
   /* --- home nav wayfinding (Option A: sequence coding kept) --- */
   --ot-nav-pill:           #000000;
   --ot-nav-pill-ink:       #FFFFFF;
