@@ -17,7 +17,7 @@
 </head>
 <body>
 
-<div style="text-align:center; padding:20px 0 8px;">
+<div id="top-home" style="text-align:center; padding:20px 0 8px;">
     <a href="index.html" style="display:inline-block; background:#000; color:#fff; font-weight:700; font-size:17px; padding:12px 28px; border-radius:50px; text-decoration:none;">Home</a>
 </div>
 
@@ -69,9 +69,9 @@
     <!-- ========================== PRESENTATION ========================== -->
     <div id="presentation-view" style="display:none;">
         <div class="present-topbar">
-            <button class="present-exit" onclick="exitPresentation()">&times; Exit</button>
-            <div class="present-ref" id="present-ref">Acts 2:36</div>
             <div class="present-count" id="present-count">1 / 12</div>
+            <div class="present-ref" id="present-ref">Acts 2:36</div>
+            <button class="ot-exit" onclick="exitPresentation()" aria-label="Exit presentation">&times;</button>
         </div>
 
         <div class="present-progress"><div class="present-progress-fill" id="present-progress-fill"></div></div>
@@ -178,9 +178,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-se
 
 /* ---- Presentation chrome ---- */
 .present-topbar { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: #fff; border-bottom: 0.5px solid #e2e2e6; }
-.present-exit { background: none; border: none; color: #3a3a3c; font-size: 15px; font-weight: 600; cursor: pointer; padding: 4px 0; }
 .present-ref { font-family: 'Bebas Neue', cursive; font-size: 24px; letter-spacing: 1px; color: #000; }
-.present-count { font-size: 13px; color: #8e8e93; font-variant-numeric: tabular-nums; min-width: 44px; text-align: right; }
+.present-count { font-size: 13px; color: #8e8e93; font-variant-numeric: tabular-nums; min-width: 44px; text-align: left; }
 .present-progress { height: 4px; background: #ededf0; }
 .present-progress-fill { height: 100%; width: 0%; background: var(--ot-primary, #3A3A3C); transition: width 0.35s ease; }
 
@@ -255,6 +254,7 @@ let playTimer = null;
 const PLAY_INTERVAL = 4500;
 
 function startPresentation() {
+    document.getElementById('top-home').style.display = 'none';
     document.getElementById('landing-view').style.display = 'none';
     document.getElementById('presentation-view').style.display = 'block';
     stepIndex = 0;
@@ -265,6 +265,7 @@ function startPresentation() {
 function exitPresentation() {
     stopPlay();
     document.getElementById('presentation-view').style.display = 'none';
+    document.getElementById('top-home').style.display = 'block';
     document.getElementById('landing-view').style.display = 'block';
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
