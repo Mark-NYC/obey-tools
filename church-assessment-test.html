@@ -22,7 +22,7 @@
 </div>
 
 <div class="container">
-    <div style="text-align:center; padding:26px 16px 4px; background:#fff;">
+    <div id="page-header" style="text-align:center; padding:26px 16px 4px; background:#fff;">
         <div style="font-family:'Bebas Neue', cursive; font-size:52px; font-weight:400; letter-spacing:2px; color:#000; line-height:1;">Church Circle</div>
         <div style="font-size:14px; color:#8e8e93; margin-top:4px;">Acts 2:36&ndash;47 &mdash; the first church.</div>
     </div>
@@ -113,8 +113,6 @@
         <div class="present-restart-row">
             <button class="present-restart" onclick="restartPresentation()">&#8635; Start over</button>
         </div>
-
-        <div class="present-attribution">Scripture: World English Bible (public domain). Swap for CSB when finalized.</div>
     </div>
 </div>
 
@@ -214,11 +212,29 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-se
 .present-restart { background: none; border: none; color: #8e8e93; font-size: 14px; font-weight: 600; cursor: pointer; }
 .present-attribution { text-align: center; font-size: 11px; color: #b0b0b5; padding: 10px 24px 28px; }
 
+/* ---- Focus mode: presentation fills the screen, no page scroll ---- */
+#presentation-view { display: flex; flex-direction: column; height: 100vh; height: 100dvh; overflow: hidden; }
+#presentation-view .present-topbar,
+#presentation-view .present-progress,
+#presentation-view .verse-card,
+#presentation-view .present-controls,
+#presentation-view .present-restart-row { flex-shrink: 0; }
+/* Circle area takes the slack; the circle scales to the largest square that fits */
+#presentation-view .assessment-container { flex: 1 1 auto; min-height: 0; display: grid; place-items: center; padding: 8px 16px; gap: 0; }
+#presentation-view .church-circle { height: 100%; width: auto; aspect-ratio: 1 / 1; max-width: 100%; max-height: 420px; box-shadow: none; }
+/* Icons sized relative to their cell so they scale with the circle */
+#presentation-view .icon-cell img { width: 72%; height: 72%; }
+#presentation-view .verse-card { margin: 4px 16px 12px; min-height: 0; }
+#presentation-view .present-restart-row { padding: 10px 16px calc(8px + env(safe-area-inset-bottom)); }
+
 @media (min-width: 768px) {
     .container { max-width: 768px; border-radius: 12px; margin: 20px auto; box-shadow: 0 4px 20px rgba(0,0,0,0.1); overflow: hidden; }
     .church-circle { width: 400px; height: 400px; }
     .icon-cell img { width: 70px; height: 70px; }
     .icon-cell::before { width: 70px; height: 70px; }
+    /* keep the fit-to-screen circle from ballooning on wide screens */
+    #presentation-view .church-circle { width: 400px; height: 400px; max-height: 400px; }
+    #presentation-view .icon-cell img { width: 70px; height: 70px; }
 }
 </style>
 
@@ -255,17 +271,19 @@ const PLAY_INTERVAL = 4500;
 
 function startPresentation() {
     document.getElementById('top-home').style.display = 'none';
+    document.getElementById('page-header').style.display = 'none';
     document.getElementById('landing-view').style.display = 'none';
-    document.getElementById('presentation-view').style.display = 'block';
+    document.getElementById('presentation-view').style.display = 'flex';
     stepIndex = 0;
     renderStep(true);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: 'auto' });
 }
 
 function exitPresentation() {
     stopPlay();
     document.getElementById('presentation-view').style.display = 'none';
-    document.getElementById('top-home').style.display = 'block';
+    document.getElementById('top-home').style.display = '';
+    document.getElementById('page-header').style.display = '';
     document.getElementById('landing-view').style.display = 'block';
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
