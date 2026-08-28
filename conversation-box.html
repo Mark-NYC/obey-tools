@@ -30,19 +30,19 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif; background: #f2f2f7; min-height: 100vh; color: #000; line-height: 1.4; }
         .container { max-width: 430px; margin: 0 auto; background: #fff; min-height: 100vh; }
-        .btn { flex: 1; padding: 11px 16px; border: none; border-radius: 8px; font-weight: 600; font-size: 15px; cursor: pointer; transition: all 0.2s ease; }
-        .btn-primary { background: #ff9500; color: white; }
-        .btn-primary:active { background: #ff9500; transform: scale(0.98); }
-        .btn-secondary { background: #f2f2f7; color: #3a3a3c; }
-        .btn-secondary:active { background: #e5e5ea; transform: scale(0.98); }
-        .btn-share { background: #6e6e73; color: white; }
-        .btn-share:active { background: #5a5a5f; transform: scale(0.98); }
+        .btn { flex: 1; padding: 11px 16px; border: none; border-radius: var(--ot-radius); font-weight: 700; font-size: 15px; cursor: pointer; transition: all 0.2s ease; }
+        .btn-primary { background: var(--ot-accent); color: var(--ot-accent-ink); }
+        .btn-primary:active { background: var(--ot-accent-press); transform: scale(0.98); }
+        .btn-secondary { background: var(--ot-secondary); color: var(--ot-secondary-ink); }
+        .btn-secondary:active { background: var(--ot-secondary-press); transform: scale(0.98); }
+        .btn-share { background: var(--ot-secondary); color: var(--ot-secondary-ink); }
+        .btn-share:active { background: var(--ot-secondary-press); transform: scale(0.98); }
         /* Post-grid actions: Reset, Share, View Map */
         .post-grid-actions { padding: 8px 16px 20px; background: #f2f2f7; display: flex; flex-direction: column; align-items: center; gap: 10px; }
         .action-row { width: 100%; max-width: 420px; display: flex; gap: 10px; }
         .action-row .btn { flex: 1; }
         .view-map-row { width: 100%; max-width: 420px; }
-        .btn-view-map { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; padding: 11px 16px; border: 1px solid #c6c6c8; border-radius: 8px; background: #f2f2f7; color: #3a3a3c; font-weight: 600; font-size: 15px; text-decoration: none; cursor: pointer; transition: all 0.2s ease; min-height: 44px; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif; }
+        .btn-view-map { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; padding: 11px 16px; border: 1px solid #c6c6c8; border-radius: var(--ot-radius); background: var(--ot-secondary); color: var(--ot-secondary-ink); font-weight: 700; font-size: 15px; text-decoration: none; cursor: pointer; transition: all 0.2s ease; min-height: 44px; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif; }
         .btn-view-map:active { background: #e5e5ea; transform: scale(0.98); }
         .btn-how-it-works { border: none; background: transparent; color: #8e8e93; font-size: 13px; font-weight: 500; cursor: pointer; padding: 6px 0; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif; }
         .btn-how-it-works:active { color: #3a3a3c; }
@@ -213,13 +213,13 @@
         .ob-chip-row { display: flex; align-items: center; gap: 3px; background: #f2f2f7; border-radius: 4px; padding: 3px 3px 3px 6px; margin-bottom: 3px; }
         .ob-chip-name { flex: 1; font-size: 11px; font-weight: 500; color: #3a3a3c; }
         .ob-mini-btn { width: 15px; height: 15px; border-radius: 50%; border: none; font-size: 9px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; cursor: default; line-height: 1; }
-        .ob-mini-move { background: #ff9500; color: #fff; }
+        .ob-mini-move { background: var(--ot-accent); color: #fff; }
         .ob-mini-del { background: #ff3b30; color: #fff; }
         .ob-quad-discovery .ob-chip-row { background: #d4f5d4; }
         .ob-quad-discovery .ob-chip-name { color: #1e6b1e; }
         .ob-cw-hint { font-size: 10px; color: #8e8e93; text-align: center; margin-bottom: 5px; }
         /* Step 2 animation — chips hidden until animated in */
-        .ob-anim-chip { opacity: 0; background: #ff9500; }
+        .ob-anim-chip { opacity: 0; background: var(--ot-accent); }
         .ob-anim-chip .ob-chip-name { color: #fff; }
         @keyframes ob-chip-on { 0%, 18% { opacity: 1; } 23%, 100% { opacity: 0; } }
         @keyframes ob-box-on { 0%, 20% { border-color: #3a3a3c; background: #f5f5f5; } 25%, 100% { border-color: #e5e5ea; background: #fff; } }
@@ -242,12 +242,12 @@
         @media (min-width: 768px) { .details-drag-handle { display: none; } }
         .details-name-hint { font-size: 11px; color: #c6c6c8; margin-top: 2px; }
         .details-person-name { font-size: 20px; font-weight: 700; color: #000; line-height: 1.2; width: 100%; border: none; border-bottom: 1.5px solid transparent; background: transparent; padding: 0 0 2px; outline: none; font-family: inherit; transition: border-bottom-color 0.15s; }
-        .details-person-name:focus { border-bottom-color: #ff9500; }
+        .details-person-name:focus { border-bottom-color: var(--ot-accent); }
         .details-quadrant { font-size: 12px; font-weight: 600; color: #8e8e93; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 3px; }
         .details-field { display: flex; flex-direction: column; gap: 5px; }
         .details-field label { font-size: 12px; font-weight: 600; color: #3a3a3c; text-transform: uppercase; letter-spacing: 0.4px; }
         .details-field input, .details-field textarea { width: 100%; padding: 10px 12px; border: 1px solid #c6c6c8; border-radius: 8px; font-size: 16px; font-family: inherit; color: #000; background: #f2f2f7; box-sizing: border-box; outline: none; -webkit-appearance: none; }
-        .details-field input:focus, .details-field textarea:focus { border-color: #ff9500; background: #fff; }
+        .details-field input:focus, .details-field textarea:focus { border-color: var(--ot-accent); background: #fff; }
         .details-field textarea { resize: none; min-height: 70px; }
         .details-actions { display: flex; gap: 10px; padding-top: 2px; }
         .details-actions .btn { flex: 1; min-height: 44px; }
@@ -257,6 +257,7 @@
     </style>
     <script type="module" src="/i18n.js"></script>
     <script src="/pwa.js" defer></script>
+    <link rel="stylesheet" href="/buttons.css">
 </head>
 <body>
     <div class="sync-indicator" id="sync-indicator" data-i18n="sync.syncing">Syncing...</div>

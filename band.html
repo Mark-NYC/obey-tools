@@ -113,9 +113,9 @@
         .add-leader-form.active { display: block; }
         .form-input { width: 100%; padding: 12px; border: 2px solid #c6c6c8; border-radius: 8px; font-size: 15px; margin-bottom: 12px; }
         .form-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        .form-btn { padding: 12px; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; }
-        .form-btn.primary { background: #007aff; color: white; }
-        .form-btn.secondary { background: #f2f2f7; color: #3a3a3c; }
+        .form-btn { padding: 12px; border: none; border-radius: var(--ot-radius); font-size: 15px; font-weight: 700; cursor: pointer; }
+        .form-btn.primary { background: var(--ot-primary); color: var(--ot-primary-ink); }
+        .form-btn.secondary { background: var(--ot-secondary); color: var(--ot-secondary-ink); }
         .counters-section { background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 24px; }
         .counter-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 0.5px solid #e5e5ea; }
         .counter-row:last-child { border-bottom: none; }
@@ -171,6 +171,7 @@
             .update-btn-icon { display: block; width: 24px; height: 24px; }
         }
     </style>
+    <link rel="stylesheet" href="/buttons.css">
 </head>
 <body>
     <div class="save-indicator" id="saveIndicator">Saving...</div>

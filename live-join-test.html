@@ -20,7 +20,7 @@
 <script defer="" src="/pwa.js"></script>
 <style>
 :root {
-    --brand-green: #FCB900;
+    --accent: var(--ot-accent-gold);
     --brand-black: #000000;
     --canvas: #f2f2f7;
     --surface: #ffffff;
@@ -40,7 +40,7 @@ html, body {
 button, input { font: inherit; }
 .test-ribbon {
     padding: 6px 16px; background: #1c1c1e; color: #fff;
-    font-size: 12px; font-weight: 750; letter-spacing: 0.4px; text-align: center;
+    font-size: 12px; font-weight: 700; letter-spacing: 0.4px; text-align: center;
 }
 .top-nav {
     width: min(100%, 430px); margin: 0 auto;
@@ -50,10 +50,10 @@ button, input { font: inherit; }
 .top-nav a {
     min-height: 42px; padding: 10px 15px; display: inline-flex;
     align-items: center; justify-content: center; border-radius: 999px;
-    color: #fff; text-decoration: none; font-size: 14px; font-weight: 750; white-space: nowrap;
+    color: #fff; text-decoration: none; font-size: 14px; font-weight: 700; white-space: nowrap;
 }
 .top-nav a:first-child { background: var(--brand-black); }
-.top-nav a:last-child { background: var(--brand-green); color: #000; overflow: hidden; text-overflow: ellipsis; }
+.top-nav a:last-child { background: var(--accent); color: #000; overflow: hidden; text-overflow: ellipsis; }
 .wrap {
     width: min(100%, 430px); margin: 0 auto; padding: 24px 20px 40px;
 }
@@ -73,7 +73,7 @@ button, input { font: inherit; }
     font-size: 34px; font-weight: 850; letter-spacing: 10px; text-align: center;
     text-transform: uppercase; outline: none;
 }
-.code-input:focus { border-color: var(--brand-green); box-shadow: 0 0 0 4px rgba(252,185,0,0.18); }
+.code-input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(252,185,0,0.18); }
 .code-input::placeholder { color: #c7c7cc; letter-spacing: 10px; }
 .join-btn {
     width: 100%; min-height: 52px; margin-top: 4px;
@@ -87,6 +87,7 @@ button, input { font: inherit; }
 .msg.error { color: #c0392b; }
 .msg.info  { color: var(--muted); }
 </style>
+    <link rel="stylesheet" href="/buttons.css">
 </head>
 <body>
 <div class="test-ribbon" data-i18n="live.test_banner">Test page — live group facilitation</div>

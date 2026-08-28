@@ -146,18 +146,18 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-se
 .icon-grid > .icon-cell:nth-child(12) img, .icon-grid > .icon-cell:nth-child(12)::before { transform: translateY(-8px); }
 .icon-grid > .icon-cell:nth-child(5) img, .icon-grid > .icon-cell:nth-child(5)::before { transform: translateX(-8px); }
 .bg-none::before { background-color: transparent; }
-.bg-green::before { background-color: #7ed957; }
-.bg-yellow::before { background-color: #ffde59; }
-.bg-red::before { background-color: #ff745b; }
+.bg-green::before { background-color: var(--ot-status-healthy); }
+.bg-yellow::before { background-color: var(--ot-status-partial); }
+.bg-red::before { background-color: var(--ot-status-none); }
 
 /* Presentation icon states */
 .icon-cell.dim img { opacity: 0.18; filter: grayscale(1); }
-.icon-cell.revealed::before { background-color: #7ed957; }
+.icon-cell.revealed::before { background-color: var(--ot-status-healthy); }
 .icon-cell.revealed img { opacity: 1; filter: none; }
 .icon-cell.just-revealed img { animation: pop 0.5s ease; }
 .icon-cell.just-revealed::before { animation: ring 0.9s ease; }
 @keyframes pop { 0% { transform: scale(0.4); } 60% { transform: scale(1.18); } 100% { transform: scale(1); } }
-@keyframes ring { 0% { box-shadow: 0 0 0 0 rgba(126,217,87,0.7); } 100% { box-shadow: 0 0 0 16px rgba(126,217,87,0); } }
+@keyframes ring { 0% { box-shadow: 0 0 0 0 rgba(0,208,132,0.7); } 100% { box-shadow: 0 0 0 16px rgba(0,208,132,0); } }
 /* Keep the nudge transforms working alongside the pop animation */
 .icon-grid > .icon-cell.just-revealed:nth-child(-n+4) img { animation: pop-down 0.5s ease; }
 .icon-grid > .icon-cell.just-revealed:nth-child(9) img,
@@ -185,7 +185,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-se
 .present-ref { font-family: 'Bebas Neue', cursive; font-size: 24px; letter-spacing: 1px; color: #000; }
 .present-count { font-size: 13px; color: #8e8e93; font-variant-numeric: tabular-nums; min-width: 44px; text-align: right; }
 .present-progress { height: 4px; background: #ededf0; }
-.present-progress-fill { height: 100%; width: 0%; background: #7ed957; transition: width 0.35s ease; }
+.present-progress-fill { height: 100%; width: 0%; background: var(--ot-status-healthy); transition: width 0.35s ease; }
 
 .verse-card { margin: 4px 16px 16px; padding: 18px 18px 20px; background: #f7f7fa; border-radius: 14px; min-height: 132px; }
 .verse-badges { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; min-height: 0; }

@@ -135,10 +135,10 @@
   .auth-logout-btn { padding: 6px 14px; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; background: #e5e5ea; color: #3a3a3c; font-family: inherit; }
   /* ── Page header ── */
   .page-header { width: calc(100% - 32px); max-width: 520px; margin: 12px 16px 0; padding: 20px 24px 16px; text-align: center; }
-  .page-header h1 { font-family: 'Bebas Neue', sans-serif; font-size: clamp(34px, 9vw, 52px); font-weight: 400; letter-spacing: 2px; color: #00D084; -webkit-text-stroke: 2px #000; line-height: 1; margin-bottom: 8px; }
+  .page-header h1 { font-family: 'Bebas Neue', sans-serif; font-size: clamp(34px, 9vw, 52px); font-weight: 400; letter-spacing: 2px; color: var(--ot-accent); -webkit-text-stroke: 2px #000; line-height: 1; margin-bottom: 8px; }
   .page-header h1 .ttl-paren { color: #8e8e93; -webkit-text-stroke: 0; }
   .page-header .subtitle { font-size: 14px; color: #8e8e93; line-height: 1.6; }
-  .page-header .subtitle .green { color: #00D084; font-weight: 600; }
+  .page-header .subtitle .green { color: var(--ot-accent); font-weight: 600; }
   /* ── Tab navigation ── */
   .tabs-wrap {
     position: sticky;
@@ -185,11 +185,11 @@
   .tab[aria-selected="true"] {
     background: #000;
     color: #fff;
-    box-shadow: inset 0 -4px 0 #00D084;
+    box-shadow: inset 0 -4px 0 var(--ot-accent);
   }
   .tab[aria-selected="true"]:hover { background: #000; }
   .tab:focus-visible {
-    outline: 3px solid #00D084;
+    outline: 3px solid var(--ot-accent);
     outline-offset: 2px;
   }
   /* ── Tab panels ── */
@@ -229,7 +229,7 @@
   .pn-btn:hover { color: #000; }
   .pn-btn:active { opacity: 0.55; }
   .pn-btn:focus-visible {
-    outline: 3px solid #00D084;
+    outline: 3px solid var(--ot-accent);
     outline-offset: 2px;
   }
   /* Previous / Next are a mobile convenience — on desktop the tab row is enough. */
@@ -246,13 +246,13 @@
     padding: 8px 20px;
     border-radius: 50px;
     border: 2px solid #000;
-    background: #00D084;
+    background: var(--ot-accent);
     color: #000;
     cursor: pointer;
     transition: background 0.15s ease, color 0.15s ease;
   }
   .present-btn:hover { background: #000; color: #fff; }
-  .present-btn:focus-visible { outline: 3px solid #00D084; outline-offset: 2px; }
+  .present-btn:focus-visible { outline: 3px solid var(--ot-accent); outline-offset: 2px; }
   .present-ico { width: 0.8em; height: 0.8em; margin-right: 6px; vertical-align: -1px; }
 
   #presenter-ui[hidden] { display: none; }
@@ -323,13 +323,13 @@
     background: #fff; color: #000; font-size: 26px; line-height: 1; cursor: pointer;
     font-family: 'Bebas Neue', sans-serif;
   }
-  .pz-btn:hover { background: #00D084; }
+  .pz-btn:hover { background: var(--ot-accent); }
   .pz-btn:disabled { opacity: 0.28; cursor: default; }
   .pz-count {
     font-family: 'Bebas Neue', sans-serif; letter-spacing: 0.12em;
     font-size: 20px; min-width: 70px; text-align: center; color: #000;
   }
-  .pz-btn:focus-visible, .pz-exit:focus-visible { outline: 3px solid #00D084; outline-offset: 2px; }
+  .pz-btn:focus-visible, .pz-exit:focus-visible { outline: 3px solid var(--ot-accent); outline-offset: 2px; }
   /* Zoomable media (pinch / wheel) */
   body.presenting .svg-wrap svg,
   body.presenting #circles-img { touch-action: none; will-change: transform; }
@@ -381,6 +381,7 @@
 </style>
     <script type="module" src="/i18n.js"></script>
     <script src="/pwa.js" defer></script>
+    <link rel="stylesheet" href="/buttons.css">
 </head>
 <body>
 <!-- Home button (+ desktop Present) -->
