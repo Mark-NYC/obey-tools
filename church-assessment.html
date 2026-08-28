@@ -211,9 +211,9 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-se
 .icon-grid > .icon-cell:nth-child(12) img, .icon-grid > .icon-cell:nth-child(12)::before { transform: translateY(-8px); }
 .icon-grid > .icon-cell:nth-child(5) img, .icon-grid > .icon-cell:nth-child(5)::before { transform: translateX(-8px); }
 .bg-none::before { background-color: transparent; }
-.bg-green::before { background-color: var(--ot-status-healthy); }
-.bg-yellow::before { background-color: var(--ot-status-partial); }
-.bg-red::before { background-color: var(--ot-status-none); }
+.bg-green::before { background-color: var(--ot-status-healthy, #00D084); }
+.bg-yellow::before { background-color: var(--ot-status-partial, #FCB900); }
+.bg-red::before { background-color: var(--ot-status-none, #FF745B); }
 .vertical-line { position: absolute; width: 3px; background-color: #333; top: 0; bottom: 0; z-index: 10; }
 .horizontal-line { position: absolute; height: 3px; background-color: #333; left: 0; right: 0; z-index: 10; }
 .vertical-line.left { left: calc(25% - 1.5px); }
@@ -225,9 +225,9 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-se
 .key-item { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; font-size: 14px; font-weight: 500; }
 .key-item:last-child { margin-bottom: 0; }
 .key-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
-.key-dot.red { background-color: var(--ot-status-none); }
-.key-dot.yellow { background-color: var(--ot-status-partial); }
-.key-dot.green { background-color: var(--ot-status-healthy); }
+.key-dot.red { background-color: var(--ot-status-none, #FF745B); }
+.key-dot.yellow { background-color: var(--ot-status-partial, #FCB900); }
+.key-dot.green { background-color: var(--ot-status-healthy, #00D084); }
 .reset-section { padding: 20px 16px; background: #f2f2f7; display: flex; justify-content: center; }
 .reset-section .btn { width: auto; padding: 11px 24px; }
 .share-popup, .reset-prompt, .continue-reset-prompt, .generation-prompt, .name-prompt, .church-status-prompt, .tutorial-popup, .share-input-popup { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); z-index: 1000; display: none; flex-direction: column; gap: 12px; width: 90%; max-width: 300px; text-align: center; }

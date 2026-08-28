@@ -101,7 +101,7 @@
         </div>
 
         <div class="verse-card">
-            <div class="verse-badges" id="verse-badges"></div>
+            <div class="verse-practice" id="verse-practice"></div>
             <p class="verse-text" id="verse-text"></p>
         </div>
 
@@ -146,26 +146,23 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-se
 .icon-grid > .icon-cell:nth-child(12) img, .icon-grid > .icon-cell:nth-child(12)::before { transform: translateY(-8px); }
 .icon-grid > .icon-cell:nth-child(5) img, .icon-grid > .icon-cell:nth-child(5)::before { transform: translateX(-8px); }
 .bg-none::before { background-color: transparent; }
-.bg-green::before { background-color: var(--ot-status-healthy); }
-.bg-yellow::before { background-color: var(--ot-status-partial); }
-.bg-red::before { background-color: var(--ot-status-none); }
+.bg-green::before { background-color: var(--ot-status-healthy, #00D084); }
+.bg-yellow::before { background-color: var(--ot-status-partial, #FCB900); }
+.bg-red::before { background-color: var(--ot-status-none, #FF745B); }
 
-/* Presentation icon states */
-.icon-cell.dim img { opacity: 0.18; filter: grayscale(1); }
-.icon-cell.revealed::before { background-color: var(--ot-status-healthy); }
-.icon-cell.revealed img { opacity: 1; filter: none; }
-.icon-cell.just-revealed img { animation: pop 0.5s ease; }
-.icon-cell.just-revealed::before { animation: ring 0.9s ease; }
-@keyframes pop { 0% { transform: scale(0.4); } 60% { transform: scale(1.18); } 100% { transform: scale(1); } }
-@keyframes ring { 0% { box-shadow: 0 0 0 0 rgba(0,208,132,0.7); } 100% { box-shadow: 0 0 0 16px rgba(0,208,132,0); } }
+/* Presentation icon states — gray (pending) to black (revealed). No color fills. */
+.icon-cell.dim img { opacity: 0.28; transition: opacity 0.45s ease, transform 0.45s ease; }
+.icon-cell.revealed img { opacity: 1; }
+.icon-cell.just-revealed img { animation: pop 0.55s ease; }
+@keyframes pop { 0% { transform: scale(0.6); } 55% { transform: scale(1.15); } 100% { transform: scale(1); } }
 /* Keep the nudge transforms working alongside the pop animation */
-.icon-grid > .icon-cell.just-revealed:nth-child(-n+4) img { animation: pop-down 0.5s ease; }
+.icon-grid > .icon-cell.just-revealed:nth-child(-n+4) img { animation: pop-down 0.55s ease; }
 .icon-grid > .icon-cell.just-revealed:nth-child(9) img,
-.icon-grid > .icon-cell.just-revealed:nth-child(12) img { animation: pop-up 0.5s ease; }
-.icon-grid > .icon-cell.just-revealed:nth-child(5) img { animation: pop-left 0.5s ease; }
-@keyframes pop-down { 0% { transform: translateY(8px) scale(0.4); } 60% { transform: translateY(8px) scale(1.18); } 100% { transform: translateY(8px) scale(1); } }
-@keyframes pop-up { 0% { transform: translateY(-8px) scale(0.4); } 60% { transform: translateY(-8px) scale(1.18); } 100% { transform: translateY(-8px) scale(1); } }
-@keyframes pop-left { 0% { transform: translateX(-8px) scale(0.4); } 60% { transform: translateX(-8px) scale(1.18); } 100% { transform: translateX(-8px) scale(1); } }
+.icon-grid > .icon-cell.just-revealed:nth-child(12) img { animation: pop-up 0.55s ease; }
+.icon-grid > .icon-cell.just-revealed:nth-child(5) img { animation: pop-left 0.55s ease; }
+@keyframes pop-down { 0% { transform: translateY(8px) scale(0.6); } 55% { transform: translateY(8px) scale(1.15); } 100% { transform: translateY(8px) scale(1); } }
+@keyframes pop-up { 0% { transform: translateY(-8px) scale(0.6); } 55% { transform: translateY(-8px) scale(1.15); } 100% { transform: translateY(-8px) scale(1); } }
+@keyframes pop-left { 0% { transform: translateX(-8px) scale(0.6); } 55% { transform: translateX(-8px) scale(1.15); } 100% { transform: translateX(-8px) scale(1); } }
 
 .vertical-line { position: absolute; width: 3px; background-color: #333; top: 0; bottom: 0; z-index: 10; }
 .horizontal-line { position: absolute; height: 3px; background-color: #333; left: 0; right: 0; z-index: 10; }
@@ -185,13 +182,27 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-se
 .present-ref { font-family: 'Bebas Neue', cursive; font-size: 24px; letter-spacing: 1px; color: #000; }
 .present-count { font-size: 13px; color: #8e8e93; font-variant-numeric: tabular-nums; min-width: 44px; text-align: right; }
 .present-progress { height: 4px; background: #ededf0; }
-.present-progress-fill { height: 100%; width: 0%; background: var(--ot-status-healthy); transition: width 0.35s ease; }
+.present-progress-fill { height: 100%; width: 0%; background: var(--ot-primary, #3A3A3C); transition: width 0.35s ease; }
 
-.verse-card { margin: 4px 16px 16px; padding: 18px 18px 20px; background: #f7f7fa; border-radius: 14px; min-height: 132px; }
-.verse-badges { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; min-height: 0; }
-.verse-badge { font-size: 12px; font-weight: 700; color: #2b6b16; background: #e4f7d8; border: 1px solid #bfe8a6; padding: 4px 10px; border-radius: 20px; animation: badge-in 0.4s ease; }
-@keyframes badge-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
-.verse-text { font-size: 16px; line-height: 1.55; color: #1c1c1e; }
+.verse-card { margin: 4px 16px 16px; padding: 18px 18px 20px; background: #f7f7fa; border-radius: 14px; min-height: 140px; }
+.verse-practice { font-size: 12px; font-weight: 800; letter-spacing: 0.09em; text-transform: uppercase; color: #8a6d00; margin-bottom: 11px; }
+.verse-text { font-size: 16px; line-height: 1.7; color: #1c1c1e; }
+/* Highlighter marker over the matching phrase; swipes in left-to-right, wraps cleanly */
+.verse-text .hl {
+    background-image: linear-gradient(#ffe27a, #ffe27a);
+    background-repeat: no-repeat;
+    background-position: 0 88%;
+    background-size: 100% 58%;
+    padding: 0 2px;
+    color: #1c1c1e;
+    font-weight: 700;
+    border-radius: 2px;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+    animation: hl-in 0.5s ease 0.12s both;
+}
+@keyframes hl-in { from { background-size: 0% 58%; } to { background-size: 100% 58%; } }
+@media (prefers-reduced-motion: reduce) { .verse-text .hl { animation: none; } .icon-cell.just-revealed img { animation: none; } }
 
 .present-controls { display: flex; gap: 8px; padding: 0 16px; }
 .present-nav, .present-play { flex: 1; padding: 13px 12px; border: none; border-radius: var(--ot-radius); font-weight: 700; font-size: 15px; cursor: pointer; transition: all 0.15s ease; }
@@ -220,21 +231,22 @@ const ICON_LABELS = [
     'Signs & Wonders', 'Giving', 'Worship', 'Make Disciples'
 ];
 
-// ----- Presentation steps: one per verse, Acts 2:36-47 (WEB, public domain) -----
-// `icons` are the NEW practices introduced by that verse (grid indices, 0-based).
+// ----- Presentation steps: one PRACTICE (icon) per step, in Acts 2 order. -----
+// `icon` = grid index (0-based). `highlight` is the exact phrase in `text` to
+// mark, so each practice ties to where it appears in Acts 2:36-47 (WEB, public domain).
 const STEPS = [
-    { ref: 'Acts 2:36', text: '"Let all the house of Israel therefore know certainly that God has made him both Lord and Christ, this Jesus whom you crucified."', icons: [0] },
-    { ref: 'Acts 2:37', text: 'Now when they heard this, they were cut to the heart, and said to Peter and the rest of the apostles, "Brothers, what shall we do?"', icons: [] },
-    { ref: 'Acts 2:38', text: 'Peter said to them, "Repent, and be baptized, every one of you, in the name of Jesus Christ for the forgiveness of sins, and you will receive the gift of the Holy Spirit."', icons: [1, 2, 3] },
-    { ref: 'Acts 2:39', text: '"For the promise is to you, and to your children, and to all who are far off, even as many as the Lord our God will call to himself."', icons: [] },
-    { ref: 'Acts 2:40', text: 'With many other words he testified, and exhorted them, saying, "Save yourselves from this crooked generation!"', icons: [] },
-    { ref: 'Acts 2:41', text: 'Then those who gladly received his word were baptized. There were added to them in that day about three thousand souls.', icons: [] },
-    { ref: 'Acts 2:42', text: 'They continued steadfastly in the apostles’ teaching and fellowship, in the breaking of bread, and prayer.', icons: [4, 5, 6, 7] },
-    { ref: 'Acts 2:43', text: 'Fear came on every soul, and many wonders and signs were done through the apostles.', icons: [8] },
-    { ref: 'Acts 2:44', text: 'All who believed were together, and had all things in common.', icons: [] },
-    { ref: 'Acts 2:45', text: 'They sold their possessions and goods, and distributed them to all, according as anyone had need.', icons: [9] },
-    { ref: 'Acts 2:46', text: 'Day by day, continuing steadfastly with one accord in the temple, and breaking bread at home, they took their food with gladness and singleness of heart,', icons: [10] },
-    { ref: 'Acts 2:47', text: 'praising God, and having favor with all the people. The Lord added to the assembly day by day those who were being saved.', icons: [11] }
+    { icon: 0,  ref: 'Acts 2:36',    text: '"Let all the house of Israel therefore know certainly that God has made him both Lord and Christ, this Jesus whom you crucified."', highlight: 'God has made him both Lord and Christ' },
+    { icon: 1,  ref: 'Acts 2:38',    text: 'Peter said to them, "Repent, and be baptized, every one of you, in the name of Jesus Christ for the forgiveness of sins, and you will receive the gift of the Holy Spirit."', highlight: 'Repent' },
+    { icon: 2,  ref: 'Acts 2:38',    text: 'Peter said to them, "Repent, and be baptized, every one of you, in the name of Jesus Christ for the forgiveness of sins, and you will receive the gift of the Holy Spirit."', highlight: 'be baptized, every one of you, in the name of Jesus Christ' },
+    { icon: 3,  ref: 'Acts 2:38',    text: 'Peter said to them, "Repent, and be baptized, every one of you, in the name of Jesus Christ for the forgiveness of sins, and you will receive the gift of the Holy Spirit."', highlight: 'you will receive the gift of the Holy Spirit' },
+    { icon: 4,  ref: 'Acts 2:42',    text: "They continued steadfastly in the apostles' teaching and fellowship, in the breaking of bread, and prayer.", highlight: "the apostles' teaching" },
+    { icon: 5,  ref: 'Acts 2:42',    text: "They continued steadfastly in the apostles' teaching and fellowship, in the breaking of bread, and prayer.", highlight: 'fellowship' },
+    { icon: 6,  ref: 'Acts 2:42',    text: "They continued steadfastly in the apostles' teaching and fellowship, in the breaking of bread, and prayer.", highlight: 'the breaking of bread' },
+    { icon: 7,  ref: 'Acts 2:42',    text: "They continued steadfastly in the apostles' teaching and fellowship, in the breaking of bread, and prayer.", highlight: 'prayer' },
+    { icon: 8,  ref: 'Acts 2:43',    text: 'Fear came on every soul, and many wonders and signs were done through the apostles.', highlight: 'many wonders and signs' },
+    { icon: 9,  ref: 'Acts 2:45',    text: 'They sold their possessions and goods, and distributed them to all, according as anyone had need.', highlight: 'sold their possessions and goods, and distributed them to all' },
+    { icon: 10, ref: 'Acts 2:46-47', text: 'They took their food with gladness and singleness of heart, praising God, and having favor with all the people.', highlight: 'praising God' },
+    { icon: 11, ref: 'Acts 2:47',    text: 'And the Lord added to their number day by day those who were being saved.', highlight: 'the Lord added to their number day by day those who were being saved' }
 ];
 
 let stepIndex = 0;
@@ -263,11 +275,19 @@ function restartPresentation() {
     renderStep(true);
 }
 
-// Returns the set of icon indices revealed up to and including `upTo`.
-function revealedUpTo(upTo) {
-    const set = new Set();
-    for (let i = 0; i <= upTo; i++) STEPS[i].icons.forEach(idx => set.add(idx));
-    return set;
+// Render the verse text with the current practice's phrase wrapped in a highlighter.
+function renderVerse(step) {
+    const el = document.getElementById('verse-text');
+    el.innerHTML = '';
+    const t = step.text, h = step.highlight;
+    const i = h ? t.indexOf(h) : -1;
+    if (i < 0) { el.textContent = t; return; }
+    el.appendChild(document.createTextNode(t.slice(0, i)));
+    const mark = document.createElement('mark');
+    mark.className = 'hl';
+    mark.textContent = h;
+    el.appendChild(mark);
+    el.appendChild(document.createTextNode(t.slice(i + h.length)));
 }
 
 function renderStep(animateAll) {
@@ -275,28 +295,18 @@ function renderStep(animateAll) {
     document.getElementById('present-ref').textContent = step.ref;
     document.getElementById('present-count').textContent = (stepIndex + 1) + ' / ' + STEPS.length;
     document.getElementById('present-progress-fill').style.width = ((stepIndex + 1) / STEPS.length * 100) + '%';
-    document.getElementById('verse-text').textContent = step.text;
+    document.getElementById('verse-practice').textContent = ICON_LABELS[step.icon];
+    renderVerse(step);
 
-    // Badges for the practices this verse introduces
-    const badges = document.getElementById('verse-badges');
-    badges.innerHTML = '';
-    step.icons.forEach(idx => {
-        const b = document.createElement('span');
-        b.className = 'verse-badge';
-        b.textContent = '+ ' + ICON_LABELS[idx];
-        badges.appendChild(b);
-    });
-
-    const revealed = revealedUpTo(stepIndex);
-    const newlyRevealed = new Set(step.icons);
+    // One practice per step, in Acts 2 order: icons 0..stepIndex are black, the rest gray.
     const cells = document.querySelectorAll('#present-grid .icon-cell');
     cells.forEach((cell, idx) => {
         cell.classList.remove('just-revealed');
-        if (revealed.has(idx)) {
+        if (idx <= stepIndex) {
             cell.classList.add('revealed');
             cell.classList.remove('dim');
-            // Animate the pop only for icons introduced on this exact step
-            if (newlyRevealed.has(idx) && !animateAll) {
+            // Pop only the icon added on this exact step (the current practice).
+            if (idx === stepIndex && !animateAll) {
                 void cell.offsetWidth; // reflow so the animation restarts
                 cell.classList.add('just-revealed');
             }
