@@ -92,6 +92,28 @@
 }
 .ot-btn--pill:active, .ot-btn--pill.is-pressed { transform: scale(.97); filter: brightness(1.15); }
 
+/* ---------- circular exit / close (gray circle with an X) ---------- */
+.ot-exit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--ot-secondary);
+  color: var(--ot-secondary-ink);
+  border: none;
+  cursor: pointer;
+  font-size: 20px;
+  line-height: 1;
+  text-decoration: none;
+  font-family: inherit;
+  flex-shrink: 0;
+  transition: background .12s ease, transform .12s ease;
+}
+.ot-exit:active { background: var(--ot-secondary-press); transform: scale(.96); }
+.ot-exit:focus-visible { outline: 3px solid var(--ot-focus); outline-offset: 2px; }
+
 @media (prefers-reduced-motion: reduce) {
-  .ot-btn { transition: none; }
+  .ot-btn, .ot-exit { transition: none; }
 }
