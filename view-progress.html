@@ -415,6 +415,105 @@
             background: linear-gradient(90deg, #f3b15a, #db5a35); }
         .hotspots-empty { font-size: 13px; color: #9a9aa0; padding: 6px 4px; }
 
+        /* ── Movement pulse band (always-on headline) ──────────────── */
+        .pulse-band {
+            display: flex;
+            align-items: stretch;
+            padding: 11px 6px;
+            background: #fff;
+            border-bottom: 0.5px solid #e5e5ea;
+        }
+        .pulse-item {
+            flex: 1 1 0;
+            padding: 0 10px;
+            border-right: 1px solid #ececef;
+            min-width: 0;
+        }
+        .pulse-item:last-child { border-right: none; }
+        .pulse-num {
+            font-size: 22px;
+            font-weight: 800;
+            color: #1c1c1e;
+            line-height: 1;
+            font-variant-numeric: tabular-nums;
+            display: flex;
+            align-items: baseline;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+        .pulse-num .pulse-trend { font-size: 11px; font-weight: 700; }
+        .pulse-trend.up { color: #2f8f6f; }
+        .pulse-trend.down { color: #c0362f; }
+        .pulse-trend.flat { color: #8e8e93; }
+        .pulse-lab {
+            font-size: 9.5px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: #8e8e93;
+            margin-top: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* ── Celebration banner (auto-surfaced milestones) ─────────── */
+        .celebrate-banner {
+            display: none;
+            align-items: center;
+            gap: 9px;
+            padding: 9px 12px 9px 14px;
+            background: linear-gradient(90deg, rgba(227,155,60,0.18), rgba(227,155,60,0.05));
+            border-bottom: 0.5px solid #f0e0c4;
+        }
+        .celebrate-banner.show { display: flex; }
+        .celebrate-icon { font-size: 15px; flex: none; }
+        .celebrate-text {
+            font-size: 12.5px;
+            font-weight: 600;
+            color: #8a5a12;
+            line-height: 1.3;
+            flex: 1;
+            transition: opacity 0.4s ease;
+        }
+        .celebrate-close {
+            margin-left: auto;
+            background: none;
+            border: none;
+            color: #b89050;
+            cursor: pointer;
+            font-size: 16px;
+            line-height: 1;
+            padding: 0 2px;
+            flex: none;
+            font-family: inherit;
+        }
+
+        /* ── Momentum card (weekly sparkline + streak) ─────────────── */
+        .momentum-card {
+            background: #f2f2f7;
+            border-radius: 14px;
+            padding: 15px 16px 12px;
+            margin-bottom: 14px;
+        }
+        .momentum-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .momentum-title {
+            font-size: 11.5px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: #8e8e93;
+        }
+        .momentum-streak { font-size: 12.5px; font-weight: 700; color: #2f8f6f; white-space: nowrap; }
+        .momentum-streak.flat { color: #8e8e93; }
+        .momentum-svg { width: 100%; height: 68px; display: block; overflow: visible; }
+
         /* ── Shared ────────────────────────────────────────────────── */
         .loading {
             padding: 48px 24px;
@@ -801,6 +900,19 @@
         body.theme-dark #compact-legend { background: rgba(22,30,48,0.82); }
         body.theme-dark #compact-legend h4,
         body.theme-dark #compact-legend .legend-label { color: #e9ecf2; }
+        body.theme-dark .pulse-band { background: #161e30; border-bottom-color: #222b3d; }
+        body.theme-dark .pulse-item { border-right-color: #222b3d; }
+        body.theme-dark .pulse-num { color: #f2f4f8; }
+        body.theme-dark .pulse-lab { color: #9aa3b4; }
+        body.theme-dark .pulse-trend.up { color: #49b892; }
+        body.theme-dark .pulse-trend.down { color: #e7695e; }
+        body.theme-dark .celebrate-banner {
+            background: linear-gradient(90deg, rgba(227,155,60,0.22), rgba(227,155,60,0.04));
+            border-bottom-color: #3a3020;
+        }
+        body.theme-dark .celebrate-text { color: #f0c98a; }
+        body.theme-dark .momentum-card { background: #131a2a; }
+        body.theme-dark .momentum-title { color: #9aa3b4; }
     </style>
     <script type="module" src="/i18n.js"></script>
     <script src="/pwa.js" defer></script>
@@ -871,6 +983,29 @@
                 <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" title="Toggle dark map" aria-label="Toggle dark map">🌙</button>
             </div>
 
+            <!-- ── Celebration banner (auto-surfaced milestones) ───── -->
+            <div class="celebrate-banner" id="celebrate-banner">
+                <span class="celebrate-icon">🎉</span>
+                <span class="celebrate-text" id="celebrate-text"></span>
+                <button class="celebrate-close" onclick="dismissCelebrate()" aria-label="Dismiss">×</button>
+            </div>
+
+            <!-- ── Movement pulse (always-on headline) ─────────────── -->
+            <div class="pulse-band" id="pulse-band">
+                <div class="pulse-item">
+                    <div class="pulse-num"><span id="pulse-sp">—</span><span class="pulse-trend" id="pulse-sp-trend"></span></div>
+                    <div class="pulse-lab">Spiritual</div>
+                </div>
+                <div class="pulse-item">
+                    <div class="pulse-num"><span id="pulse-disc">—</span><span class="pulse-trend" id="pulse-disc-trend"></span></div>
+                    <div class="pulse-lab">Discovery</div>
+                </div>
+                <div class="pulse-item">
+                    <div class="pulse-num"><span id="pulse-cities">—</span></div>
+                    <div class="pulse-lab">Cities Active</div>
+                </div>
+            </div>
+
             <!-- ── MAP CONTROLS (shown on Map tab) ─────────────────── -->
             <div id="map-controls">
                 <div class="layer-toggles">
@@ -933,6 +1068,15 @@
 
             <!-- ── METRICS VIEW ────────────────────────────────────── -->
             <div id="metrics-view" style="display:none">
+                <div class="stats-section" style="padding-bottom:0">
+                    <div class="momentum-card" id="momentum-card" style="display:none">
+                        <div class="momentum-head">
+                            <span class="momentum-title">Momentum · convos / week</span>
+                            <span class="momentum-streak" id="momentum-streak"></span>
+                        </div>
+                        <svg class="momentum-svg" id="momentum-svg" viewBox="0 0 300 68" preserveAspectRatio="none" aria-label="Weekly conversations trend"></svg>
+                    </div>
+                </div>
                 <div class="filters">
                     <select class="filter-select" id="metrics-date" onchange="loadMetrics()">
                         <option value="30" data-i18n="how_were_doing.period_30">Last 30 Days</option>
@@ -1387,6 +1531,7 @@
 
         populateCityDropdown()
         renderMap()
+        initCelebrations()          // surface this-week milestones from loaded data
         initRecentUpdatesTicker()   // no-op after first call; seeds from loaded data
 
         document.getElementById('map-last-updated').textContent =
@@ -1513,6 +1658,137 @@
         if (showDiscovery) discoveryLayer.addTo(map); else discoveryLayer.remove()
 
         renderHotSpots()
+        computePulse()
+    }
+
+    // ── Movement pulse band (always-on headline) ───────────────────────────────
+    // Global totals for the selected period, with change vs. the prior period.
+    // Ignores the city dropdown on purpose — the pulse is the macro heartbeat.
+    function computePulse() {
+        const days    = parseInt(document.getElementById('map-date').value)
+        const cutoff  = cutoffFromDays(days)
+        const prevCut = days > 0 ? new Date(Date.now() - days * 2 * 86400000).toISOString() : null
+
+        const cur = { sp: 0, disc: 0, cities: new Set() }
+        const pri = { sp: 0, disc: 0 }
+
+        mapData.conversations.forEach(ev => {
+            const n = ev.count || 1
+            const inCurrent = !cutoff || ev.created_at >= cutoff
+            const inPrior   = prevCut && ev.created_at >= prevCut && ev.created_at < cutoff
+            if (inCurrent) {
+                if (ev.event_type === 'discovery') cur.disc += n; else cur.sp += n
+                if (ev.city) cur.cities.add(ev.city)
+            } else if (inPrior) {
+                if (ev.event_type === 'discovery') pri.disc += n; else pri.sp += n
+            }
+        })
+
+        setText('pulse-sp',     cur.sp.toLocaleString())
+        setText('pulse-disc',   cur.disc.toLocaleString())
+        setText('pulse-cities', cur.cities.size.toLocaleString())
+        setTrend('pulse-sp-trend',   cur.sp,   pri.sp,   prevCut)
+        setTrend('pulse-disc-trend', cur.disc, pri.disc, prevCut)
+    }
+
+    function setText(id, txt) { const el = document.getElementById(id); if (el) el.textContent = txt }
+
+    function setTrend(id, cur, prior, hasPrev) {
+        const el = document.getElementById(id); if (!el) return
+        if (!hasPrev) { el.textContent = ''; el.className = 'pulse-trend'; return }
+        let cls = 'flat', txt = '—'
+        if (prior === 0) { if (cur > 0) { cls = 'up'; txt = '▲ new' } }
+        else {
+            const d = Math.round((cur - prior) / prior * 100)
+            if (d > 0)      { cls = 'up';   txt = '▲' + d + '%' }
+            else if (d < 0) { cls = 'down'; txt = '▼' + Math.abs(d) + '%' }
+            else            { cls = 'flat'; txt = '0%' }
+        }
+        el.textContent = txt
+        el.className = 'pulse-trend ' + cls
+    }
+
+    // ── Celebration banner (auto-surfaced milestones) ──────────────────────────
+    let celebrateItems     = []
+    let celebrateIdx       = 0
+    let celebrateTimer     = null
+    let celebrateDismissed = false
+
+    // Detect this-week milestones from loaded conversation data: a brand-new city,
+    // a round-number threshold crossed in the last 7 days, or a city's first
+    // discovery conversation. All honest — derived from created_at, nothing faked.
+    function computeMilestones() {
+        const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString()
+        const byCity = {}
+        mapData.conversations.forEach(ev => {
+            if (!ev.city) return
+            const n = ev.count || 1
+            const c = byCity[ev.city] || (byCity[ev.city] = { total: 0, prior: 0, first: null, firstDisc: null })
+            c.total += n
+            if (ev.created_at < weekAgo) c.prior += n
+            if (!c.first || ev.created_at < c.first) c.first = ev.created_at
+            if (ev.event_type === 'discovery' && (!c.firstDisc || ev.created_at < c.firstDisc)) c.firstDisc = ev.created_at
+        })
+
+        const THRESH = [1000, 500, 250, 100, 50]
+        const items = []
+        Object.keys(byCity).forEach(city => {
+            const c = byCity[city]
+            if (c.first && c.first >= weekAgo) {
+                items.push({ icon: '📍', text: 'New city on the map — ' + city, w: 3 }); return
+            }
+            for (const M of THRESH) {
+                if (c.prior < M && c.total >= M) {
+                    items.push({ icon: '🔥', text: city + ' just passed ' + M + ' conversations', w: 2 }); break
+                }
+            }
+            if (c.firstDisc && c.firstDisc >= weekAgo && c.prior > 0) {
+                items.push({ icon: '🌱', text: 'First discovery conversation in ' + city, w: 2 })
+            }
+        })
+        items.sort((a, b) => b.w - a.w)
+        return items.slice(0, 6)
+    }
+
+    function initCelebrations() {
+        if (celebrateDismissed) return
+        celebrateItems = computeMilestones()
+        const banner = document.getElementById('celebrate-banner')
+        if (!banner) return
+        if (celebrateItems.length === 0) { banner.classList.remove('show'); return }
+
+        celebrateIdx = 0
+        banner.classList.add('show')
+        showCelebrate(0)
+
+        if (celebrateTimer) clearInterval(celebrateTimer)
+        const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        if (celebrateItems.length > 1 && !reduce) {
+            celebrateTimer = setInterval(() => {
+                celebrateIdx = (celebrateIdx + 1) % celebrateItems.length
+                showCelebrate(celebrateIdx)
+            }, 5000)
+        }
+    }
+
+    function showCelebrate(i) {
+        const icon = document.querySelector('#celebrate-banner .celebrate-icon')
+        const text = document.getElementById('celebrate-text')
+        const it = celebrateItems[i]
+        if (!it || !text) return
+        text.style.opacity = '0'
+        setTimeout(() => {
+            if (icon) icon.textContent = it.icon
+            text.textContent = it.text
+            text.style.opacity = '1'
+        }, 200)
+    }
+
+    function dismissCelebrate() {
+        celebrateDismissed = true
+        if (celebrateTimer) { clearInterval(celebrateTimer); celebrateTimer = null }
+        const banner = document.getElementById('celebrate-banner')
+        if (banner) banner.classList.remove('show')
     }
 
     // ── Hot spots leaderboard ──────────────────────────────────────────────────
@@ -1611,11 +1887,15 @@
         const cutoff  = cutoffFromDays(days)
         const prevCut = days > 0 ? new Date(Date.now() - days * 2 * 86400000).toISOString() : null
 
-        // One query covers both the current and prior windows.
+        // One query covers the current window, the prior window (for deltas), and
+        // a 12-week momentum sparkline (min 84 days). All Time fetches everything.
         let query = window.supabase
             .from('conversation_events')
             .select('event_type, count, created_at, city, user_id')
-        if (prevCut) query = query.gte('created_at', prevCut)
+        const lowerBound = days > 0
+            ? new Date(Date.now() - Math.max(days * 2, 84) * 86400000).toISOString()
+            : null
+        if (lowerBound) query = query.gte('created_at', lowerBound)
 
         const { data, error } = await query
 
@@ -1682,6 +1962,57 @@
                 card('',       cur.cities.size.toLocaleString(), 'Cities Active',     delta(cur.cities.size, pri.cities.size)) +
                 card('',       cur.fishers.size.toLocaleString(), 'People Fishing',   delta(cur.fishers.size, pri.fishers.size)) +
             '</div>'
+
+        renderMomentum(data || [])
+    }
+
+    // ── Momentum sparkline (last 12 weeks) + growing-streak ────────────────────
+    function renderMomentum(rows) {
+        const card     = document.getElementById('momentum-card')
+        const svg      = document.getElementById('momentum-svg')
+        const streakEl = document.getElementById('momentum-streak')
+        if (!card || !svg) return
+
+        const WEEKS = 12
+        const weekMs = 7 * 86400000
+        const now = Date.now()
+        const buckets = new Array(WEEKS).fill(0)   // index 0 = current week
+        rows.forEach(ev => {
+            const idx = Math.floor((now - new Date(ev.created_at).getTime()) / weekMs)
+            if (idx >= 0 && idx < WEEKS) buckets[idx] += (ev.count || 1)
+        })
+
+        const series = buckets.slice().reverse()   // oldest → newest
+        if (series.every(v => v === 0)) { card.style.display = 'none'; return }
+        card.style.display = 'block'
+
+        const W = 300, H = 68, pad = 4
+        const max = Math.max(1, ...series)
+        const stepX = W / (WEEKS - 1)
+        const pts = series.map((v, i) => [i * stepX, H - pad - (v / max) * (H - pad * 2)])
+        const line = pts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ')
+        const area = 'M' + pts[0][0].toFixed(1) + ',' + H + ' ' +
+                     pts.map(p => 'L' + p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ') +
+                     ' L' + pts[pts.length - 1][0].toFixed(1) + ',' + H + ' Z'
+        const last = pts[pts.length - 1]
+
+        svg.innerHTML =
+            '<defs><linearGradient id="momgrad" x1="0" y1="0" x2="0" y2="1">' +
+              '<stop offset="0" stop-color="#2f8f6f" stop-opacity="0.28"/>' +
+              '<stop offset="1" stop-color="#2f8f6f" stop-opacity="0"/>' +
+            '</linearGradient></defs>' +
+            '<path d="' + area + '" fill="url(#momgrad)"/>' +
+            '<path d="' + line + '" fill="none" stroke="#2f8f6f" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>' +
+            '<circle cx="' + last[0].toFixed(1) + '" cy="' + last[1].toFixed(1) + '" r="3.4" fill="#2f8f6f"/>'
+
+        // Growing streak: trailing run of non-decreasing, non-zero weeks.
+        let grow = 0
+        for (let i = series.length - 1; i > 0; i--) {
+            if (series[i] > 0 && series[i] >= series[i - 1]) grow++
+            else break
+        }
+        if (grow >= 1) { streakEl.textContent = '▲ ' + grow + ' week' + (grow > 1 ? 's' : '') + ' growing'; streakEl.className = 'momentum-streak' }
+        else           { streakEl.textContent = ''; streakEl.className = 'momentum-streak flat' }
     }
 
     // ── Notification ─────────────────────────────────────────────────────────
@@ -1938,6 +2269,7 @@
     window.addEventListener('beforeunload', () => {
         stopTickerScroll()
         clearInterval(tickerPollTimer)
+        clearInterval(celebrateTimer)
         if (tickerSubscription && window.supabase) {
             window.supabase.removeChannel(tickerSubscription)
         }
