@@ -894,7 +894,62 @@
     "share_label_baptisms": "Baptisms:",
     "circle_subtitle": "Acts 2:36–47 — the first church.",
     "present_btn": "PRESENT",
-    "assess_btn": "ASSESS HEALTH"
+    "assess_btn": "ASSESS HEALTH",
+    "gospel_label": "The Gospel",
+    "hint_present": "<b>Present</b> — walk through Acts 2:36–47 and watch each practice added to the church circle.",
+    "hint_assess": "<b>Assess Health</b> — evaluate the health of a church you lead.",
+    "present_back": "← Back",
+    "present_next": "Next →",
+    "present_start_over": "↻ Start over",
+    "present_play": "▶ Play",
+    "present_pause": "⏸ Pause",
+    "present_exit": "Exit presentation",
+    "assess_reset": "↻ Reset",
+    "assess_tap_hint": "Tap each practice to rate it",
+    "present": {
+      "refs": [
+        "Acts 2:36",
+        "Acts 2:38",
+        "Acts 2:38",
+        "Acts 2:38",
+        "Acts 2:42",
+        "Acts 2:42",
+        "Acts 2:42",
+        "Acts 2:42",
+        "Acts 2:43",
+        "Acts 2:45",
+        "Acts 2:46-47",
+        "Acts 2:47"
+      ],
+      "verses": [
+        "\"Let all the house of Israel therefore know certainly that God has made him both Lord and Christ, this Jesus whom you crucified.\"",
+        "Peter said to them, \"Repent, and be baptized, every one of you, in the name of Jesus Christ for the forgiveness of sins, and you will receive the gift of the Holy Spirit.\"",
+        "Peter said to them, \"Repent, and be baptized, every one of you, in the name of Jesus Christ for the forgiveness of sins, and you will receive the gift of the Holy Spirit.\"",
+        "Peter said to them, \"Repent, and be baptized, every one of you, in the name of Jesus Christ for the forgiveness of sins, and you will receive the gift of the Holy Spirit.\"",
+        "They continued steadfastly in the apostles' teaching and fellowship, in the breaking of bread, and prayer.",
+        "They continued steadfastly in the apostles' teaching and fellowship, in the breaking of bread, and prayer.",
+        "They continued steadfastly in the apostles' teaching and fellowship, in the breaking of bread, and prayer.",
+        "They continued steadfastly in the apostles' teaching and fellowship, in the breaking of bread, and prayer.",
+        "Fear came on every soul, and many wonders and signs were done through the apostles.",
+        "They sold their possessions and goods, and distributed them to all, according as anyone had need.",
+        "They took their food with gladness and singleness of heart, praising God, and having favor with all the people.",
+        "And the Lord added to their number day by day those who were being saved."
+      ],
+      "highlights": [
+        "God has made him both Lord and Christ",
+        "Repent",
+        "be baptized, every one of you, in the name of Jesus Christ",
+        "you will receive the gift of the Holy Spirit",
+        "the apostles' teaching",
+        "fellowship",
+        "the breaking of bread",
+        "prayer",
+        "many wonders and signs",
+        "sold their possessions and goods, and distributed them to all",
+        "praising God",
+        "the Lord added to their number day by day those who were being saved"
+      ]
+    }
   },
   "four_questions": {
     "title": "4-1-1 (4 Questions)",

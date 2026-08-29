@@ -33,7 +33,7 @@
 
 <div class="container">
     <div id="page-header" style="text-align:center; padding:26px 16px 4px; background:#fff;">
-        <div style="font-family:'Bebas Neue', cursive; font-size:52px; font-weight:400; letter-spacing:2px; color:#000; line-height:1;" data-i18n="church_assessment.page_title">Church Circle</div>
+        <div style="font-family:'Bebas Neue', cursive; font-size:52px; font-weight:400; letter-spacing:2px; color:#000; line-height:1;" data-i18n="index.church_circle">Church Circle</div>
         <div style="font-size:14px; color:#8e8e93; margin-top:4px;" data-i18n="church_assessment.circle_subtitle">Acts 2:36&ndash;47 &mdash; the first church.</div>
     </div>
 
@@ -71,8 +71,8 @@
         </div>
 
         <div class="landing-hint">
-            <p><b>Present</b> &mdash; walk through Acts 2:36&ndash;47 and watch each practice added to the church circle.</p>
-            <p><b>Assess Health</b> &mdash; evaluate the health of a church you lead.</p>
+            <p data-i18n-html="church_assessment.hint_present"><b>Present</b> &mdash; walk through Acts 2:36&ndash;47 and watch each practice added to the church circle.</p>
+            <p data-i18n-html="church_assessment.hint_assess"><b>Assess Health</b> &mdash; evaluate the health of a church you lead.</p>
         </div>
     </div>
 
@@ -81,7 +81,7 @@
         <div class="present-topbar">
             <div class="present-count" id="present-count">1 / 12</div>
             <div class="present-ref" id="present-ref">Acts 2:36</div>
-            <button class="ot-exit" onclick="exitPresentation()" aria-label="Exit presentation">&times;</button>
+            <button class="ot-exit" onclick="exitPresentation()" aria-label="Exit presentation" data-i18n-aria-label="church_assessment.present_exit">&times;</button>
         </div>
 
         <div class="present-progress"><div class="present-progress-fill" id="present-progress-fill"></div></div>
@@ -116,19 +116,19 @@
         </div>
 
         <div class="present-controls">
-            <button class="present-nav" id="btn-back" onclick="prevStep()">&larr; Back</button>
-            <button class="present-play" id="btn-play" onclick="togglePlay()">&#9654; Play</button>
-            <button class="present-nav" id="btn-next" onclick="nextStep()">Next &rarr;</button>
+            <button class="present-nav" id="btn-back" onclick="prevStep()" data-i18n-html="church_assessment.present_back">&larr; Back</button>
+            <button class="present-play" id="btn-play" onclick="togglePlay()" data-i18n-html="church_assessment.present_play">&#9654; Play</button>
+            <button class="present-nav" id="btn-next" onclick="nextStep()" data-i18n-html="church_assessment.present_next">Next &rarr;</button>
         </div>
         <div class="present-restart-row">
-            <button class="present-restart" onclick="restartPresentation()">&#8635; Start over</button>
+            <button class="present-restart" onclick="restartPresentation()" data-i18n-html="church_assessment.present_start_over">&#8635; Start over</button>
         </div>
     </div>
 
     <!-- ========================== ASSESS HEALTH ========================== -->
     <div id="assessment-view" class="focus-view" style="display:none;">
         <div class="present-topbar">
-            <div class="assess-eyebrow" id="date-info">Tap each practice to rate it</div>
+            <div class="assess-eyebrow" id="date-info" data-i18n="church_assessment.assess_tap_hint">Tap each practice to rate it</div>
             <button class="ot-exit" onclick="closeAssessment()" aria-label="Close">&times;</button>
         </div>
 
@@ -168,7 +168,7 @@
         </div>
 
         <div class="present-restart-row">
-            <button class="present-restart" onclick="showResetPrompt()">&#8635; Reset</button>
+            <button class="present-restart" onclick="showResetPrompt()" data-i18n-html="church_assessment.assess_reset">&#8635; Reset</button>
         </div>
     </div>
 
@@ -456,30 +456,30 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-se
 </style>
 
 <script>
-// ----- Icon labels (grid order) -----
-const ICON_LABELS = [
-    'The Gospel', 'Repent & Believe', 'Baptism', 'Holy Spirit',
-    'The Word', 'Love', "Lord's Supper", 'Prayer',
-    'Signs & Wonders', 'Giving', 'Worship', 'Make Disciples'
+// ----- Practice labels (grid order) -----
+// Reuse the site's already-translated command titles; only "The Gospel" is new.
+const LABEL_KEYS = [
+    'church_assessment.gospel_label',
+    'commands_of_christ.cmd_1_title', 'commands_of_christ.cmd_2_title', 'commands_of_christ.cmd_3_title',
+    'commands_of_christ.cmd_4_title', 'commands_of_christ.cmd_5_title', 'commands_of_christ.cmd_6_title',
+    'commands_of_christ.cmd_7_title', 'commands_of_christ.cmd_8_title', 'commands_of_christ.cmd_9_title',
+    'commands_of_christ.cmd_10_title', 'commands_of_christ.cmd_11_title'
 ];
+function iconLabel(i) { return window.t(LABEL_KEYS[i]); }
 
-// ----- Presentation steps: one PRACTICE (icon) per step, in Acts 2 order. -----
-// `icon` = grid index (0-based). `highlight` is the exact phrase in `text` to
-// mark, so each practice ties to where it appears in Acts 2:36-47 (WEB, public domain).
-const STEPS = [
-    { icon: 0,  ref: 'Acts 2:36',    text: '"Let all the house of Israel therefore know certainly that God has made him both Lord and Christ, this Jesus whom you crucified."', highlight: 'God has made him both Lord and Christ' },
-    { icon: 1,  ref: 'Acts 2:38',    text: 'Peter said to them, "Repent, and be baptized, every one of you, in the name of Jesus Christ for the forgiveness of sins, and you will receive the gift of the Holy Spirit."', highlight: 'Repent' },
-    { icon: 2,  ref: 'Acts 2:38',    text: 'Peter said to them, "Repent, and be baptized, every one of you, in the name of Jesus Christ for the forgiveness of sins, and you will receive the gift of the Holy Spirit."', highlight: 'be baptized, every one of you, in the name of Jesus Christ' },
-    { icon: 3,  ref: 'Acts 2:38',    text: 'Peter said to them, "Repent, and be baptized, every one of you, in the name of Jesus Christ for the forgiveness of sins, and you will receive the gift of the Holy Spirit."', highlight: 'you will receive the gift of the Holy Spirit' },
-    { icon: 4,  ref: 'Acts 2:42',    text: "They continued steadfastly in the apostles' teaching and fellowship, in the breaking of bread, and prayer.", highlight: "the apostles' teaching" },
-    { icon: 5,  ref: 'Acts 2:42',    text: "They continued steadfastly in the apostles' teaching and fellowship, in the breaking of bread, and prayer.", highlight: 'fellowship' },
-    { icon: 6,  ref: 'Acts 2:42',    text: "They continued steadfastly in the apostles' teaching and fellowship, in the breaking of bread, and prayer.", highlight: 'the breaking of bread' },
-    { icon: 7,  ref: 'Acts 2:42',    text: "They continued steadfastly in the apostles' teaching and fellowship, in the breaking of bread, and prayer.", highlight: 'prayer' },
-    { icon: 8,  ref: 'Acts 2:43',    text: 'Fear came on every soul, and many wonders and signs were done through the apostles.', highlight: 'many wonders and signs' },
-    { icon: 9,  ref: 'Acts 2:45',    text: 'They sold their possessions and goods, and distributed them to all, according as anyone had need.', highlight: 'sold their possessions and goods, and distributed them to all' },
-    { icon: 10, ref: 'Acts 2:46-47', text: 'They took their food with gladness and singleness of heart, praising God, and having favor with all the people.', highlight: 'praising God' },
-    { icon: 11, ref: 'Acts 2:47',    text: 'And the Lord added to their number day by day those who were being saved.', highlight: 'the Lord added to their number day by day those who were being saved' }
-];
+// ----- Presentation: one PRACTICE (icon) per step, in Acts 2 order. -----
+// Refs, verse text and highlight phrases come from i18n (church_assessment.present.*)
+// so they translate; each falls back to English when a language hasn't supplied them.
+const STEP_COUNT = 12;
+function getStep(i) {
+    const P = (window.i18n && window.i18n.raw && window.i18n.raw('church_assessment.present')) || {};
+    return {
+        icon: i,
+        ref: (P.refs && P.refs[i]) || '',
+        text: (P.verses && P.verses[i]) || '',
+        highlight: (P.highlights && P.highlights[i]) || ''
+    };
+}
 
 let stepIndex = 0;
 let isPlaying = false;
@@ -527,11 +527,11 @@ function renderVerse(step) {
 }
 
 function renderStep(animateAll) {
-    const step = STEPS[stepIndex];
+    const step = getStep(stepIndex);
     document.getElementById('present-ref').textContent = step.ref;
-    document.getElementById('present-count').textContent = (stepIndex + 1) + ' / ' + STEPS.length;
-    document.getElementById('present-progress-fill').style.width = ((stepIndex + 1) / STEPS.length * 100) + '%';
-    document.getElementById('verse-practice').textContent = ICON_LABELS[step.icon];
+    document.getElementById('present-count').textContent = (stepIndex + 1) + ' / ' + STEP_COUNT;
+    document.getElementById('present-progress-fill').style.width = ((stepIndex + 1) / STEP_COUNT * 100) + '%';
+    document.getElementById('verse-practice').textContent = iconLabel(step.icon);
     renderVerse(step);
 
     // One practice per step, in Acts 2 order: icons 0..stepIndex are black, the rest gray.
@@ -553,11 +553,11 @@ function renderStep(animateAll) {
     });
 
     document.getElementById('btn-back').disabled = (stepIndex === 0);
-    document.getElementById('btn-next').disabled = (stepIndex === STEPS.length - 1);
+    document.getElementById('btn-next').disabled = (stepIndex === STEP_COUNT - 1);
 }
 
 function nextStep() {
-    if (stepIndex < STEPS.length - 1) {
+    if (stepIndex < STEP_COUNT - 1) {
         stepIndex++;
         renderStep(false);
     } else {
@@ -578,10 +578,10 @@ function togglePlay() {
 
 function startPlay() {
     isPlaying = true;
-    document.getElementById('btn-play').innerHTML = '&#10073;&#10073; Pause';
-    if (stepIndex === STEPS.length - 1) { stepIndex = 0; renderStep(true); }
+    document.getElementById('btn-play').innerHTML = window.t('church_assessment.present_pause');
+    if (stepIndex === STEP_COUNT - 1) { stepIndex = 0; renderStep(true); }
     playTimer = setInterval(() => {
-        if (stepIndex < STEPS.length - 1) {
+        if (stepIndex < STEP_COUNT - 1) {
             nextStep();
         } else {
             stopPlay();
@@ -591,7 +591,7 @@ function startPlay() {
 
 function stopPlay() {
     isPlaying = false;
-    document.getElementById('btn-play').innerHTML = '&#9654; Play';
+    document.getElementById('btn-play').innerHTML = window.t('church_assessment.present_play');
     if (playTimer) { clearInterval(playTimer); playTimer = null; }
 }
 
