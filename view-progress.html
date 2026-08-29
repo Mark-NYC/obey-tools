@@ -1147,17 +1147,31 @@
     let overlayCompact = localStorage.getItem('vp_overlay_compact') === 'true'
 
     // ── Theme (light / dark basemap) ──────────────────────────────────────────
-    let baseTileLayer = null
+    // Each theme is a list of tile layers (added in order, so labels sit above
+    // the base). Both providers are free and need no API key — CARTO's dark
+    // basemap now watermarks anonymous tiles, so dark uses Esri Dark Gray.
+    let baseTileLayers = []
     let darkMode = localStorage.getItem('vp_theme') === 'dark'
+    const ESRI = 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas'
     const TILES = {
-        light: {
-            url:  'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-            opts: { attribution: '© OpenStreetMap contributors', maxZoom: 19 }
-        },
-        dark: {
-            url:  'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-            opts: { attribution: '© OpenStreetMap, © CARTO', maxZoom: 20, subdomains: 'abcd' }
-        }
+        light: [
+            { url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+              opts: { attribution: '© OpenStreetMap contributors', maxZoom: 19 } }
+        ],
+        dark: [
+            { url: ESRI + '/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',
+              opts: { attribution: 'Tiles © Esri — Esri, HERE, Garmin, © OpenStreetMap contributors',
+                      maxNativeZoom: 16, maxZoom: 19 } },
+            { url: ESRI + '/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}',
+              opts: { maxNativeZoom: 16, maxZoom: 19 } }
+        ]
+    }
+
+    function setBaseLayers() {
+        if (!map) return
+        baseTileLayers.forEach(l => map.removeLayer(l))
+        baseTileLayers = (darkMode ? TILES.dark : TILES.light)
+            .map(t => L.tileLayer(t.url, t.opts).addTo(map))
     }
 
     function applyThemeChrome() {
@@ -1172,19 +1186,11 @@
         applyDesktopMapLayout()
     }
 
-    function applyMapTiles() {
-        if (!map) return
-        const t = darkMode ? TILES.dark : TILES.light
-        if (baseTileLayer) map.removeLayer(baseTileLayer)
-        baseTileLayer = L.tileLayer(t.url, t.opts).addTo(map)
-        if (baseTileLayer.bringToBack) baseTileLayer.bringToBack()
-    }
-
     function toggleTheme() {
         darkMode = !darkMode
         localStorage.setItem('vp_theme', darkMode ? 'dark' : 'light')
         applyThemeChrome()
-        applyMapTiles()
+        setBaseLayers()
     }
 
     // ── Overlay compact toggle ────────────────────────────────────────────────
@@ -1411,8 +1417,7 @@
             await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))
 
             map = L.map('map-el', { zoomControl: true }).setView([39.8283, -98.5795], 4)
-            const tile = darkMode ? TILES.dark : TILES.light
-            baseTileLayer = L.tileLayer(tile.url, tile.opts).addTo(map)
+            setBaseLayers()
 
             churchLayer    = L.layerGroup().addTo(map)
             spiritualLayer = L.layerGroup()
