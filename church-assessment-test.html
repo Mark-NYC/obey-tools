@@ -122,6 +122,11 @@
             <button class="ot-exit" onclick="closeAssessment()" aria-label="Close">&times;</button>
         </div>
 
+        <div class="assess-actions">
+            <button class="btn btn-primary" onclick="assessStartHere()">START HERE</button>
+            <button class="btn btn-secondary" onclick="assessShare()">SHARE</button>
+        </div>
+
         <div class="assessment-container">
             <div class="church-circle solid" id="assess-circle">
                 <div class="vertical-line left"></div>
@@ -155,6 +160,8 @@
         <div class="present-restart-row">
             <button class="present-restart" onclick="resetAssessment()">&#8635; Reset</button>
         </div>
+
+        <div id="assess-toast" class="assess-toast"></div>
     </div>
 </div>
 
@@ -261,6 +268,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-se
 .focus-view .verse-card,
 .focus-view .present-controls,
 .focus-view .present-restart-row,
+.focus-view .assess-actions,
 .focus-view .assessment-key { flex-shrink: 0; }
 /* Circle area takes the slack; the circle is a fixed square sized from the
    viewport (deterministic — no percentage-height, which iOS Safari collapses) */
@@ -268,7 +276,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-se
 .focus-view .church-circle { min-width: 190px; min-height: 190px; max-width: 100%; box-shadow: none; }
 /* Present has more chrome (verse card + controls) than Assess, so size each. */
 #presentation-view .church-circle { width: min(86vw, calc(100dvh - 366px)); height: min(86vw, calc(100dvh - 366px)); }
-#assessment-view  .church-circle { width: min(86vw, calc(100dvh - 220px)); height: min(86vw, calc(100dvh - 220px)); }
+#assessment-view  .church-circle { width: min(86vw, calc(100dvh - 300px)); height: min(86vw, calc(100dvh - 300px)); }
 /* Icons and the health disc sized relative to their cell so they scale with the circle */
 .focus-view .icon-cell img { width: 72%; height: 72%; }
 /* Health disc: keep it a circle even though cells are taller than wide */
@@ -278,6 +286,10 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-se
 /* Assess-mode chrome */
 #assess-grid .icon-cell { cursor: pointer; }
 .assess-eyebrow { font-size: 12px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: #8e8e93; }
+.assess-actions { display: flex; gap: 8px; padding: 6px 16px 2px; }
+.assess-actions .btn { flex: 1; }
+.assess-toast { position: fixed; left: 50%; bottom: calc(88px + env(safe-area-inset-bottom)); transform: translateX(-50%); background: rgba(0,0,0,0.86); color: #fff; padding: 10px 16px; border-radius: 12px; font-size: 14px; font-weight: 600; z-index: 1200; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; max-width: calc(100% - 40px); text-align: center; }
+.assess-toast.show { opacity: 1; }
 .assessment-key { display: flex; justify-content: center; flex-wrap: wrap; gap: 18px; padding: 8px 16px 2px; }
 .assessment-key .key-item { display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 600; color: #1c1c1e; }
 .assessment-key .key-dot { width: 12px; height: 12px; border-radius: 50%; }
@@ -498,6 +510,21 @@ function resetAssessment() {
     assessState = {};
     saveAssess();
     renderAssessCells();
+}
+
+let assessToastTimer = null;
+function assessToast(msg) {
+    const t = document.getElementById('assess-toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(assessToastTimer);
+    assessToastTimer = setTimeout(() => t.classList.remove('show'), 2400);
+}
+function assessStartHere() {
+    assessToast('Tap each practice to rate its health.');
+}
+function assessShare() {
+    assessToast('Sharing your assessment is available in the full tool.');
 }
 
 loadAssess();
