@@ -425,23 +425,23 @@
         .pulse-stats { flex: 1; display: flex; min-width: 0; }
         .pulse-item {
             flex: 1 1 0;
-            padding: 0 9px;
+            padding: 0 7px;
             border-right: 1px solid #ececef;
             min-width: 0;
         }
         .pulse-item:last-child { border-right: none; }
         .pulse-num {
-            font-size: 22px;
+            font-size: 20px;
             font-weight: 800;
             color: #1c1c1e;
             line-height: 1;
             font-variant-numeric: tabular-nums;
             display: flex;
             align-items: baseline;
-            gap: 5px;
+            gap: 4px;
             flex-wrap: wrap;
         }
-        .pulse-num .pulse-trend { font-size: 11px; font-weight: 700; }
+        .pulse-num .pulse-trend { font-size: 10px; font-weight: 700; }
         .pulse-trend.up { color: #2f8f6f; }
         .pulse-trend.down { color: #c0362f; }
         .pulse-trend.flat { color: #8e8e93; }
@@ -456,6 +456,38 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
+
+        /* ── On-map metric badges ──────────────────────────────────── */
+        .count-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transform: translate(-50%, -50%);
+            width: max-content;
+            background: rgba(20, 22, 28, 0.82);
+            color: #fff;
+            padding: 2px 7px;
+            border-radius: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: 11px;
+            line-height: 1.4;
+            white-space: nowrap;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+            pointer-events: auto;
+            cursor: pointer;
+        }
+        .count-badge .cb-num  { font-weight: 800; font-size: 12px; }
+        .count-badge .cb-city { font-weight: 600; opacity: 0.82; font-size: 10px; }
+        .count-badge .cb-lab  {
+            font-weight: 700; font-size: 10px; color: #ffd8a6;
+            margin-left: 2px; padding-left: 5px;
+            border-left: 1px solid rgba(255, 255, 255, 0.25);
+        }
+        .count-badge.c1 { border-color: rgba(243, 177, 90, 0.5); }
+        .count-badge.c2 { border-color: rgba(238, 138, 60, 0.6); }
+        .count-badge.c3 { border-color: rgba(219, 90, 53, 0.7); }
+        .count-badge.c4 { background: rgba(150, 30, 28, 0.9); border-color: rgba(255, 120, 90, 0.6); }
 
         /* ── Celebration banner (auto-surfaced milestones) ─────────── */
         .celebrate-banner {
@@ -1006,6 +1038,10 @@
                             <div class="pulse-num"><span id="pulse-cities-l">—</span></div>
                             <div class="pulse-lab">Cities</div>
                         </div>
+                        <div class="pulse-item">
+                            <div class="pulse-num"><span id="pulse-laborers-l">—</span></div>
+                            <div class="pulse-lab" title="Distinct people with 3+ updates in the last 30 days, in view">Laborers</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1024,6 +1060,10 @@
                     <label class="layer-toggle">
                         <input type="checkbox" id="toggle-discovery" checked onchange="renderMap()">
                         <span data-i18n="how_were_doing.layer_discovery">Discovery Convos</span>
+                    </label>
+                    <label class="layer-toggle">
+                        <input type="checkbox" id="toggle-counts" checked onchange="renderMap()">
+                        <span>Counts</span>
                     </label>
                 </div>
 
@@ -1138,10 +1178,12 @@
     // ── Map state ────────────────────────────────────────────────────────────
     let map            = null
     let mapInitPromise = null   // init lock — prevents concurrent L.map() calls
-    let churchLayer    = null
-    let spiritualLayer = null
-    let discoveryLayer = null
+    let churchLayer     = null
+    let spiritualLayer  = null
+    let discoveryLayer  = null
+    let metricLabelLayer = null
     let mapData = { churches: [], conversations: [] }
+    let userLatLng = null   // resolved on load; used for the "All Cities" continent view
 
     // Persist across page loads via localStorage
     let overlayCompact = localStorage.getItem('vp_overlay_compact') === 'true'
@@ -1223,6 +1265,7 @@
                 if (typeof s.churches  === 'boolean') document.getElementById('toggle-churches').checked  = s.churches
                 if (typeof s.spiritual === 'boolean') document.getElementById('toggle-spiritual').checked = s.spiritual
                 if (typeof s.discovery === 'boolean') document.getElementById('toggle-discovery').checked = s.discovery
+                if (typeof s.counts    === 'boolean') document.getElementById('toggle-counts').checked    = s.counts
             } catch (_) { /* bad JSON — keep HTML defaults (all checked) */ }
         }
         // No saved state → HTML defaults (all three checked) apply as-is
@@ -1232,7 +1275,8 @@
         localStorage.setItem('vp_layer_state', JSON.stringify({
             churches:  document.getElementById('toggle-churches').checked,
             spiritual: document.getElementById('toggle-spiritual').checked,
-            discovery: document.getElementById('toggle-discovery').checked
+            discovery: document.getElementById('toggle-discovery').checked,
+            counts:    document.getElementById('toggle-counts').checked
         }))
     }
 
@@ -1419,9 +1463,10 @@
             map = L.map('map-el', { zoomControl: true }).setView([39.8283, -98.5795], 4)
             setBaseLayers()
 
-            churchLayer    = L.layerGroup().addTo(map)
-            spiritualLayer = L.layerGroup()
-            discoveryLayer = L.layerGroup()
+            churchLayer      = L.layerGroup().addTo(map)
+            spiritualLayer   = L.layerGroup()
+            discoveryLayer   = L.layerGroup()
+            metricLabelLayer = L.layerGroup().addTo(map)
 
             // Keep the "In view" pulse row in sync as the user pans / zooms.
             map.on('moveend', computePulse)
@@ -1463,6 +1508,29 @@
         )
     }
 
+    // Rough continent bounding boxes [south, west, north, east]. Used for the
+    // "All Cities" view — zoom out to the viewer's continent, not the whole globe.
+    const CONTINENTS = [
+        { code: 'NA', s: 7,   w: -168, n: 72, e: -52  },
+        { code: 'SA', s: -56, w: -82,  n: 13, e: -34  },
+        { code: 'EU', s: 34,  w: -25,  n: 72, e: 45   },
+        { code: 'AF', s: -35, w: -18,  n: 38, e: 52   },
+        { code: 'AS', s: 5,   w: 40,   n: 78, e: 180  },
+        { code: 'OC', s: -50, w: 110,  n: 0,  e: 180  }
+    ]
+    function continentBoundsFor(lat, lng) {
+        if (typeof lat !== 'number' || typeof lng !== 'number') return null
+        const c = CONTINENTS.find(b => lat >= b.s && lat <= b.n && lng >= b.w && lng <= b.e)
+        return c ? L.latLngBounds([c.s, c.w], [c.n, c.e]) : null
+    }
+    function zoomToContinent() {
+        if (!map) return
+        const src = userLatLng || NYC
+        const b = continentBoundsFor(src.lat, src.lng)
+        if (b) map.fitBounds(b, { padding: [20, 20] })
+        else   map.setView([src.lat, src.lng], 3)
+    }
+
     async function centerOnUserLocation() {
         if (!map) {
             console.error('centerOnUserLocation: map is not initialised yet')
@@ -1471,6 +1539,7 @@
 
         const loc = await getBestUserLocation() || NYC
         console.log('centerOnUserLocation: resolved to', loc.lat, loc.lng)
+        userLatLng = loc   // remember for the "All Cities" continent view
 
         zoomToRadius(loc.lat, loc.lng, 10)
         setTimeout(() => map.invalidateSize(), 100)
@@ -1489,7 +1558,8 @@
     // Zoom to selected city using the first matching row's coordinates.
     // Called before renderMap() so filtering and zoom happen together.
     function handleCitySelectionZoom(city) {
-        if (!city || !map) return
+        if (!map) return
+        if (!city) { zoomToContinent(); return }   // "All Cities" → viewer's continent
         const match = mapData.churches.find(c => c.city === city && c.latitude && c.longitude)
                    || mapData.conversations.find(c => c.city === city && c.latitude && c.longitude)
         if (!match) { console.warn('handleCitySelectionZoom: no coordinates found for city', city); return }
@@ -1515,7 +1585,7 @@
                 .eq('is_church', true),
             window.supabase
                 .from('conversation_events')
-                .select('latitude, longitude, location_text, city, event_type, count, created_at')
+                .select('latitude, longitude, location_text, city, event_type, count, created_at, user_id')
         ])
 
         if (churchError || convoError) {
@@ -1583,6 +1653,7 @@
         const showChurches  = document.getElementById('toggle-churches').checked
         const showSpiritual = document.getElementById('toggle-spiritual').checked
         const showDiscovery = document.getElementById('toggle-discovery').checked
+        const showCounts    = document.getElementById('toggle-counts').checked
         const city   = document.getElementById('map-city').value
         const days   = parseInt(document.getElementById('map-date').value)
         const cutoff = cutoffFromDays(days)
@@ -1669,6 +1740,44 @@
         if (showSpiritual) spiritualLayer.addTo(map); else spiritualLayer.remove()
         if (showDiscovery) discoveryLayer.addTo(map); else discoveryLayer.remove()
 
+        // ── On-map metric badges (per city: total convos + laborers) ──
+        metricLabelLayer.clearLayers()
+        if (showCounts) {
+            const L30 = new Date(Date.now() - 30 * 86400000).toISOString()
+            const cityAgg = {}
+            mapData.conversations.forEach(ev => {
+                if (city   && ev.city !== city)       return
+                if (cutoff && ev.created_at < cutoff) return
+                if (!ev.city || !ev.latitude || !ev.longitude) return
+                const a = cityAgg[ev.city] || (cityAgg[ev.city] = { total: 0, la: 0, lo: 0, n: 0, users: {} })
+                a.total += (ev.count || 1)
+                a.la += +ev.latitude; a.lo += +ev.longitude; a.n++
+                if (ev.user_id && ev.created_at >= L30) a.users[ev.user_id] = (a.users[ev.user_id] || 0) + 1
+            })
+            Object.entries(cityAgg)
+                .map(([c, a]) => ({
+                    city: c, total: a.total, lat: a.la / a.n, lng: a.lo / a.n,
+                    laborers: Object.values(a.users).filter(v => v >= 3).length
+                }))
+                .sort((x, y) => y.total - x.total)
+                .slice(0, 15)
+                .forEach(a => {
+                    const lvl = a.total <= 3 ? 'c1' : a.total <= 10 ? 'c2' : a.total <= 20 ? 'c3' : 'c4'
+                    const lab = a.laborers > 0 ? '<span class="cb-lab" title="Laborers (3+ updates in 30 days)">' + a.laborers + '⚒</span>' : ''
+                    const html = '<span class="cb-num">' + a.total + '</span>' +
+                                 '<span class="cb-city">' + escHtml(a.city) + '</span>' + lab
+                    const marker = L.marker([a.lat, a.lng], {
+                        icon: L.divIcon({ className: 'count-badge ' + lvl, html: html, iconSize: [0, 0] }),
+                        interactive: true, keyboard: false
+                    })
+                    marker.on('click', () => flyToCity(a.city))
+                    metricLabelLayer.addLayer(marker)
+                })
+            metricLabelLayer.addTo(map)
+        } else {
+            metricLabelLayer.remove()
+        }
+
         renderHotSpots()
         computePulse()
     }
@@ -1684,11 +1793,18 @@
         const bounds  = map ? map.getBounds() : null
 
         const cur = { sp: 0, disc: 0, cities: new Set() }, pri = { sp: 0, disc: 0 }
+        // Laborers: distinct users with 3+ updates in the last 30 days, in view.
+        // A fixed 30-day consistency window, independent of the date filter.
+        const labor30 = new Date(Date.now() - 30 * 86400000).toISOString()
+        const laborUsers = {}
 
         mapData.conversations.forEach(ev => {
             const inBox = bounds && ev.latitude && ev.longitude &&
                           bounds.contains([+ev.latitude, +ev.longitude])
             if (!inBox) return
+            if (ev.user_id && ev.created_at >= labor30) {
+                laborUsers[ev.user_id] = (laborUsers[ev.user_id] || 0) + 1
+            }
             const n = ev.count || 1
             const isDisc = ev.event_type === 'discovery'
             if (!cutoff || ev.created_at >= cutoff) {
@@ -1699,9 +1815,12 @@
             }
         })
 
-        setText('pulse-sp-l',     cur.sp.toLocaleString())
-        setText('pulse-disc-l',   cur.disc.toLocaleString())
-        setText('pulse-cities-l', cur.cities.size.toLocaleString())
+        const laborers = Object.values(laborUsers).filter(v => v >= 3).length
+
+        setText('pulse-sp-l',       cur.sp.toLocaleString())
+        setText('pulse-disc-l',     cur.disc.toLocaleString())
+        setText('pulse-cities-l',   cur.cities.size.toLocaleString())
+        setText('pulse-laborers-l', laborers.toLocaleString())
         setTrend('pulse-sp-l-trend',   cur.sp,   pri.sp,   prevCut)
         setTrend('pulse-disc-l-trend', cur.disc, pri.disc, prevCut)
     }
