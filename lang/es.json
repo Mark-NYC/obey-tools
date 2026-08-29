@@ -905,7 +905,51 @@
     "present_pause": "⏸ Pausar",
     "present_exit": "Salir de la presentación",
     "assess_reset": "↻ Reiniciar",
-    "assess_tap_hint": "Toca cada práctica para evaluarla"
+    "assess_tap_hint": "Toca cada práctica para evaluarla",
+    "present": {
+      "refs": [
+        "Hechos 2:36",
+        "Hechos 2:38",
+        "Hechos 2:38",
+        "Hechos 2:38",
+        "Hechos 2:42",
+        "Hechos 2:42",
+        "Hechos 2:42",
+        "Hechos 2:42",
+        "Hechos 2:43",
+        "Hechos 2:45",
+        "Hechos 2:47",
+        "Hechos 2:47"
+      ],
+      "verses": [
+        "Sepa pues ciertísimamente toda la casa de Israel, que á este Jesús que vosotros crucificasteis, Dios ha hecho Señor y Cristo.",
+        "Y Pedro les dice: Arrepentíos, y bautícese cada uno de vosotros en el nombre de Jesucristo para perdón de los pecados; y recibiréis el don del Espíritu Santo.",
+        "Y Pedro les dice: Arrepentíos, y bautícese cada uno de vosotros en el nombre de Jesucristo para perdón de los pecados; y recibiréis el don del Espíritu Santo.",
+        "Y Pedro les dice: Arrepentíos, y bautícese cada uno de vosotros en el nombre de Jesucristo para perdón de los pecados; y recibiréis el don del Espíritu Santo.",
+        "Y perseveraban en la doctrina de los apóstoles, y en la comunión, y en el partimiento del pan, y en las oraciones.",
+        "Y perseveraban en la doctrina de los apóstoles, y en la comunión, y en el partimiento del pan, y en las oraciones.",
+        "Y perseveraban en la doctrina de los apóstoles, y en la comunión, y en el partimiento del pan, y en las oraciones.",
+        "Y perseveraban en la doctrina de los apóstoles, y en la comunión, y en el partimiento del pan, y en las oraciones.",
+        "Y toda persona tenía temor: y muchas maravillas y señales eran hechas por los apóstoles.",
+        "Y vendían las posesiones, y las haciendas, y repartíanlas á todos, como cada uno había menester.",
+        "Alabando á Dios, y teniendo gracia con todo el pueblo. Y el Señor añadía cada día á la iglesia los que habían de ser salvos.",
+        "Alabando á Dios, y teniendo gracia con todo el pueblo. Y el Señor añadía cada día á la iglesia los que habían de ser salvos."
+      ],
+      "highlights": [
+        "Dios ha hecho Señor y Cristo",
+        "Arrepentíos",
+        "bautícese cada uno de vosotros en el nombre de Jesucristo",
+        "recibiréis el don del Espíritu Santo",
+        "la doctrina de los apóstoles",
+        "la comunión",
+        "el partimiento del pan",
+        "las oraciones",
+        "muchas maravillas y señales",
+        "vendían las posesiones, y las haciendas, y repartíanlas á todos",
+        "Alabando á Dios",
+        "el Señor añadía cada día á la iglesia los que habían de ser salvos"
+      ]
+    }
   },
   "four_questions": {
     "title": "4-1-1 (4 Preguntas)",

@@ -905,7 +905,51 @@
     "present_pause": "⏸ Pause",
     "present_exit": "Präsentation verlassen",
     "assess_reset": "↻ Zurücksetzen",
-    "assess_tap_hint": "Tippe auf jede Praxis, um sie zu bewerten"
+    "assess_tap_hint": "Tippe auf jede Praxis, um sie zu bewerten",
+    "present": {
+      "refs": [
+        "Apostelgeschichte 2:36",
+        "Apostelgeschichte 2:38",
+        "Apostelgeschichte 2:38",
+        "Apostelgeschichte 2:38",
+        "Apostelgeschichte 2:42",
+        "Apostelgeschichte 2:42",
+        "Apostelgeschichte 2:42",
+        "Apostelgeschichte 2:42",
+        "Apostelgeschichte 2:43",
+        "Apostelgeschichte 2:45",
+        "Apostelgeschichte 2:47",
+        "Apostelgeschichte 2:47"
+      ],
+      "verses": [
+        "So wisse nun das ganze Haus Israel gewiß, daß Gott diesen Jesus, den ihr gekreuzigt habt, zu einem HERRN und Christus gemacht hat.",
+        "Petrus sprach zu ihnen: Tut Buße und lasse sich ein jeglicher taufen auf den Namen Jesu Christi zur Vergebung der Sünden, so werdet ihr empfangen die Gabe des Heiligen Geistes.",
+        "Petrus sprach zu ihnen: Tut Buße und lasse sich ein jeglicher taufen auf den Namen Jesu Christi zur Vergebung der Sünden, so werdet ihr empfangen die Gabe des Heiligen Geistes.",
+        "Petrus sprach zu ihnen: Tut Buße und lasse sich ein jeglicher taufen auf den Namen Jesu Christi zur Vergebung der Sünden, so werdet ihr empfangen die Gabe des Heiligen Geistes.",
+        "Sie blieben aber beständig in der Apostel Lehre und in der Gemeinschaft und im Brotbrechen und im Gebet.",
+        "Sie blieben aber beständig in der Apostel Lehre und in der Gemeinschaft und im Brotbrechen und im Gebet.",
+        "Sie blieben aber beständig in der Apostel Lehre und in der Gemeinschaft und im Brotbrechen und im Gebet.",
+        "Sie blieben aber beständig in der Apostel Lehre und in der Gemeinschaft und im Brotbrechen und im Gebet.",
+        "Es kam auch eine Furcht über alle Seelen, und geschahen viele Wunder und Zeichen durch die Apostel.",
+        "Ihre Güter und Habe verkauften sie und teilten sie aus unter alle, nach dem jedermann not war.",
+        "lobten Gott und hatten Gnade bei dem ganzen Volk. Der HERR aber tat hinzu täglich, die da selig wurden, zu der Gemeinde.",
+        "lobten Gott und hatten Gnade bei dem ganzen Volk. Der HERR aber tat hinzu täglich, die da selig wurden, zu der Gemeinde."
+      ],
+      "highlights": [
+        "zu einem HERRN und Christus gemacht hat",
+        "Tut Buße",
+        "lasse sich ein jeglicher taufen auf den Namen Jesu Christi",
+        "werdet ihr empfangen die Gabe des Heiligen Geistes",
+        "der Apostel Lehre",
+        "der Gemeinschaft",
+        "im Brotbrechen",
+        "im Gebet",
+        "viele Wunder und Zeichen",
+        "Ihre Güter und Habe verkauften sie und teilten sie aus unter alle",
+        "lobten Gott",
+        "Der HERR aber tat hinzu täglich, die da selig wurden"
+      ]
+    }
   },
   "four_questions": {
     "title": "4-1-1 (4 Fragen)",
