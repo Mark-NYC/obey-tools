@@ -486,6 +486,85 @@ let isPlaying = false;
 let playTimer = null;
 const PLAY_INTERVAL = 4500;
 
+// ── Passage narration ──────────────────────────────────────────────────
+// Play reads the current verse aloud using the browser's built-in speech
+// synthesis (no audio files, no network). English always narrates via the
+// default voice; other languages narrate only when the device has a voice
+// for them, otherwise Play silently auto-advances on a timer as before.
+let narrateMode = false;
+let speechGen = 0;   // bumped to invalidate a stale utterance's callbacks
+const TTS_LANG = { en:'en-US', es:'es-ES', de:'de-DE', ru:'ru-RU', uk:'uk-UA', ar:'ar-SA', ta:'ta-IN', bn:'bn-IN', ne:'ne-NP', si:'si-LK', bo:'bo' };
+
+if ('speechSynthesis' in window) {
+    try { speechSynthesis.getVoices(); } catch (e) {}
+    speechSynthesis.onvoiceschanged = () => { try { speechSynthesis.getVoices(); } catch (e) {} };
+}
+
+function currentLang() {
+    return (window.i18n && window.i18n.getLang && window.i18n.getLang()) || 'en';
+}
+
+// A device voice matching `lang` (exact tag, then region variant, then base), or null.
+function voiceFor(lang) {
+    if (!('speechSynthesis' in window)) return null;
+    let voices = [];
+    try { voices = speechSynthesis.getVoices() || []; } catch (e) { return null; }
+    const tag = (TTS_LANG[lang] || lang).toLowerCase();
+    const base = lang.toLowerCase();
+    return voices.find(v => v.lang && v.lang.toLowerCase() === tag)
+        || voices.find(v => v.lang && v.lang.toLowerCase().startsWith(base + '-'))
+        || voices.find(v => v.lang && v.lang.toLowerCase() === base)
+        || null;
+}
+
+// English rides the browser's default voice; other languages need a real
+// matching voice, or we skip audio rather than mispronounce the passage.
+function canNarrate() {
+    if (!('speechSynthesis' in window)) return false;
+    const lang = currentLang();
+    if (lang === 'en') return true;
+    return !!voiceFor(lang);
+}
+
+// Speak the current step's verse; when it finishes, advance and speak the next.
+function speakCurrentStep() {
+    if (!('speechSynthesis' in window)) return;
+    const myGen = ++speechGen;
+    const lang = currentLang();
+    const u = new SpeechSynthesisUtterance(getStep(stepIndex).text);
+    const v = voiceFor(lang);
+    if (v) { u.voice = v; u.lang = v.lang; } else { u.lang = TTS_LANG[lang] || lang; }
+    u.rate = 0.95;
+    u.onend = () => {
+        if (myGen !== speechGen || !isPlaying) return;
+        if (stepIndex < STEP_COUNT - 1) { stepIndex++; renderStep(false); speakCurrentStep(); }
+        else stopPlay();
+    };
+    u.onerror = () => {
+        if (myGen !== speechGen || !isPlaying) return;
+        if (stepIndex < STEP_COUNT - 1) {
+            stepIndex++; renderStep(false);
+            playTimer = setTimeout(() => { if (isPlaying && speechGen === myGen) speakCurrentStep(); }, 800);
+        } else stopPlay();
+    };
+    // Chrome can wedge in a "paused" state after prior use; nudge it back.
+    try { speechSynthesis.resume(); } catch (e) {}
+    // Only cancel when something is actually in flight. An unconditional
+    // cancel() immediately before speak() silently drops the utterance in
+    // Chrome — the cause of "no audio on the first Play". When we do need to
+    // interrupt, defer the new speak briefly; the engine is already unlocked
+    // by then, so it's safe (and the first Play still speaks synchronously,
+    // which iOS requires).
+    if (speechSynthesis.speaking || speechSynthesis.pending) {
+        try { speechSynthesis.cancel(); } catch (e) {}
+        playTimer = setTimeout(() => {
+            if (isPlaying && speechGen === myGen) { try { speechSynthesis.speak(u); } catch (e) {} }
+        }, 130);
+    } else {
+        try { speechSynthesis.speak(u); } catch (e) {}
+    }
+}
+
 function startPresentation() {
     document.getElementById('top-home').style.display = 'none';
     document.getElementById('page-header').style.display = 'none';
@@ -560,6 +639,7 @@ function nextStep() {
     if (stepIndex < STEP_COUNT - 1) {
         stepIndex++;
         renderStep(false);
+        if (isPlaying && narrateMode) speakCurrentStep();  // re-anchor narration to the new step
     } else {
         stopPlay();
     }
@@ -569,6 +649,7 @@ function prevStep() {
     if (stepIndex > 0) {
         stepIndex--;
         renderStep(true);
+        if (isPlaying && narrateMode) speakCurrentStep();  // re-anchor narration to the new step
     }
 }
 
@@ -580,19 +661,27 @@ function startPlay() {
     isPlaying = true;
     document.getElementById('btn-play').innerHTML = window.t('church_assessment.present_pause');
     if (stepIndex === STEP_COUNT - 1) { stepIndex = 0; renderStep(true); }
-    playTimer = setInterval(() => {
-        if (stepIndex < STEP_COUNT - 1) {
-            nextStep();
-        } else {
-            stopPlay();
-        }
-    }, PLAY_INTERVAL);
+    narrateMode = canNarrate();
+    if (narrateMode) {
+        speakCurrentStep();                 // audio-paced: advance when each verse finishes
+    } else {
+        playTimer = setInterval(() => {      // silent auto-advance (no voice available)
+            if (stepIndex < STEP_COUNT - 1) {
+                nextStep();
+            } else {
+                stopPlay();
+            }
+        }, PLAY_INTERVAL);
+    }
 }
 
 function stopPlay() {
     isPlaying = false;
+    narrateMode = false;
+    speechGen++;                             // invalidate any in-flight utterance callbacks
     document.getElementById('btn-play').innerHTML = window.t('church_assessment.present_play');
-    if (playTimer) { clearInterval(playTimer); playTimer = null; }
+    if (playTimer) { clearInterval(playTimer); clearTimeout(playTimer); playTimer = null; }
+    if ('speechSynthesis' in window) { try { speechSynthesis.cancel(); } catch (e) {} }
 }
 
 // Keyboard navigation for desktop presenting
