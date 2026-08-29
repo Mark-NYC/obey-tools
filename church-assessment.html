@@ -493,6 +493,8 @@ const PLAY_INTERVAL = 4500;
 // for them, otherwise Play silently auto-advances on a timer as before.
 let narrateMode = false;
 let speechGen = 0;   // bumped to invalidate a stale utterance's callbacks
+let lastSpokenText = '';               // verse last read aloud, to avoid re-reading
+const SAME_VERSE_DWELL = 2200;         // ms to linger on an extra practice within a verse already read
 const TTS_LANG = { en:'en-US', es:'es-ES', de:'de-DE', ru:'ru-RU', uk:'uk-UA', ar:'ar-SA', ta:'ta-IN', bn:'bn-IN', ne:'ne-NP', si:'si-LK', bo:'bo' };
 
 if ('speechSynthesis' in window) {
@@ -526,7 +528,34 @@ function canNarrate() {
     return !!voiceFor(lang);
 }
 
-// Speak the current step's verse; when it finishes, advance and speak the next.
+function clearPlayTimer() {
+    if (playTimer) { clearTimeout(playTimer); clearInterval(playTimer); playTimer = null; }
+}
+
+// Advance to the next step and keep playback going; stop at the end.
+function advancePlayback() {
+    if (!isPlaying) return;
+    if (stepIndex < STEP_COUNT - 1) { stepIndex++; renderStep(false); playFromCurrent(); }
+    else stopPlay();
+}
+
+// Present the current step during Play: read its verse only if it differs
+// from the verse we just read; when several practices share one verse, walk
+// their highlights on a timer instead of re-reading the whole verse.
+function playFromCurrent() {
+    clearPlayTimer();
+    const step = getStep(stepIndex);
+    if (step.text && step.text !== lastSpokenText) {
+        speakCurrentStep();                     // new verse: read it (onend advances)
+    } else {
+        const myGen = ++speechGen;               // same verse already read: just linger
+        playTimer = setTimeout(() => {
+            if (isPlaying && speechGen === myGen) advancePlayback();
+        }, SAME_VERSE_DWELL);
+    }
+}
+
+// Speak the current step's verse; when it finishes, advance playback.
 function speakCurrentStep() {
     if (!('speechSynthesis' in window)) return;
     const myGen = ++speechGen;
@@ -535,17 +564,14 @@ function speakCurrentStep() {
     const v = voiceFor(lang);
     if (v) { u.voice = v; u.lang = v.lang; } else { u.lang = TTS_LANG[lang] || lang; }
     u.rate = 0.95;
+    lastSpokenText = getStep(stepIndex).text;
     u.onend = () => {
         if (myGen !== speechGen || !isPlaying) return;
-        if (stepIndex < STEP_COUNT - 1) { stepIndex++; renderStep(false); speakCurrentStep(); }
-        else stopPlay();
+        advancePlayback();
     };
     u.onerror = () => {
         if (myGen !== speechGen || !isPlaying) return;
-        if (stepIndex < STEP_COUNT - 1) {
-            stepIndex++; renderStep(false);
-            playTimer = setTimeout(() => { if (isPlaying && speechGen === myGen) speakCurrentStep(); }, 800);
-        } else stopPlay();
+        playTimer = setTimeout(() => { if (isPlaying && speechGen === myGen) advancePlayback(); }, 600);
     };
     // Chrome can wedge in a "paused" state after prior use; nudge it back.
     try { speechSynthesis.resume(); } catch (e) {}
@@ -639,7 +665,7 @@ function nextStep() {
     if (stepIndex < STEP_COUNT - 1) {
         stepIndex++;
         renderStep(false);
-        if (isPlaying && narrateMode) speakCurrentStep();  // re-anchor narration to the new step
+        if (isPlaying && narrateMode) playFromCurrent();  // re-anchor narration to the new step
     } else {
         stopPlay();
     }
@@ -649,7 +675,7 @@ function prevStep() {
     if (stepIndex > 0) {
         stepIndex--;
         renderStep(true);
-        if (isPlaying && narrateMode) speakCurrentStep();  // re-anchor narration to the new step
+        if (isPlaying && narrateMode) playFromCurrent();  // re-anchor narration to the new step
     }
 }
 
@@ -663,7 +689,8 @@ function startPlay() {
     if (stepIndex === STEP_COUNT - 1) { stepIndex = 0; renderStep(true); }
     narrateMode = canNarrate();
     if (narrateMode) {
-        speakCurrentStep();                 // audio-paced: advance when each verse finishes
+        lastSpokenText = '';                 // always read the verse we start on
+        playFromCurrent();                   // audio-paced: reads a verse once, walks its practices
     } else {
         playTimer = setInterval(() => {      // silent auto-advance (no voice available)
             if (stepIndex < STEP_COUNT - 1) {
