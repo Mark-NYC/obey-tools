@@ -219,9 +219,16 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-se
 #presentation-view .verse-card,
 #presentation-view .present-controls,
 #presentation-view .present-restart-row { flex-shrink: 0; }
-/* Circle area takes the slack; the circle scales to the largest square that fits */
-#presentation-view .assessment-container { flex: 1 1 auto; min-height: 0; display: grid; place-items: center; padding: 8px 16px; gap: 0; }
-#presentation-view .church-circle { height: 100%; width: auto; aspect-ratio: 1 / 1; max-width: 100%; max-height: 420px; box-shadow: none; }
+/* Circle area takes the slack; the circle is a fixed square sized from the
+   viewport (deterministic — no percentage-height, which iOS Safari collapses) */
+#presentation-view .assessment-container { flex: 1 1 auto; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 8px 16px; }
+#presentation-view .church-circle {
+    width: min(86vw, calc(100dvh - 366px));
+    height: min(86vw, calc(100dvh - 366px));
+    min-width: 190px; min-height: 190px;
+    max-width: 100%;
+    box-shadow: none;
+}
 /* Icons sized relative to their cell so they scale with the circle */
 #presentation-view .icon-cell img { width: 72%; height: 72%; }
 #presentation-view .verse-card { margin: 4px 16px 12px; min-height: 0; }
