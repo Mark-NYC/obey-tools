@@ -415,43 +415,56 @@
             background: linear-gradient(90deg, #f3b15a, #db5a35); }
         .hotspots-empty { font-size: 13px; color: #9a9aa0; padding: 6px 4px; }
 
-        /* ── Movement pulse band (always-on headline) ──────────────── */
-        .pulse-band {
+        /* ── Movement pulse band: macro + local rows (always-on) ───── */
+        .pulse-band { background: #fff; border-bottom: 0.5px solid #e5e5ea; }
+        .pulse-row {
             display: flex;
-            align-items: stretch;
-            padding: 11px 6px;
-            background: #fff;
-            border-bottom: 0.5px solid #e5e5ea;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 12px;
+            border-top: 0.5px solid #ececef;
         }
+        .pulse-row:first-child { border-top: none; }
+        .pulse-row.local { background: #fafafa; }
+        .pulse-scope {
+            flex: 0 0 42px;
+            font-size: 9px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            color: #b0b0b5;
+            line-height: 1.2;
+        }
+        .pulse-stats { flex: 1; display: flex; min-width: 0; }
         .pulse-item {
             flex: 1 1 0;
-            padding: 0 10px;
+            padding: 0 9px;
             border-right: 1px solid #ececef;
             min-width: 0;
         }
         .pulse-item:last-child { border-right: none; }
         .pulse-num {
-            font-size: 22px;
+            font-size: 19px;
             font-weight: 800;
             color: #1c1c1e;
             line-height: 1;
             font-variant-numeric: tabular-nums;
             display: flex;
             align-items: baseline;
-            gap: 5px;
+            gap: 4px;
             flex-wrap: wrap;
         }
-        .pulse-num .pulse-trend { font-size: 11px; font-weight: 700; }
+        .pulse-num .pulse-trend { font-size: 10.5px; font-weight: 700; }
         .pulse-trend.up { color: #2f8f6f; }
         .pulse-trend.down { color: #c0362f; }
         .pulse-trend.flat { color: #8e8e93; }
         .pulse-lab {
-            font-size: 9.5px;
+            font-size: 9px;
             font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.04em;
+            letter-spacing: 0.03em;
             color: #8e8e93;
-            margin-top: 5px;
+            margin-top: 4px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -901,6 +914,9 @@
         body.theme-dark #compact-legend h4,
         body.theme-dark #compact-legend .legend-label { color: #e9ecf2; }
         body.theme-dark .pulse-band { background: #161e30; border-bottom-color: #222b3d; }
+        body.theme-dark .pulse-row { border-top-color: #222b3d; }
+        body.theme-dark .pulse-row.local { background: #131a2a; }
+        body.theme-dark .pulse-scope { color: #6b7688; }
         body.theme-dark .pulse-item { border-right-color: #222b3d; }
         body.theme-dark .pulse-num { color: #f2f4f8; }
         body.theme-dark .pulse-lab { color: #9aa3b4; }
@@ -990,19 +1006,41 @@
                 <button class="celebrate-close" onclick="dismissCelebrate()" aria-label="Dismiss">×</button>
             </div>
 
-            <!-- ── Movement pulse (always-on headline) ─────────────── -->
+            <!-- ── Movement pulse (macro + local, always-on) ───────── -->
             <div class="pulse-band" id="pulse-band">
-                <div class="pulse-item">
-                    <div class="pulse-num"><span id="pulse-sp">—</span><span class="pulse-trend" id="pulse-sp-trend"></span></div>
-                    <div class="pulse-lab">Spiritual</div>
+                <div class="pulse-row">
+                    <span class="pulse-scope" title="Everywhere, for the selected period">Movement</span>
+                    <div class="pulse-stats">
+                        <div class="pulse-item">
+                            <div class="pulse-num"><span id="pulse-sp">—</span><span class="pulse-trend" id="pulse-sp-trend"></span></div>
+                            <div class="pulse-lab">Spiritual</div>
+                        </div>
+                        <div class="pulse-item">
+                            <div class="pulse-num"><span id="pulse-disc">—</span><span class="pulse-trend" id="pulse-disc-trend"></span></div>
+                            <div class="pulse-lab">Discovery</div>
+                        </div>
+                        <div class="pulse-item">
+                            <div class="pulse-num"><span id="pulse-cities">—</span></div>
+                            <div class="pulse-lab">Cities</div>
+                        </div>
+                    </div>
                 </div>
-                <div class="pulse-item">
-                    <div class="pulse-num"><span id="pulse-disc">—</span><span class="pulse-trend" id="pulse-disc-trend"></span></div>
-                    <div class="pulse-lab">Discovery</div>
-                </div>
-                <div class="pulse-item">
-                    <div class="pulse-num"><span id="pulse-cities">—</span></div>
-                    <div class="pulse-lab">Cities Active</div>
+                <div class="pulse-row local">
+                    <span class="pulse-scope" title="Only what's inside the current map view">In view</span>
+                    <div class="pulse-stats">
+                        <div class="pulse-item">
+                            <div class="pulse-num"><span id="pulse-sp-l">—</span><span class="pulse-trend" id="pulse-sp-l-trend"></span></div>
+                            <div class="pulse-lab">Spiritual</div>
+                        </div>
+                        <div class="pulse-item">
+                            <div class="pulse-num"><span id="pulse-disc-l">—</span><span class="pulse-trend" id="pulse-disc-l-trend"></span></div>
+                            <div class="pulse-lab">Discovery</div>
+                        </div>
+                        <div class="pulse-item">
+                            <div class="pulse-num"><span id="pulse-cities-l">—</span></div>
+                            <div class="pulse-lab">Cities</div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -1414,6 +1452,9 @@
             spiritualLayer = L.layerGroup()
             discoveryLayer = L.layerGroup()
 
+            // Keep the "In view" pulse row in sync as the user pans / zooms.
+            map.on('moveend', computePulse)
+
             setTimeout(() => map.invalidateSize(), 0)
             setTimeout(() => map.invalidateSize(), 150)
 
@@ -1661,34 +1702,56 @@
         computePulse()
     }
 
-    // ── Movement pulse band (always-on headline) ───────────────────────────────
-    // Global totals for the selected period, with change vs. the prior period.
-    // Ignores the city dropdown on purpose — the pulse is the macro heartbeat.
+    // ── Movement pulse band (macro + local, always-on) ─────────────────────────
+    // Two rows, both for the selected period with change vs. the prior period:
+    //   • Movement — everywhere (the big picture)
+    //   • In view  — only events inside the current map bounds (local stewardship)
+    // Recomputed on every filter change and on pan/zoom (map 'moveend').
     function computePulse() {
         const days    = parseInt(document.getElementById('map-date').value)
         const cutoff  = cutoffFromDays(days)
         const prevCut = days > 0 ? new Date(Date.now() - days * 2 * 86400000).toISOString() : null
+        const bounds  = map ? map.getBounds() : null
 
-        const cur = { sp: 0, disc: 0, cities: new Set() }
-        const pri = { sp: 0, disc: 0 }
+        const macCur = { sp: 0, disc: 0, cities: new Set() }, macPri = { sp: 0, disc: 0 }
+        const locCur = { sp: 0, disc: 0, cities: new Set() }, locPri = { sp: 0, disc: 0 }
 
         mapData.conversations.forEach(ev => {
             const n = ev.count || 1
             const inCurrent = !cutoff || ev.created_at >= cutoff
             const inPrior   = prevCut && ev.created_at >= prevCut && ev.created_at < cutoff
+            if (!inCurrent && !inPrior) return
+            const isDisc = ev.event_type === 'discovery'
+
             if (inCurrent) {
-                if (ev.event_type === 'discovery') cur.disc += n; else cur.sp += n
-                if (ev.city) cur.cities.add(ev.city)
-            } else if (inPrior) {
-                if (ev.event_type === 'discovery') pri.disc += n; else pri.sp += n
+                if (isDisc) macCur.disc += n; else macCur.sp += n
+                if (ev.city) macCur.cities.add(ev.city)
+            } else {
+                if (isDisc) macPri.disc += n; else macPri.sp += n
+            }
+
+            const inBox = bounds && ev.latitude && ev.longitude &&
+                          bounds.contains([+ev.latitude, +ev.longitude])
+            if (!inBox) return
+            if (inCurrent) {
+                if (isDisc) locCur.disc += n; else locCur.sp += n
+                if (ev.city) locCur.cities.add(ev.city)
+            } else {
+                if (isDisc) locPri.disc += n; else locPri.sp += n
             }
         })
 
-        setText('pulse-sp',     cur.sp.toLocaleString())
-        setText('pulse-disc',   cur.disc.toLocaleString())
-        setText('pulse-cities', cur.cities.size.toLocaleString())
-        setTrend('pulse-sp-trend',   cur.sp,   pri.sp,   prevCut)
-        setTrend('pulse-disc-trend', cur.disc, pri.disc, prevCut)
+        setText('pulse-sp',     macCur.sp.toLocaleString())
+        setText('pulse-disc',   macCur.disc.toLocaleString())
+        setText('pulse-cities', macCur.cities.size.toLocaleString())
+        setTrend('pulse-sp-trend',   macCur.sp,   macPri.sp,   prevCut)
+        setTrend('pulse-disc-trend', macCur.disc, macPri.disc, prevCut)
+
+        setText('pulse-sp-l',     locCur.sp.toLocaleString())
+        setText('pulse-disc-l',   locCur.disc.toLocaleString())
+        setText('pulse-cities-l', locCur.cities.size.toLocaleString())
+        setTrend('pulse-sp-l-trend',   locCur.sp,   locPri.sp,   prevCut)
+        setTrend('pulse-disc-l-trend', locCur.disc, locPri.disc, prevCut)
     }
 
     function setText(id, txt) { const el = document.getElementById(id); if (el) el.textContent = txt }
