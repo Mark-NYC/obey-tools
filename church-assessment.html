@@ -547,8 +547,22 @@ function speakCurrentStep() {
             playTimer = setTimeout(() => { if (isPlaying && speechGen === myGen) speakCurrentStep(); }, 800);
         } else stopPlay();
     };
-    try { speechSynthesis.cancel(); } catch (e) {}
-    try { speechSynthesis.speak(u); } catch (e) {}
+    // Chrome can wedge in a "paused" state after prior use; nudge it back.
+    try { speechSynthesis.resume(); } catch (e) {}
+    // Only cancel when something is actually in flight. An unconditional
+    // cancel() immediately before speak() silently drops the utterance in
+    // Chrome — the cause of "no audio on the first Play". When we do need to
+    // interrupt, defer the new speak briefly; the engine is already unlocked
+    // by then, so it's safe (and the first Play still speaks synchronously,
+    // which iOS requires).
+    if (speechSynthesis.speaking || speechSynthesis.pending) {
+        try { speechSynthesis.cancel(); } catch (e) {}
+        playTimer = setTimeout(() => {
+            if (isPlaying && speechGen === myGen) { try { speechSynthesis.speak(u); } catch (e) {} }
+        }, 130);
+    } else {
+        try { speechSynthesis.speak(u); } catch (e) {}
+    }
 }
 
 function startPresentation() {
