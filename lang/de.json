@@ -891,7 +891,21 @@
     "share_label_leaders": "Leiter:",
     "share_label_start_date": "Startdatum:",
     "share_label_location": "Ort:",
-    "share_label_baptisms": "Taufen:"
+    "share_label_baptisms": "Taufen:",
+    "present_btn": "PRÄSENTIEREN",
+    "assess_btn": "GESUNDHEIT PRÜFEN",
+    "gospel_label": "Das Evangelium",
+    "circle_subtitle": "Apostelgeschichte 2,36–47 — die erste Gemeinde.",
+    "hint_present": "<b>Präsentieren</b> — geh durch Apostelgeschichte 2,36–47 und sieh, wie jede Praxis zum Gemeindekreis hinzugefügt wird.",
+    "hint_assess": "<b>Gesundheit prüfen</b> — bewerte die Gesundheit einer Gemeinde, die du leitest.",
+    "present_back": "← Zurück",
+    "present_next": "Weiter →",
+    "present_start_over": "↻ Neu starten",
+    "present_play": "▶ Abspielen",
+    "present_pause": "⏸ Pause",
+    "present_exit": "Präsentation verlassen",
+    "assess_reset": "↻ Zurücksetzen",
+    "assess_tap_hint": "Tippe auf jede Praxis, um sie zu bewerten"
   },
   "four_questions": {
     "title": "4-1-1 (4 Fragen)",

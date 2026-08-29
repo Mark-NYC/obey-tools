@@ -891,7 +891,21 @@
     "share_label_leaders": "Лідер(и):",
     "share_label_start_date": "Дата початку:",
     "share_label_location": "Місце:",
-    "share_label_baptisms": "Хрещення:"
+    "share_label_baptisms": "Хрещення:",
+    "present_btn": "ПРЕЗЕНТАЦІЯ",
+    "assess_btn": "ОЦІНИТИ ЗДОРОВ'Я",
+    "gospel_label": "Євангеліє",
+    "circle_subtitle": "Дії 2:36–47 — перша церква.",
+    "hint_present": "<b>Презентація</b> — пройдіть Дії 2:36–47 і подивіться, як кожна практика додається до кола церкви.",
+    "hint_assess": "<b>Оцінити здоров'я</b> — оцініть здоров'я церкви, якою ви керуєте.",
+    "present_back": "← Назад",
+    "present_next": "Далі →",
+    "present_start_over": "↻ Спочатку",
+    "present_play": "▶ Пуск",
+    "present_pause": "⏸ Пауза",
+    "present_exit": "Вийти з презентації",
+    "assess_reset": "↻ Скинути",
+    "assess_tap_hint": "Торкніться кожної практики, щоб оцінити її"
   },
   "four_questions": {
     "title": "4-1-1 (4 запитання)",

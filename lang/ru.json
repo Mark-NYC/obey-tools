@@ -891,7 +891,21 @@
     "share_label_leaders": "Лидер(ы):",
     "share_label_start_date": "Дата начала:",
     "share_label_location": "Местоположение:",
-    "share_label_baptisms": "Крещения:"
+    "share_label_baptisms": "Крещения:",
+    "present_btn": "ПРЕЗЕНТАЦИЯ",
+    "assess_btn": "ОЦЕНИТЬ ЗДОРОВЬЕ",
+    "gospel_label": "Евангелие",
+    "circle_subtitle": "Деяния 2:36–47 — первая церковь.",
+    "hint_present": "<b>Презентация</b> — пройдите Деяния 2:36–47 и посмотрите, как каждая практика добавляется в круг церкви.",
+    "hint_assess": "<b>Оценить здоровье</b> — оцените здоровье церкви, которой вы руководите.",
+    "present_back": "← Назад",
+    "present_next": "Далее →",
+    "present_start_over": "↻ Сначала",
+    "present_play": "▶ Пуск",
+    "present_pause": "⏸ Пауза",
+    "present_exit": "Выйти из презентации",
+    "assess_reset": "↻ Сброс",
+    "assess_tap_hint": "Нажмите на каждую практику, чтобы оценить её"
   },
   "four_questions": {
     "title": "4-1-1 (4 вопроса)",

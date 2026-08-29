@@ -891,7 +891,21 @@
     "share_label_leaders": "Líder(es):",
     "share_label_start_date": "Fecha de inicio:",
     "share_label_location": "Ubicación:",
-    "share_label_baptisms": "Bautismos:"
+    "share_label_baptisms": "Bautismos:",
+    "present_btn": "PRESENTAR",
+    "assess_btn": "EVALUAR SALUD",
+    "gospel_label": "El Evangelio",
+    "circle_subtitle": "Hechos 2:36–47 — la primera iglesia.",
+    "hint_present": "<b>Presentar</b> — recorre Hechos 2:36–47 y observa cómo cada práctica se añade al círculo de la iglesia.",
+    "hint_assess": "<b>Evaluar salud</b> — evalúa la salud de una iglesia que lideras.",
+    "present_back": "← Atrás",
+    "present_next": "Siguiente →",
+    "present_start_over": "↻ Reiniciar",
+    "present_play": "▶ Reproducir",
+    "present_pause": "⏸ Pausar",
+    "present_exit": "Salir de la presentación",
+    "assess_reset": "↻ Reiniciar",
+    "assess_tap_hint": "Toca cada práctica para evaluarla"
   },
   "four_questions": {
     "title": "4-1-1 (4 Preguntas)",

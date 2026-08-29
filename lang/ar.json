@@ -891,7 +891,21 @@
     "share_label_leaders": "القائد (القادة):",
     "share_label_start_date": "تاريخ البدء:",
     "share_label_location": "الموقع:",
-    "share_label_baptisms": "المعموديات:"
+    "share_label_baptisms": "المعموديات:",
+    "present_btn": "عرض",
+    "assess_btn": "تقييم الصحة",
+    "gospel_label": "الإنجيل",
+    "circle_subtitle": "أعمال الرسل 2:36–47 — الكنيسة الأولى.",
+    "hint_present": "<b>عرض</b> — تصفّح أعمال الرسل 2:36–47 وشاهد كيف تُضاف كل ممارسة إلى دائرة الكنيسة.",
+    "hint_assess": "<b>تقييم الصحة</b> — قيّم صحة كنيسة تقودها.",
+    "present_back": "→ رجوع",
+    "present_next": "التالي ←",
+    "present_start_over": "↻ إعادة",
+    "present_play": "▶ تشغيل",
+    "present_pause": "⏸ إيقاف",
+    "present_exit": "الخروج من العرض",
+    "assess_reset": "↻ إعادة تعيين",
+    "assess_tap_hint": "انقر على كل ممارسة لتقييمها"
   },
   "four_questions": {
     "title": "٤-١-١ (٤ أسئلة)",
