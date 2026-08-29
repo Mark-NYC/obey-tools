@@ -747,6 +747,60 @@
             #updates-ticker  { display: none !important; }
             #map-bottom-right { display: none !important; }
         }
+
+        /* ── Dark theme ─────────────────────────────────────────────── */
+        .theme-toggle {
+            flex: 0 0 auto;
+            width: 42px;
+            padding: 9px 0;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            line-height: 1;
+            cursor: pointer;
+            background: #e5e5ea;
+        }
+        .theme-toggle:active { opacity: 0.75; }
+
+        body.theme-dark { background: #0c1322; color: #e9ecf2; }
+        body.theme-dark .overlay-panel { background: #161e30 !important; }
+        body.theme-dark .tab-bar { background: transparent; border-bottom-color: #222b3d; }
+        body.theme-dark .tab-btn { background: #1e2739; color: #9aa3b4; }
+        body.theme-dark .tab-btn.active { background: #e39b3c; color: #151c2c; }
+        body.theme-dark .theme-toggle { background: #1e2739; }
+        body.theme-dark .layer-toggles { background: #131a2a; border-bottom-color: #222b3d; }
+        body.theme-dark .layer-toggle { color: #cfd5e0; }
+        body.theme-dark .filters { background: transparent; border-bottom-color: #222b3d; }
+        body.theme-dark .filter-select { background: #131a2a; border-color: #293246; color: #e9ecf2; }
+        body.theme-dark .map-legend { border-top-color: #222b3d; }
+        body.theme-dark .map-legend h4,
+        body.theme-dark .legend-label { color: #cfd5e0; }
+        body.theme-dark .map-footer { color: #8b93a5; border-top-color: #222b3d; }
+        body.theme-dark .hotspots { border-top-color: #222b3d; }
+        body.theme-dark .hotspots-head h4 { color: #cfd5e0; }
+        body.theme-dark .hotspot-row { border-top-color: #222b3d; }
+        body.theme-dark .hotspot-row:first-of-type { border-top: none; }
+        body.theme-dark .hotspot-row:hover { background: #1b2334; }
+        body.theme-dark .hotspot-name { color: #e9ecf2; }
+        body.theme-dark .hotspot-name em { color: #7c8698; }
+        body.theme-dark .hotspots-empty { color: #7c8698; }
+        body.theme-dark .period-label { color: #9aa3b4; }
+        body.theme-dark .stat-card:not(.accent) { background: #131a2a; }
+        body.theme-dark .stat-card:not(.accent) .stat-value { color: #e9ecf2; }
+        body.theme-dark .stat-card:not(.accent) .stat-label { color: #9aa3b4; }
+        body.theme-dark .stat-delta.up { color: #49b892; }
+        body.theme-dark .stat-delta.down { color: #e7695e; }
+        body.theme-dark .loading,
+        body.theme-dark .empty-state { color: #9aa3b4; }
+        body.theme-dark .overlay-compact-bar { border-bottom-color: #222b3d; }
+        body.theme-dark .compact-bar-title { color: #cfd5e0; }
+        body.theme-dark .compact-toggle-btn { background: #1e2739; color: #cfd5e0; }
+        body.theme-dark #mobile-topbar { background: #131a2a; border-bottom-color: #222b3d; }
+        body.theme-dark .mobile-signin-text { color: #9aa3b4; }
+        body.theme-dark .mobile-logout-btn { background: #1e2739; color: #cfd5e0; }
+        body.theme-dark #compact-legend { background: rgba(22,30,48,0.82); }
+        body.theme-dark #compact-legend h4,
+        body.theme-dark #compact-legend .legend-label { color: #e9ecf2; }
     </style>
     <script type="module" src="/i18n.js"></script>
     <script src="/pwa.js" defer></script>
@@ -814,6 +868,7 @@
             <div class="tab-bar">
                 <button class="tab-btn active" id="tab-map" onclick="switchTab('map')" data-i18n="how_were_doing.tab_map">Map</button>
                 <button class="tab-btn" id="tab-metrics" onclick="switchTab('metrics')" data-i18n="how_were_doing.tab_metrics">Metrics</button>
+                <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" title="Toggle dark map" aria-label="Toggle dark map">🌙</button>
             </div>
 
             <!-- ── MAP CONTROLS (shown on Map tab) ─────────────────── -->
@@ -943,6 +998,47 @@
     // Persist across page loads via localStorage
     let overlayCompact = localStorage.getItem('vp_overlay_compact') === 'true'
 
+    // ── Theme (light / dark basemap) ──────────────────────────────────────────
+    let baseTileLayer = null
+    let darkMode = localStorage.getItem('vp_theme') === 'dark'
+    const TILES = {
+        light: {
+            url:  'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+            opts: { attribution: '© OpenStreetMap contributors', maxZoom: 19 }
+        },
+        dark: {
+            url:  'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+            opts: { attribution: '© OpenStreetMap, © CARTO', maxZoom: 20, subdomains: 'abcd' }
+        }
+    }
+
+    function applyThemeChrome() {
+        document.body.classList.toggle('theme-dark', darkMode)
+        const btn = document.getElementById('theme-toggle')
+        if (btn) {
+            btn.textContent = darkMode ? '☀️' : '🌙'
+            btn.title = darkMode ? 'Switch to light map' : 'Switch to dark map'
+        }
+        // Desktop overlay background is set via inline styles — refresh them so
+        // the panel tracks the theme.
+        applyDesktopMapLayout()
+    }
+
+    function applyMapTiles() {
+        if (!map) return
+        const t = darkMode ? TILES.dark : TILES.light
+        if (baseTileLayer) map.removeLayer(baseTileLayer)
+        baseTileLayer = L.tileLayer(t.url, t.opts).addTo(map)
+        if (baseTileLayer.bringToBack) baseTileLayer.bringToBack()
+    }
+
+    function toggleTheme() {
+        darkMode = !darkMode
+        localStorage.setItem('vp_theme', darkMode ? 'dark' : 'light')
+        applyThemeChrome()
+        applyMapTiles()
+    }
+
     // ── Overlay compact toggle ────────────────────────────────────────────────
 
     function applyOverlayCompact() {
@@ -1061,7 +1157,7 @@
             overlay.style.margin = '0'
             overlay.style.overflowY = overlayCompact ? 'visible'            : 'auto'
             overlay.style.zIndex = '500'
-            overlay.style.background = 'rgba(255,255,255,0.97)'
+            overlay.style.background = darkMode ? 'rgba(22,30,48,0.97)' : 'rgba(255,255,255,0.97)'
             overlay.style.borderRadius = '14px'
             overlay.style.boxShadow = '0 4px 24px rgba(0,0,0,0.18)'
         } else {
@@ -1167,10 +1263,8 @@
             await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))
 
             map = L.map('map-el', { zoomControl: true }).setView([39.8283, -98.5795], 4)
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors',
-                maxZoom: 19
-            }).addTo(map)
+            const tile = darkMode ? TILES.dark : TILES.light
+            baseTileLayer = L.tileLayer(tile.url, tile.opts).addTo(map)
 
             churchLayer    = L.layerGroup().addTo(map)
             spiritualLayer = L.layerGroup()
@@ -1837,6 +1931,7 @@
     applyDesktopMapLayout()
     applyOverlayCompact()   // restore compact/expanded from localStorage
     initLayerToggles()      // restore layer state from localStorage (defaults: all checked)
+    applyThemeChrome()      // restore light/dark from localStorage (map tiles follow in ensureMap)
     window.addEventListener('resize', applyDesktopMapLayout)
 
     // Clean up realtime subscription and scroll timer on navigate away
