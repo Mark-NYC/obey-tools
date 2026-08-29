@@ -891,7 +891,21 @@
     "share_label_leaders": "লিডার(রা):",
     "share_label_start_date": "শুরুর তারিখ:",
     "share_label_location": "অবস্থান:",
-    "share_label_baptisms": "বাপ্তিস্ম:"
+    "share_label_baptisms": "বাপ্তিস্ম:",
+    "present_btn": "উপস্থাপন",
+    "assess_btn": "স্বাস্থ্য মূল্যায়ন",
+    "gospel_label": "সুসমাচার",
+    "circle_subtitle": "প্রেরিত ২:৩৬–৪৭ — প্রথম মণ্ডলী।",
+    "hint_present": "<b>উপস্থাপন</b> — প্রেরিত ২:৩৬–৪৭ পড়ুন এবং দেখুন কীভাবে প্রতিটি অভ্যাস মণ্ডলী-বৃত্তে যুক্ত হয়।",
+    "hint_assess": "<b>স্বাস্থ্য মূল্যায়ন</b> — আপনি যে মণ্ডলীর নেতৃত্ব দেন তার স্বাস্থ্য মূল্যায়ন করুন।",
+    "present_back": "← পিছনে",
+    "present_next": "পরবর্তী →",
+    "present_start_over": "↻ আবার",
+    "present_play": "▶ চালান",
+    "present_pause": "⏸ বিরতি",
+    "present_exit": "প্রস্থান",
+    "assess_reset": "↻ রিসেট",
+    "assess_tap_hint": "মূল্যায়ন করতে প্রতিটি অভ্যাসে ট্যাপ করুন"
   },
   "four_questions": {
     "title": "4-1-1 (৪টি প্রশ্ন)",

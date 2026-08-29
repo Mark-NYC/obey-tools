@@ -891,7 +891,21 @@
     "share_label_leaders": "නායක(යන්):",
     "share_label_start_date": "ආරම්භක දිනය:",
     "share_label_location": "ස්ථානය:",
-    "share_label_baptisms": "බව්තීස්ම:"
+    "share_label_baptisms": "බව්තීස්ම:",
+    "present_btn": "ඉදිරිපත් කරන්න",
+    "assess_btn": "සෞඛ්‍යය තක්සේරුව",
+    "gospel_label": "ශුභාරංචිය",
+    "circle_subtitle": "ක්‍රියා 2:36–47 — පළමු සභාව.",
+    "hint_present": "<b>ඉදිරිපත් කරන්න</b> — ක්‍රියා 2:36–47 හරහා ගොස්, එක් එක් පුරුද්ද සභා කවයට එකතු වන ආකාරය බලන්න.",
+    "hint_assess": "<b>සෞඛ්‍යය තක්සේරුව</b> — ඔබ මෙහෙයවන සභාවක සෞඛ්‍යය තක්සේරු කරන්න.",
+    "present_back": "← ආපසු",
+    "present_next": "ඊළඟ →",
+    "present_start_over": "↻ නැවත",
+    "present_play": "▶ ධාවනය",
+    "present_pause": "⏸ විරාමය",
+    "present_exit": "ඉවත් වන්න",
+    "assess_reset": "↻ යළි සකසන්න",
+    "assess_tap_hint": "තක්සේරු කිරීමට එක් එක් පුරුද්ද තට්ටු කරන්න"
   },
   "four_questions": {
     "title": "4-1-1 (ප්‍රශ්න 4)",

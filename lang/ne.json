@@ -891,7 +891,21 @@
     "share_label_leaders": "लिडर(हरू):",
     "share_label_start_date": "सुरु मिति:",
     "share_label_location": "स्थान:",
-    "share_label_baptisms": "बप्तिस्माहरू:"
+    "share_label_baptisms": "बप्तिस्माहरू:",
+    "present_btn": "प्रस्तुत गर्नुहोस्",
+    "assess_btn": "स्वास्थ्य मूल्याङ्कन",
+    "gospel_label": "सुसमाचार",
+    "circle_subtitle": "प्रेरित २:३६–४७ — पहिलो मण्डली।",
+    "hint_present": "<b>प्रस्तुत गर्नुहोस्</b> — प्रेरित २:३६–४७ हेर्नुहोस् र हरेक अभ्यास मण्डली-वृत्तमा कसरी थपिन्छ हेर्नुहोस्।",
+    "hint_assess": "<b>स्वास्थ्य मूल्याङ्कन</b> — तपाईंले नेतृत्व गर्ने मण्डलीको स्वास्थ्य मूल्याङ्कन गर्नुहोस्।",
+    "present_back": "← पछाडि",
+    "present_next": "अर्को →",
+    "present_start_over": "↻ फेरि",
+    "present_play": "▶ चलाउनुहोस्",
+    "present_pause": "⏸ रोक्नुहोस्",
+    "present_exit": "बाहिर निस्कनुहोस्",
+    "assess_reset": "↻ रिसेट",
+    "assess_tap_hint": "मूल्याङ्कन गर्न हरेक अभ्यासमा ट्याप गर्नुहोस्"
   },
   "four_questions": {
     "title": "4-1-1 (४ प्रश्न)",

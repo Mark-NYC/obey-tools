@@ -891,7 +891,21 @@
     "share_label_leaders": "தலைவர்(கள்):",
     "share_label_start_date": "தொடக்கத் தேதி:",
     "share_label_location": "இடம்:",
-    "share_label_baptisms": "ஞானஸ்நானங்கள்:"
+    "share_label_baptisms": "ஞானஸ்நானங்கள்:",
+    "present_btn": "வழங்கு",
+    "assess_btn": "ஆரோக்கியம் மதிப்பீடு",
+    "gospel_label": "நற்செய்தி",
+    "circle_subtitle": "அப்போஸ்தலர் 2:36–47 — முதல் திருச்சபை.",
+    "hint_present": "<b>வழங்கு</b> — அப்போஸ்தலர் 2:36–47 வழியே சென்று, ஒவ்வொரு பயிற்சியும் திருச்சபை வட்டத்தில் சேர்வதைக் காணுங்கள்.",
+    "hint_assess": "<b>ஆரோக்கியம் மதிப்பீடு</b> — நீங்கள் வழிநடத்தும் திருச்சபையின் ஆரோக்கியத்தை மதிப்பிடுங்கள்.",
+    "present_back": "← பின்",
+    "present_next": "அடுத்து →",
+    "present_start_over": "↻ மீண்டும்",
+    "present_play": "▶ இயக்கு",
+    "present_pause": "⏸ இடைநிறுத்து",
+    "present_exit": "வெளியேறு",
+    "assess_reset": "↻ மீட்டமை",
+    "assess_tap_hint": "ஒவ்வொரு பயிற்சியையும் தட்டி மதிப்பிடுங்கள்"
   },
   "four_questions": {
     "title": "4-1-1 (4 கேள்விகள்)",
