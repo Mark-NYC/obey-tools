@@ -285,6 +285,31 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-se
 .focus-view .present-restart-row { padding: 10px 16px calc(8px + env(safe-area-inset-bottom)); }
 /* Assess-mode chrome */
 #assess-grid .icon-cell { cursor: pointer; }
+/* Brief tap ripple over each icon when the view opens (hints they're tappable) */
+#assess-grid .icon-cell::after {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 64%;
+    aspect-ratio: 1 / 1;
+    border-radius: 50%;
+    background: rgba(28, 28, 30, 0.18);
+    transform: translate(-50%, -50%) scale(0.2);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 30;
+}
+#assessment-view.tap-hint #assess-grid .icon-cell::after {
+    animation: tapPulse 0.65s ease-out var(--tap-delay, 0ms) both;
+}
+@keyframes tapPulse {
+    0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.2); }
+    30%  { opacity: 1; transform: translate(-50%, -50%) scale(0.65); }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(1.2); }
+}
+@media (prefers-reduced-motion: reduce) {
+    #assessment-view.tap-hint #assess-grid .icon-cell::after { animation: none; }
+}
 .assess-eyebrow { font-size: 12px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: #8e8e93; }
 .assess-actions { display: flex; gap: 8px; padding: 6px 16px 2px; }
 .assess-actions .btn { flex: 1; }
@@ -491,6 +516,15 @@ function initAssessTaps() {
         });
     });
 }
+function playTapHint() {
+    const view = document.getElementById('assessment-view');
+    const cells = view.querySelectorAll('#assess-grid .icon-cell');
+    cells.forEach((cell, idx) => cell.style.setProperty('--tap-delay', (idx * 45) + 'ms'));
+    view.classList.remove('tap-hint');
+    void view.offsetWidth; // reflow so the animation restarts each open
+    view.classList.add('tap-hint');
+    setTimeout(() => view.classList.remove('tap-hint'), cells.length * 45 + 700);
+}
 function openAssessment() {
     document.getElementById('top-home').style.display = 'none';
     document.getElementById('page-header').style.display = 'none';
@@ -498,6 +532,7 @@ function openAssessment() {
     document.getElementById('assessment-view').style.display = 'flex';
     renderAssessCells();
     window.scrollTo({ top: 0, behavior: 'auto' });
+    playTapHint();
 }
 function closeAssessment() {
     document.getElementById('assessment-view').style.display = 'none';
