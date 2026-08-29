@@ -56,7 +56,7 @@
         <div class="controls">
             <div class="btn-group">
                 <button class="btn btn-accent" onclick="startPresentation()">PRESENT</button>
-                <a class="btn btn-primary" href="church-assessment.html" style="display:flex; align-items:center; justify-content:center; text-decoration:none;">ASSESS HEALTH</a>
+                <button class="btn btn-primary" onclick="openAssessment()">ASSESS HEALTH</button>
             </div>
         </div>
 
@@ -67,7 +67,7 @@
     </div>
 
     <!-- ========================== PRESENTATION ========================== -->
-    <div id="presentation-view" style="display:none;">
+    <div id="presentation-view" class="focus-view" style="display:none;">
         <div class="present-topbar">
             <div class="present-count" id="present-count">1 / 12</div>
             <div class="present-ref" id="present-ref">Acts 2:36</div>
@@ -112,6 +112,48 @@
         </div>
         <div class="present-restart-row">
             <button class="present-restart" onclick="restartPresentation()">&#8635; Start over</button>
+        </div>
+    </div>
+
+    <!-- ========================== ASSESS HEALTH ========================== -->
+    <div id="assessment-view" class="focus-view" style="display:none;">
+        <div class="present-topbar">
+            <div class="assess-eyebrow">Tap each practice to rate it</div>
+            <button class="ot-exit" onclick="closeAssessment()" aria-label="Close">&times;</button>
+        </div>
+
+        <div class="assessment-container">
+            <div class="church-circle solid" id="assess-circle">
+                <div class="vertical-line left"></div>
+                <div class="vertical-line center"></div>
+                <div class="vertical-line right"></div>
+                <div class="horizontal-line top"></div>
+                <div class="horizontal-line bottom"></div>
+                <div class="icon-grid" id="assess-grid">
+                    <div class="icon-cell bg-none"><img src="assets/images/icons/gospel-icon.webp" alt="The Gospel"></div>
+                    <div class="icon-cell bg-none"><img src="assets/images/icons/repent-icon.webp" alt="Repent & Believe"></div>
+                    <div class="icon-cell bg-none"><img src="assets/images/icons/baptism-icon.webp" alt="Baptism"></div>
+                    <div class="icon-cell bg-none"><img src="assets/images/icons/holy-spirit-icon.webp" alt="Holy Spirit"></div>
+                    <div class="icon-cell bg-none"><img src="assets/images/icons/word-icon.webp" alt="The Word"></div>
+                    <div class="icon-cell bg-none"><img src="assets/images/icons/love-icon.webp" alt="Love"></div>
+                    <div class="icon-cell bg-none"><img src="assets/images/icons/lords-supper-icon.webp" alt="Lord's Supper"></div>
+                    <div class="icon-cell bg-none"><img src="assets/images/icons/pray-icon.webp" alt="Prayer"></div>
+                    <div class="icon-cell bg-none"><img src="assets/images/icons/signs-and-wonders-icon.webp" alt="Signs & Wonders"></div>
+                    <div class="icon-cell bg-none"><img src="assets/images/icons/give-icon.webp" alt="Giving"></div>
+                    <div class="icon-cell bg-none"><img src="assets/images/icons/worship-icon.webp" alt="Worship"></div>
+                    <div class="icon-cell bg-none"><img src="assets/images/icons/go-make-disciples-icon.webp" alt="Make Disciples"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="assessment-key">
+            <div class="key-item"><div class="key-dot red"></div><span>Unhealthy</span></div>
+            <div class="key-item"><div class="key-dot yellow"></div><span>Happening</span></div>
+            <div class="key-item"><div class="key-dot green"></div><span>Healthy</span></div>
+        </div>
+
+        <div class="present-restart-row">
+            <button class="present-restart" onclick="resetAssessment()">&#8635; Reset</button>
         </div>
     </div>
 </div>
@@ -212,27 +254,36 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-se
 .present-restart { background: none; border: none; color: #8e8e93; font-size: 14px; font-weight: 600; cursor: pointer; }
 .present-attribution { text-align: center; font-size: 11px; color: #b0b0b5; padding: 10px 24px 28px; }
 
-/* ---- Focus mode: presentation fills the screen, no page scroll ---- */
-#presentation-view { display: flex; flex-direction: column; height: 100vh; height: 100dvh; overflow: hidden; }
-#presentation-view .present-topbar,
-#presentation-view .present-progress,
-#presentation-view .verse-card,
-#presentation-view .present-controls,
-#presentation-view .present-restart-row { flex-shrink: 0; }
+/* ---- Focus mode: a view fills the screen, no page scroll (Present & Assess) ---- */
+.focus-view { display: flex; flex-direction: column; height: 100vh; height: 100dvh; overflow: hidden; }
+.focus-view .present-topbar,
+.focus-view .present-progress,
+.focus-view .verse-card,
+.focus-view .present-controls,
+.focus-view .present-restart-row,
+.focus-view .assessment-key { flex-shrink: 0; }
 /* Circle area takes the slack; the circle is a fixed square sized from the
    viewport (deterministic — no percentage-height, which iOS Safari collapses) */
-#presentation-view .assessment-container { flex: 1 1 auto; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 8px 16px; }
-#presentation-view .church-circle {
-    width: min(86vw, calc(100dvh - 366px));
-    height: min(86vw, calc(100dvh - 366px));
-    min-width: 190px; min-height: 190px;
-    max-width: 100%;
-    box-shadow: none;
-}
-/* Icons sized relative to their cell so they scale with the circle */
-#presentation-view .icon-cell img { width: 72%; height: 72%; }
+.focus-view .assessment-container { flex: 1 1 auto; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 8px 16px; }
+.focus-view .church-circle { min-width: 190px; min-height: 190px; max-width: 100%; box-shadow: none; }
+/* Present has more chrome (verse card + controls) than Assess, so size each. */
+#presentation-view .church-circle { width: min(86vw, calc(100dvh - 366px)); height: min(86vw, calc(100dvh - 366px)); }
+#assessment-view  .church-circle { width: min(86vw, calc(100dvh - 220px)); height: min(86vw, calc(100dvh - 220px)); }
+/* Icons and the health disc sized relative to their cell so they scale with the circle */
+.focus-view .icon-cell img { width: 72%; height: 72%; }
+/* Health disc: keep it a circle even though cells are taller than wide */
+.focus-view .icon-cell::before { width: 72%; height: auto; aspect-ratio: 1 / 1; }
 #presentation-view .verse-card { margin: 4px 16px 12px; min-height: 0; }
-#presentation-view .present-restart-row { padding: 10px 16px calc(8px + env(safe-area-inset-bottom)); }
+.focus-view .present-restart-row { padding: 10px 16px calc(8px + env(safe-area-inset-bottom)); }
+/* Assess-mode chrome */
+#assess-grid .icon-cell { cursor: pointer; }
+.assess-eyebrow { font-size: 12px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: #8e8e93; }
+.assessment-key { display: flex; justify-content: center; flex-wrap: wrap; gap: 18px; padding: 8px 16px 2px; }
+.assessment-key .key-item { display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 600; color: #1c1c1e; }
+.assessment-key .key-dot { width: 12px; height: 12px; border-radius: 50%; }
+.key-dot.red { background: var(--ot-status-none, #FF745B); }
+.key-dot.yellow { background: var(--ot-status-partial, #FCB900); }
+.key-dot.green { background: var(--ot-status-healthy, #00D084); }
 
 @media (min-width: 768px) {
     .container { max-width: 768px; border-radius: 12px; margin: 20px auto; box-shadow: 0 4px 20px rgba(0,0,0,0.1); overflow: hidden; }
@@ -240,8 +291,9 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-se
     .icon-cell img { width: 70px; height: 70px; }
     .icon-cell::before { width: 70px; height: 70px; }
     /* keep the fit-to-screen circle from ballooning on wide screens */
-    #presentation-view .church-circle { width: 400px; height: 400px; max-height: 400px; }
-    #presentation-view .icon-cell img { width: 70px; height: 70px; }
+    #presentation-view .church-circle, #assessment-view .church-circle { width: 400px; height: 400px; max-height: 400px; }
+    .focus-view .icon-cell img { width: 70px; height: 70px; }
+    .focus-view .icon-cell::before { width: 70px; height: 70px; }
 }
 </style>
 
@@ -387,11 +439,69 @@ function stopPlay() {
 
 // Keyboard navigation for desktop presenting
 document.addEventListener('keydown', (e) => {
+    if (document.getElementById('assessment-view').style.display !== 'none') {
+        if (e.key === 'Escape') closeAssessment();
+        return;
+    }
     if (document.getElementById('presentation-view').style.display === 'none') return;
     if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); nextStep(); }
     else if (e.key === 'ArrowLeft') { e.preventDefault(); prevStep(); }
     else if (e.key === 'Escape') { exitPresentation(); }
 });
+
+// ===================== Assess Health (tap to rate) =====================
+const ASSESS_KEY = 'testAssessState';
+let assessState = {};
+
+function loadAssess() {
+    try { assessState = JSON.parse(localStorage.getItem(ASSESS_KEY)) || {}; }
+    catch (e) { assessState = {}; }
+}
+function saveAssess() {
+    try { localStorage.setItem(ASSESS_KEY, JSON.stringify(assessState)); } catch (e) {}
+}
+function paintAssessCell(cell, state) {
+    cell.classList.remove('bg-none', 'bg-green', 'bg-yellow', 'bg-red');
+    cell.classList.add(state === 1 ? 'bg-green' : state === 2 ? 'bg-yellow' : state === 3 ? 'bg-red' : 'bg-none');
+}
+function renderAssessCells() {
+    document.querySelectorAll('#assess-grid .icon-cell').forEach((cell, idx) => {
+        paintAssessCell(cell, parseInt(assessState[idx] || 0));
+    });
+}
+function initAssessTaps() {
+    document.querySelectorAll('#assess-grid .icon-cell').forEach((cell, idx) => {
+        cell.addEventListener('click', () => {
+            const state = (parseInt(assessState[idx] || 0) + 1) % 4;
+            assessState[idx] = state;
+            saveAssess();
+            paintAssessCell(cell, state);
+        });
+    });
+}
+function openAssessment() {
+    document.getElementById('top-home').style.display = 'none';
+    document.getElementById('page-header').style.display = 'none';
+    document.getElementById('landing-view').style.display = 'none';
+    document.getElementById('assessment-view').style.display = 'flex';
+    renderAssessCells();
+    window.scrollTo({ top: 0, behavior: 'auto' });
+}
+function closeAssessment() {
+    document.getElementById('assessment-view').style.display = 'none';
+    document.getElementById('top-home').style.display = '';
+    document.getElementById('page-header').style.display = '';
+    document.getElementById('landing-view').style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function resetAssessment() {
+    assessState = {};
+    saveAssess();
+    renderAssessCells();
+}
+
+loadAssess();
+initAssessTaps();
 </script>
 
 </body>
