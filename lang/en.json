@@ -891,7 +891,10 @@
     "share_label_leaders": "Leader(s):",
     "share_label_start_date": "Start Date:",
     "share_label_location": "Location:",
-    "share_label_baptisms": "Baptisms:"
+    "share_label_baptisms": "Baptisms:",
+    "circle_subtitle": "Acts 2:36–47 — the first church.",
+    "present_btn": "PRESENT",
+    "assess_btn": "ASSESS HEALTH"
   },
   "four_questions": {
     "title": "4-1-1 (4 Questions)",
