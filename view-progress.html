@@ -356,6 +356,64 @@
             letter-spacing: 0.04em;
         }
         .stat-card.accent .stat-label { color: rgba(255,255,255,0.85); }
+        .stat-delta {
+            font-size: 12px;
+            font-weight: 700;
+            margin-top: 7px;
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            letter-spacing: 0.01em;
+        }
+        .stat-delta.up   { color: #2f8f6f; }
+        .stat-delta.down { color: #c0362f; }
+        .stat-delta.flat { color: #8e8e93; }
+        .stat-card.accent .stat-delta.up   { color: #d6ffe9; }
+        .stat-card.accent .stat-delta.down { color: #ffd8d2; }
+        .stat-card.accent .stat-delta.flat { color: rgba(255,255,255,0.75); }
+
+        /* ── Hot spots list ────────────────────────────────────────── */
+        .hotspots { padding: 12px 16px; border-top: 0.5px solid #e5e5ea; }
+        .hotspots-head {
+            display: flex; align-items: baseline; justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        .hotspots-head h4 {
+            font-size: 13px; font-weight: 600; color: #3a3a3c;
+            text-transform: uppercase; letter-spacing: 0.03em;
+        }
+        .hotspots-hint { font-size: 11px; color: #c57f23; font-weight: 600; }
+        .hotspot-row {
+            display: grid;
+            grid-template-columns: 18px 1fr auto;
+            gap: 10px; align-items: center;
+            padding: 8px 4px; border-top: 0.5px solid #ececef;
+            cursor: pointer; border-radius: 8px;
+        }
+        .hotspot-row:first-of-type { border-top: none; }
+        .hotspot-row:hover { background: #f7f7f9; }
+        .hotspot-rank {
+            font-weight: 800; font-size: 15px; text-align: center;
+            color: #b0b0b5; line-height: 1;
+        }
+        .hotspot-row.top .hotspot-rank { color: #db5a35; }
+        .hotspot-name { font-weight: 600; font-size: 14px; color: #1c1c1e; }
+        .hotspot-name em {
+            font-style: normal; display: block; font-size: 11px; color: #9a9aa0;
+            margin-top: 1px;
+        }
+        .hotspot-val { text-align: right; }
+        .hotspot-val b { font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums; }
+        .hotspot-val em { font-style: normal; display: block; font-size: 10.5px; color: #2f8f6f; }
+        .hotspot-val em.down { color: #c0362f; }
+        .hotspot-val em.flat { color: #9a9aa0; }
+        .hotspot-bar {
+            grid-column: 2 / 4; height: 5px; border-radius: 4px;
+            background: #ececef; overflow: hidden; margin-top: 6px;
+        }
+        .hotspot-bar i { display: block; height: 100%; border-radius: 4px;
+            background: linear-gradient(90deg, #f3b15a, #db5a35); }
+        .hotspots-empty { font-size: 13px; color: #9a9aa0; padding: 6px 4px; }
 
         /* ── Shared ────────────────────────────────────────────────── */
         .loading {
@@ -789,23 +847,29 @@
                     <button class="icon-btn" onclick="loadMapData(true)" title="Refresh">↺</button>
                 </div>
 
+                <div class="hotspots" id="hotspots">
+                    <div class="hotspots-head">
+                        <h4>Hot Spots</h4>
+                        <span class="hotspots-hint">tap to fly →</span>
+                    </div>
+                    <div id="hotspots-list">
+                        <div class="hotspots-empty">Loading…</div>
+                    </div>
+                </div>
+
                 <div class="map-legend">
-                    <h4 data-i18n="how_were_doing.legend_title">Legend</h4>
+                    <h4 data-i18n="how_were_doing.legend_title">Conversation heat</h4>
                     <div class="legend-row">
+                        <div style="flex:1; height:9px; border-radius:5px; background:linear-gradient(90deg,#fbe3a2,#f3b15a,#ee8a3c,#db5a35,#c0362f);"></div>
+                    </div>
+                    <div class="legend-row" style="justify-content:space-between; margin-top:2px;">
+                        <span class="legend-label">Quiet</span>
+                        <span class="legend-label" style="color:#8e8e93;">discovery weighted heavier</span>
+                        <span class="legend-label">Catching</span>
+                    </div>
+                    <div class="legend-row" style="margin-top:8px;">
                         <div class="legend-swatch" style="background:#3a3a3c;"></div>
                         <span class="legend-label" data-i18n="how_were_doing.legend_church">Church</span>
-                    </div>
-                    <div class="legend-row">
-                        <div class="legend-swatch" style="background:#add8e6; opacity:0.8;"></div>
-                        <span class="legend-label" data-i18n="how_were_doing.legend_low">Low conversation activity</span>
-                    </div>
-                    <div class="legend-row">
-                        <div class="legend-swatch" style="background:#0077b6; opacity:0.8;"></div>
-                        <span class="legend-label" data-i18n="how_were_doing.legend_medium">Medium conversation activity</span>
-                    </div>
-                    <div class="legend-row">
-                        <div class="legend-swatch" style="background:#002f6c; opacity:0.9;"></div>
-                        <span class="legend-label" data-i18n="how_were_doing.legend_high">High conversation activity</span>
                     </div>
                 </div>
 
@@ -840,22 +904,17 @@
     <!-- Bottom-right HUD: compact legend only -->
     <div id="map-bottom-right">
         <div id="compact-legend" aria-hidden="true">
-            <h4>Legend</h4>
+            <h4>Conversation heat</h4>
             <div class="legend-row">
+                <div style="width:120px; height:8px; border-radius:5px; background:linear-gradient(90deg,#fbe3a2,#f3b15a,#ee8a3c,#db5a35,#c0362f);"></div>
+            </div>
+            <div class="legend-row" style="justify-content:space-between;">
+                <span class="legend-label">Quiet</span>
+                <span class="legend-label">Catching</span>
+            </div>
+            <div class="legend-row" style="margin-top:6px;">
                 <div class="legend-swatch" style="background:#3a3a3c;"></div>
                 <span class="legend-label">Church</span>
-            </div>
-            <div class="legend-row">
-                <div class="legend-swatch" style="background:#add8e6; opacity:0.8;"></div>
-                <span class="legend-label">Low activity</span>
-            </div>
-            <div class="legend-row">
-                <div class="legend-swatch" style="background:#0077b6; opacity:0.8;"></div>
-                <span class="legend-label">Medium activity</span>
-            </div>
-            <div class="legend-row">
-                <div class="legend-swatch" style="background:#002f6c; opacity:0.9;"></div>
-                <span class="legend-label">High activity</span>
             </div>
         </div>
     </div><!-- /#map-bottom-right -->
@@ -1320,12 +1379,24 @@
 
         function convoRadius(n) { return Math.min(400 + n * 300, 8000) }
 
+        // Warm heat ramp — reads as "hot spot", not water depth.
+        function warmColor(intensity) {
+            return intensity <= 2  ? '#fbe3a2'
+                 : intensity <= 5  ? '#f3b15a'
+                 : intensity <= 10 ? '#ee8a3c'
+                 : intensity <= 20 ? '#db5a35'
+                 :                   '#c0362f'
+        }
+
         function makeCircle(lat, lon, n, type, locationText) {
-            const color  = n <= 3 ? '#add8e6' : n <= 10 ? '#0077b6' : '#002f6c'
+            // Discovery is a step beyond spiritual — weight it heavier so depth
+            // glows hotter than surface-level activity of the same volume.
+            const intensity = type === 'discovery' ? n * 2 : n
+            const color  = warmColor(intensity)
             const radius = convoRadius(n)
             const typeLabel = type === 'spiritual' ? 'Spiritual' : 'Discovery'
             return L.circle([lat, lon], {
-                color, fillColor: color, fillOpacity: 0.55, radius, weight: 1
+                color, fillColor: color, fillOpacity: 0.5, radius, weight: 1
             }).bindPopup(
                 '<strong>' + (locationText || 'Location') + '</strong>' +
                 '<br>' + typeLabel + ' conversations: ' + n
@@ -1346,43 +1417,162 @@
 
         if (showSpiritual) spiritualLayer.addTo(map); else spiritualLayer.remove()
         if (showDiscovery) discoveryLayer.addTo(map); else discoveryLayer.remove()
+
+        renderHotSpots()
+    }
+
+    // ── Hot spots leaderboard ──────────────────────────────────────────────────
+    // Ranks cities by spiritual + discovery volume in the selected period.
+    // Ignores the city dropdown on purpose (the leaderboard is a macro view);
+    // tapping a row focuses the map on that city.
+    function renderHotSpots() {
+        const listEl = document.getElementById('hotspots-list')
+        if (!listEl) return
+
+        const days    = parseInt(document.getElementById('map-date').value)
+        const cutoff  = cutoffFromDays(days)
+        const prevCut = days > 0 ? new Date(Date.now() - days * 2 * 86400000).toISOString() : null
+
+        const cities = {}
+        mapData.conversations.forEach(ev => {
+            if (!ev.city) return
+            const inCurrent = !cutoff || ev.created_at >= cutoff
+            const inPrior   = prevCut && ev.created_at >= prevCut && ev.created_at < cutoff
+            if (!inCurrent && !inPrior) return
+
+            if (!cities[ev.city]) {
+                cities[ev.city] = { city: ev.city, sp: 0, disc: 0, total: 0, prior: 0, lat: null, lng: null }
+            }
+            const c = cities[ev.city]
+            const n = ev.count || 1
+            if (c.lat === null && ev.latitude && ev.longitude) { c.lat = +ev.latitude; c.lng = +ev.longitude }
+            if (inCurrent) {
+                if (ev.event_type === 'discovery') c.disc += n; else c.sp += n
+                c.total += n
+            }
+            if (inPrior) c.prior += n
+        })
+
+        const ranked = Object.values(cities)
+            .filter(c => c.total > 0)
+            .sort((a, b) => b.total - a.total)
+            .slice(0, 6)
+
+        if (ranked.length === 0) {
+            listEl.innerHTML = '<div class="hotspots-empty">No conversations in this period yet.</div>'
+            return
+        }
+
+        const max = ranked[0].total
+        listEl.innerHTML = ranked.map((c, i) => {
+            const pct = Math.max(4, Math.round(c.total / max * 100))
+            let trend = '', tcls = 'flat'
+            if (prevCut) {
+                if (c.prior === 0) { trend = c.total > 0 ? '▲ new' : '—'; tcls = c.total > 0 ? '' : 'flat' }
+                else {
+                    const d = Math.round((c.total - c.prior) / c.prior * 100)
+                    if (d > 0)      { trend = '▲ ' + d + '%'; tcls = '' }
+                    else if (d < 0) { trend = '▼ ' + Math.abs(d) + '%'; tcls = 'down' }
+                    else            { trend = '— 0%'; tcls = 'flat' }
+                }
+            }
+            return '<div class="hotspot-row' + (i < 2 ? ' top' : '') + '"' +
+                   ' onclick="flyToCity(\'' + escAttr(c.city) + '\')">' +
+                '<div class="hotspot-rank">' + (i + 1) + '</div>' +
+                '<div class="hotspot-name">' + escHtml(c.city) +
+                    '<em>' + c.sp + ' sp · ' + c.disc + ' disc</em></div>' +
+                '<div class="hotspot-val"><b>' + c.total + '</b>' +
+                    (trend ? '<em class="' + tcls + '">' + trend + '</em>' : '') + '</div>' +
+                '<div class="hotspot-bar"><i style="width:' + pct + '%"></i></div>' +
+                '</div>'
+        }).join('')
+    }
+
+    // Focus the map on a city from the hot-spots list: set the filter, zoom, re-render.
+    function flyToCity(city) {
+        const sel = document.getElementById('map-city')
+        if (sel) {
+            const exists = Array.from(sel.options).some(o => o.value === city)
+            if (exists) sel.value = city
+        }
+        handleCitySelectionZoom(city)
+        renderMap()
+    }
+
+    function escAttr(s) {
+        return String(s).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;')
     }
 
     // ── Metrics ──────────────────────────────────────────────────────────────
+    // Everything here comes from conversation_events — the spiritual + discovery
+    // "fishing" data. Each card shows the change vs. the immediately prior period
+    // of the same length (hidden for All Time).
     async function loadMetrics() {
         if (!window.supabase) return
 
         const section = document.getElementById('stats-section')
         section.innerHTML = '<div class="loading">Loading…</div>'
 
-        const days   = parseInt(document.getElementById('metrics-date').value)
-        const cutoff = cutoffFromDays(days)
+        const days    = parseInt(document.getElementById('metrics-date').value)
+        const cutoff  = cutoffFromDays(days)
+        const prevCut = days > 0 ? new Date(Date.now() - days * 2 * 86400000).toISOString() : null
 
+        // One query covers both the current and prior windows.
         let query = window.supabase
-            .from('church_assessments')
-            .select('baptism_count, church_generation')
-            .eq('is_church', true)
+            .from('conversation_events')
+            .select('event_type, count, created_at, city, user_id')
+        if (prevCut) query = query.gte('created_at', prevCut)
 
-        if (cutoff) query = query.gte('updated_at', cutoff)
-
-        const { data: churches, error } = await query
+        const { data, error } = await query
 
         if (error) {
             section.innerHTML = '<div class="empty-state">Error loading data.<br><small>' + error.message + '</small></div>'
             return
         }
 
-        const rows     = churches || []
-        const total    = rows.length
-        const baptisms = rows.reduce((s, r) => s + (r.baptism_count || 0), 0)
-        const gen2     = rows.filter(r => r.church_generation === 'gen2+').length
+        const cur = { sp: 0, disc: 0, cities: new Set(), fishers: new Set() }
+        const pri = { sp: 0, disc: 0, cities: new Set(), fishers: new Set() }
 
-        let spiritual = 0
-        const { data: convData } = await window.supabase
-            .from('conversation_events')
-            .select('count')
-            .eq('event_type', 'spiritual')
-        if (convData) spiritual = convData.reduce((s, r) => s + (r.count || 0), 0)
+        ;(data || []).forEach(ev => {
+            const n = ev.count || 1
+            const inCurrent = !cutoff || ev.created_at >= cutoff
+            const inPrior   = prevCut && ev.created_at >= prevCut && ev.created_at < cutoff
+            const bucket = inCurrent ? cur : inPrior ? pri : null
+            if (!bucket) return
+            if (ev.event_type === 'discovery') bucket.disc += n; else bucket.sp += n
+            if (ev.city)    bucket.cities.add(ev.city)
+            if (ev.user_id) bucket.fishers.add(ev.user_id)
+        })
+
+        const depth     = cur.sp > 0 ? Math.round(cur.disc / cur.sp * 100) : 0
+        const priDepth  = pri.sp > 0 ? Math.round(pri.disc / pri.sp * 100) : 0
+
+        // Percentage-change delta chip (counts). Hidden when no prior period.
+        function delta(c, p) {
+            if (!prevCut) return ''
+            if (p === 0) return c > 0 ? chip('up', '▲ new') : ''
+            const d = Math.round((c - p) / p * 100)
+            if (d > 0) return chip('up',   '▲ ' + d + '%')
+            if (d < 0) return chip('down', '▼ ' + Math.abs(d) + '%')
+            return chip('flat', '— 0%')
+        }
+        // Percentage-point delta chip (for the depth ratio).
+        function pointDelta(c, p) {
+            if (!prevCut) return ''
+            const d = c - p
+            if (d > 0) return chip('up',   '▲ ' + d + ' pts')
+            if (d < 0) return chip('down', '▼ ' + Math.abs(d) + ' pts')
+            return chip('flat', '— 0 pts')
+        }
+        function chip(cls, txt) { return '<div class="stat-delta ' + cls + '">' + txt + '</div>' }
+
+        function card(cls, value, label, deltaHtml) {
+            return '<div class="stat-card ' + cls + '">' +
+                '<div class="stat-value">' + value + '</div>' +
+                '<div class="stat-label">' + label + '</div>' +
+                (deltaHtml || '') +
+                '</div>'
+        }
 
         const label = days === 0 ? 'All Time' :
                       days === 7  ? 'Last 7 Days' :
@@ -1392,22 +1582,11 @@
         section.innerHTML =
             '<div class="period-label">' + label + '</div>' +
             '<div class="stats-grid">' +
-                '<div class="stat-card accent">' +
-                    '<div class="stat-value">' + spiritual.toLocaleString() + '</div>' +
-                    '<div class="stat-label">Spiritual Conversations</div>' +
-                '</div>' +
-                '<div class="stat-card">' +
-                    '<div class="stat-value">' + total.toLocaleString() + '</div>' +
-                    '<div class="stat-label">Churches</div>' +
-                '</div>' +
-                '<div class="stat-card">' +
-                    '<div class="stat-value">' + baptisms.toLocaleString() + '</div>' +
-                    '<div class="stat-label">Baptisms</div>' +
-                '</div>' +
-                '<div class="stat-card wide">' +
-                    '<div class="stat-value">' + gen2.toLocaleString() + '</div>' +
-                    '<div class="stat-label">Gen 2+ Churches</div>' +
-                '</div>' +
+                card('accent', cur.sp.toLocaleString(),   'Spiritual Conversations', delta(cur.sp, pri.sp)) +
+                card('',       cur.disc.toLocaleString(), 'Discovery Conversations', delta(cur.disc, pri.disc)) +
+                card('',       depth + '%',               'Went to Discovery',       pointDelta(depth, priDepth)) +
+                card('',       cur.cities.size.toLocaleString(), 'Cities Active',     delta(cur.cities.size, pri.cities.size)) +
+                card('',       cur.fishers.size.toLocaleString(), 'People Fishing',   delta(cur.fishers.size, pri.fishers.size)) +
             '</div>'
     }
 
