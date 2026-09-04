@@ -901,7 +901,9 @@
                 display: flex;
                 align-items: center;
                 gap: 10px;
-                padding: max(8px, env(safe-area-inset-top)) 14px 8px;
+                /* Reserve the right corner for the site-wide account avatar
+                   (injected fixed at top:16px/right:16px by account-overlay.js) */
+                padding: max(8px, env(safe-area-inset-top)) 64px 8px 14px;
                 background: rgba(242, 242, 247, 0.86);
                 backdrop-filter: blur(12px);
                 -webkit-backdrop-filter: blur(12px);
@@ -917,6 +919,14 @@
                 text-decoration: none;
                 margin-right: auto;
             }
+            /* The account avatar (top-right) already owns sign-in/out, so the
+               topbar's own "Signed in" text and Log Out button are redundant and
+               were colliding with the avatar — drop them on mobile. */
+            .mobile-signin-text,
+            .mobile-logout-btn { display: none !important; }
+
+            /* Keep Leaflet's zoom control clear of the floating topbar */
+            .leaflet-top { top: 56px; }
             .mobile-back-btn {
                 display: flex;
                 align-items: center;
