@@ -56,6 +56,9 @@
         /* Mobile-only topbar — hidden by default; shown in mobile breakpoint */
         #mobile-topbar { display: none; }
 
+        /* Mobile-only bottom-sheet drag handle — hidden by default */
+        .sheet-grip { display: none; }
+
         /* ── Desktop: full-screen map + floating overlay ─────────── */
         @media (min-width: 768px) {
             html, body {
@@ -769,52 +772,140 @@
 
         /* ── Mobile layout overrides ──────────────────────────────── */
         @media (max-width: 767px) {
-            /* Safe-area-aware bottom padding for iOS home indicator */
-            body {
-                padding-bottom: max(60px, calc(env(safe-area-inset-bottom) + 40px));
+            /* Map-app layout: the map owns the whole viewport as a fixed layer;
+               all controls live in a draggable bottom sheet. The page itself
+               never scrolls, so map tiles can never bleed over page content
+               the way an in-flow map did on address-bar scroll. */
+            html, body {
+                height: 100%;
+                overflow: hidden;
+                padding-bottom: 0;
             }
 
-            /* Feature 1 – Nuclear position reset: !important beats any stale JS
-               inline styles that survive a desktop→mobile resize or fast initial
-               paint before applyDesktopMapLayout() clears them. */
+            /* Reset any stale desktop inline styles the JS layout may leave
+               behind on a desktop→mobile transition or a fast first paint. */
             .page-shell {
                 position: static !important;
                 height: auto !important;
                 overflow: visible !important;
             }
+
+            /* THE MAP — full-bleed fixed layer behind everything. The !important
+               position beats any stale inline `position:absolute; inset:0` that
+               the desktop branch of applyDesktopMapLayout() may have stamped. */
+            #map-el {
+                position: fixed !important;
+                inset: 0 !important;
+                top: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                bottom: 0 !important;
+                width: 100% !important;
+                height: 100% !important;
+                z-index: 0 !important;
+                border: none !important;
+            }
+
+            /* THE BOTTOM SHEET — controls docked to the bottom, drag to resize.
+               height is driven by --sheet-h (set from JS during drag/snap). */
             .overlay-panel {
-                position: static !important;
+                position: fixed !important;
+                left: 0 !important;
+                right: 0 !important;
+                bottom: 0 !important;
                 top: auto !important;
-                right: auto !important;
                 transform: none !important;
                 width: 100% !important;
                 max-width: 100% !important;
-                max-height: none !important;
-                overflow-y: visible !important;
-                box-shadow: none !important;
-                border-radius: 0 !important;
+                height: var(--sheet-h, 210px) !important;
+                max-height: calc(100vh - 60px) !important;
+                margin: 0 !important;
+                display: flex !important;
+                flex-direction: column !important;
+                overflow: hidden !important;
                 background: #fff !important;
+                border-radius: 18px 18px 0 0 !important;
+                box-shadow: 0 -3px 26px rgba(0, 0, 0, 0.16) !important;
+                z-index: 1000;
+                transition: height 0.32s cubic-bezier(0.32, 0.72, 0, 1);
             }
+            .overlay-panel.sheet-dragging { transition: none !important; }
+
+            /* Drag handle — non-scrolling header of the sheet */
+            .sheet-grip {
+                display: flex;
+                justify-content: center;
+                flex: 0 0 auto;
+                padding: 9px 0 5px;
+                cursor: grab;
+                touch-action: none;
+            }
+            .sheet-grip:active { cursor: grabbing; }
+            .sheet-grip::before {
+                content: "";
+                width: 38px;
+                height: 5px;
+                border-radius: 3px;
+                background: #d1d1d6;
+            }
+            body.theme-dark .sheet-grip::before { background: #3a3a3c; }
+
+            /* Sheet body scrolls internally; the page never does */
+            .overlay-body {
+                flex: 1;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+                overscroll-behavior: contain;
+                padding-bottom: max(16px, env(safe-area-inset-bottom));
+            }
+
+            /* Map / Metrics tabs stick to the top of the sheet while the rest
+               of the controls scroll beneath them — always reachable in the peek */
+            .tab-bar {
+                position: sticky;
+                top: 0;
+                z-index: 3;
+                background: #fff;
+            }
+            body.theme-dark .tab-bar { background: #161e30; }
 
             /* Compact bar is desktop-only — hide on mobile */
             .overlay-compact-bar { display: none; }
             /* Always show full overlay body on mobile regardless of compact state */
             .overlay-panel.compact .overlay-body { display: block !important; }
 
-            /* Feature 2+4 – Hide full nav bar; replaced by #mobile-topbar */
+            /* Access-denied panel: own fixed scroll layer over the map */
+            .access-denied {
+                position: fixed;
+                inset: 0;
+                z-index: 2000;
+                overflow-y: auto;
+                background: #f2f2f7;
+                min-height: 100%;
+            }
+            body.theme-dark .access-denied { background: #0d1420; }
+
+            /* Hide full nav bar; replaced by #mobile-topbar */
             .nav-bar { display: none; }
 
-            /* Feature 4 – Hide auth section; replaced by #mobile-topbar */
+            /* Hide auth section; replaced by #mobile-topbar */
             .auth-section { display: none !important; }
 
-            /* Feature 4 – Compact topbar: back arrow · Signed in · Log Out */
+            /* Floating topbar pinned to the top of the viewport over the map */
             #mobile-topbar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                z-index: 1200;
                 display: flex;
                 align-items: center;
                 gap: 10px;
-                padding: 8px 14px;
-                background: #f2f2f7;
-                border-bottom: 0.5px solid #e5e5ea;
+                padding: max(8px, env(safe-area-inset-top)) 14px 8px;
+                background: rgba(242, 242, 247, 0.86);
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+                border-bottom: 0.5px solid rgba(0, 0, 0, 0.08);
             }
             .mobile-home-btn {
                 background: #000;
@@ -867,12 +958,6 @@
             .header .subtitle { display: none !important; }
             /* Collapse the h1 bottom margin so no gap lingers where subtitle was */
             .header h1 { margin-bottom: 0; }
-
-            /* Map sits in normal flow below controls */
-            #map-el {
-                height: 260px;
-                border-top: 0.5px solid #e5e5ea;
-            }
 
             /* Ticker and compact legend are desktop-only; never on mobile */
             #updates-ticker  { display: none !important; }
@@ -968,24 +1053,30 @@
          On mobile: overlay (controls) flows first, map sits below it. -->
     <div class="page-shell" id="main-container">
 
-        <!-- overlay-panel: absolute over map on desktop; block column above map on mobile -->
+        <!-- Mobile-only floating topbar: Home · Signed in · Log Out.
+             Direct child of page-shell so on mobile it pins to the top of the
+             viewport, independent of the bottom sheet's scroll. -->
+        <div id="mobile-topbar">
+            <a href="/" class="mobile-home-btn" data-i18n="nav.home">Home</a>
+            <span class="mobile-signin-text">Signed in</span>
+            <button class="mobile-logout-btn" onclick="authLogOut()">Log Out</button>
+        </div>
+
+        <!-- overlay-panel: floating panel over map on desktop; draggable bottom
+             sheet over the full-bleed map on mobile -->
         <div class="overlay-panel">
+
+            <!-- Mobile-only drag handle for the bottom sheet -->
+            <div class="sheet-grip" id="sheet-grip" aria-hidden="true"></div>
 
             <!-- Always-visible strip: shown even in compact mode (desktop only) -->
             <div class="overlay-compact-bar">
-                
+
                 <button class="compact-toggle-btn" onclick="toggleOverlayCompact()">Compact view</button>
             </div>
 
             <!-- Full panel body — hidden when overlay is compact (desktop only) -->
             <div class="overlay-body">
-
-            <!-- Mobile-only compact topbar: back arrow · Signed in · Log Out -->
-            <div id="mobile-topbar">
-                <a href="/" class="mobile-home-btn" data-i18n="nav.home">Home</a>
-                <span class="mobile-signin-text">Signed in</span>
-                <button class="mobile-logout-btn" onclick="authLogOut()">Log Out</button>
-            </div>
 
             <div class="nav-bar">
                 <a href="/" class="nav-home" data-i18n="nav.home">Home</a>
@@ -1401,6 +1492,66 @@
         }
     }
 
+    // ── Mobile bottom sheet ──────────────────────────────────────────────────
+    // The overlay-panel becomes a draggable sheet on mobile. Height is stored in
+    // the CSS var --sheet-h; two snap points (peek / full) plus free drag.
+    function initMobileSheet() {
+        const sheet = document.querySelector('.overlay-panel')
+        const grip  = document.getElementById('sheet-grip')
+        if (!sheet || !grip) return
+
+        const PEEK = () => 210
+        const FULL = () => Math.max(PEEK() + 80, window.innerHeight - 60)
+        const clamp = h => Math.max(PEEK(), Math.min(FULL(), h))
+        const setH  = h => sheet.style.setProperty('--sheet-h', clamp(h) + 'px')
+
+        // Expose a snap helper for tab switching.
+        window.__setSheet = state => setH(state === 'full' ? FULL() : PEEK())
+
+        let dragging = false, startY = 0, startH = 0, moved = false
+
+        const pointY = e => (e.touches ? e.touches[0].clientY : e.clientY)
+
+        const onDown = e => {
+            if (window.innerWidth >= 768) return
+            dragging = true; moved = false
+            startY = pointY(e)
+            startH = sheet.getBoundingClientRect().height
+            sheet.classList.add('sheet-dragging')
+            window.addEventListener('mousemove', onMove)
+            window.addEventListener('mouseup', onUp)
+            window.addEventListener('touchmove', onMove, { passive: false })
+            window.addEventListener('touchend', onUp)
+        }
+        const onMove = e => {
+            if (!dragging) return
+            if (e.cancelable) e.preventDefault()
+            const dy = startY - pointY(e)
+            if (Math.abs(dy) > 4) moved = true
+            setH(startH + dy)
+        }
+        const onUp = () => {
+            if (!dragging) return
+            dragging = false
+            sheet.classList.remove('sheet-dragging')
+            window.removeEventListener('mousemove', onMove)
+            window.removeEventListener('mouseup', onUp)
+            window.removeEventListener('touchmove', onMove)
+            window.removeEventListener('touchend', onUp)
+            if (!moved) {                      // treated as a tap → toggle
+                const h = sheet.getBoundingClientRect().height
+                setH(h <= PEEK() + 30 ? FULL() : PEEK())
+                return
+            }
+            // Snap to nearer of peek / full.
+            const h = sheet.getBoundingClientRect().height
+            setH(h > (PEEK() + FULL()) / 2 ? FULL() : PEEK())
+        }
+
+        grip.addEventListener('mousedown', onDown)
+        grip.addEventListener('touchstart', onDown, { passive: true })
+    }
+
     // ── Tab switching ────────────────────────────────────────────────────────
     function switchTab(tab) {
         const isMap = tab === 'map'
@@ -1409,10 +1560,11 @@
         document.getElementById('map-controls').style.display  = isMap ? '' : 'none'
         document.getElementById('metrics-view').style.display  = isMap ? 'none' : 'block'
 
-        // On mobile, hide the map element when showing metrics so it doesn't
-        // sit as an empty block below the stats content.
-        if (window.innerWidth < 768) {
-            document.getElementById('map-el').style.display = isMap ? '' : 'none'
+        // On mobile the map is a fixed full-bleed layer behind the sheet, so we
+        // don't hide it — we grow the sheet to cover it for Metrics, and shrink
+        // it back to the peek for Map.
+        if (window.innerWidth < 768 && window.__setSheet) {
+            window.__setSheet(isMap ? 'peek' : 'full')
         }
 
         if (isMap) {
@@ -2397,7 +2549,21 @@
     applyOverlayCompact()   // restore compact/expanded from localStorage
     initLayerToggles()      // restore layer state from localStorage (defaults: all checked)
     applyThemeChrome()      // restore light/dark from localStorage (map tiles follow in ensureMap)
-    window.addEventListener('resize', applyDesktopMapLayout)
+    initMobileSheet()       // wire up the draggable bottom sheet (mobile only)
+
+    // Debounced, width-guarded resize handler. Mobile browsers fire `resize`
+    // on scroll when the address bar shows/hides — that only changes height, so
+    // we ignore pure height changes and never re-run the layout / invalidateSize
+    // churn that made the map flicker mid-scroll. Only a real width change
+    // (rotation, desktop↔mobile crossover) reapplies the layout.
+    let lastResizeW = window.innerWidth
+    let resizeTimer = null
+    window.addEventListener('resize', () => {
+        if (window.innerWidth === lastResizeW) return   // address-bar / height-only
+        lastResizeW = window.innerWidth
+        clearTimeout(resizeTimer)
+        resizeTimer = setTimeout(applyDesktopMapLayout, 120)
+    })
 
     // Clean up realtime subscription and scroll timer on navigate away
     window.addEventListener('beforeunload', () => {
