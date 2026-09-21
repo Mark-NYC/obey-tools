@@ -356,14 +356,18 @@
         import { supabase } from './supabase.js';
 
         let cities = [];
+        let baseline = [];          // deep copy of the last server state our local edits are relative to
         let currentCity = null;
         let currentCityIndex = -1;
         let lastSyncTimestamp = null;
         let realtimeChannel = null;
         let isLiveMeetingMode = false;
+        let isConnected = false;    // real backend connectivity, drives the status label
         let pendingSave = false;
         let saveQueue = [];
         const streamLevels = ['1st Gen', '2nd Gen', '3rd Gen', '4th Gen'];
+
+        function snapshot(x) { return JSON.parse(JSON.stringify(x || [])); }
 
         // ============================================================
         // SANITIZE: postHistory must always be a plain object {}
@@ -526,56 +530,136 @@
 
         function showSaveIndicator(state) {
             console.log('[saveIndicator]', state);
-            return; // UI notification suppressed
             const el = document.getElementById('saveIndicator');
-            el.className = 'save-indicator ' + state;
-            if (state === 'saving') { el.textContent = 'Saving...'; }
-            else if (state === 'saved') { el.textContent = 'Saved ✓'; setTimeout(() => { el.className = 'save-indicator'; }, 2000); }
-            else if (state === 'error') { el.textContent = 'Save failed ✗'; setTimeout(() => { el.className = 'save-indicator'; }, 3000); }
-        }
-
-        function mergeLeaders(localLeaders, serverLeaders) {
-            const map = {};
-            (serverLeaders || []).forEach(l => { map[l.name] = { ...l, postHistory: { ...(l.postHistory || {}) } }; });
-            (localLeaders || []).forEach(l => {
-                if (map[l.name]) {
-                    const h = { ...(map[l.name].postHistory || {}) };
-                    Object.keys(l.postHistory || {}).forEach(k => { if (l.postHistory[k] === true) h[k] = true; });
-                    map[l.name].postHistory = h;
-                } else {
-                    map[l.name] = { ...l, postHistory: { ...(l.postHistory || {}) } };
-                }
-            });
-            return Object.values(map);
+            if (!el) return;
+            // Success chrome ("Saving.../Saved") is kept quiet on purpose — it was
+            // noisy during normal use. Failures must NEVER be silent, though: a save
+            // that did not land has to be visible so nobody thinks their edit stuck.
+            if (state === 'error') {
+                el.className = 'save-indicator error';
+                el.textContent = 'Save failed — not saved ✗';
+                setTimeout(() => { el.className = 'save-indicator'; }, 4000);
+            }
         }
 
         function getMaxStreamDepth(d1, d2) {
             return streamLevels[Math.max(streamLevels.indexOf(d1 || '1st Gen'), streamLevels.indexOf(d2 || '1st Gen'))];
         }
 
-        async function handleConflict(serverData) {
-            console.log('🔄 Resolving conflict...');
-            const serverMap = {};
-            (serverData.data.cities || []).forEach(c => { serverMap[c.name] = c; });
-            const merged = [];
-            cities.forEach(lc => {
-                const sc = serverMap[lc.name];
-                if (!sc) { merged.push(lc); }
-                else {
-                    merged.push({
-                        ...sc,
-                        leaders: mergeLeaders(lc.leaders, sc.leaders),
-                        baptismsYTD: Math.max(lc.baptismsYTD || 0, sc.baptismsYTD || 0),
-                        churchesYTD: Math.max(lc.churchesYTD || 0, sc.churchesYTD || 0),
-                        totalChurches: Math.max(lc.totalChurches || 0, sc.totalChurches || 0),
-                        streamDepth: getMaxStreamDepth(lc.streamDepth, sc.streamDepth),
-                        totalStreamDepth: getMaxStreamDepth(lc.totalStreamDepth, sc.totalStreamDepth)
+        // ============================================================
+        // THREE-WAY MERGE (base ↔ local ↔ server)
+        //
+        // A last-write-wins / Math.max merge cannot tell "I deliberately
+        // changed this" apart from "I'm holding a stale copy I never touched".
+        // That is what let concurrent increments collapse and let one user's
+        // unrelated edit revert another's correction, un-mark, or deletion.
+        //
+        // `baseline` is a deep copy of the server state our local edits are
+        // relative to. For every field we compare local↔base:
+        //   - counters       → apply our delta (local - base) on top of server
+        //   - post history   → per meeting key, take our value only where we
+        //                      actually changed it, otherwise take server
+        //   - adds/deletes   → honor whoever actually made the change
+        // ============================================================
+        function mergeLeadersThreeWay(base, local, server) {
+            const bMap = {}, lMap = {}, sMap = {};
+            (base || []).forEach(x => { bMap[x.name] = x; });
+            (local || []).forEach(x => { lMap[x.name] = x; });
+            (server || []).forEach(x => { sMap[x.name] = x; });
+            const names = new Set([...Object.keys(bMap), ...Object.keys(lMap), ...Object.keys(sMap)]);
+            const out = [];
+            names.forEach(name => {
+                const b = bMap[name], l = lMap[name], s = sMap[name];
+                const inBase = !!b, inLocal = !!l, inServer = !!s;
+
+                // Deleted locally → stays deleted.
+                if (inBase && !inLocal) return;
+
+                // Server deleted it (in base + local, gone on server).
+                if (inBase && inLocal && !inServer) {
+                    const changedLocally = JSON.stringify(b.postHistory || {}) !== JSON.stringify(l.postHistory || {});
+                    if (!changedLocally) return;            // we didn't touch it → honor server's delete
+                    out.push({ name, postHistory: { ...(l.postHistory || {}) } }); // we changed it → keep our data
+                    return;
+                }
+
+                // Added locally only.
+                if (!inBase && inLocal && !inServer) {
+                    out.push({ name, postHistory: { ...(l.postHistory || {}) } });
+                    return;
+                }
+
+                // Added on server only.
+                if (!inBase && !inLocal && inServer) {
+                    out.push({ name, postHistory: { ...(s.postHistory || {}) } });
+                    return;
+                }
+
+                // Present on both sides → three-way merge the post history per key.
+                if (inLocal && inServer) {
+                    const bh = (b && b.postHistory) || {}, lh = l.postHistory || {}, sh = s.postHistory || {};
+                    const keys = new Set([...Object.keys(bh), ...Object.keys(lh), ...Object.keys(sh)]);
+                    const ph = {};
+                    keys.forEach(k => {
+                        if (lh[k] !== bh[k]) { if (lh[k]) ph[k] = true; }  // we changed this key → our value wins
+                        else if (sh[k]) ph[k] = true;                       // untouched by us → take server
                     });
-                    delete serverMap[lc.name];
+                    out.push({ name, postHistory: ph });
                 }
             });
-            Object.values(serverMap).forEach(sc => merged.push(sc));
-            cities = sanitizeLeaders(merged);
+            return out;
+        }
+
+        function mergeCity(b, l, s) {
+            b = b || {}; l = l || {}; s = s || {};
+            const counter = (field) => Math.max(0, (s[field] || 0) + ((l[field] || 0) - (b[field] || 0)));
+            const stream = (field) => {
+                const bv = b[field] || '1st Gen', lv = l[field] || '1st Gen', sv = s[field] || '1st Gen';
+                const lChanged = lv !== bv, sChanged = sv !== bv;
+                if (lChanged && sChanged) return getMaxStreamDepth(lv, sv);
+                return lChanged ? lv : sv;
+            };
+            return {
+                name: s.name || l.name,
+                leaders: mergeLeadersThreeWay(b.leaders, l.leaders, s.leaders),
+                baptismsYTD: counter('baptismsYTD'),
+                churchesYTD: counter('churchesYTD'),
+                totalChurches: counter('totalChurches'),
+                streamDepth: stream('streamDepth'),
+                totalStreamDepth: stream('totalStreamDepth'),
+                momentumHistory: l.momentumHistory || s.momentumHistory || []
+            };
+        }
+
+        function threeWayMergeCities(base, local, server) {
+            const bMap = {}, lMap = {}, sMap = {};
+            (base || []).forEach(c => { bMap[c.name] = c; });
+            (local || []).forEach(c => { lMap[c.name] = c; });
+            (server || []).forEach(c => { sMap[c.name] = c; });
+            const names = new Set([...Object.keys(bMap), ...Object.keys(lMap), ...Object.keys(sMap)]);
+            const out = [];
+            names.forEach(name => {
+                const b = bMap[name], l = lMap[name], s = sMap[name];
+                const inBase = !!b, inLocal = !!l, inServer = !!s;
+
+                if (inBase && !inLocal) return;                     // deleted locally → stays deleted
+                if (inBase && inLocal && !inServer) {               // server deleted it
+                    if (JSON.stringify(b) === JSON.stringify(l)) return; // untouched locally → honor delete
+                    out.push(mergeCity(b, l, undefined));           // changed locally → keep our data
+                    return;
+                }
+                if (!inBase && inLocal && !inServer) { out.push(l); return; }  // added locally
+                if (!inBase && !inLocal && inServer) { out.push(s); return; }  // added on server
+                if (inLocal && inServer) { out.push(mergeCity(b, l, s)); }     // present both → field merge
+            });
+            return out;
+        }
+
+        async function handleConflict(serverData) {
+            console.log('🔄 Resolving conflict (three-way merge)...');
+            const serverCities = serverData.data.cities || [];
+            cities = sanitizeLeaders(threeWayMergeCities(baseline, cities, serverCities));
+            baseline = snapshot(serverCities);           // our deltas are now measured against this server state
             lastSyncTimestamp = serverData.lastModified;
             console.log('[conflict] Merge complete — cities:', cities.length, 'lastSyncTimestamp:', lastSyncTimestamp, '(caller will save)');
         }
@@ -596,6 +680,7 @@
                     } else {
                         console.log('[realtime] Data updated by', modifiedBy);
                         cities = sanitizeLeaders(incoming.cities || []);
+                        baseline = snapshot(cities);
                         lastSyncTimestamp = incoming.last_modified;
                         updateOverview();
                         if (currentCityIndex >= 0) renderCityView();
@@ -617,15 +702,20 @@
         }
 
         function toggleLiveMeetingMode() {
+            // Realtime sync is ALWAYS on (started at load) so everyone sees each
+            // other's saves without touching this. Live Meeting Mode only adds the
+            // "already posted — unmark?" guard used while running a live meeting.
             isLiveMeetingMode = !isLiveMeetingMode;
-            if (isLiveMeetingMode) { startLiveSync(); showNotification('Live Meeting Mode ON'); }
-            else { stopLiveSync(); showNotification('Live Meeting Mode OFF'); }
+            showNotification(isLiveMeetingMode ? 'Live Meeting Mode ON' : 'Live Meeting Mode OFF');
             updateLiveModeButton();
         }
 
         function updateLiveModeButton() {
             const btn = document.getElementById('liveModeBtn');
-            if (btn) { btn.textContent = isLiveMeetingMode ? '🔴 Live' : '⚫ Offline'; btn.style.background = isLiveMeetingMode ? '#34c759' : '#8e8e93'; }
+            if (!btn) return;
+            if (!isConnected) { btn.textContent = '⚫ Offline'; btn.style.background = '#8e8e93'; }
+            else if (isLiveMeetingMode) { btn.textContent = '🔴 Live'; btn.style.background = '#34c759'; }
+            else { btn.textContent = '🟢 Connected'; btn.style.background = '#8e8e93'; }
         }
 
         async function loadData() {
@@ -643,21 +733,29 @@
                         .insert({ id: 'main', cities: [], last_modified: new Date().toISOString() });
                     if (insertError) console.error('❌ Seed error:', insertError);
                     cities = [];
+                    baseline = [];
                     lastSyncTimestamp = new Date().toISOString();
+                    isConnected = true;
                 } else if (error) {
                     throw error;
                 } else {
                     cities = sanitizeLeaders(data.cities || []);
                     lastSyncTimestamp = data.last_modified;
+                    isConnected = true;
+                    baseline = snapshot(cities);   // server state — set BEFORE any draft recovery mutates `cities`
                     console.log('✅ Loaded from Supabase, cities:', cities.length);
                     recoverDraftIfNewer(data.last_modified);
                 }
             } catch(e) {
                 console.error('❌ Load error:', e);
                 cities = [];
+                baseline = [];
                 lastSyncTimestamp = new Date().toISOString();
+                isConnected = false;
             }
             updateOverview();
+            updateLiveModeButton();
+            if (isConnected) startLiveSync();  // realtime always on so other users' saves propagate automatically
         }
 
         async function saveData() {
@@ -696,8 +794,10 @@
                     if (writeError) throw writeError;
 
                     if (updated && updated.length > 0) {
-                        // CAS succeeded — our write landed cleanly
+                        // CAS succeeded — our write landed cleanly. The state we just
+                        // wrote is now the baseline our next edits are measured against.
                         lastSyncTimestamp = newTimestamp;
+                        baseline = citiesSnapshot;
                         saved = true;
                     } else {
                         // CAS missed — another device wrote between our last sync and now.
@@ -1038,7 +1138,7 @@
             if (!name) return;
             const totalChurches = parseInt(document.getElementById('totalChurchesInput').value) || 0;
             const streamDepth = document.getElementById('streamDepthInput').value;
-            cities.push({ name, leaders: [], baptismsYTD: 0, churchesYTD: 0, streamDepth, totalChurches, totalStreamDepth: streamDepth });
+            cities.push({ name, leaders: [], baptismsYTD: 0, churchesYTD: totalChurches, streamDepth, totalChurches, totalStreamDepth: streamDepth });
             document.getElementById('newCityInput').value = '';
             document.getElementById('totalChurchesInput').value = '0';
             document.getElementById('streamDepthInput').value = '1st Gen';
