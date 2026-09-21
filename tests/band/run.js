@@ -89,9 +89,25 @@ async function newSession(browser, label) {
   return { ctx, page };
 }
 
-async function load(page) {
-  await page.goto('http://127.0.0.1:8080/band.html', { waitUntil: 'networkidle' });
+// Realtime is always on and the stub models it by polling, so the page never
+// reaches 'networkidle'. Sync on DOM + an app-readiness signal instead (the
+// initial Supabase load having populated the overview), never on network quiet.
+async function ready(page) {
+  await page
+    .waitForFunction(() => {
+      const tb = document.getElementById('cityTableBody');
+      return tb && !/no cities added/i.test(tb.textContent);
+    }, { timeout: 8000 })
+    .catch(() => {});
   await page.waitForTimeout(400);
+}
+async function load(page) {
+  await page.goto('http://127.0.0.1:8080/band.html', { waitUntil: 'domcontentloaded' });
+  await ready(page);
+}
+async function reload(page) {
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  await ready(page);
 }
 async function openCity(page, city) {
   await page.click(`tr:has(td.city-name:text-is("${city}")) button.update-btn`);
@@ -198,7 +214,7 @@ async function visibleFailureShown(page) {
   await openCity(G.page, 'Austin');
   await G.page.click('#leader-btn-0'); // mark
   await waitForVersion(v + 1);
-  await H.page.reload({ waitUntil: 'networkidle' }); await H.page.waitForTimeout(400);
+  await reload(H.page);
   v = await currentVersion();
   await openCity(H.page, 'Austin');
   await H.page.click('#leader-btn-0'); // unmark
@@ -260,7 +276,7 @@ async function visibleFailureShown(page) {
   await openCity(L.page, 'Austin');
   await L.page.click(PLUS);
   await waitForVersion(v + 1);
-  await L.page.reload({ waitUntil: 'networkidle' });
+  await reload(L.page);
   await L.page.waitForTimeout(500);
   const afterReload = (await L.page.textContent(overviewBaptisms('Austin'))).trim();
   record('R8: a confirmed save survives a full page reload',
