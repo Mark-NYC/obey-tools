@@ -70,6 +70,17 @@
   .panel-inner + .panel-inner { margin-top: 16px; }
   .svg-wrap { width: 100%; max-width: 480px; }
   .svg-wrap svg { width: 100%; height: auto; display: block; }
+  /* ── RTL fix for diagram text ──
+     The diagram <text> elements use Latin display fonts (Amatic SC, Bebas
+     Neue) that contain no Arabic glyphs. In RTL languages the browser falls
+     back to the generic family, and on some platforms (notably iOS Safari,
+     via `cursive`) that fallback mis-shapes Arabic into isolated, reversed
+     letters. Force an explicit Arabic-capable, sans-serif-terminated stack
+     and drop letter-spacing (which breaks Arabic letter-joining). */
+  html[dir="rtl"] svg text {
+    font-family: "Noto Naskh Arabic", "Noto Sans Arabic", "Geeza Pro", "Segoe UI", Tahoma, Arial, sans-serif !important;
+    letter-spacing: normal !important;
+  }
   /* ── Labels ── */
   .label-top {
     font-family: 'Bebas Neue', sans-serif;
