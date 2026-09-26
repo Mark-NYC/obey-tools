@@ -998,7 +998,9 @@ function saveConversations() {
             if (confirm) { 
                 conversations = { casual: [], meaningful: [], discovery: [], spiritual: [] }; 
                 submittedEvents = { spiritual: new Set(), discovery: new Set() };
+                submittedGreenLights = [];
                 localStorage.removeItem('submittedEvents');
+                localStorage.removeItem('submittedGreenLights');
                 saveConversations();
                 updateDisplay();
                 showNotification(window.t('conversation_box.progress_reset'));
@@ -1023,7 +1025,9 @@ function saveConversations() {
                 input.value = ''; 
                 conversations = { casual: [], meaningful: [], discovery: [], spiritual: [] }; 
                 submittedEvents = { spiritual: new Set(), discovery: new Set() };
+                submittedGreenLights = [];
                 localStorage.removeItem('submittedEvents');
+                localStorage.removeItem('submittedGreenLights');
                 saveConversations();
                 updateDisplay();
                 document.getElementById('tutorial-heading').textContent = window.t('conversation_box.tutorial_title', { name });
@@ -1233,7 +1237,9 @@ function saveConversations() {
             if (confirm) { 
                 conversations = { casual: [], meaningful: [], discovery: [], spiritual: [] }; 
                 submittedEvents = { spiritual: new Set(), discovery: new Set() };
+                submittedGreenLights = [];
                 localStorage.removeItem('submittedEvents');
+                localStorage.removeItem('submittedGreenLights');
                 saveConversations();
                 updateDisplay();
                 showNotification(window.t('conversation_box.reset_complete'));
@@ -1611,7 +1617,9 @@ function saveConversations() {
                 status.style.display    = 'none';
                 text.textContent        = window.t('auth.not_signed_in');
 
-                // Revert to localStorage when signed out
+                // Revert to localStorage when signed out (wiped by authLogOut), and
+                // forget who was loaded so signing back in reloads from Supabase.
+                _lastLoadedUserId = null;
                 if (appInitialized) {
                     loadFromLocalStorage();
                     updateDisplay();
