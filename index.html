@@ -463,9 +463,9 @@
 
     <script>
     // Ukraine detection: swap Stories of Hope → Signs of John for UA users.
-    // Country is fetched once via ip-api.com and cached in sessionStorage.
+    // Decided from the phone's time zone: no request leaves the device.
     (function () {
-        var CACHE_KEY = 'obeytools_country';
+        var UA_ZONES = ['Europe/Kyiv', 'Europe/Kiev', 'Europe/Uzhgorod', 'Europe/Zaporozhye', 'Europe/Simferopol'];
         var i18nReady = false;
         var pendingSwap = false;
 
@@ -482,23 +482,11 @@
             if (pendingSwap) applyUkraineSwap();
         }, { once: true });
 
-        function onCountry(code) {
-            sessionStorage.setItem(CACHE_KEY, code || '');
-            if (code !== 'UA') return;
-            if (i18nReady) applyUkraineSwap();
-            else pendingSwap = true;
-        }
-
-        var cached = sessionStorage.getItem(CACHE_KEY);
-        if (cached !== null) {
-            onCountry(cached);
-            return;
-        }
-
-        fetch('https://ip-api.com/json?fields=countryCode')
-            .then(function (r) { return r.json(); })
-            .then(function (d) { onCountry(d.countryCode || ''); })
-            .catch(function () { sessionStorage.setItem(CACHE_KEY, ''); });
+        var tz = '';
+        try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) {}
+        if (UA_ZONES.indexOf(tz) === -1) return;
+        if (i18nReady) applyUkraineSwap();
+        else pendingSwap = true;
     })();
     </script>
 

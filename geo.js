@@ -76,10 +76,22 @@
     }
 
     // Coordinates → place, names in English. Returns null on failure.
-    // Only ~100 m precision is sent to the geocoder — enough to get the city right.
+    // In the app this runs on the server (geo_reverse in
+    // supabase/geo-places/06_private_reads.sql), so the geocoder never sees a
+    // user's phone. Direct lookups are for Node scripts, and for the app only
+    // until that function exists. Only ~100 m precision is ever sent.
     // `headers` lets Node callers send the User-Agent Nominatim's policy requires.
     async function reverseGeocode(lat, lon, headers) {
         if (lat == null || lon == null) return null
+        const sb = root && root.supabase
+        if (sb && sb.rpc) {
+            const { data, error } = await sb.rpc('geo_reverse', { lat: +lat, lon: +lon })
+            if (!error) return data || null
+            if (error.code !== 'PGRST202') {   // anything but "function not deployed yet"
+                console.error('[geo:reverseGeocode]', error.message)
+                return null
+            }
+        }
         try {
             const url = NOMINATIM + '?format=jsonv2&addressdetails=1&zoom=18&accept-language=en' +
                         '&lat=' + (+lat).toFixed(3) + '&lon=' + (+lon).toFixed(3)
@@ -89,25 +101,6 @@
             return placeFromAddress(data && data.address)
         } catch (err) {
             console.error('[geo:reverseGeocode]', err)
-            return null
-        }
-    }
-
-    // Approximate place from the visitor's IP (no GPS). City-level at best,
-    // so callers should not store its coordinates. Returns null on failure.
-    async function placeFromIP() {
-        try {
-            const res = await fetch('https://ipapi.co/json/')
-            const d = await res.json()
-            if (!d || d.error) return null
-            return makePlace({
-                countryCode: d.country_code,
-                region:      d.region,
-                regionCode:  d.region_code,
-                city:        d.city
-            })
-        } catch (err) {
-            console.error('[geo:placeFromIP]', err)
             return null
         }
     }
@@ -166,7 +159,7 @@
             .map(w => Array.from(w)[0].toUpperCase() + '.').join(' ')
     }
 
-    const api = { reverseGeocode, placeFromIP, placeFromAddress, coarsen, isRestricted, countryLabel,
+    const api = { reverseGeocode, placeFromAddress, coarsen, isRestricted, countryLabel,
                   inRestrictedTimeZone, initials }
     if (typeof module !== 'undefined' && module.exports) module.exports = api
     else root.obeyGeo = api

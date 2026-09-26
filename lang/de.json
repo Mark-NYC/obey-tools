@@ -808,7 +808,8 @@
     "popup_spiritual": "Geistlich",
     "popup_discovery": "Entdeckung",
     "popup_convos_type": "<br>{type} Gespräche: {n}",
-    "unknown_location": "ein unbekannter Ort"
+    "unknown_location": "ein unbekannter Ort",
+    "public_link": "Weltweite Zahlen ansehen →"
   },
   "mawl": {
     "title": "MAWL-Checkliste",
@@ -1124,5 +1125,24 @@
     "read_story_desc": "Lest Johannes 14:1–11 gemeinsam.",
     "bible_btn": "Johannes 14:1–11 (CSB)",
     "practice_desc": "Erzähle die Geschichte von Jesus, dem einzigen Weg, aus dem Gedächtnis."
+  },
+  "progress_page": {
+    "title": "Fortschritt weltweit",
+    "subtitle": "Gespräche, die Menschen mit OBEY.TOOLS festhalten – live.",
+    "conversations": "Gespräche",
+    "last30": "{n} in den letzten 30 Tagen",
+    "discovery": "Entdeckung",
+    "cities": "Städte",
+    "countries": "Länder",
+    "by_country": "Nach Land",
+    "recent": "+{n} diesen Monat",
+    "cities_n": "{n} Städte",
+    "more_countries": "+ {n} weitere Länder",
+    "more_note": "Manche Länder werden gezählt, aber nicht genannt, um die Menschen dort zu schützen.",
+    "cta_start": "Beginne, deine Gespräche festzuhalten",
+    "share": "Diese Seite teilen",
+    "cta_map": "Angemeldet? Zur Live-Karte →",
+    "share_text": "Fortschritt weltweit",
+    "load_error": "Fortschritt konnte gerade nicht geladen werden."
   }
 }

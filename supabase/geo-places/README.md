@@ -70,6 +70,24 @@ Run [`05_signed_in_reads_only.sql`](./05_signed_in_reads_only.sql): the read
 policy on `conversation_events` applied to `anon` too, so the public anon key
 could read every event without an account.
 
+## Totals instead of raw rows (06 + 07)
+
+Run [`06_private_reads.sql`](./06_private_reads.sql), then
+[`07_private_reads_part2.sql`](./07_private_reads_part2.sql). After that:
+
+- The map, metrics, live feed and "first on the map" read **totals** from
+  database functions (`map_events`, `map_laborers`, `map_recent`,
+  `progress_metrics`, `place_counts`). No `user_id` leaves the database.
+- Raw conversation rows are readable only by their owner (and network
+  members, as before).
+- `geo_reverse` geocodes on the server with a ~100 m cache, so the geocoder
+  never sees a user's phone.
+- `public_progress` feeds the public `/progress` page: country totals only,
+  with restricted countries rolled into "+ N more countries".
+
+Run these **before** the front end that calls them is deployed; the map
+shows "Error loading data" until the functions exist.
+
 ## Verify
 
 ```sql
