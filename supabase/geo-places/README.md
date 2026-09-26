@@ -44,6 +44,10 @@ Keep the country list identical in `geo.js` and `02_privacy.sql`; review yearly.
    node scripts/backfill-places.mjs --apply  # write
    ```
 
+   **No terminal?** Paste [`04_backfill_in_database.sql`](./04_backfill_in_database.sql)
+   into the SQL editor instead, then run `select * from public.geo_backfill_batch(40);`
+   repeatedly until `remaining_pairs` is 0. Same result, done by Supabase itself.
+
    1 lookup/second (Nominatim policy), cached by ~100 m. Re-runnable: only
    touches rows where `place_key` is null. It also rewrites `city` and
    `location_text` to the English names so old and new rows match. Each row
