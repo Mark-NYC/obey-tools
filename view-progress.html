@@ -1191,11 +1191,12 @@
                         <option value="0" data-i18n="how_were_doing.period_all">All Time</option>
                     </select>
                     <button class="icon-btn" onclick="loadMapData(true)" title="Refresh">↺</button>
+                    <button class="icon-btn" onclick="shareView()" title="Share" aria-label="Share" data-i18n-title="how_were_doing.share" data-i18n-aria-label="how_were_doing.share">⤴</button>
                 </div>
 
                 <div class="hotspots" id="hotspots">
                     <div class="hotspots-head">
-                        <h4>Hot Spots</h4>
+                        <h4 data-i18n="how_were_doing.hot_spots">Hot Spots</h4>
                         <div class="hotspots-scope" role="group" aria-label="Rank by">
                             <button id="hs-scope-cities" class="active" onclick="setHotspotScope('cities')" data-i18n="how_were_doing.scope_cities">Cities</button>
                             <button id="hs-scope-countries" onclick="setHotspotScope('countries')" data-i18n="how_were_doing.scope_countries">Countries</button>
@@ -1720,7 +1721,7 @@
         console.log('centerOnUserLocation: resolved to', loc.lat, loc.lng)
         userLatLng = loc   // remember for the "All Cities" continent view
 
-        zoomToRadius(loc.lat, loc.lng, 10)
+        if (!urlSelection.country && !urlSelection.city) zoomToRadius(loc.lat, loc.lng, 10)
         setTimeout(() => map.invalidateSize(), 100)
 
         // Visual marker for the resolved user location
@@ -1776,21 +1777,13 @@
     }
 
     // ── Countries ────────────────────────────────────────────────────────────
-    // Names come from the browser in the viewer's language — no lookup table.
-    const countryNamers = {}
-    function countryName(cc) {
-        const lang = (window.i18n && window.i18n.getLang && window.i18n.getLang()) || 'en'
-        try {
-            countryNamers[lang] = countryNamers[lang] || new Intl.DisplayNames([lang, 'en'], { type: 'region' })
-            return countryNamers[lang].of(cc) || cc
-        } catch { return cc }
+    // '🇰🇪 Kenya' in the viewer's language (see /geo.js) — no lookup table.
+    function countryLabel(cc) {
+        const lang = window.i18n && window.i18n.getLang && window.i18n.getLang()
+        return window.obeyGeo ? window.obeyGeo.countryLabel(cc, lang) : cc
     }
-    function countryFlag(cc) {
-        return /^[A-Z]{2}$/.test(cc || '')
-            ? String.fromCodePoint(...[...cc].map(ch => 0x1F1A5 + ch.charCodeAt(0)))
-            : ''
-    }
-    function countryLabel(cc) { return (countryFlag(cc) + ' ' + countryName(cc)).trim() }
+    // Sort by name, ignoring the flag.
+    function countryName(cc) { return countryLabel(cc).replace(/^\S+\s/, '') }
 
     // Row passes the country + city dropdowns.
     function inScope(r, country, city) {
@@ -1835,6 +1828,79 @@
         populateCityDropdown()
         if (cc) zoomToCountry(cc); else zoomToContinent()
         renderMap()
+    }
+
+    // ── Shareable links ──────────────────────────────────────────────────────
+    // /view-progress?country=KE&city=KE|Nairobi County|Nairobi opens on that
+    // selection. The address bar always reflects the current filters, so any
+    // view can be shared as-is.
+    const urlSelection = (() => {
+        try {
+            const q = new URLSearchParams(location.search)
+            return { country: (q.get('country') || '').toUpperCase(), city: q.get('city') || '' }
+        } catch { return { country: '', city: '' } }
+    })()
+    let urlSelectionApplied = false
+
+    function applyUrlSelection() {
+        if (urlSelectionApplied) return
+        urlSelectionApplied = true
+        const { country, city } = urlSelection
+        if (!country && !city) return
+        const countrySel = document.getElementById('map-country')
+        const row = city && allMapRows().find(r => r.place === city)
+        const cc  = row ? (row.country_code || '') : country
+        if (cc && Array.from(countrySel.options).some(o => o.value === cc)) countrySel.value = cc
+        populateCityDropdown()
+        const citySel = document.getElementById('map-city')
+        if (row && Array.from(citySel.options).some(o => o.value === city)) {
+            citySel.value = city
+            handleCitySelectionZoom(city)
+        } else if (countrySel.value) {
+            zoomToCountry(countrySel.value)
+        }
+    }
+
+    function syncUrl() {
+        if (!urlSelectionApplied) return
+        try {
+            const q = new URLSearchParams(location.search)
+            const country = document.getElementById('map-country').value
+            const city    = document.getElementById('map-city').value
+            country ? q.set('country', country) : q.delete('country')
+            city    ? q.set('city', city)       : q.delete('city')
+            const qs = q.toString()
+            history.replaceState(null, '', location.pathname + (qs ? '?' + qs : '') + location.hash)
+        } catch {}
+    }
+
+    // Share the current view. Wording stays neutral on purpose: a forwarded
+    // message in a restricted country shouldn't read as evangelism.
+    async function shareView() {
+        syncUrl()
+        const country = document.getElementById('map-country').value
+        const city    = document.getElementById('map-city').value
+        const where   = city ? placeLabel(city) : country ? countryLabel(country) : ''
+        const text    = where ? tr('how_were_doing.share_text_place', { place: where }, 'Progress in ' + where)
+                              : tr('how_were_doing.share_text_world', null, 'Progress around the world')
+        const url = location.href
+        try {
+            if (navigator.share) { await navigator.share({ title: document.title, text, url }); return }
+        } catch (err) {
+            if (err && err.name === 'AbortError') return   // user closed the share sheet
+        }
+        try {
+            await navigator.clipboard.writeText(url)
+            notify(tr('how_were_doing.link_copied', null, 'Link copied'))
+        } catch {
+            window.prompt(text, url)
+        }
+    }
+
+    // window.t with an English fallback for keys that haven't loaded yet.
+    function tr(key, vars, fallback) {
+        const v = window.t ? window.t(key, vars || undefined) : key
+        return v === key ? fallback : v
     }
 
     // Select a country from a badge or the hot-spots list.
@@ -1894,6 +1960,7 @@
 
         populateCountryDropdown()
         populateCityDropdown()
+        applyUrlSelection()
         renderMap()
         initCelebrations()          // surface this-week milestones from loaded data
         initRecentUpdatesTicker()   // no-op after first call; seeds from loaded data
@@ -1940,6 +2007,7 @@
         const country = document.getElementById('map-country').value
         const city   = document.getElementById('map-city').value
         const days   = parseInt(document.getElementById('map-date').value)
+        syncUrl()
         const cutoff = cutoffFromDays(days)
 
         // ── Churches ──
@@ -2185,7 +2253,7 @@
         })
         const newCountries = new Set(Object.keys(firstInCountry).filter(cc => firstInCountry[cc] >= weekAgo))
         newCountries.forEach(cc => {
-            items.push({ icon: '🌍', text: 'New country on the map — ' + countryLabel(cc), w: 4 })
+            items.push({ icon: '🌍', text: tr('how_were_doing.ms_new_country', { place: countryLabel(cc) }, 'New country on the map — ' + countryLabel(cc)), w: 4 })
         })
 
         Object.keys(byCity).forEach(place => {
@@ -2193,15 +2261,15 @@
             const city = placeLabel(place)
             if (newCountries.has(place.split('|')[0])) return   // already celebrated as a new country
             if (c.first && c.first >= weekAgo) {
-                items.push({ icon: '📍', text: 'New city on the map — ' + city, w: 3 }); return
+                items.push({ icon: '📍', text: tr('how_were_doing.ms_new_city', { place: city }, 'New city on the map — ' + city), w: 3 }); return
             }
             for (const M of THRESH) {
                 if (c.prior < M && c.total >= M) {
-                    items.push({ icon: '🔥', text: city + ' just passed ' + M + ' conversations', w: 2 }); break
+                    items.push({ icon: '🔥', text: tr('how_were_doing.ms_passed', { place: city, n: M }, city + ' just passed ' + M + ' conversations'), w: 2 }); break
                 }
             }
             if (c.firstDisc && c.firstDisc >= weekAgo && c.prior > 0) {
-                items.push({ icon: '🌱', text: 'First discovery conversation in ' + city, w: 2 })
+                items.push({ icon: '🌱', text: tr('how_were_doing.ms_first_discovery', { place: city }, 'First discovery conversation in ' + city), w: 2 })
             }
         })
         items.sort((a, b) => b.w - a.w)

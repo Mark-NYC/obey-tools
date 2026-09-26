@@ -750,7 +750,9 @@
     "ob_skip": "Skip",
     "ob_next": "Next",
     "ob_start_tracking": "Start tracking",
-    "ob_empty_hint_casual": "Start by adding one person you connected with this week."
+    "ob_empty_hint_casual": "Start by adding one person you connected with this week.",
+    "first_in_country": "🌍 You're the first on the map in {place}!",
+    "first_in_city": "📍 You're the first on the map in {place}!"
   },
   "how_were_doing": {
     "title": "How We're Doing",
@@ -764,6 +766,15 @@
     "filter_all_countries": "All Countries",
     "scope_cities": "Cities",
     "scope_countries": "Countries",
+    "hot_spots": "Hot Spots",
+    "share": "Share",
+    "share_text_place": "Progress in {place}",
+    "share_text_world": "Progress around the world",
+    "link_copied": "Link copied",
+    "ms_new_country": "New country on the map — {place}",
+    "ms_new_city": "New city on the map — {place}",
+    "ms_passed": "{place} just passed {n} conversations",
+    "ms_first_discovery": "First discovery conversation in {place}",
     "metric_conversations": "Spiritual Conversations",
     "metric_churches": "Churches",
     "metric_baptisms": "Baptisms",

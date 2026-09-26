@@ -970,6 +970,30 @@ function saveConversations() {
             }
         }
 
+        // "You're the first on the map in Kenya!" — checked once per place per
+        // device, only after this device's own event was saved.
+        async function celebrateFirstOnMap(place) {
+            if (!place || !place.country_code) return;
+            let seen = [];
+            try { seen = JSON.parse(localStorage.getItem('firstOnMapChecked') || '[]'); } catch {}
+            const checks = [
+                { col: 'country_code', val: place.country_code,
+                  msg: () => window.t('conversation_box.first_in_country', {
+                      place: window.obeyGeo.countryLabel(place.country_code, window.i18n?.getLang?.()) }) },
+                { col: 'place_key', val: place.place_key,
+                  msg: () => window.t('conversation_box.first_in_city', { place: place.place_label }) }
+            ].filter(c => c.val && !seen.includes(c.col + ':' + c.val));
+            for (const c of checks) {
+                seen.push(c.col + ':' + c.val);
+                const { count, error } = await window.supabase
+                    .from('conversation_events')
+                    .select('id', { count: 'exact', head: true })
+                    .eq(c.col, c.val);
+                if (!error && count === 1) { showNotification(c.msg()); break; }
+            }
+            try { localStorage.setItem('firstOnMapChecked', JSON.stringify(seen)); } catch {}
+        }
+
         async function submitEvent(personName, eventType) {
             const userName = localStorage.getItem('user-name') || 'Anonymous';
             const eventKey = `${personName}-${eventType}`;
@@ -1017,7 +1041,9 @@ function saveConversations() {
                 }
                 if (evErr) {
                     console.error('[conversation_events:insert:error]', evErr);
+                    return;
                 }
+                celebrateFirstOnMap(place);
             }
 
             if (navigator.geolocation) {
