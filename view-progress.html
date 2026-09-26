@@ -289,6 +289,7 @@
             line-height: 1;
         }
         .icon-btn:active { opacity: 0.75; }
+        .ico { width: 1em; height: 1em; display: block; flex: none; }
 
         /* ── Map legend ────────────────────────────────────────────── */
         .map-legend {
@@ -501,7 +502,9 @@
             font-weight: 700; font-size: 10px; color: #ffd8a6;
             margin-left: 2px; padding-left: 5px;
             border-left: 1px solid rgba(255, 255, 255, 0.25);
+            display: inline-flex; align-items: center; gap: 2px;
         }
+        .count-badge .cb-lab .ico { width: 10px; height: 10px; }
         .count-badge.c1 { border-color: rgba(243, 177, 90, 0.5); }
         .count-badge.c2 { border-color: rgba(238, 138, 60, 0.6); }
         .count-badge.c3 { border-color: rgba(219, 90, 53, 0.7); }
@@ -517,7 +520,7 @@
             border-bottom: 0.5px solid #f0e0c4;
         }
         .celebrate-banner.show { display: flex; }
-        .celebrate-icon { font-size: 15px; flex: none; }
+        .celebrate-icon { font-size: 16px; flex: none; color: #b8741a; display: inline-flex; }
         .celebrate-text {
             font-size: 12.5px;
             font-weight: 600;
@@ -750,6 +753,8 @@
             line-height: 1;
             padding: 0 2px;
             font-family: inherit;
+            display: inline-flex;
+            align-items: center;
         }
         .ticker-minimize-btn:hover { color: rgba(255, 255, 255, 0.9); }
         #ticker-feed {
@@ -990,6 +995,10 @@
             line-height: 1;
             cursor: pointer;
             background: #e5e5ea;
+            color: #3a3a3c;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
         .theme-toggle:active { opacity: 0.75; }
 
@@ -998,7 +1007,7 @@
         body.theme-dark .tab-bar { background: transparent; border-bottom-color: #222b3d; }
         body.theme-dark .tab-btn { background: #1e2739; color: #9aa3b4; }
         body.theme-dark .tab-btn.active { background: #e39b3c; color: #151c2c; }
-        body.theme-dark .theme-toggle { background: #1e2739; }
+        body.theme-dark .theme-toggle { background: #1e2739; color: #f5d27a; }
         body.theme-dark .layer-toggles { background: #131a2a; border-bottom-color: #222b3d; }
         body.theme-dark .layer-toggle { color: #cfd5e0; }
         body.theme-dark .filters { background: transparent; border-bottom-color: #222b3d; }
@@ -1121,12 +1130,12 @@
             <div class="tab-bar">
                 <button class="tab-btn active" id="tab-map" onclick="switchTab('map')" data-i18n="how_were_doing.tab_map">Map</button>
                 <button class="tab-btn" id="tab-metrics" onclick="switchTab('metrics')" data-i18n="how_were_doing.tab_metrics">Metrics</button>
-                <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" title="Toggle dark map" aria-label="Toggle dark map">🌙</button>
+                <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" title="Toggle dark map" aria-label="Toggle dark map"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
             </div>
 
             <!-- ── Celebration banner (auto-surfaced milestones) ───── -->
             <div class="celebrate-banner" id="celebrate-banner">
-                <span class="celebrate-icon">🎉</span>
+                <span class="celebrate-icon"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.8 11.3 2 22l10.7-3.8"/><path d="M4 3h.01M22 8h.01M15 2h.01M22 20h.01"/><path d="m22 2-2.2.7a2.9 2.9 0 0 0-1.9 3.3v0c.2.9-.5 1.7-1.4 1.7h-.4c-.9 0-1.6.7-1.8 1.6L14 11"/><path d="m22 13-.8-.3c-.9-.3-1.9.2-2.1 1.1v0c-.2.8-1 1.3-1.8 1.2L16 15"/><path d="m11 2 .3.8c.3.9-.2 1.9-1.1 2.1v0c-.8.2-1.3 1-1.2 1.8L9 8"/><path d="M11 13c1.9 1.9 2.8 4.2 2 5-.8.8-3.1-.1-5-2s-2.8-4.2-2-5c.8-.8 3.1.1 5 2z"/></svg></span>
                 <span class="celebrate-text" id="celebrate-text"></span>
                 <button class="celebrate-close" onclick="dismissCelebrate()" aria-label="Dismiss">×</button>
             </div>
@@ -1190,8 +1199,8 @@
                         <option value="365" data-i18n="how_were_doing.period_year">Last Year</option>
                         <option value="0" data-i18n="how_were_doing.period_all">All Time</option>
                     </select>
-                    <button class="icon-btn" onclick="loadMapData(true)" title="Refresh">↺</button>
-                    <button class="icon-btn" onclick="shareView()" title="Share" aria-label="Share" data-i18n-title="how_were_doing.share" data-i18n-aria-label="how_were_doing.share">⤴</button>
+                    <button class="icon-btn" onclick="loadMapData(true)" title="Refresh" aria-label="Refresh"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 15.5-6.2L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15.5 6.2L3 16"/><path d="M8 16H3v5"/></svg></button>
+                    <button class="icon-btn" onclick="shareView()" title="Share" aria-label="Share" data-i18n-title="how_were_doing.share" data-i18n-aria-label="how_were_doing.share"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="m16 6-4-4-4 4"/><path d="M12 2v13"/></svg></button>
                 </div>
 
                 <div class="hotspots" id="hotspots">
@@ -1282,7 +1291,7 @@
     <div id="updates-ticker">
         <div class="ticker-header">
             <span class="ticker-title">Live Updates</span>
-            <button class="ticker-minimize-btn" onclick="setTickerMinimized(!tickerMinimized)" title="Minimize">−</button>
+            <button class="ticker-minimize-btn" onclick="setTickerMinimized(!tickerMinimized)" title="Minimize" aria-label="Minimize"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/></svg></button>
         </div>
         <div id="ticker-feed">
             <div class="ticker-empty">No recent updates.</div>
@@ -1292,6 +1301,25 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="/geo.js"></script>
     <script>
+    // ── Icons (inline SVG, stroke = currentColor) ─────────────────────────────
+    const ICONS = {
+        moon: '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>',
+        sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+        party: '<path d="M5.8 11.3 2 22l10.7-3.8"/><path d="M4 3h.01M22 8h.01M15 2h.01M22 20h.01"/><path d="m22 2-2.2.7a2.9 2.9 0 0 0-1.9 3.3v0c.2.9-.5 1.7-1.4 1.7h-.4c-.9 0-1.6.7-1.8 1.6L14 11"/><path d="m22 13-.8-.3c-.9-.3-1.9.2-2.1 1.1v0c-.2.8-1 1.3-1.8 1.2L16 15"/><path d="m11 2 .3.8c.3.9-.2 1.9-1.1 2.1v0c-.8.2-1.3 1-1.2 1.8L9 8"/><path d="M11 13c1.9 1.9 2.8 4.2 2 5-.8.8-3.1-.1-5-2s-2.8-4.2-2-5c.8-.8 3.1.1 5 2z"/>',
+        globe: '<circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>',
+        pin: '<path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/>',
+        flame: '<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.4-.5-2-1-3-1.1-2.1-.2-4 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.2.4-2.3 1-3.3.3 1.6 1.4 2.8 2.5 2.8z"/>',
+        sprout: '<path d="M7 20h10"/><path d="M10 20c5.5-2.5.8-6.4 3-10"/><path d="M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.8z"/><path d="M14.1 6a7 7 0 0 0-1.1 4c1.9-.1 3.3-.6 4.3-1.4 1-1 1.6-2.3 1.7-4.6-2.7.1-4 1-4.9 2z"/>',
+        refresh: '<path d="M3 12a9 9 0 0 1 15.5-6.2L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15.5 6.2L3 16"/><path d="M8 16H3v5"/>',
+        share: '<path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="m16 6-4-4-4 4"/><path d="M12 2v13"/>',
+        hammer: '<path d="m15 12-8.4 8.4a2.1 2.1 0 1 1-3-3L12 9"/><path d="M17.6 15 22 10.6"/><path d="m20.9 11.7-1.3-1.3c-.6-.6-.9-1.3-.9-2.1V7l-2.3-2.3a6 6 0 0 0-4.2-1.8H9l.9.8a6.2 6.2 0 0 1 2.1 4.6V10l2 2h2.2c.8 0 1.6.3 2.1.9l1.3 1.3"/>',
+        minus: '<path d="M5 12h14"/>',
+        plus: '<path d="M5 12h14M12 5v14"/>',
+    }
+    function icon(name) {
+        return '<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + ICONS[name] + '</svg>'
+    }
+
     // ── Map state ────────────────────────────────────────────────────────────
     let map            = null
     let mapInitPromise = null   // init lock — prevents concurrent L.map() calls
@@ -1337,7 +1365,7 @@
         document.body.classList.toggle('theme-dark', darkMode)
         const btn = document.getElementById('theme-toggle')
         if (btn) {
-            btn.textContent = darkMode ? '☀️' : '🌙'
+            btn.innerHTML = icon(darkMode ? 'sun' : 'moon')
             btn.title = darkMode ? 'Switch to light map' : 'Switch to dark map'
         }
         // Desktop overlay background is set via inline styles — refresh them so
@@ -1777,13 +1805,15 @@
     }
 
     // ── Countries ────────────────────────────────────────────────────────────
-    // '🇰🇪 Kenya' in the viewer's language (see /geo.js) — no lookup table.
+    // 'Kenya' in the viewer's language (see /geo.js) — no lookup table.
+    // geo.js prefixes an emoji flag; strip it (this page uses SVG icons only).
     function countryLabel(cc) {
         const lang = window.i18n && window.i18n.getLang && window.i18n.getLang()
-        return window.obeyGeo ? window.obeyGeo.countryLabel(cc, lang) : cc
+        if (!window.obeyGeo) return cc
+        const label = window.obeyGeo.countryLabel(cc, lang)
+        return /^[A-Z]{2}$/.test(cc || '') ? label.replace(/^\S+\s/, '') : label
     }
-    // Sort by name, ignoring the flag.
-    function countryName(cc) { return countryLabel(cc).replace(/^\S+\s/, '') }
+    function countryName(cc) { return countryLabel(cc) }
 
     // Row passes the country + city dropdowns.
     function inScope(r, country, city) {
@@ -2144,7 +2174,7 @@
             .slice(0, 15)
             .forEach(a => {
                 const lvl = a.total <= 3 ? 'c1' : a.total <= 10 ? 'c2' : a.total <= 20 ? 'c3' : 'c4'
-                const lab = a.laborers > 0 ? '<span class="cb-lab" title="Laborers (3+ updates in 30 days)">' + a.laborers + '⚒</span>' : ''
+                const lab = a.laborers > 0 ? '<span class="cb-lab" title="Laborers (3+ updates in 30 days)">' + a.laborers + icon('hammer') + '</span>' : ''
                 const html = '<span class="cb-num">' + a.total + '</span>' +
                              '<span class="cb-city">' + escHtml(a.label) + '</span>' + lab
                 const marker = L.marker([a.lat, a.lng], {
@@ -2253,7 +2283,7 @@
         })
         const newCountries = new Set(Object.keys(firstInCountry).filter(cc => firstInCountry[cc] >= weekAgo))
         newCountries.forEach(cc => {
-            items.push({ icon: '🌍', text: tr('how_were_doing.ms_new_country', { place: countryLabel(cc) }, 'New country on the map — ' + countryLabel(cc)), w: 4 })
+            items.push({ icon: 'globe', text: tr('how_were_doing.ms_new_country', { place: countryLabel(cc) }, 'New country on the map — ' + countryLabel(cc)), w: 4 })
         })
 
         Object.keys(byCity).forEach(place => {
@@ -2261,15 +2291,15 @@
             const city = placeLabel(place)
             if (newCountries.has(place.split('|')[0])) return   // already celebrated as a new country
             if (c.first && c.first >= weekAgo) {
-                items.push({ icon: '📍', text: tr('how_were_doing.ms_new_city', { place: city }, 'New city on the map — ' + city), w: 3 }); return
+                items.push({ icon: 'pin', text: tr('how_were_doing.ms_new_city', { place: city }, 'New city on the map — ' + city), w: 3 }); return
             }
             for (const M of THRESH) {
                 if (c.prior < M && c.total >= M) {
-                    items.push({ icon: '🔥', text: tr('how_were_doing.ms_passed', { place: city, n: M }, city + ' just passed ' + M + ' conversations'), w: 2 }); break
+                    items.push({ icon: 'flame', text: tr('how_were_doing.ms_passed', { place: city, n: M }, city + ' just passed ' + M + ' conversations'), w: 2 }); break
                 }
             }
             if (c.firstDisc && c.firstDisc >= weekAgo && c.prior > 0) {
-                items.push({ icon: '🌱', text: tr('how_were_doing.ms_first_discovery', { place: city }, 'First discovery conversation in ' + city), w: 2 })
+                items.push({ icon: 'sprout', text: tr('how_were_doing.ms_first_discovery', { place: city }, 'First discovery conversation in ' + city), w: 2 })
             }
         })
         items.sort((a, b) => b.w - a.w)
@@ -2298,13 +2328,13 @@
     }
 
     function showCelebrate(i) {
-        const icon = document.querySelector('#celebrate-banner .celebrate-icon')
+        const iconEl = document.querySelector('#celebrate-banner .celebrate-icon')
         const text = document.getElementById('celebrate-text')
         const it = celebrateItems[i]
         if (!it || !text) return
         text.style.opacity = '0'
         setTimeout(() => {
-            if (icon) icon.textContent = it.icon
+            if (iconEl) iconEl.innerHTML = icon(it.icon)
             text.textContent = it.text
             text.style.opacity = '1'
         }, 200)
@@ -2797,7 +2827,7 @@
         const ticker = document.getElementById('updates-ticker')
         const btn    = document.querySelector('.ticker-minimize-btn')
         if (ticker) ticker.classList.toggle('minimized', tickerMinimized)
-        if (btn)    btn.textContent = tickerMinimized ? '+' : '−'
+        if (btn)    btn.innerHTML = icon(tickerMinimized ? 'plus' : 'minus')
 
         if (tickerMinimized) stopTickerScroll()
         else                 startTickerScroll()
