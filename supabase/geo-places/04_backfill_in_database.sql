@@ -1,17 +1,17 @@
 -- ============================================================================
--- Worldwide places — backfill old rows from inside Supabase (no terminal)
+-- Worldwide places - backfill old rows from inside Supabase (no terminal)
 --
 -- Same job as scripts/backfill-places.mjs, for when you only have the SQL
 -- editor. Uses the `http` extension to reverse-geocode with Nominatim,
 -- 1 lookup/second (Nominatim policy), one lookup per distinct coordinate
--- pair — after 03_coarsen_existing.sql many rows share a pair.
+-- pair - after 03_coarsen_existing.sql many rows share a pair.
 --
--- Step 1: paste this whole file → Run (creates the functions).
+-- Step 1: paste this whole file -> Run (creates the functions).
 -- Step 2: run, and repeat until remaining = 0 (~45 s per run):
 --
 --     select * from public.geo_backfill_batch(40);
 --
--- Step 3 (optional): clean up — see the bottom of this file.
+-- Step 3 (optional): clean up - see the bottom of this file.
 --
 -- Place fields match /geo.js exactly (place_key 'US|Texas|Paris',
 -- place_label 'Paris, TX, US', city-only text in restricted countries).
@@ -20,7 +20,7 @@
 
 create extension if not exists http with schema extensions;
 
--- Coordinate pairs Nominatim returned no city for — skipped on later runs.
+-- Coordinate pairs Nominatim returned no city for - skipped on later runs.
 create table if not exists public.geo_backfill_skipped (
   latitude  double precision,
   longitude double precision,
@@ -28,7 +28,7 @@ create table if not exists public.geo_backfill_skipped (
 );
 alter table public.geo_backfill_skipped enable row level security;   -- no client access
 
--- Nominatim `address` → place fields. Mirrors placeFromAddress() in /geo.js.
+-- Nominatim `address` -> place fields. Mirrors placeFromAddress() in /geo.js.
 create or replace function public.geo_place_from_address(a jsonb)
 returns jsonb
 language plpgsql
@@ -140,7 +140,7 @@ $$;
 revoke all on function public.geo_backfill_batch(int)      from public, anon, authenticated;
 revoke all on function public.geo_place_from_address(jsonb) from public, anon, authenticated;
 
--- ── Clean up when remaining_pairs = 0 ───────────────────────────────────────
+-- -- Clean up when remaining_pairs = 0 ---------------------------------------
 -- drop function if exists public.geo_backfill_batch(int);
 -- drop function if exists public.geo_place_from_address(jsonb);
 -- drop table if exists public.geo_backfill_skipped;
