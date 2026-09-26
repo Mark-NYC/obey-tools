@@ -64,6 +64,12 @@ without them and the conversation box retries the insert without them. But
 until step 3 runs, old rows group under bare city names and new rows under
 `place_key`, so a city can show twice.
 
+## Signed-in reads only
+
+Run [`05_signed_in_reads_only.sql`](./05_signed_in_reads_only.sql): the read
+policy on `conversation_events` applied to `anon` too, so the public anon key
+could read every event without an account.
+
 ## Verify
 
 ```sql
