@@ -81,6 +81,11 @@
     font-family: "Noto Naskh Arabic", "Noto Sans Arabic", "Geeza Pro", "Segoe UI", Tahoma, Arial, sans-serif !important;
     letter-spacing: normal !important;
   }
+  /* The numbered-question labels are start-anchored at x=159, just right of
+     the number circles (cx=115). Under RTL, `start` flips to the right edge,
+     pulling the Arabic word left onto the circles. Anchor at the end instead
+     so the word's left edge stays at x=159, in the open space beside them. */
+  html[dir="rtl"] svg text.q-label { text-anchor: end; }
   /* ── Labels ── */
   .label-top {
     font-family: 'Bebas Neue', sans-serif;
@@ -471,10 +476,10 @@
         <text x="115" y="254" font-family="'Amatic SC',cursive" font-weight="700" font-size="19" fill="#111" stroke="#111" stroke-width="0.6" paint-order="stroke" text-anchor="middle" data-build="3">2</text>
         <text x="115" y="302" font-family="'Amatic SC',cursive" font-weight="700" font-size="19" fill="#111" stroke="#111" stroke-width="0.6" paint-order="stroke" text-anchor="middle" data-build="4">3</text>
         <text x="115" y="350" font-family="'Amatic SC',cursive" font-weight="700" font-size="19" fill="#111" stroke="#111" stroke-width="0.6" paint-order="stroke" text-anchor="middle" data-build="5">4</text>
-        <text x="159" y="208" font-family="'Amatic SC',cursive" font-weight="700" font-size="32" fill="#111" stroke="#111" stroke-width="0.9" paint-order="stroke" text-anchor="start" data-build="2" data-i18n="four_questions.diagram.why">WHY?</text>
-        <text x="159" y="256" font-family="'Amatic SC',cursive" font-weight="700" font-size="32" fill="#111" stroke="#111" stroke-width="0.9" paint-order="stroke" text-anchor="start" data-build="3" data-i18n="four_questions.diagram.who">WHO?</text>
-        <text x="159" y="304" font-family="'Amatic SC',cursive" font-weight="700" font-size="32" fill="#111" stroke="#111" stroke-width="0.9" paint-order="stroke" text-anchor="start" data-build="4" data-i18n="four_questions.diagram.how">HOW?</text>
-        <text x="159" y="352" font-family="'Amatic SC',cursive" font-weight="700" font-size="32" fill="#111" stroke="#111" stroke-width="0.9" paint-order="stroke" text-anchor="start" data-build="5" data-i18n="four_questions.diagram.when">WHEN?</text>
+        <text x="159" y="208" font-family="'Amatic SC',cursive" font-weight="700" font-size="32" fill="#111" stroke="#111" stroke-width="0.9" class="q-label" paint-order="stroke" text-anchor="start" data-build="2" data-i18n="four_questions.diagram.why">WHY?</text>
+        <text x="159" y="256" font-family="'Amatic SC',cursive" font-weight="700" font-size="32" fill="#111" stroke="#111" stroke-width="0.9" class="q-label" paint-order="stroke" text-anchor="start" data-build="3" data-i18n="four_questions.diagram.who">WHO?</text>
+        <text x="159" y="304" font-family="'Amatic SC',cursive" font-weight="700" font-size="32" fill="#111" stroke="#111" stroke-width="0.9" class="q-label" paint-order="stroke" text-anchor="start" data-build="4" data-i18n="four_questions.diagram.how">HOW?</text>
+        <text x="159" y="352" font-family="'Amatic SC',cursive" font-weight="700" font-size="32" fill="#111" stroke="#111" stroke-width="0.9" class="q-label" paint-order="stroke" text-anchor="start" data-build="5" data-i18n="four_questions.diagram.when">WHEN?</text>
       </svg>
     </div>
   </div>
