@@ -1721,10 +1721,33 @@
     function handleCitySelectionZoom(city) {
         if (!map) return
         if (!city) { zoomToContinent(); return }   // "All Cities" → viewer's continent
-        const match = mapData.churches.find(c => c.city === city && c.latitude && c.longitude)
-                   || mapData.conversations.find(c => c.city === city && c.latitude && c.longitude)
+        const match = mapData.churches.find(c => c.place === city && c.latitude && c.longitude)
+                   || mapData.conversations.find(c => c.place === city && c.latitude && c.longitude)
         if (!match) { console.warn('handleCitySelectionZoom: no coordinates found for city', city); return }
         zoomToRadius(+match.latitude, +match.longitude, 10)
+    }
+
+    // ── Places ───────────────────────────────────────────────────────────────
+    // Rows group by place_key ('US|Texas|Paris') so same-named cities in
+    // different countries never merge. Rows written before /geo.js have no
+    // place_key yet (run scripts/backfill-places.mjs) and fall back to bare city.
+    const placeLabels = {}
+    function withPlace(r) {
+        r.place = r.place_key || r.city || null
+        if (r.place && !placeLabels[r.place]) placeLabels[r.place] = r.place_label || r.city
+        return r
+    }
+    function placeLabel(place) { return placeLabels[place] || place }
+
+    // Select base columns plus the place columns; if the geo-places migration
+    // hasn't been applied yet, retry with base columns so the map still loads.
+    const PLACE_COLS = ', country_code, place_key, place_label'
+    async function selectWithPlaces(build, cols) {
+        const res = await build(cols + PLACE_COLS)
+        if (res.error && /country_code|place_key|place_label/.test(res.error.message || '')) {
+            return build(cols)
+        }
+        return res
     }
 
     // ── Data loading ─────────────────────────────────────────────────────────
@@ -1740,13 +1763,15 @@
             { data: churches, error: churchError },
             { data: convos,   error: convoError }
         ] = await Promise.all([
-            window.supabase
+            selectWithPlaces(cols => window.supabase
                 .from('church_assessments')
-                .select('latitude, longitude, location_text, city, leader_name, baptism_count, church_generation, updated_at')
+                .select(cols)
                 .eq('is_church', true),
-            window.supabase
+                'latitude, longitude, location_text, city, leader_name, baptism_count, church_generation, updated_at'),
+            selectWithPlaces(cols => window.supabase
                 .from('conversation_events')
-                .select('latitude, longitude, location_text, city, event_type, count, created_at, user_id')
+                .select(cols),
+                'latitude, longitude, location_text, city, event_type, count, created_at, user_id')
         ])
 
         if (churchError || convoError) {
@@ -1760,12 +1785,12 @@
 
         console.log('church rows raw:', churches?.length ?? 0, '  convo rows raw:', convos?.length ?? 0)
 
-        mapData.churches      = (churches || []).filter(c => c.latitude && c.longitude)
-        mapData.conversations = (convos   || []).filter(c => c.latitude && c.longitude)
+        mapData.churches      = (churches || []).filter(c => c.latitude && c.longitude).map(withPlace)
+        mapData.conversations = (convos   || []).filter(c => c.latitude && c.longitude).map(withPlace)
 
         const uniqueCities = new Set([
-            ...mapData.churches.map(c => c.city).filter(Boolean),
-            ...mapData.conversations.map(c => c.city).filter(Boolean)
+            ...mapData.churches.map(c => c.place).filter(Boolean),
+            ...mapData.conversations.map(c => c.place).filter(Boolean)
         ])
         console.log('loadMapData filtered: churches=' + mapData.churches.length
             + ' conversations=' + mapData.conversations.length
@@ -1786,18 +1811,20 @@
 
     function populateCityDropdown() {
         const cities = new Set()
-        mapData.churches.forEach(c => { if (c.city) cities.add(c.city) })
-        mapData.conversations.forEach(c => { if (c.city) cities.add(c.city) })
+        mapData.churches.forEach(c => { if (c.place) cities.add(c.place) })
+        mapData.conversations.forEach(c => { if (c.place) cities.add(c.place) })
 
         const sel = document.getElementById('map-city')
         const prev = sel.value
         sel.innerHTML = '<option value="">' + (window.t ? window.t('how_were_doing.filter_all') : 'All Cities') + '</option>'
-        Array.from(cities).sort().forEach(city => {
-            const opt = document.createElement('option')
-            opt.value = city
-            opt.textContent = city
-            sel.appendChild(opt)
-        })
+        Array.from(cities)
+            .sort((a, b) => placeLabel(a).localeCompare(placeLabel(b)))
+            .forEach(place => {
+                const opt = document.createElement('option')
+                opt.value = place
+                opt.textContent = placeLabel(place)
+                sel.appendChild(opt)
+            })
         if (prev) sel.value = prev
     }
 
@@ -1823,7 +1850,7 @@
         churchLayer.clearLayers()
         if (showChurches) {
             mapData.churches.forEach(c => {
-                if (city   && c.city       !== city)  return
+                if (city   && c.place      !== city)  return
                 if (cutoff && c.updated_at <  cutoff) return
 
                 L.circleMarker([c.latitude, c.longitude], {
@@ -1847,7 +1874,7 @@
 
         const buckets = {}
         mapData.conversations.forEach(ev => {
-            if (city   && ev.city       !== city)  return
+            if (city   && ev.place      !== city)  return
             if (cutoff && ev.created_at <  cutoff) return
             const lat2 = +ev.latitude.toFixed(2)
             const lon2 = +ev.longitude.toFixed(2)
@@ -1907,10 +1934,10 @@
             const L30 = new Date(Date.now() - 30 * 86400000).toISOString()
             const cityAgg = {}
             mapData.conversations.forEach(ev => {
-                if (city   && ev.city !== city)       return
+                if (city   && ev.place !== city)      return
                 if (cutoff && ev.created_at < cutoff) return
-                if (!ev.city || !ev.latitude || !ev.longitude) return
-                const a = cityAgg[ev.city] || (cityAgg[ev.city] = { total: 0, la: 0, lo: 0, n: 0, users: {} })
+                if (!ev.place || !ev.latitude || !ev.longitude) return
+                const a = cityAgg[ev.place] || (cityAgg[ev.place] = { total: 0, la: 0, lo: 0, n: 0, users: {} })
                 a.total += (ev.count || 1)
                 a.la += +ev.latitude; a.lo += +ev.longitude; a.n++
                 if (ev.user_id && ev.created_at >= L30) a.users[ev.user_id] = (a.users[ev.user_id] || 0) + 1
@@ -1926,7 +1953,7 @@
                     const lvl = a.total <= 3 ? 'c1' : a.total <= 10 ? 'c2' : a.total <= 20 ? 'c3' : 'c4'
                     const lab = a.laborers > 0 ? '<span class="cb-lab" title="Laborers (3+ updates in 30 days)">' + a.laborers + '⚒</span>' : ''
                     const html = '<span class="cb-num">' + a.total + '</span>' +
-                                 '<span class="cb-city">' + escHtml(a.city) + '</span>' + lab
+                                 '<span class="cb-city">' + escHtml(placeLabel(a.city)) + '</span>' + lab
                     const marker = L.marker([a.lat, a.lng], {
                         icon: L.divIcon({ className: 'count-badge ' + lvl, html: html, iconSize: [0, 0] }),
                         interactive: true, keyboard: false
@@ -1970,7 +1997,7 @@
             const isDisc = ev.event_type === 'discovery'
             if (!cutoff || ev.created_at >= cutoff) {
                 if (isDisc) cur.disc += n; else cur.sp += n
-                if (ev.city) cur.cities.add(ev.city)
+                if (ev.place) cur.cities.add(ev.place)
             } else if (prevCut && ev.created_at >= prevCut) {
                 if (isDisc) pri.disc += n; else pri.sp += n
             }
@@ -2016,9 +2043,9 @@
         const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString()
         const byCity = {}
         mapData.conversations.forEach(ev => {
-            if (!ev.city) return
+            if (!ev.place) return
             const n = ev.count || 1
-            const c = byCity[ev.city] || (byCity[ev.city] = { total: 0, prior: 0, first: null, firstDisc: null })
+            const c = byCity[ev.place] || (byCity[ev.place] = { total: 0, prior: 0, first: null, firstDisc: null })
             c.total += n
             if (ev.created_at < weekAgo) c.prior += n
             if (!c.first || ev.created_at < c.first) c.first = ev.created_at
@@ -2027,8 +2054,9 @@
 
         const THRESH = [1000, 500, 250, 100, 50]
         const items = []
-        Object.keys(byCity).forEach(city => {
-            const c = byCity[city]
+        Object.keys(byCity).forEach(place => {
+            const c = byCity[place]
+            const city = placeLabel(place)
             if (c.first && c.first >= weekAgo) {
                 items.push({ icon: '📍', text: 'New city on the map — ' + city, w: 3 }); return
             }
@@ -2100,15 +2128,15 @@
 
         const cities = {}
         mapData.conversations.forEach(ev => {
-            if (!ev.city) return
+            if (!ev.place) return
             const inCurrent = !cutoff || ev.created_at >= cutoff
             const inPrior   = prevCut && ev.created_at >= prevCut && ev.created_at < cutoff
             if (!inCurrent && !inPrior) return
 
-            if (!cities[ev.city]) {
-                cities[ev.city] = { city: ev.city, sp: 0, disc: 0, total: 0, prior: 0, lat: null, lng: null }
+            if (!cities[ev.place]) {
+                cities[ev.place] = { city: ev.place, sp: 0, disc: 0, total: 0, prior: 0, lat: null, lng: null }
             }
-            const c = cities[ev.city]
+            const c = cities[ev.place]
             const n = ev.count || 1
             if (c.lat === null && ev.latitude && ev.longitude) { c.lat = +ev.latitude; c.lng = +ev.longitude }
             if (inCurrent) {
@@ -2144,7 +2172,7 @@
             return '<div class="hotspot-row' + (i < 2 ? ' top' : '') + '"' +
                    ' onclick="flyToCity(\'' + escAttr(c.city) + '\')">' +
                 '<div class="hotspot-rank">' + (i + 1) + '</div>' +
-                '<div class="hotspot-name">' + escHtml(c.city) +
+                '<div class="hotspot-name">' + escHtml(placeLabel(c.city)) +
                     '<em>' + c.sp + ' sp · ' + c.disc + ' disc</em></div>' +
                 '<div class="hotspot-val"><b>' + c.total + '</b>' +
                     (trend ? '<em class="' + tcls + '">' + trend + '</em>' : '') + '</div>' +
@@ -2184,15 +2212,14 @@
 
         // One query covers the current window, the prior window (for deltas), and
         // a 12-week momentum sparkline (min 84 days). All Time fetches everything.
-        let query = window.supabase
-            .from('conversation_events')
-            .select('event_type, count, created_at, city, user_id')
         const lowerBound = days > 0
             ? new Date(Date.now() - Math.max(days * 2, 84) * 86400000).toISOString()
             : null
-        if (lowerBound) query = query.gte('created_at', lowerBound)
-
-        const { data, error } = await query
+        const { data, error } = await selectWithPlaces(cols => {
+            let query = window.supabase.from('conversation_events').select(cols)
+            if (lowerBound) query = query.gte('created_at', lowerBound)
+            return query
+        }, 'event_type, count, created_at, city, user_id')
 
         if (error) {
             section.innerHTML = '<div class="empty-state">Error loading data.<br><small>' + error.message + '</small></div>'
@@ -2209,7 +2236,8 @@
             const bucket = inCurrent ? cur : inPrior ? pri : null
             if (!bucket) return
             if (ev.event_type === 'discovery') bucket.disc += n; else bucket.sp += n
-            if (ev.city)    bucket.cities.add(ev.city)
+            const place = ev.place_key || ev.city
+            if (place)      bucket.cities.add(place)
             if (ev.user_id) bucket.fishers.add(ev.user_id)
         })
 
@@ -2372,7 +2400,7 @@
 
         tickerItems = sorted.map(ev => ({
             ts:    ev.created_at,
-            city:  ev.city       || '',
+            city:  ev.place_label || ev.city || '',
             type:  ev.event_type || 'update',
             count: ev.count      || 1
         }))
@@ -2427,17 +2455,17 @@
     async function fetchRecentUpdatesSince(since) {
         if (!window.supabase) return
         try {
-            const { data, error } = await window.supabase
+            const { data, error } = await selectWithPlaces(cols => window.supabase
                 .from('conversation_events')
-                .select('created_at, city, event_type, count')
+                .select(cols)
                 .gt('created_at', since)
                 .order('created_at', { ascending: false })
-                .limit(20)
+                .limit(20), 'created_at, city, event_type, count')
             if (error) { console.warn('ticker poll error:', error.message); return }
             if (!data || data.length === 0) return
             mergeRecentUpdates(data.map(ev => ({
                 ts:    ev.created_at,
-                city:  ev.city       || '',
+                city:  ev.place_label || ev.city || '',
                 type:  ev.event_type || 'update',
                 count: ev.count      || 1
             })))
@@ -2463,7 +2491,7 @@
         if (!row) return
         const item = {
             ts:    row.created_at || row.updated_at || new Date().toISOString(),
-            city:  row.city      || '',
+            city:  row.place_label || row.city || '',
             type:  forceType     || row.event_type || 'update',
             count: row.count     || 1
         }
