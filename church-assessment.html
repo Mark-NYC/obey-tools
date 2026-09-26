@@ -468,6 +468,7 @@ html:not([lang="en"]) #btn-play { display: none; }
 }
 </style>
 
+<script src="/geo.js"></script>
 <script>
 // ----- Practice labels (grid order) -----
 // Reuse the site's already-translated command titles; only "The Gospel" is new.
@@ -743,6 +744,10 @@ let baptismCount = 0;
 let tempBaptismCount = 0;
 let userCoordinates = null;
 let appInitialized = false;
+// High-risk country (guessed offline from the time zone, see geo.js): the share
+// image carries no leader names, and Signal is offered first.
+const SAFETY_MODE = !!(window.obeyGeo && window.obeyGeo.inRestrictedTimeZone());
+if (SAFETY_MODE) putSignalFirst();   // share popup markup is above this script
 
 function getCurrentUser() { return window._supabaseUser || null; }
 
@@ -875,6 +880,12 @@ function continueAssessment() {
 function showSharePopup() { document.getElementById('share-popup').style.display = 'flex'; }
 function closeSharePopup() { document.getElementById('share-popup').style.display = 'none'; }
 function guideShare(app) { closeSharePopup(); showNotification(window.t('church_assessment.open_app_paste', { app })); }
+// Signal is end-to-end encrypted and keeps little metadata: lead with it.
+function putSignalFirst() {
+    const icons = document.querySelector('#share-popup .app-icons');
+    const signal = icons && icons.querySelector('.app-icon.signal');
+    if (signal) icons.prepend(signal.parentElement);
+}
 function incrementBaptismTemp() { tempBaptismCount++; document.getElementById('baptism-temp-count').textContent = tempBaptismCount; addHapticFeedback(document.querySelector('#baptism-temp-count')); }
 function decrementBaptismTemp() { if (tempBaptismCount > 0) { tempBaptismCount--; document.getElementById('baptism-temp-count').textContent = tempBaptismCount; addHapticFeedback(document.querySelector('#baptism-temp-count')); } }
 
@@ -882,7 +893,8 @@ async function showShareInputPopup() {
     const hasProgress = Object.values(assessmentState).some(s => s !== '0' && s !== 0);
     if (!hasProgress) { showNotification(window.t('church_assessment.assess_before_share')); return; }
     const userName = localStorage.getItem('user-name') || '';
-    document.getElementById('leader-input').value = userName;
+    document.getElementById('leader-input').value = SAFETY_MODE ? '' : userName;
+    document.querySelectorAll('#leader-input, label[for="leader-input"]').forEach(el => el.style.display = SAFETY_MODE ? 'none' : '');
     const today = new Date();
     document.getElementById('date-input').value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
     document.getElementById('location-input').value = '';
@@ -915,7 +927,7 @@ function submitShareDetails() {
     const leaders = document.getElementById('leader-input').value.trim();
     const startDate = document.getElementById('date-input').value;
     const location = document.getElementById('location-input').value.trim();
-    if (!leaders || !startDate || !location) { showNotification(window.t('church_assessment.fill_all_fields')); return; }
+    if ((!leaders && !SAFETY_MODE) || !startDate || !location) { showNotification(window.t('church_assessment.fill_all_fields')); return; }
     baptismCount = tempBaptismCount;
     localStorage.setItem('baptismCount', baptismCount.toString());
     saveToSupabase(); closeShareInput();
@@ -927,7 +939,8 @@ function performCapture(leaders, startDate, location, baptismCount) {
     tempElement.style.cssText = 'position:fixed;top:-9999px;left:0;width:400px;height:auto;min-height:500px;background:#fff;padding:20px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:20px;z-index:-1;';
     const infoDiv = document.createElement('div');
     infoDiv.style.cssText = 'text-align:center;font-size:16px;font-weight:600;margin-bottom:20px;width:100%;line-height:1.4;';
-    infoDiv.innerHTML = `${window.t('church_assessment.share_label_leaders')} ${leaders}<br>${window.t('church_assessment.share_label_start_date')} ${formatInputDate(startDate)}<br>${window.t('church_assessment.share_label_location')} ${location}<br>${window.t('church_assessment.share_label_baptisms')} ${baptismCount}`;
+    const leadersLine = leaders ? `${window.t('church_assessment.share_label_leaders')} ${leaders}<br>` : '';
+    infoDiv.innerHTML = `${leadersLine}${window.t('church_assessment.share_label_start_date')} ${formatInputDate(startDate)}<br>${window.t('church_assessment.share_label_location')} ${location}<br>${window.t('church_assessment.share_label_baptisms')} ${baptismCount}`;
     tempElement.appendChild(infoDiv);
     const circleClone = document.getElementById('assess-circle').cloneNode(true);
     const keyClone = document.querySelector('#assessment-view .assessment-key').cloneNode(true);
@@ -952,7 +965,7 @@ function performCapture(leaders, startDate, location, baptismCount) {
             if (isSafari && navigator.canShare) {
                 const file = new File([blob], 'church-assessment.png', { type: 'image/png' });
                 try {
-                    await navigator.share({ files: [file], title: 'Church Assessment', text: `Shared on ${shareDate}. Church assessment - ${window.t('church_assessment.share_label_leaders')} ${leaders} | ${window.t('church_assessment.share_label_start_date')} ${formatInputDate(startDate)} | ${window.t('church_assessment.share_label_location')} ${location} | ${window.t('church_assessment.share_label_baptisms')} ${baptismCount}` });
+                    await navigator.share({ files: [file], title: 'Church Assessment', text: `Shared on ${shareDate}. Church assessment - ${leaders ? window.t('church_assessment.share_label_leaders') + ' ' + leaders + ' | ' : ''}${window.t('church_assessment.share_label_start_date')} ${formatInputDate(startDate)} | ${window.t('church_assessment.share_label_location')} ${location} | ${window.t('church_assessment.share_label_baptisms')} ${baptismCount}` });
                     shareSuccess = true;
                 } catch (e) { console.error('Sharing failed:', e); }
             }

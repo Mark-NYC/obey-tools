@@ -126,7 +126,48 @@
         return flag + ' ' + name
     }
 
-    const api = { reverseGeocode, placeFromIP, placeFromAddress, coarsen, isRestricted, countryLabel }
+    // Time zones of the restricted countries, for an offline, request-free
+    // guess at "is this phone in a high-risk country?" before any location
+    // exists. Misses phones set to a home time zone (e.g. a visitor abroad).
+    const RESTRICTED_TIME_ZONES = {
+        'Asia/Pyongyang': 'KP', 'Africa/Mogadishu': 'SO', 'Asia/Aden': 'YE', 'Africa/Tripoli': 'LY',
+        'Africa/Khartoum': 'SD', 'Africa/Asmara': 'ER', 'Africa/Lagos': 'NG', 'Asia/Karachi': 'PK',
+        'Asia/Tehran': 'IR', 'Asia/Kabul': 'AF', 'Asia/Kolkata': 'IN', 'Asia/Calcutta': 'IN',
+        'Asia/Riyadh': 'SA', 'Asia/Yangon': 'MM', 'Asia/Rangoon': 'MM', 'Africa/Bamako': 'ML',
+        'Asia/Shanghai': 'CN', 'Asia/Urumqi': 'CN', 'Asia/Chongqing': 'CN', 'Asia/Harbin': 'CN',
+        'Indian/Maldives': 'MV', 'Asia/Baghdad': 'IQ', 'Asia/Damascus': 'SY', 'Africa/Algiers': 'DZ',
+        'Africa/Ouagadougou': 'BF', 'Africa/Casablanca': 'MA', 'Africa/El_Aaiun': 'MA', 'Asia/Vientiane': 'LA',
+        'Africa/Nouakchott': 'MR', 'Asia/Tashkent': 'UZ', 'Asia/Samarkand': 'UZ', 'Asia/Dhaka': 'BD',
+        'Asia/Muscat': 'OM', 'Africa/Bangui': 'CF', 'America/Havana': 'CU', 'Africa/Niamey': 'NE',
+        'Asia/Ashgabat': 'TM', 'America/Bogota': 'CO', 'Africa/Cairo': 'EG', 'Africa/Kinshasa': 'CD',
+        'Africa/Lubumbashi': 'CD', 'Asia/Ho_Chi_Minh': 'VN', 'Asia/Saigon': 'VN',
+        'America/Mexico_City': 'MX', 'America/Cancun': 'MX', 'America/Merida': 'MX', 'America/Monterrey': 'MX',
+        'America/Matamoros': 'MX', 'America/Chihuahua': 'MX', 'America/Ciudad_Juarez': 'MX',
+        'America/Ojinaga': 'MX', 'America/Mazatlan': 'MX', 'America/Bahia_Banderas': 'MX',
+        'America/Hermosillo': 'MX', 'America/Tijuana': 'MX', 'Africa/Maputo': 'MZ', 'Africa/Douala': 'CM',
+        'Asia/Dushanbe': 'TJ', 'Asia/Brunei': 'BN', 'Asia/Qatar': 'QA', 'Asia/Almaty': 'KZ',
+        'Asia/Qostanay': 'KZ', 'Asia/Aqtobe': 'KZ', 'Asia/Aqtau': 'KZ', 'Asia/Atyrau': 'KZ', 'Asia/Oral': 'KZ',
+        'Asia/Qyzylorda': 'KZ', 'Africa/Addis_Ababa': 'ET', 'Africa/Tunis': 'TN', 'Europe/Istanbul': 'TR',
+        'Asia/Istanbul': 'TR', 'Asia/Thimphu': 'BT', 'Asia/Bishkek': 'KG', 'America/Managua': 'NI',
+        'Asia/Amman': 'JO', 'Asia/Gaza': 'PS', 'Asia/Hebron': 'PS', 'Indian/Comoro': 'KM',
+        'Asia/Kuala_Lumpur': 'MY', 'Asia/Kuching': 'MY', 'Asia/Kuwait': 'KW', 'Asia/Baku': 'AZ',
+        'Africa/Ndjamena': 'TD', 'Asia/Dubai': 'AE', 'Asia/Bahrain': 'BH', 'Africa/Djibouti': 'DJ'
+    }
+    function inRestrictedTimeZone() {
+        try {
+            const cc = RESTRICTED_TIME_ZONES[Intl.DateTimeFormat().resolvedOptions().timeZone]
+            return !!cc && isRestricted(cc)
+        } catch { return false }
+    }
+
+    // Initials for share images: 'Maria Lopez' → 'M. L.'
+    function initials(name) {
+        return String(name || '').trim().split(/\s+/).filter(Boolean)
+            .map(w => Array.from(w)[0].toUpperCase() + '.').join(' ')
+    }
+
+    const api = { reverseGeocode, placeFromIP, placeFromAddress, coarsen, isRestricted, countryLabel,
+                  inRestrictedTimeZone, initials }
     if (typeof module !== 'undefined' && module.exports) module.exports = api
     else root.obeyGeo = api
 })(typeof self !== 'undefined' ? self : this)
