@@ -346,6 +346,10 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-se
 .present-nav:disabled { opacity: 0.4; cursor: default; }
 .present-play { background: var(--ot-primary); color: var(--ot-primary-ink); flex: 1.3; }
 .present-play:active { background: var(--ot-primary-press); transform: scale(0.98); }
+/* Narration is English-only (non-English device voices sounded robotic and
+   were flagged by reviewers). Hide Play for other languages; presenters step
+   through with Back/Next. The lang attribute is set by i18n on load. */
+html:not([lang="en"]) #btn-play { display: none; }
 .present-restart-row { display: flex; justify-content: center; padding: 14px 16px 4px; }
 .present-restart { background: none; border: none; color: #8e8e93; font-size: 14px; font-weight: 600; cursor: pointer; }
 .present-attribution { text-align: center; font-size: 11px; color: #b0b0b5; padding: 10px 24px 28px; }
@@ -528,13 +532,12 @@ function voiceFor(lang) {
         || null;
 }
 
-// English rides the browser's default voice; other languages need a real
-// matching voice, or we skip audio rather than mispronounce the passage.
+// Only English narrates (via the browser's default voice). Other languages
+// deliberately skip audio: their device TTS voices sound robotic and were
+// flagged by reviewers, so Play just auto-advances silently instead.
 function canNarrate() {
     if (!('speechSynthesis' in window)) return false;
-    const lang = currentLang();
-    if (lang === 'en') return true;
-    return !!voiceFor(lang);
+    return currentLang() === 'en';
 }
 
 function clearPlayTimer() {
