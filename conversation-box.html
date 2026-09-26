@@ -858,17 +858,22 @@ function saveConversations() {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     async (position) => {
-                        const location = await getCityFromCoords(
-                            position.coords.latitude, 
+                        const place = await window.obeyGeo.reverseGeocode(
+                            position.coords.latitude,
                             position.coords.longitude
+                        );
+                        const c = window.obeyGeo.coarsen(
+                            position.coords.latitude,
+                            position.coords.longitude,
+                            place?.country_code
                         );
                         
                         await sendGreenLightToAPI(
                             userName, 
                             personName, 
-                            location,
-                            position.coords.latitude,
-                            position.coords.longitude
+                            place?.location_text || '',
+                            c.lat,
+                            c.lon
                         );
                         
                         submittedGreenLights.push(eventKey);
@@ -933,10 +938,6 @@ function saveConversations() {
         }
 
         // CONVERSATION EVENT TRACKING
-        async function getCityFromCoords(lat, lon) {
-            const place = await window.obeyGeo.reverseGeocode(lat, lon);
-            return (place && place.location_text) || '';
-        }
 
         async function sendEventToAPI(userName, personName, eventType, location, latitude, longitude) {
             const payload = {
@@ -1025,8 +1026,10 @@ function saveConversations() {
                         const lat = position.coords.latitude;
                         const lon = position.coords.longitude;
                         const place = await window.obeyGeo.reverseGeocode(lat, lon);
-                        await sendEventToAPI(userName, personName, eventType, place?.location_text || '', lat, lon);
-                        await writeConversationEvent(lat, lon, place);
+                        // Never store or share the exact point — see geo.js coarsen().
+                        const c = window.obeyGeo.coarsen(lat, lon, place?.country_code);
+                        await sendEventToAPI(userName, personName, eventType, place?.location_text || '', c.lat, c.lon);
+                        await writeConversationEvent(c.lat, c.lon, place);
                     },
                     async (gpsErr) => {
                         console.warn('[submitEvent:gpsError]', gpsErr.message);

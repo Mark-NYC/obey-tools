@@ -1274,6 +1274,7 @@
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="/geo.js"></script>
     <script>
     // ── Map state ────────────────────────────────────────────────────────────
     let map            = null
@@ -1738,6 +1739,9 @@
         return r
     }
     function placeLabel(place) { return placeLabels[place] || place }
+    // Restricted countries (see /geo.js): no names of people, no live-feed cities.
+    function isRestrictedRow(r) { return !!(window.obeyGeo && window.obeyGeo.isRestricted(r && r.country_code)) }
+    function tickerPlace(r) { return isRestrictedRow(r) ? '' : (r.place_label || r.city || '') }
 
     // Select base columns plus the place columns; if the geo-places migration
     // hasn't been applied yet, retry with base columns so the map still loads.
@@ -1861,7 +1865,7 @@
                     fillOpacity: 0.9
                 }).bindPopup(
                     '<strong>' + (c.location_text || 'Church') + '</strong>' +
-                    (c.leader_name      ? '<br>Leader: ' + c.leader_name          : '') +
+                    (c.leader_name && !isRestrictedRow(c) ? '<br>Leader: ' + c.leader_name : '') +
                     '<br>Baptisms: '    + (c.baptism_count  || 0) +
                     (c.church_generation ? '<br>Generation: ' + c.church_generation : '')
                 ).addTo(churchLayer)
@@ -2400,7 +2404,7 @@
 
         tickerItems = sorted.map(ev => ({
             ts:    ev.created_at,
-            city:  ev.place_label || ev.city || '',
+            city:  tickerPlace(ev),
             type:  ev.event_type || 'update',
             count: ev.count      || 1
         }))
@@ -2465,7 +2469,7 @@
             if (!data || data.length === 0) return
             mergeRecentUpdates(data.map(ev => ({
                 ts:    ev.created_at,
-                city:  ev.place_label || ev.city || '',
+                city:  tickerPlace(ev),
                 type:  ev.event_type || 'update',
                 count: ev.count      || 1
             })))
@@ -2491,7 +2495,7 @@
         if (!row) return
         const item = {
             ts:    row.created_at || row.updated_at || new Date().toISOString(),
-            city:  row.place_label || row.city || '',
+            city:  tickerPlace(row),
             type:  forceType     || row.event_type || 'update',
             count: row.count     || 1
         }
