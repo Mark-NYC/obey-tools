@@ -8,9 +8,36 @@
 // Browser: <script src="/geo.js"></script> → window.obeyGeo
 // Node:    require('./geo.js')          (used by scripts/backfill-places.mjs)
 //
+// Privacy: coordinates are coarsened before they are stored or shared —
+// ~1 km everywhere, ~11 km and city-only names where following Jesus is
+// dangerous. supabase/geo-places/02_privacy.sql enforces the same rules in the
+// database; keep RESTRICTED in sync with geo_is_restricted() there.
+//
 // Swapping geocoding providers later means changing this file only.
 ;(function (root) {
     const NOMINATIM = 'https://nominatim.openstreetmap.org/reverse'
+
+    // Open Doors World Watch List top 50 plus other high-risk countries.
+    // Review yearly. ISO 3166-1 alpha-2.
+    const RESTRICTED = new Set([
+        'KP', 'SO', 'YE', 'LY', 'SD', 'ER', 'NG', 'PK', 'IR', 'AF', 'IN', 'SA', 'MM',
+        'ML', 'CN', 'MV', 'IQ', 'SY', 'DZ', 'BF', 'MA', 'LA', 'MR', 'UZ', 'BD', 'OM',
+        'CF', 'CU', 'NE', 'TM', 'CO', 'EG', 'CD', 'VN', 'MX', 'MZ', 'CM', 'TJ', 'BN',
+        'QA', 'KZ', 'ET', 'TN', 'TR', 'BT', 'KG', 'NI', 'JO', 'PS', 'KM', 'MY', 'KW',
+        'AZ', 'TD', 'AE', 'BH', 'DJ'
+    ])
+    function isRestricted(countryCode) {
+        return RESTRICTED.has(String(countryCode || '').toUpperCase())
+    }
+
+    // Coordinates as stored and shared: 2 decimals (~1 km), or 1 decimal
+    // (~11 km) in restricted countries — and when the country is unknown,
+    // so a failed lookup fails safe.
+    function coarsen(lat, lon, countryCode) {
+        if (lat == null || lon == null) return { lat: null, lon: null }
+        const f = (!countryCode || isRestricted(countryCode)) ? 10 : 100
+        return { lat: Math.round(lat * f) / f, lon: Math.round(lon * f) / f }
+    }
 
     // Countries where people expect a state/province abbreviation in a place name.
     const REGION_ABBREV_COUNTRIES = new Set(['US', 'CA', 'AU'])
@@ -28,7 +55,8 @@
             country_code:  cc || null,
             region:        region || null,
             city:          city || null,
-            location_text: [hood, city].filter(Boolean).join(', ') || region || null,
+            // No neighbourhood names in restricted countries.
+            location_text: [isRestricted(cc) ? '' : hood, city].filter(Boolean).join(', ') || region || null,
             place_key:     city ? [cc, region, city].join('|') : null,
             place_label:   city ? [city, abbrev, cc].filter(Boolean).join(', ') : null
         }
@@ -48,12 +76,13 @@
     }
 
     // Coordinates → place, names in English. Returns null on failure.
+    // Only ~100 m precision is sent to the geocoder — enough to get the city right.
     // `headers` lets Node callers send the User-Agent Nominatim's policy requires.
     async function reverseGeocode(lat, lon, headers) {
         if (lat == null || lon == null) return null
         try {
             const url = NOMINATIM + '?format=jsonv2&addressdetails=1&zoom=18&accept-language=en' +
-                        '&lat=' + encodeURIComponent(lat) + '&lon=' + encodeURIComponent(lon)
+                        '&lat=' + (+lat).toFixed(3) + '&lon=' + (+lon).toFixed(3)
             const res = await fetch(url, headers ? { headers } : undefined)
             if (!res.ok) throw new Error('HTTP ' + res.status)
             const data = await res.json()
@@ -83,7 +112,7 @@
         }
     }
 
-    const api = { reverseGeocode, placeFromIP, placeFromAddress }
+    const api = { reverseGeocode, placeFromIP, placeFromAddress, coarsen, isRestricted }
     if (typeof module !== 'undefined' && module.exports) module.exports = api
     else root.obeyGeo = api
 })(typeof self !== 'undefined' ? self : this)
