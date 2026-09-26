@@ -395,6 +395,12 @@
             text-transform: uppercase; letter-spacing: 0.03em;
         }
         .hotspots-hint { font-size: 11px; color: #c57f23; font-weight: 600; }
+        .hotspots-scope { display: inline-flex; gap: 2px; background: #ececef; border-radius: 7px; padding: 2px; }
+        .hotspots-scope button {
+            border: 0; background: transparent; font: inherit; font-size: 11px; font-weight: 600;
+            color: #6e6e73; padding: 3px 8px; border-radius: 5px; cursor: pointer;
+        }
+        .hotspots-scope button.active { background: #fff; color: #c57f23; box-shadow: 0 1px 2px rgba(0,0,0,0.08); }
         .hotspot-row {
             display: grid;
             grid-template-columns: 18px 1fr auto;
@@ -1003,6 +1009,9 @@
         body.theme-dark .map-footer { color: #8b93a5; border-top-color: #222b3d; }
         body.theme-dark .hotspots { border-top-color: #222b3d; }
         body.theme-dark .hotspots-head h4 { color: #cfd5e0; }
+        body.theme-dark .hotspots-scope { background: #131a2a; }
+        body.theme-dark .hotspots-scope button { color: #8b93a5; }
+        body.theme-dark .hotspots-scope button.active { background: #222b3d; color: #f3b15a; }
         body.theme-dark .hotspot-row { border-top-color: #222b3d; }
         body.theme-dark .hotspot-row:first-of-type { border-top: none; }
         body.theme-dark .hotspot-row:hover { background: #1b2334; }
@@ -1168,6 +1177,9 @@
                 </div>
 
                 <div class="filters">
+                    <select class="filter-select" id="map-country" onchange="handleCountryChange(this.value)">
+                        <option value="" data-i18n="how_were_doing.filter_all_countries">All Countries</option>
+                    </select>
                     <select class="filter-select" id="map-city" onchange="handleCitySelectionZoom(this.value); renderMap()">
                         <option value="" data-i18n="how_were_doing.filter_all">All Cities</option>
                     </select>
@@ -1184,7 +1196,10 @@
                 <div class="hotspots" id="hotspots">
                     <div class="hotspots-head">
                         <h4>Hot Spots</h4>
-                        <span class="hotspots-hint">tap to fly →</span>
+                        <div class="hotspots-scope" role="group" aria-label="Rank by">
+                            <button id="hs-scope-cities" class="active" onclick="setHotspotScope('cities')" data-i18n="how_were_doing.scope_cities">Cities</button>
+                            <button id="hs-scope-countries" onclick="setHotspotScope('countries')" data-i18n="how_were_doing.scope_countries">Countries</button>
+                        </div>
                     </div>
                     <div id="hotspots-list">
                         <div class="hotspots-empty">Loading…</div>
@@ -1632,6 +1647,8 @@
 
             // Keep the "In view" pulse row in sync as the user pans / zooms.
             map.on('moveend', computePulse)
+            // Badges roll up country → region → city as the user zooms in.
+            map.on('zoomend', () => { if (badgeTier() !== lastBadgeTier) renderBadges() })
 
             setTimeout(() => map.invalidateSize(), 0)
             setTimeout(() => map.invalidateSize(), 150)
@@ -1721,7 +1738,11 @@
     // Called before renderMap() so filtering and zoom happen together.
     function handleCitySelectionZoom(city) {
         if (!map) return
-        if (!city) { zoomToContinent(); return }   // "All Cities" → viewer's continent
+        if (!city) {                               // "All Cities" → selected country, else viewer's continent
+            const country = document.getElementById('map-country').value
+            if (country) zoomToCountry(country); else zoomToContinent()
+            return
+        }
         const match = mapData.churches.find(c => c.place === city && c.latitude && c.longitude)
                    || mapData.conversations.find(c => c.place === city && c.latitude && c.longitude)
         if (!match) { console.warn('handleCitySelectionZoom: no coordinates found for city', city); return }
@@ -1745,13 +1766,83 @@
 
     // Select base columns plus the place columns; if the geo-places migration
     // hasn't been applied yet, retry with base columns so the map still loads.
-    const PLACE_COLS = ', country_code, place_key, place_label'
+    const PLACE_COLS = ', country_code, region, place_key, place_label'
     async function selectWithPlaces(build, cols) {
         const res = await build(cols + PLACE_COLS)
-        if (res.error && /country_code|place_key|place_label/.test(res.error.message || '')) {
+        if (res.error && /country_code|region|place_key|place_label/.test(res.error.message || '')) {
             return build(cols)
         }
         return res
+    }
+
+    // ── Countries ────────────────────────────────────────────────────────────
+    // Names come from the browser in the viewer's language — no lookup table.
+    const countryNamers = {}
+    function countryName(cc) {
+        const lang = (window.i18n && window.i18n.getLang && window.i18n.getLang()) || 'en'
+        try {
+            countryNamers[lang] = countryNamers[lang] || new Intl.DisplayNames([lang, 'en'], { type: 'region' })
+            return countryNamers[lang].of(cc) || cc
+        } catch { return cc }
+    }
+    function countryFlag(cc) {
+        return /^[A-Z]{2}$/.test(cc || '')
+            ? String.fromCodePoint(...[...cc].map(ch => 0x1F1A5 + ch.charCodeAt(0)))
+            : ''
+    }
+    function countryLabel(cc) { return (countryFlag(cc) + ' ' + countryName(cc)).trim() }
+
+    // Row passes the country + city dropdowns.
+    function inScope(r, country, city) {
+        if (country && r.country_code !== country) return false
+        if (city    && r.place        !== city)    return false
+        return true
+    }
+
+    function allMapRows() { return mapData.churches.concat(mapData.conversations) }
+
+    function fitRows(rows) {
+        const pts = rows.filter(r => r.latitude && r.longitude).map(r => [+r.latitude, +r.longitude])
+        if (!map || pts.length === 0) return false
+        const b = L.latLngBounds(pts)
+        if (b.getNorthEast().equals(b.getSouthWest())) zoomToRadius(pts[0][0], pts[0][1], 10)
+        else map.fitBounds(b, { padding: [30, 30], maxZoom: 11 })
+        return true
+    }
+    function zoomToCountry(cc) {
+        if (!fitRows(allMapRows().filter(r => r.country_code === cc))) zoomToContinent()
+    }
+
+    function populateCountryDropdown() {
+        const codes = new Set(allMapRows().map(r => r.country_code).filter(Boolean))
+        const sel = document.getElementById('map-country')
+        const prev = sel.value
+        sel.innerHTML = '<option value="">' +
+            (window.t ? window.t('how_were_doing.filter_all_countries') : 'All Countries') + '</option>'
+        Array.from(codes)
+            .sort((a, b) => countryName(a).localeCompare(countryName(b)))
+            .forEach(cc => {
+                const opt = document.createElement('option')
+                opt.value = cc
+                opt.textContent = countryLabel(cc)
+                sel.appendChild(opt)
+            })
+        if (prev && codes.has(prev)) sel.value = prev
+    }
+
+    function handleCountryChange(cc) {
+        document.getElementById('map-city').value = ''
+        populateCityDropdown()
+        if (cc) zoomToCountry(cc); else zoomToContinent()
+        renderMap()
+    }
+
+    // Select a country from a badge or the hot-spots list.
+    function selectCountry(cc) {
+        const sel = document.getElementById('map-country')
+        if (!Array.from(sel.options).some(o => o.value === cc)) return
+        sel.value = cc
+        handleCountryChange(cc)
     }
 
     // ── Data loading ─────────────────────────────────────────────────────────
@@ -1801,6 +1892,7 @@
             + ' unique cities=' + uniqueCities.size)
         console.log('loadMapData: calling populateCityDropdown + renderMap')
 
+        populateCountryDropdown()
         populateCityDropdown()
         renderMap()
         initCelebrations()          // surface this-week milestones from loaded data
@@ -1814,9 +1906,9 @@
     }
 
     function populateCityDropdown() {
+        const country = document.getElementById('map-country').value
         const cities = new Set()
-        mapData.churches.forEach(c => { if (c.place) cities.add(c.place) })
-        mapData.conversations.forEach(c => { if (c.place) cities.add(c.place) })
+        allMapRows().forEach(r => { if (r.place && inScope(r, country, '')) cities.add(r.place) })
 
         const sel = document.getElementById('map-city')
         const prev = sel.value
@@ -1829,7 +1921,7 @@
                 opt.textContent = placeLabel(place)
                 sel.appendChild(opt)
             })
-        if (prev) sel.value = prev
+        if (prev && cities.has(prev)) sel.value = prev
     }
 
     function cutoffFromDays(days) {
@@ -1845,7 +1937,7 @@
         const showChurches  = document.getElementById('toggle-churches').checked
         const showSpiritual = document.getElementById('toggle-spiritual').checked
         const showDiscovery = document.getElementById('toggle-discovery').checked
-        const showCounts    = document.getElementById('toggle-counts').checked
+        const country = document.getElementById('map-country').value
         const city   = document.getElementById('map-city').value
         const days   = parseInt(document.getElementById('map-date').value)
         const cutoff = cutoffFromDays(days)
@@ -1854,7 +1946,7 @@
         churchLayer.clearLayers()
         if (showChurches) {
             mapData.churches.forEach(c => {
-                if (city   && c.place      !== city)  return
+                if (!inScope(c, country, city))       return
                 if (cutoff && c.updated_at <  cutoff) return
 
                 L.circleMarker([c.latitude, c.longitude], {
@@ -1878,7 +1970,7 @@
 
         const buckets = {}
         mapData.conversations.forEach(ev => {
-            if (city   && ev.place      !== city)  return
+            if (!inScope(ev, country, city))       return
             if (cutoff && ev.created_at <  cutoff) return
             const lat2 = +ev.latitude.toFixed(2)
             const lon2 = +ev.longitude.toFixed(2)
@@ -1932,46 +2024,73 @@
         if (showSpiritual) spiritualLayer.addTo(map); else spiritualLayer.remove()
         if (showDiscovery) discoveryLayer.addTo(map); else discoveryLayer.remove()
 
-        // ── On-map metric badges (per city: total convos + laborers) ──
-        metricLabelLayer.clearLayers()
-        if (showCounts) {
-            const L30 = new Date(Date.now() - 30 * 86400000).toISOString()
-            const cityAgg = {}
-            mapData.conversations.forEach(ev => {
-                if (city   && ev.place !== city)      return
-                if (cutoff && ev.created_at < cutoff) return
-                if (!ev.place || !ev.latitude || !ev.longitude) return
-                const a = cityAgg[ev.place] || (cityAgg[ev.place] = { total: 0, la: 0, lo: 0, n: 0, users: {} })
-                a.total += (ev.count || 1)
-                a.la += +ev.latitude; a.lo += +ev.longitude; a.n++
-                if (ev.user_id && ev.created_at >= L30) a.users[ev.user_id] = (a.users[ev.user_id] || 0) + 1
-            })
-            Object.entries(cityAgg)
-                .map(([c, a]) => ({
-                    city: c, total: a.total, lat: a.la / a.n, lng: a.lo / a.n,
-                    laborers: Object.values(a.users).filter(v => v >= 3).length
-                }))
-                .sort((x, y) => y.total - x.total)
-                .slice(0, 15)
-                .forEach(a => {
-                    const lvl = a.total <= 3 ? 'c1' : a.total <= 10 ? 'c2' : a.total <= 20 ? 'c3' : 'c4'
-                    const lab = a.laborers > 0 ? '<span class="cb-lab" title="Laborers (3+ updates in 30 days)">' + a.laborers + '⚒</span>' : ''
-                    const html = '<span class="cb-num">' + a.total + '</span>' +
-                                 '<span class="cb-city">' + escHtml(placeLabel(a.city)) + '</span>' + lab
-                    const marker = L.marker([a.lat, a.lng], {
-                        icon: L.divIcon({ className: 'count-badge ' + lvl, html: html, iconSize: [0, 0] }),
-                        interactive: true, keyboard: false
-                    })
-                    marker.on('click', () => flyToCity(a.city))
-                    metricLabelLayer.addLayer(marker)
-                })
-            metricLabelLayer.addTo(map)
-        } else {
-            metricLabelLayer.remove()
-        }
-
+        renderBadges()
         renderHotSpots()
         computePulse()
+    }
+
+    // ── On-map metric badges (total convos + laborers) ────────────────────────
+    // Zoomed out: one badge per country. Mid zoom: per region. Close: per city.
+    let lastBadgeTier = null
+    function badgeTier() {
+        const z = map ? map.getZoom() : 10
+        return z <= 4 ? 'country' : z <= 7 ? 'region' : 'city'
+    }
+    function renderBadges() {
+        if (!map) return
+        metricLabelLayer.clearLayers()
+        const tier = lastBadgeTier = badgeTier()
+        if (!document.getElementById('toggle-counts').checked) { metricLabelLayer.remove(); return }
+
+        const country = document.getElementById('map-country').value
+        const city    = document.getElementById('map-city').value
+        const cutoff  = cutoffFromDays(parseInt(document.getElementById('map-date').value))
+        const L30     = new Date(Date.now() - 30 * 86400000).toISOString()
+        const keyOf = ev => tier === 'country' ? ev.country_code
+                          : tier === 'region'  ? (ev.country_code && ev.region ? ev.country_code + '|' + ev.region : null)
+                          : ev.place
+        const labelOf = (key, ev) => tier === 'country' ? countryLabel(key)
+                                   : tier === 'region'  ? ev.region
+                                   : placeLabel(key)
+
+        const agg = {}
+        mapData.conversations.forEach(ev => {
+            if (!inScope(ev, country, city))     return
+            if (cutoff && ev.created_at < cutoff) return
+            const key = keyOf(ev)
+            if (!key || !ev.latitude || !ev.longitude) return
+            const a = agg[key] || (agg[key] = { key, label: labelOf(key, ev), cc: ev.country_code,
+                                                 total: 0, la: 0, lo: 0, n: 0, users: {}, rows: [] })
+            a.total += (ev.count || 1)
+            a.la += +ev.latitude; a.lo += +ev.longitude; a.n++
+            a.rows.push(ev)
+            if (ev.user_id && ev.created_at >= L30) a.users[ev.user_id] = (a.users[ev.user_id] || 0) + 1
+        })
+
+        Object.values(agg)
+            .map(a => Object.assign(a, {
+                lat: a.la / a.n, lng: a.lo / a.n,
+                laborers: Object.values(a.users).filter(v => v >= 3).length
+            }))
+            .sort((x, y) => y.total - x.total)
+            .slice(0, 15)
+            .forEach(a => {
+                const lvl = a.total <= 3 ? 'c1' : a.total <= 10 ? 'c2' : a.total <= 20 ? 'c3' : 'c4'
+                const lab = a.laborers > 0 ? '<span class="cb-lab" title="Laborers (3+ updates in 30 days)">' + a.laborers + '⚒</span>' : ''
+                const html = '<span class="cb-num">' + a.total + '</span>' +
+                             '<span class="cb-city">' + escHtml(a.label) + '</span>' + lab
+                const marker = L.marker([a.lat, a.lng], {
+                    icon: L.divIcon({ className: 'count-badge ' + lvl, html: html, iconSize: [0, 0] }),
+                    interactive: true, keyboard: false
+                })
+                marker.on('click', () => {
+                    if (tier === 'country')     selectCountry(a.key)
+                    else if (tier === 'region') fitRows(a.rows)
+                    else                        flyToCity(a.key)
+                })
+                metricLabelLayer.addLayer(marker)
+            })
+        metricLabelLayer.addTo(map)
     }
 
     // ── Pulse band (in-view stewardship) ───────────────────────────────────────
@@ -2058,9 +2177,21 @@
 
         const THRESH = [1000, 500, 250, 100, 50]
         const items = []
+
+        const firstInCountry = {}
+        mapData.conversations.forEach(ev => {
+            const cc = ev.country_code
+            if (cc && (!firstInCountry[cc] || ev.created_at < firstInCountry[cc])) firstInCountry[cc] = ev.created_at
+        })
+        const newCountries = new Set(Object.keys(firstInCountry).filter(cc => firstInCountry[cc] >= weekAgo))
+        newCountries.forEach(cc => {
+            items.push({ icon: '🌍', text: 'New country on the map — ' + countryLabel(cc), w: 4 })
+        })
+
         Object.keys(byCity).forEach(place => {
             const c = byCity[place]
             const city = placeLabel(place)
+            if (newCountries.has(place.split('|')[0])) return   // already celebrated as a new country
             if (c.first && c.first >= weekAgo) {
                 items.push({ icon: '📍', text: 'New city on the map — ' + city, w: 3 }); return
             }
@@ -2119,12 +2250,24 @@
     }
 
     // ── Hot spots leaderboard ──────────────────────────────────────────────────
-    // Ranks cities by spiritual + discovery volume in the selected period.
-    // Ignores the city dropdown on purpose (the leaderboard is a macro view);
-    // tapping a row focuses the map on that city.
+    // Ranks cities (or countries) by spiritual + discovery volume in the selected
+    // period. Ignores the city dropdown on purpose (the leaderboard is a macro
+    // view); tapping a row focuses the map on that city or country.
+    let hotspotScope = 'cities'
+    function setHotspotScope(scope) {
+        hotspotScope = scope
+        document.getElementById('hs-scope-cities').classList.toggle('active', scope === 'cities')
+        document.getElementById('hs-scope-countries').classList.toggle('active', scope === 'countries')
+        renderHotSpots()
+    }
+
     function renderHotSpots() {
         const listEl = document.getElementById('hotspots-list')
         if (!listEl) return
+        // Countries: macro view across the world. Cities: within the selected country, if any.
+        const byCountry = hotspotScope === 'countries'
+        const country   = byCountry ? '' : document.getElementById('map-country').value
+        const keyOf     = ev => byCountry ? ev.country_code : ev.place
 
         const days    = parseInt(document.getElementById('map-date').value)
         const cutoff  = cutoffFromDays(days)
@@ -2132,15 +2275,16 @@
 
         const cities = {}
         mapData.conversations.forEach(ev => {
-            if (!ev.place) return
+            const key = keyOf(ev)
+            if (!key || !inScope(ev, country, '')) return
             const inCurrent = !cutoff || ev.created_at >= cutoff
             const inPrior   = prevCut && ev.created_at >= prevCut && ev.created_at < cutoff
             if (!inCurrent && !inPrior) return
 
-            if (!cities[ev.place]) {
-                cities[ev.place] = { city: ev.place, sp: 0, disc: 0, total: 0, prior: 0, lat: null, lng: null }
+            if (!cities[key]) {
+                cities[key] = { city: key, sp: 0, disc: 0, total: 0, prior: 0, lat: null, lng: null }
             }
-            const c = cities[ev.place]
+            const c = cities[key]
             const n = ev.count || 1
             if (c.lat === null && ev.latitude && ev.longitude) { c.lat = +ev.latitude; c.lng = +ev.longitude }
             if (inCurrent) {
@@ -2174,9 +2318,9 @@
                 }
             }
             return '<div class="hotspot-row' + (i < 2 ? ' top' : '') + '"' +
-                   ' onclick="flyToCity(\'' + escAttr(c.city) + '\')">' +
+                   ' onclick="' + (byCountry ? 'selectCountry' : 'flyToCity') + '(\'' + escAttr(c.city) + '\')">' +
                 '<div class="hotspot-rank">' + (i + 1) + '</div>' +
-                '<div class="hotspot-name">' + escHtml(placeLabel(c.city)) +
+                '<div class="hotspot-name">' + escHtml(byCountry ? countryLabel(c.city) : placeLabel(c.city)) +
                     '<em>' + c.sp + ' sp · ' + c.disc + ' disc</em></div>' +
                 '<div class="hotspot-val"><b>' + c.total + '</b>' +
                     (trend ? '<em class="' + tcls + '">' + trend + '</em>' : '') + '</div>' +
@@ -2187,6 +2331,12 @@
 
     // Focus the map on a city from the hot-spots list: set the filter, zoom, re-render.
     function flyToCity(city) {
+        const row = allMapRows().find(r => r.place === city)
+        const countrySel = document.getElementById('map-country')
+        if (row && countrySel.value && countrySel.value !== row.country_code) {
+            countrySel.value = row.country_code || ''
+            populateCityDropdown()
+        }
         const sel = document.getElementById('map-city')
         if (sel) {
             const exists = Array.from(sel.options).some(o => o.value === city)
