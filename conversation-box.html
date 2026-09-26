@@ -116,9 +116,9 @@
         .share-popup .app-icon { width: 48px; height: 48px; border-radius: 12px; cursor: pointer; transition: transform 0.2s ease; position: relative; overflow: hidden; background-color: #f0f0f0; }
         .share-popup .app-icon:active { transform: scale(0.95); }
         .share-popup .app-icon::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; background-repeat: no-repeat; }
-        .share-popup .app-icon.messages::before { background-image: url('https://obey.tools/wp-content/uploads/2025/09/Messages.webp'); }
-        .share-popup .app-icon.whatsapp::before { background-image: url('https://obey.tools/wp-content/uploads/2025/09/Whatsapp.webp'); }
-        .share-popup .app-icon.signal::before { background-image: url('https://obey.tools/wp-content/uploads/2025/09/Signal.webp'); }
+        .share-popup .app-icon.messages::before { background-image: url('/assets/images/icons/Messages.webp'); }
+        .share-popup .app-icon.whatsapp::before { background-image: url('/assets/images/icons/Whatsapp.webp'); }
+        .share-popup .app-icon.signal::before { background-image: url('/assets/images/icons/Signal.webp'); }
         .share-popup .app-label { font-size: 14px; margin-top: 8px; color: #3a3a3c; }
         .share-popup .close-btn { padding: 10px; border: none; border-radius: 8px; background: #8e8e93; color: white; font-weight: 600; cursor: pointer; margin-top: 12px; }
         .share-popup .close-btn:active { background: #6b6b70; }
@@ -558,9 +558,6 @@
     </div>
     <script src="/geo.js"></script>
     <script>
-        const WORDPRESS_GREEN_LIGHT_API = 'https://obey.tools/wp-json/church/v1/green-light';
-        const WORDPRESS_API_URL = 'https://obey.tools/wp-json/church/v1/conversations';
-        
         let conversations = {};
         let currentName = null, currentFromBox = null, currentToBox = null;
         let editingName = null, editingBox = null, pendingNewName = null;
@@ -847,128 +844,19 @@ function saveConversations() {
         }
 
         // GREEN LIGHT TRACKING
-        async function submitGreenLightEvent(personName) {
+        // Recorded on the device and synced to Supabase (submitted_green_lights).
+        // No location and no third-party copy — a named list of who trusts whom
+        // must never leave the user's own account.
+        function submitGreenLightEvent(personName) {
             const userName = localStorage.getItem('user-name') || 'Anonymous';
             const eventKey = `${userName}-${personName}`;
-            
-            if (submittedGreenLights.includes(eventKey)) {
-                return;
-            }
-            
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    async (position) => {
-                        const place = await window.obeyGeo.reverseGeocode(
-                            position.coords.latitude,
-                            position.coords.longitude
-                        );
-                        const c = window.obeyGeo.coarsen(
-                            position.coords.latitude,
-                            position.coords.longitude,
-                            place?.country_code
-                        );
-                        
-                        await sendGreenLightToAPI(
-                            userName, 
-                            personName, 
-                            place?.location_text || '',
-                            c.lat,
-                            c.lon
-                        );
-                        
-                        submittedGreenLights.push(eventKey);
-                        localStorage.setItem('submittedGreenLights', JSON.stringify(submittedGreenLights));
-                    },
-                    async (error) => {
-                        console.error('GPS error:', error);
-                        try {
-                            const response = await fetch('https://ipapi.co/json/');
-                            const data = await response.json();
-                            const location = [data.city, data.region].filter(Boolean).join(', ') || 'Unknown';
-                            
-                            await sendGreenLightToAPI(userName, personName, location, null, null);
-                            submittedGreenLights.push(eventKey);
-                            localStorage.setItem('submittedGreenLights', JSON.stringify(submittedGreenLights));
-                        } catch (e) {
-                            await sendGreenLightToAPI(userName, personName, 'Unknown', null, null);
-                            submittedGreenLights.push(eventKey);
-                            localStorage.setItem('submittedGreenLights', JSON.stringify(submittedGreenLights));
-                        }
-                    },
-                    { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
-                );
-            } else {
-                await sendGreenLightToAPI(userName, personName, 'Unknown', null, null);
-                submittedGreenLights.push(eventKey);
-                localStorage.setItem('submittedGreenLights', JSON.stringify(submittedGreenLights));
-            }
-        }
-
-        async function sendGreenLightToAPI(userName, personName, location, latitude, longitude) {
-            const payload = {
-                user_name: userName,
-                person_name: personName,
-                location: location,
-                timestamp: new Date().toISOString()
-            };
-            
-            if (latitude !== null && longitude !== null) {
-                payload.latitude = latitude;
-                payload.longitude = longitude;
-            }
-
-            try {
-                const response = await fetch(WORDPRESS_GREEN_LIGHT_API, {
-                    method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify(payload)
-                });
-                
-                const result = await response.json();
-                
-                if (!result.success) {
-                    console.error('API error:', result);
-                }
-            } catch (error) {
-                console.error('Network error:', error);
-            }
+            if (submittedGreenLights.includes(eventKey)) return;
+            submittedGreenLights.push(eventKey);
+            localStorage.setItem('submittedGreenLights', JSON.stringify(submittedGreenLights));
+            saveToSupabase();
         }
 
         // CONVERSATION EVENT TRACKING
-
-        async function sendEventToAPI(userName, personName, eventType, location, latitude, longitude) {
-            const payload = {
-                user_name: userName,
-                person_name: personName,
-                event_type: eventType,
-                location: location,
-                timestamp: new Date().toISOString()
-            };
-
-            if (latitude !== null && longitude !== null) {
-                payload.latitude = latitude;
-                payload.longitude = longitude;
-            }
-
-            try {
-                const response = await fetch(WORDPRESS_API_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify(payload)
-                });
-
-                const result = await response.json();
-
-            } catch (error) {
-                // WordPress event API unreachable — non-critical
-            }
-        }
 
         // "You're the first on the map in Kenya!" — checked once per place per
         // device, only after this device's own event was saved.
@@ -995,7 +883,6 @@ function saveConversations() {
         }
 
         async function submitEvent(personName, eventType) {
-            const userName = localStorage.getItem('user-name') || 'Anonymous';
             const eventKey = `${personName}-${eventType}`;
 
             if (submittedEvents[eventType].has(eventKey)) {
@@ -1054,20 +941,17 @@ function saveConversations() {
                         const place = await window.obeyGeo.reverseGeocode(lat, lon);
                         // Never store or share the exact point — see geo.js coarsen().
                         const c = window.obeyGeo.coarsen(lat, lon, place?.country_code);
-                        await sendEventToAPI(userName, personName, eventType, place?.location_text || '', c.lat, c.lon);
                         await writeConversationEvent(c.lat, c.lon, place);
                     },
                     async (gpsErr) => {
                         console.warn('[submitEvent:gpsError]', gpsErr.message);
                         // IP location is city-level at best: keep the place, not the coordinates.
                         const place = await window.obeyGeo.placeFromIP();
-                        await sendEventToAPI(userName, personName, eventType, place?.place_label || 'Unknown', null, null);
                         await writeConversationEvent(null, null, place);
                     },
                     { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
                 );
             } else {
-                await sendEventToAPI(userName, personName, eventType, 'Unknown', null, null);
                 await writeConversationEvent(null, null, null);
             }
         }
@@ -1085,7 +969,7 @@ function saveConversations() {
         function preloadImages() { 
             ['Messages','Whatsapp','Signal'].forEach(n => { 
                 const img = new Image(); 
-                img.src = `https://obey.tools/wp-content/uploads/2025/09/${n}.webp`; 
+                img.src = `/assets/images/icons/${n}.webp`; 
             }); 
         }
 
