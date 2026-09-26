@@ -205,8 +205,24 @@ export async function resendConfirmation(email) {
     else       showAuthMessage(t('auth.confirm_email_sent', { email }), { type: 'success' })
 }
 
+// Everything on this device that names other people or ministry activity.
+// Signing out wipes it so a lost or seized phone shows nothing; signing back
+// in reloads it from Supabase. Kept: the user's own display name (not synced,
+// names no one else) and story progress (no names).
+const PRIVATE_DEVICE_KEYS = [
+    'conversations', 'submittedEvents', 'submittedGreenLights', 'firstOnMapChecked',
+    'churchAssessmentState', 'isChurch', 'churchGeneration', 'baptismCount'
+]
+
+export function clearDeviceData() {
+    PRIVATE_DEVICE_KEYS.forEach(k => { try { localStorage.removeItem(k) } catch {} })
+}
+
 export async function authLogOut() {
-    const { error } = await supabase.auth.signOut()
+    // Wipe first: pages reload from device storage the moment sign-out fires.
+    clearDeviceData()
+    // 'local' signs this device out without a network call, so it works offline.
+    const { error } = await supabase.auth.signOut({ scope: 'local' })
     if (error) showNotification(error.message)
 }
 
