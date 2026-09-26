@@ -227,6 +227,8 @@
         .ob-quad-discovery .ob-chip-row { background: #d4f5d4; }
         .ob-quad-discovery .ob-chip-name { color: #1e6b1e; }
         .ob-cw-hint { font-size: 10px; color: #8e8e93; text-align: center; margin-bottom: 5px; }
+        .ob-quad-safe .ob-chip-row { background: #e8f0fe; }
+        .ob-quad-safe .ob-chip-name { color: #1a4fa0; font-weight: 700; }
         /* Step 2 animation — chips hidden until animated in */
         .ob-anim-chip { opacity: 0; background: var(--ot-accent); }
         .ob-anim-chip .ob-chip-name { color: #fff; }
@@ -545,10 +547,35 @@
                 <h3 data-i18n="conversation_box.ob_step3_title">Keep track of what matters</h3>
                 <p data-i18n="conversation_box.ob_step3_body">Use this to remember people, pray intentionally, and help move toward Discovery Bible Study.</p>
             </div>
+            <!-- Shown only where following Jesus is dangerous (see SAFETY_MODE) -->
+            <div class="onboarding-step" id="ob-step-4">
+                <div class="ob-cw-hint" data-i18n="conversation_box.ob_step4_hint">🔒 initials keep people safe</div>
+                <div class="ob-quad ob-quad-safe">
+                    <div class="ob-quad-box">
+                        <div class="ob-quad-label" data-i18n="conversation_box.box_casual">Casual</div>
+                        <div class="ob-chip-row"><span class="ob-chip-name">J. K.</span></div>
+                    </div>
+                    <div class="ob-quad-box">
+                        <div class="ob-quad-label" data-i18n="conversation_box.box_meaningful">Meaningful</div>
+                        <div class="ob-chip-row"><span class="ob-chip-name">L.</span></div>
+                    </div>
+                    <div class="ob-quad-box">
+                        <div class="ob-quad-label" data-i18n="conversation_box.box_discovery">Discovery</div>
+                        <div class="ob-chip-row"><span class="ob-chip-name">M.</span></div>
+                    </div>
+                    <div class="ob-quad-box">
+                        <div class="ob-quad-label" data-i18n="conversation_box.box_spiritual">Spiritual</div>
+                        <div class="ob-chip-row"><span class="ob-chip-name">D. R.</span></div>
+                    </div>
+                </div>
+                <h3 data-i18n="conversation_box.ob_step4_title">Protect the people you list</h3>
+                <p data-i18n="conversation_box.ob_step4_body">Use initials or a nickname, never full names. If your phone might be checked, Log Out first. Everything comes back when you sign in.</p>
+            </div>
             <div class="onboarding-dots">
                 <div class="onboarding-dot active" id="ob-dot-1"></div>
                 <div class="onboarding-dot" id="ob-dot-2"></div>
                 <div class="onboarding-dot" id="ob-dot-3"></div>
+                <div class="onboarding-dot" id="ob-dot-4"></div>
             </div>
             <div class="onboarding-actions">
                 <button class="onboarding-skip" onclick="closeOnboarding()" data-i18n="conversation_box.ob_skip">Skip</button>
@@ -807,7 +834,10 @@ function saveConversations() {
             appInitialized = true;
             if (!localStorage.getItem('onboarding-seen')) {
                 showOnboarding();
+            } else if (SAFETY_MODE && !localStorage.getItem('onboarding-safety-seen')) {
+                showOnboarding(4);
             }
+            if (SAFETY_MODE) putSignalFirst();
         }
 
         // Wait for WordPress progress system to load
@@ -1401,18 +1431,26 @@ function saveConversations() {
         }
 
         // ── Onboarding ────────────────────────────────────────────────────────
+        // High-risk country (guessed offline from the time zone, see geo.js):
+        // onboarding gains a 4th "protect the people you list" step, and people
+        // who finished onboarding before it existed see that step once.
+        const SAFETY_MODE = !!(window.obeyGeo && window.obeyGeo.inRestrictedTimeZone());
+        const OB_TOTAL = 4;
+        const OB_STEPS = SAFETY_MODE ? 4 : 3;
         let _obStep = 1;
-        const OB_STEPS = 3;
+        let _obFirst = 1;
 
-        function showOnboarding() {
-            _obStep = 1;
-            _setObStep(1);
+        function showOnboarding(startStep) {
+            _obFirst = startStep || 1;
+            _obStep = _obFirst;
+            _setObStep(_obStep);
             document.getElementById('onboarding-overlay').classList.add('visible');
         }
 
         function closeOnboarding() {
             document.getElementById('onboarding-overlay').classList.remove('visible');
             localStorage.setItem('onboarding-seen', '1');
+            if (SAFETY_MODE) localStorage.setItem('onboarding-safety-seen', '1');
         }
 
         // Location permission now rides on a real discipleship milestone — a
@@ -1438,11 +1476,16 @@ function saveConversations() {
         }
 
         function _setObStep(n) {
-            for (let i = 1; i <= OB_STEPS; i++) {
+            for (let i = 1; i <= OB_TOTAL; i++) {
                 document.getElementById(`ob-step-${i}`).classList.toggle('active', i === n);
-                document.getElementById(`ob-dot-${i}`).classList.toggle('active', i === n);
+                const dot = document.getElementById(`ob-dot-${i}`);
+                dot.classList.toggle('active', i === n);
+                dot.style.display = (i >= _obFirst && i <= OB_STEPS) ? '' : 'none';
             }
-            document.getElementById('ob-next-btn').textContent = n < OB_STEPS ? window.t('conversation_box.ob_next') : window.t('conversation_box.ob_start_tracking');
+            // Keep data-i18n in sync so a late translation pass doesn't reset the label.
+            const nextBtn = document.getElementById('ob-next-btn');
+            nextBtn.dataset.i18n = n < OB_STEPS ? 'conversation_box.ob_next' : 'conversation_box.ob_start_tracking';
+            nextBtn.textContent = window.t(nextBtn.dataset.i18n);
             if (n === 2) {
                 document.querySelectorAll('.ob-fc-1,.ob-fc-2,.ob-fc-3,.ob-fc-4,.ob-fb-1,.ob-fb-2,.ob-fb-3,.ob-fb-4').forEach(el => {
                     el.style.animation = 'none'; void el.offsetWidth; el.style.animation = '';
@@ -1467,6 +1510,13 @@ function saveConversations() {
         function closeSharePopup() { 
             document.getElementById('share-popup').style.display = 'none'; 
         }
+
+        // Signal is end-to-end encrypted and keeps little metadata: lead with it.
+        function putSignalFirst() {
+            const icons = document.querySelector('#share-popup .app-icons');
+            const signal = icons && icons.querySelector('.app-icon.signal');
+            if (signal) icons.prepend(signal.parentElement);
+        }
         
         function guideShare(app) { 
             closeSharePopup(); 
@@ -1488,6 +1538,12 @@ function saveConversations() {
                     clone.classList.remove('collapsed');
                     clone.style.order = index + 1; 
                     clone.querySelectorAll('.conversation-actions').forEach(a => a.style.display = 'none'); 
+                    // Shared images travel far: initials only where names could endanger people.
+                    if (SAFETY_MODE) clone.querySelectorAll('.conversation-name').forEach(el => {
+                        el.childNodes.forEach(n => {
+                            if (n.nodeType === 3 && n.textContent.trim()) n.textContent = window.obeyGeo.initials(n.textContent);
+                        });
+                    });
                     clone.querySelector('.conversation-list').style.minHeight = '250px'; 
                     tempElement.appendChild(clone); 
                 }
