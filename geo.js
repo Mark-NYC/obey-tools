@@ -112,7 +112,21 @@
         }
     }
 
-    const api = { reverseGeocode, placeFromIP, placeFromAddress, coarsen, isRestricted }
+    // '🇰🇪 Kenya' — name in the viewer's language via Intl, flag from the code.
+    const namers = {}
+    function countryLabel(cc, lang) {
+        if (!/^[A-Z]{2}$/.test(cc || '')) return cc || ''
+        const flag = String.fromCodePoint(...[...cc].map(ch => 0x1F1A5 + ch.charCodeAt(0)))
+        let name = cc
+        try {
+            lang = lang || 'en'
+            namers[lang] = namers[lang] || new Intl.DisplayNames([lang, 'en'], { type: 'region' })
+            name = namers[lang].of(cc) || cc
+        } catch {}
+        return flag + ' ' + name
+    }
+
+    const api = { reverseGeocode, placeFromIP, placeFromAddress, coarsen, isRestricted, countryLabel }
     if (typeof module !== 'undefined' && module.exports) module.exports = api
     else root.obeyGeo = api
 })(typeof self !== 'undefined' ? self : this)
