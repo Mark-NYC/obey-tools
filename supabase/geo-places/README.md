@@ -44,6 +44,10 @@ Keep the country list identical in `geo.js` and `02_privacy.sql`; review yearly.
    node scripts/backfill-places.mjs --apply  # write
    ```
 
+   **No terminal?** Paste [`04_backfill_in_database.sql`](./04_backfill_in_database.sql)
+   into the SQL editor instead, then run `select * from public.geo_backfill_batch(40);`
+   repeatedly until `remaining_pairs` is 0. Same result, done by Supabase itself.
+
    1 lookup/second (Nominatim policy), cached by ~100 m. Re-runnable: only
    touches rows where `place_key` is null. It also rewrites `city` and
    `location_text` to the English names so old and new rows match. Each row
@@ -59,6 +63,12 @@ The pages tolerate any order: if the columns don't exist yet, the map reads
 without them and the conversation box retries the insert without them. But
 until step 3 runs, old rows group under bare city names and new rows under
 `place_key`, so a city can show twice.
+
+## Signed-in reads only
+
+Run [`05_signed_in_reads_only.sql`](./05_signed_in_reads_only.sql): the read
+policy on `conversation_events` applied to `anon` too, so the public anon key
+could read every event without an account.
 
 ## Verify
 
