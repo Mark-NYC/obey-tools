@@ -15,7 +15,7 @@
 <link rel="preload" href="/assets/fonts/bebas-neue-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/fonts.css">
 <style>
-*{box-sizing:border-box}body{margin:0;background:#f8f8f8;color:#191919;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.65}a{color:inherit}a:focus-visible{outline:3px solid #276453;outline-offset:5px}.wrap{width:min(100% - 40px,800px);margin:auto}header{padding:25px 0;border-bottom:1px solid #dededb}header .wrap{display:flex;align-items:center;justify-content:space-between;gap:20px}.brand{font-family:"Bebas Neue",sans-serif;font-size:29px;letter-spacing:1px;text-decoration:none}.label{font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase}.invitation{padding:60px 0 45px;max-width:700px}.eyebrow{color:#386253;margin:0 0 18px;font-weight:700;font-size:13px}h1,h2{font-family:"Bebas Neue",sans-serif;font-weight:400;line-height:1.05;letter-spacing:.5px}h1{font-size:clamp(46px,7vw,76px);margin:0 0 22px}h2{font-size:36px;margin:0 0 12px}p{margin:0 0 16px}.intro{font-size:19px;color:#454545;max-width:600px}.schedule{font-weight:700;color:#386253;margin:25px 0}.next-step{background:#e5ece7;padding:28px;border-radius:4px}.reply{font-size:22px;font-weight:700}.next-step p:last-child{margin-bottom:0}footer{padding:20px 0 30px;color:#656565;font-size:13px}footer .wrap{display:flex;justify-content:space-between;gap:20px}@media(max-width:600px){.invitation{padding:35px 0}.intro{font-size:17px}.next-step{padding:22px}header .label{letter-spacing:1px;font-size:11px}footer .wrap{flex-direction:column;gap:6px}}
+*{box-sizing:border-box}body{margin:0;background:#f8f8f8;color:#191919;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.65}a{color:inherit}a:focus-visible{outline:3px solid #276453;outline-offset:5px}.wrap{width:min(100% - 40px,800px);margin:auto}header{padding:25px 0;border-bottom:1px solid #dededb}header .wrap{display:flex;align-items:center;justify-content:space-between;gap:20px}.brand{font-family:"Bebas Neue",sans-serif;font-size:29px;letter-spacing:1px;text-decoration:none}.label{font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase}.invitation{padding:60px 0 45px;max-width:700px}h1,h2{font-family:"Bebas Neue",sans-serif;font-weight:400;line-height:1.05;letter-spacing:.5px}h1{font-size:clamp(46px,7vw,76px);margin:0 0 22px}h2{font-size:36px;margin:0 0 12px}p{margin:0 0 16px}.intro{font-size:19px;color:#454545;max-width:600px}.schedule{font-weight:700;color:#386253;margin:25px 0}.next-step{background:#e5ece7;padding:28px;border-radius:4px}.reply{font-size:22px;font-weight:700}.next-step p:last-child{margin-bottom:0}footer{padding:20px 0 30px;color:#656565;font-size:13px}footer .wrap{display:flex;justify-content:space-between;gap:20px}@media(max-width:600px){.invitation{padding:35px 0}.intro{font-size:17px}.next-step{padding:22px}header .label{letter-spacing:1px;font-size:11px}footer .wrap{flex-direction:column;gap:6px}}
 .reading{margin-top:28px;padding:28px;border:1px solid #dcdeda;border-radius:4px;background:#fff}.reading h2{margin:8px 0 12px}.reading .date{color:#526055;font-size:14px}.read-link{display:inline-block;background:#191919;color:#fff;padding:12px 20px;border-radius:3px;text-decoration:none;font-weight:700;margin-bottom:18px}.sos p{margin-bottom:8px}.reading details{margin-top:22px}.reading summary{cursor:pointer;font-weight:700}.reading ol{padding-left:25px}.reading li{padding:4px 0}.text-note{font-size:13px;color:#526055}.text-note[hidden]{display:none}summary:focus-visible{outline:3px solid #276453;outline-offset:5px}@media(max-width:600px){.reading{padding:22px}}
 .call-info{margin-top:24px;border-top:1px solid #dcdeda;border-bottom:1px solid #dcdeda}.call-info summary{padding:18px 0;cursor:pointer;font-weight:700}.call-body{padding:0 0 12px}.call-body p:last-child{margin-bottom:0}.invitation{padding-top:35px}.reading{margin-top:22px}.reading h2{font-size:48px}@media(max-width:600px){.invitation{padding-top:28px}.reading h2{font-size:42px}}
 </style>
@@ -24,11 +24,10 @@
 <header><div class="wrap"><a class="brand" href="/">OBEY.TOOLS</a><span class="label">Hope for NYC</span></div></header>
 <main class="wrap">
 <section class="invitation" aria-labelledby="title">
-<p class="eyebrow">HOPE FOR NYC · DAILY BIBLE READING</p>
 <h1 id="title">Say. Obey. Share.</h1>
 <p class="intro">Walk through Mark together, one short passage a day. Read, respond, and share your SOS in our Messenger chat.</p>
 <section class="reading" aria-labelledby="reading-title">
-<p class="eyebrow" id="reading-status">Daily SOS · Starts Thursday, October 15</p>
+<p class="date" id="reading-status">Starts Thursday, October 15</p>
 <h2 id="reading-title">Mark 1:1–8</h2>
 <p class="date" id="reading-date">Day 1 of 60 · New York time</p>
 <a class="read-link" id="reading-link" href="https://www.biblegateway.com/passage/?search=Mark%201%3A1%E2%80%938&amp;version=NIV" target="_blank" rel="noopener noreferrer">Read the passage</a>
@@ -66,7 +65,8 @@ function updateReading() {
   const now = new Date();
   const {offset,index} = markDay(now);
   const passage = 'Mark '+markReadings[index];
-  document.getElementById('reading-status').textContent = offset < 0 ? 'Daily SOS · Starts Thursday, October 15' : 'Today’s SOS';
+  document.getElementById('reading-status').textContent = offset < 0 ? 'Starts Thursday, October 15' : '';
+  document.getElementById('reading-status').hidden = offset >= 0;
   document.getElementById('reading-title').textContent = passage;
   document.getElementById('reading-date').textContent = (offset < 0 ? 'First reading' : new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',weekday:'long',month:'long',day:'numeric'}).format(now))+' · Day '+(index+1)+' of '+markReadings.length;
   document.getElementById('reading-link').href = 'https://www.biblegateway.com/passage/?search='+encodeURIComponent(passage)+'&version=NIV';
