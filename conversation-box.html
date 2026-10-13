@@ -901,13 +901,16 @@ function saveConversations() {
                 { col: 'place_key', val: place.place_key,
                   msg: () => window.t('conversation_box.first_in_city', { place: place.place_label }) }
             ].filter(c => c.val && !seen.includes(c.col + ':' + c.val));
+            if (!checks.length) return;
+            // Counts across everyone's events come from place_counts(): raw rows
+            // from other people aren't readable.
+            const { data, error } = await window.supabase.rpc('place_counts', {
+                cc: place.country_code, key: place.place_key || null });
+            const counts = !error && data && data[0];
             for (const c of checks) {
                 seen.push(c.col + ':' + c.val);
-                const { count, error } = await window.supabase
-                    .from('conversation_events')
-                    .select('id', { count: 'exact', head: true })
-                    .eq(c.col, c.val);
-                if (!error && count === 1) { showNotification(c.msg()); break; }
+                const n = counts ? +(c.col === 'country_code' ? counts.country_events : counts.place_events) : 0;
+                if (n === 1) { showNotification(c.msg()); break; }
             }
             try { localStorage.setItem('firstOnMapChecked', JSON.stringify(seen)); } catch {}
         }
@@ -974,10 +977,10 @@ function saveConversations() {
                         await writeConversationEvent(c.lat, c.lon, place);
                     },
                     async (gpsErr) => {
+                        // Declined or unavailable: record the conversation without a
+                        // place. No IP lookup; declining location is a choice.
                         console.warn('[submitEvent:gpsError]', gpsErr.message);
-                        // IP location is city-level at best: keep the place, not the coordinates.
-                        const place = await window.obeyGeo.placeFromIP();
-                        await writeConversationEvent(null, null, place);
+                        await writeConversationEvent(null, null, null);
                     },
                     { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
                 );

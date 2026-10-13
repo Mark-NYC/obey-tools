@@ -808,7 +808,8 @@
     "popup_spiritual": "Spiritual",
     "popup_discovery": "Discovery",
     "popup_convos_type": "<br>{type} conversations: {n}",
-    "unknown_location": "an unknown location"
+    "unknown_location": "an unknown location",
+    "public_link": "See worldwide totals →"
   },
   "mawl": {
     "title": "MAWL Checklist",
@@ -1163,5 +1164,24 @@
     "join_not_found": "No active session for that code. Check the code with your facilitator.",
     "join_checking": "Checking…",
     "test_banner": "Test page — live group facilitation"
+  },
+  "progress_page": {
+    "title": "Progress around the world",
+    "subtitle": "Conversations people are tracking with OBEY.TOOLS, as they happen.",
+    "conversations": "Conversations",
+    "last30": "{n} in the last 30 days",
+    "discovery": "Discovery",
+    "cities": "Cities",
+    "countries": "Countries",
+    "by_country": "By country",
+    "recent": "+{n} this month",
+    "cities_n": "{n} cities",
+    "more_countries": "+ {n} more countries",
+    "more_note": "Some countries are counted but not named, to keep people there safe.",
+    "cta_start": "Start tracking your conversations",
+    "share": "Share this page",
+    "cta_map": "Signed in? See the live map →",
+    "share_text": "Progress around the world",
+    "load_error": "Could not load progress right now."
   }
 }

@@ -1073,6 +1073,7 @@
             <button data-i18n="auth.log_in" onclick="authLogIn('denied-email','denied-password')" style="display:block;width:100%;padding:12px;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;background:#3a3a3c;color:#fff;">Log In</button>
             <button type="button" class="auth-forgot-btn" data-i18n="auth.forgot_password" onclick="authForgotPassword('denied-email')" style="display:block;width:100%;margin-top:6px;padding:6px;background:none;border:none;color:#8e8e93;font-size:13px;cursor:pointer;text-align:center;font-family:inherit;">Forgot password?</button>
         </div>
+        <a href="/progress" style="display:block;margin-bottom:14px;color:#c57f23;font-weight:600;font-size:14px;text-decoration:none;" data-i18n="how_were_doing.public_link">See worldwide totals →</a>
         <a href="/" class="access-denied-btn">Go to Home</a>
     </div>
 
@@ -1327,7 +1328,9 @@
     let spiritualLayer  = null
     let discoveryLayer  = null
     let metricLabelLayer = null
-    let mapData = { churches: [], conversations: [] }
+    let mapData = { churches: [], conversations: [], laborers: [] }
+    let markMapDataReady
+    const mapDataReady = new Promise(resolve => { markMapDataReady = resolve })
     let userLatLng = null   // resolved on load; used for the "All Cities" continent view
 
     // Persist across page loads via localStorage
@@ -1441,23 +1444,13 @@
         })
     }
 
-    async function getIpLocation() {
-        const res = await fetch('https://ipapi.co/json/')
-        if (!res.ok) throw new Error('IP lookup failed')
-        const data = await res.json()
-        if (!data.latitude || !data.longitude) throw new Error('no coordinates in IP response')
-        return { lat: data.latitude, lng: data.longitude }
-    }
-
+    // GPS or nothing. No IP lookup: someone who declines location has chosen not
+    // to be located, and an IP service would learn who is viewing this map.
     async function getBestUserLocation() {
         try {
             return await getBrowserLocation()
         } catch (_) {
-            try {
-                return await getIpLocation()
-            } catch (_) {
-                return null
-            }
+            return null
         }
     }
 
@@ -1745,7 +1738,15 @@
             return
         }
 
-        const loc = await getBestUserLocation() || NYC
+        const loc = await getBestUserLocation()
+        if (!loc) {
+            // No GPS: show where the work is instead of guessing where the viewer is.
+            if (!urlSelection.country && !urlSelection.city) {
+                await mapDataReady
+                if (!fitRows(allMapRows())) map.setView([20, 0], 2)
+            }
+            return
+        }
         console.log('centerOnUserLocation: resolved to', loc.lat, loc.lng)
         userLatLng = loc   // remember for the "All Cities" continent view
 
@@ -1950,25 +1951,27 @@
             return
         }
 
+        // Conversations and laborers come as totals from database functions
+        // (supabase/geo-places/06_private_reads.sql): no user_id reaches the page.
         const [
             { data: churches, error: churchError },
-            { data: convos,   error: convoError }
+            { data: convos,   error: convoError },
+            { data: laborers, error: laborError }
         ] = await Promise.all([
             selectWithPlaces(cols => window.supabase
                 .from('church_assessments')
                 .select(cols)
                 .eq('is_church', true),
                 'latitude, longitude, location_text, city, leader_name, baptism_count, church_generation, updated_at'),
-            selectWithPlaces(cols => window.supabase
-                .from('conversation_events')
-                .select(cols),
-                'latitude, longitude, location_text, city, event_type, count, created_at, user_id')
+            window.supabase.rpc('map_events'),
+            window.supabase.rpc('map_laborers')
         ])
 
-        if (churchError || convoError) {
+        if (churchError || convoError || laborError) {
             console.error('church_assessments error:', churchError)
-            console.error('conversation_events error:', convoError)
-            const msg = churchError?.message || convoError?.message || 'Error loading map data'
+            console.error('map_events error:', convoError)
+            console.error('map_laborers error:', laborError)
+            const msg = churchError?.message || convoError?.message || laborError?.message || 'Error loading map data'
             document.getElementById('map-last-updated').textContent = 'Error loading data: ' + msg
             notify('Error loading data')
             return
@@ -1978,6 +1981,7 @@
 
         mapData.churches      = (churches || []).filter(c => c.latitude && c.longitude).map(withPlace)
         mapData.conversations = (convos   || []).filter(c => c.latitude && c.longitude).map(withPlace)
+        mapData.laborers      = (laborers || []).map(withPlace)
 
         const uniqueCities = new Set([
             ...mapData.churches.map(c => c.place).filter(Boolean),
@@ -1992,6 +1996,7 @@
         populateCityDropdown()
         applyUrlSelection()
         renderMap()
+        markMapDataReady()
         initCelebrations()          // surface this-week milestones from loaded data
         initRecentUpdatesTicker()   // no-op after first call; seeds from loaded data
 
@@ -2143,7 +2148,6 @@
         const country = document.getElementById('map-country').value
         const city    = document.getElementById('map-city').value
         const cutoff  = cutoffFromDays(parseInt(document.getElementById('map-date').value))
-        const L30     = new Date(Date.now() - 30 * 86400000).toISOString()
         const keyOf = ev => tier === 'country' ? ev.country_code
                           : tier === 'region'  ? (ev.country_code && ev.region ? ev.country_code + '|' + ev.region : null)
                           : ev.place
@@ -2158,18 +2162,20 @@
             const key = keyOf(ev)
             if (!key || !ev.latitude || !ev.longitude) return
             const a = agg[key] || (agg[key] = { key, label: labelOf(key, ev), cc: ev.country_code,
-                                                 total: 0, la: 0, lo: 0, n: 0, users: {}, rows: [] })
+                                                 total: 0, la: 0, lo: 0, n: 0, laborers: 0, rows: [] })
             a.total += (ev.count || 1)
             a.la += +ev.latitude; a.lo += +ev.longitude; a.n++
             a.rows.push(ev)
-            if (ev.user_id && ev.created_at >= L30) a.users[ev.user_id] = (a.users[ev.user_id] || 0) + 1
+        })
+        // Laborers (3+ updates in 30 days) arrive counted at each person's home place.
+        mapData.laborers.forEach(l => {
+            if (!inScope(l, country, city)) return
+            const a = agg[keyOf(l)]
+            if (a) a.laborers += +l.laborers
         })
 
         Object.values(agg)
-            .map(a => Object.assign(a, {
-                lat: a.la / a.n, lng: a.lo / a.n,
-                laborers: Object.values(a.users).filter(v => v >= 3).length
-            }))
+            .map(a => Object.assign(a, { lat: a.la / a.n, lng: a.lo / a.n }))
             .sort((x, y) => y.total - x.total)
             .slice(0, 15)
             .forEach(a => {
@@ -2202,18 +2208,10 @@
         const bounds  = map ? map.getBounds() : null
 
         const cur = { sp: 0, disc: 0, cities: new Set() }, pri = { sp: 0, disc: 0 }
-        // Laborers: distinct users with 3+ updates in the last 30 days, in view.
-        // A fixed 30-day consistency window, independent of the date filter.
-        const labor30 = new Date(Date.now() - 30 * 86400000).toISOString()
-        const laborUsers = {}
+        const inView = r => bounds && r.latitude && r.longitude && bounds.contains([+r.latitude, +r.longitude])
 
         mapData.conversations.forEach(ev => {
-            const inBox = bounds && ev.latitude && ev.longitude &&
-                          bounds.contains([+ev.latitude, +ev.longitude])
-            if (!inBox) return
-            if (ev.user_id && ev.created_at >= labor30) {
-                laborUsers[ev.user_id] = (laborUsers[ev.user_id] || 0) + 1
-            }
+            if (!inView(ev)) return
             const n = ev.count || 1
             const isDisc = ev.event_type === 'discovery'
             if (!cutoff || ev.created_at >= cutoff) {
@@ -2224,7 +2222,9 @@
             }
         })
 
-        const laborers = Object.values(laborUsers).filter(v => v >= 3).length
+        // Laborers: people with 3+ updates in the last 30 days, each counted once
+        // at their home place. A fixed 30-day window, independent of the date filter.
+        const laborers = mapData.laborers.reduce((sum, l) => sum + (inView(l) ? +l.laborers : 0), 0)
 
         setText('pulse-sp-l',       cur.sp.toLocaleString())
         setText('pulse-disc-l',     cur.disc.toLocaleString())
@@ -2462,36 +2462,18 @@
         const cutoff  = cutoffFromDays(days)
         const prevCut = days > 0 ? new Date(Date.now() - days * 2 * 86400000).toISOString() : null
 
-        // One query covers the current window, the prior window (for deltas), and
-        // a 12-week momentum sparkline (min 84 days). All Time fetches everything.
-        const lowerBound = days > 0
-            ? new Date(Date.now() - Math.max(days * 2, 84) * 86400000).toISOString()
-            : null
-        const { data, error } = await selectWithPlaces(cols => {
-            let query = window.supabase.from('conversation_events').select(cols)
-            if (lowerBound) query = query.gte('created_at', lowerBound)
-            return query
-        }, 'event_type, count, created_at, city, user_id')
+        // Totals are computed in the database (progress_metrics): the current
+        // window, the prior window for deltas, and 12 weekly momentum buckets.
+        const { data, error } = await window.supabase.rpc('progress_metrics', { days })
 
-        if (error) {
-            section.innerHTML = '<div class="empty-state">Error loading data.<br><small>' + error.message + '</small></div>'
+        if (error || !data) {
+            section.innerHTML = '<div class="empty-state">Error loading data.<br><small>' + escHtml(error ? error.message : 'No data') + '</small></div>'
             return
         }
 
-        const cur = { sp: 0, disc: 0, cities: new Set(), fishers: new Set() }
-        const pri = { sp: 0, disc: 0, cities: new Set(), fishers: new Set() }
-
-        ;(data || []).forEach(ev => {
-            const n = ev.count || 1
-            const inCurrent = !cutoff || ev.created_at >= cutoff
-            const inPrior   = prevCut && ev.created_at >= prevCut && ev.created_at < cutoff
-            const bucket = inCurrent ? cur : inPrior ? pri : null
-            if (!bucket) return
-            if (ev.event_type === 'discovery') bucket.disc += n; else bucket.sp += n
-            const place = ev.place_key || ev.city
-            if (place)      bucket.cities.add(place)
-            if (ev.user_id) bucket.fishers.add(ev.user_id)
-        })
+        const zero = { sp: 0, disc: 0, places: 0, fishers: 0 }
+        const cur  = Object.assign({}, zero, data.cur)
+        const pri  = Object.assign({}, zero, data.pri || {})
 
         const depth     = cur.sp > 0 ? Math.round(cur.disc / cur.sp * 100) : 0
         const priDepth  = pri.sp > 0 ? Math.round(pri.disc / pri.sp * 100) : 0
@@ -2534,30 +2516,23 @@
                 card('accent', cur.sp.toLocaleString(),   'Spiritual Conversations', delta(cur.sp, pri.sp)) +
                 card('',       cur.disc.toLocaleString(), 'Discovery Conversations', delta(cur.disc, pri.disc)) +
                 card('',       depth + '%',               'Went to Discovery',       pointDelta(depth, priDepth)) +
-                card('',       cur.cities.size.toLocaleString(), 'Cities Active',     delta(cur.cities.size, pri.cities.size)) +
-                card('',       cur.fishers.size.toLocaleString(), 'People Fishing',   delta(cur.fishers.size, pri.fishers.size)) +
+                card('',       cur.places.toLocaleString(),  'Cities Active',     delta(cur.places, pri.places)) +
+                card('',       cur.fishers.toLocaleString(), 'People Fishing',    delta(cur.fishers, pri.fishers)) +
             '</div>'
 
-        renderMomentum(data || [])
+        renderMomentum(data.weeks || [])
     }
 
     // ── Momentum sparkline (last 12 weeks) + growing-streak ────────────────────
-    function renderMomentum(rows) {
+    // `weeks`: 12 weekly totals, oldest first (from progress_metrics).
+    function renderMomentum(weeks) {
         const card     = document.getElementById('momentum-card')
         const svg      = document.getElementById('momentum-svg')
         const streakEl = document.getElementById('momentum-streak')
         if (!card || !svg) return
 
         const WEEKS = 12
-        const weekMs = 7 * 86400000
-        const now = Date.now()
-        const buckets = new Array(WEEKS).fill(0)   // index 0 = current week
-        rows.forEach(ev => {
-            const idx = Math.floor((now - new Date(ev.created_at).getTime()) / weekMs)
-            if (idx >= 0 && idx < WEEKS) buckets[idx] += (ev.count || 1)
-        })
-
-        const series = buckets.slice().reverse()   // oldest → newest
+        const series = Array.from({ length: WEEKS }, (_, k) => +weeks[k] || 0)   // oldest → newest
         if (series.every(v => v === 0)) { card.style.display = 'none'; return }
         card.style.display = 'block'
 
@@ -2605,7 +2580,6 @@
     let tickerItems        = []       // newest first
     let tickerSeenKeys     = new Set() // deduplication — composite ts|city|type keys
     let tickerInitialized  = false
-    let tickerSubscription = null
     let tickerScrollTimer  = null
     let tickerPollTimer    = null     // 10s safety-sync interval
     let tickerMinimized    = localStorage.getItem('vp_ticker_minimized') === 'true'
@@ -2636,55 +2610,34 @@
             resumeTimer = setTimeout(() => { if (!tickerMinimized) startTickerScroll() }, 3000)
         }, { passive: true })
 
-        seedTickerFromMapData()
-        subscribeToRecentUpdates()
-        startRecentUpdatesPolling()   // 10s safety sync on top of realtime
+        seedTicker()
+        startRecentUpdatesPolling()   // new events every 10s (map_recent)
         startTickerScroll()
     }
 
-    // Seed from already-loaded mapData so feed is populated immediately.
-    // Also primes tickerSeenKeys so duplicates from the first poll are dropped.
-    function seedTickerFromMapData() {
-        const sorted = [...mapData.conversations]
-            .filter(ev => ev.created_at)
-            .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-            .slice(0, TICKER_MAX)
-
-        tickerItems = sorted.map(ev => ({
-            ts:    ev.created_at,
-            city:  tickerPlace(ev),
-            type:  ev.event_type || 'update',
-            count: ev.count      || 1
-        }))
+    // Seed with the latest events (map_recent: no user, no place in restricted
+    // countries). Also primes tickerSeenKeys so the first poll adds no duplicates.
+    async function seedTicker() {
+        const since = new Date(Date.now() - 30 * 86400000).toISOString()
+        const { data, error } = await window.supabase.rpc('map_recent', { since, max_rows: TICKER_MAX })
+        if (error) { console.warn('ticker seed error:', error.message); return }
+        tickerItems = (data || []).map(toTickerItem)
         tickerSeenKeys = new Set(tickerItems.map(tickerKey))
         renderTickerFeed()
     }
 
-    function subscribeToRecentUpdates() {
-        if (!window.supabase || tickerSubscription) return
-
-        tickerSubscription = window.supabase
-            .channel('vp-ticker-v1')
-            .on('postgres_changes', {
-                event: 'INSERT', schema: 'public', table: 'conversation_events'
-            }, payload => {
-                appendRecentUpdate(payload.new)
-            })
-            .on('postgres_changes', {
-                event: 'INSERT', schema: 'public', table: 'church_assessments'
-            }, payload => {
-                if (payload.new && payload.new.is_church) {
-                    appendRecentUpdate(payload.new, 'church')
-                }
-            })
-            .subscribe(status => {
-                console.log('ticker subscription status:', status)
-            })
+    function toTickerItem(ev) {
+        return {
+            ts:    ev.created_at,
+            city:  tickerPlace(ev),
+            type:  ev.event_type || 'update',
+            count: ev.count      || 1
+        }
     }
 
     // Stable composite key used for deduplication across seed, realtime, and poll paths.
-    // ts|city|type is unique enough for display within a session; avoids needing row IDs
-    // (which aren't included in the existing mapData select queries).
+    // ts|city|type is unique enough for display within a session; row IDs never
+    // leave the database.
     function tickerKey(item) {
         return (item.ts || '') + '|' + (item.city || '') + '|' + (item.type || '')
     }
@@ -2703,30 +2656,20 @@
         renderTickerFeed()
     }
 
-    // Fetch conversation_events newer than `since` and merge them into the feed.
+    // Fetch events newer than `since` and merge them into the feed.
     async function fetchRecentUpdatesSince(since) {
         if (!window.supabase) return
         try {
-            const { data, error } = await selectWithPlaces(cols => window.supabase
-                .from('conversation_events')
-                .select(cols)
-                .gt('created_at', since)
-                .order('created_at', { ascending: false })
-                .limit(20), 'created_at, city, event_type, count')
+            const { data, error } = await window.supabase.rpc('map_recent', { since, max_rows: 20 })
             if (error) { console.warn('ticker poll error:', error.message); return }
             if (!data || data.length === 0) return
-            mergeRecentUpdates(data.map(ev => ({
-                ts:    ev.created_at,
-                city:  tickerPlace(ev),
-                type:  ev.event_type || 'update',
-                count: ev.count      || 1
-            })))
+            mergeRecentUpdates(data.map(toTickerItem))
         } catch (err) {
             console.warn('ticker poll exception:', err)
         }
     }
 
-    // Start the 10s safety-sync interval. Guard prevents a second interval if called twice.
+    // Poll for new events every 10s. Guard prevents a second interval if called twice.
     function startRecentUpdatesPolling() {
         if (tickerPollTimer) return
         tickerPollTimer = setInterval(async () => {
@@ -2737,22 +2680,6 @@
                 : new Date(Date.now() - 60000).toISOString()
             await fetchRecentUpdatesSince(since)
         }, 10000)
-    }
-
-    function appendRecentUpdate(row, forceType) {
-        if (!row) return
-        const item = {
-            ts:    row.created_at || row.updated_at || new Date().toISOString(),
-            city:  tickerPlace(row),
-            type:  forceType     || row.event_type || 'update',
-            count: row.count     || 1
-        }
-        const key = tickerKey(item)
-        if (tickerSeenKeys.has(key)) return   // already shown — skip
-        tickerSeenKeys.add(key)
-        tickerItems.unshift(item)
-        if (tickerItems.length > TICKER_MAX) tickerItems.length = TICKER_MAX
-        renderTickerFeed()
     }
 
     function renderTickerFeed() {
@@ -2854,14 +2781,11 @@
         resizeTimer = setTimeout(applyDesktopMapLayout, 120)
     })
 
-    // Clean up realtime subscription and scroll timer on navigate away
+    // Clean up timers on navigate away
     window.addEventListener('beforeunload', () => {
         stopTickerScroll()
         clearInterval(tickerPollTimer)
         clearInterval(celebrateTimer)
-        if (tickerSubscription && window.supabase) {
-            window.supabase.removeChannel(tickerSubscription)
-        }
     })
 
     // Wait for Supabase auth + leader role before loading data.

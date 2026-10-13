@@ -808,7 +808,8 @@
     "popup_spiritual": "Espiritual",
     "popup_discovery": "Descubrimiento",
     "popup_convos_type": "<br>{type} conversaciones: {n}",
-    "unknown_location": "una ubicación desconocida"
+    "unknown_location": "una ubicación desconocida",
+    "public_link": "Ver totales mundiales →"
   },
   "mawl": {
     "title": "Lista MAWL",
@@ -1125,5 +1126,24 @@
     "read_story_desc": "Lean Juan 14:1–11 juntos.",
     "bible_btn": "Juan 14:1–11 (CSB)",
     "practice_desc": "Cuenta la historia de Jesús el Único Camino de memoria."
+  },
+  "progress_page": {
+    "title": "Progreso en todo el mundo",
+    "subtitle": "Conversaciones que las personas registran con OBEY.TOOLS, en tiempo real.",
+    "conversations": "Conversaciones",
+    "last30": "{n} en los últimos 30 días",
+    "discovery": "Descubrimiento",
+    "cities": "Ciudades",
+    "countries": "Países",
+    "by_country": "Por país",
+    "recent": "+{n} este mes",
+    "cities_n": "{n} ciudades",
+    "more_countries": "+ {n} países más",
+    "more_note": "Algunos países se cuentan pero no se nombran, para proteger a las personas allí.",
+    "cta_start": "Empieza a registrar tus conversaciones",
+    "share": "Compartir esta página",
+    "cta_map": "¿Iniciaste sesión? Ver el mapa en vivo →",
+    "share_text": "Progreso en todo el mundo",
+    "load_error": "No se pudo cargar el progreso ahora."
   }
 }

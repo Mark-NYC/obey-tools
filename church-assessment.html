@@ -835,25 +835,11 @@ function preloadImages() {
     ['assets/images/icons/Messages.webp', 'assets/images/icons/Whatsapp.webp', 'assets/images/icons/Signal.webp']
         .forEach(url => { const img = new Image(); img.src = url; });
 }
+// Place name for the share details. Geocoded on the server (see geo.js), so
+// the geocoder never sees this phone.
 async function getCityFromCoords(lat, lon) {
-    try {
-        if (lat && lon) {
-            const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}&addressdetails=1&zoom=18`);
-            const data = await response.json();
-            if (data && data.address) {
-                const parts = [];
-                if (data.address.neighbourhood) parts.push(data.address.neighbourhood);
-                else if (data.address.suburb) parts.push(data.address.suburb);
-                else if (data.address.quarter) parts.push(data.address.quarter);
-                else if (data.address.hamlet) parts.push(data.address.hamlet);
-                if (data.address.city) parts.push(data.address.city);
-                else if (data.address.town) parts.push(data.address.town);
-                else if (data.address.village) parts.push(data.address.village);
-                return parts.length > 0 ? parts.join(', ') : (data.address.county || data.address.state || '');
-            }
-        }
-    } catch (error) { console.error('Error fetching location:', error); }
-    return '';
+    const place = await window.obeyGeo.reverseGeocode(lat, lon);
+    return (place && place.location_text) || '';
 }
 function updateGPSStatus(message, type) { const s = document.getElementById('gps-status'); s.textContent = message; s.className = type; }
 
@@ -909,14 +895,10 @@ async function showShareInputPopup() {
                 document.getElementById('location-input').value = await getCityFromCoords(position.coords.latitude, position.coords.longitude);
                 updateGPSStatus(window.t('church_assessment.gps_captured', { accuracy: Math.round(userCoordinates.accuracy) }), 'success');
             },
-            async () => {
+            () => {
+                // Declined or unavailable: the user types it. No IP lookup.
                 userCoordinates = null;
-                try {
-                    const response = await fetch('https://ipapi.co/json/');
-                    const data = await response.json();
-                    document.getElementById('location-input').value = [data.city, data.region].filter(Boolean).join(', ') || '';
-                    updateGPSStatus(window.t('church_assessment.gps_approximate'), 'warning');
-                } catch (e) { updateGPSStatus(window.t('church_assessment.gps_manual'), 'error'); }
+                updateGPSStatus(window.t('church_assessment.gps_manual'), 'error');
             },
             { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
         );
