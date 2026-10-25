@@ -145,10 +145,10 @@
         .momentum-arrow.up { color: #34c759; }
         .momentum-arrow.stagnant { color: #ff9500; }
         .momentum-arrow.down { color: #ff3b30; }
-        .save-indicator { position: fixed; top: 50px; right: 10px; background: #007aff; color: white; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; z-index: 999; opacity: 0; transition: opacity 0.3s; }
+        .save-indicator { position: fixed; top: 50px; right: 10px; max-width: calc(100% - 20px); cursor: pointer; pointer-events: none; background: #007aff; color: white; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; z-index: 999; opacity: 0; transition: opacity 0.3s; }
         .save-indicator.saving { opacity: 1; background: #ff9500; }
         .save-indicator.saved { opacity: 1; background: #34c759; }
-        .save-indicator.error { opacity: 1; background: #ff3b30; }
+        .save-indicator.error { opacity: 1; background: #ff3b30; pointer-events: auto; }
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
         .modal.active { display: flex; }
         .modal-content { background: white; padding: 0; border-radius: 12px; max-width: 90%; width: 350px; overflow: hidden; max-height: 90vh; overflow-y: auto; }
@@ -183,13 +183,13 @@
     <link rel="stylesheet" href="/buttons.css">
 </head>
 <body>
-    <div class="save-indicator" id="saveIndicator">Saving...</div>
+    <div class="save-indicator" id="saveIndicator" role="alert"></div>
     
     <div class="container">
         <div class="status-bar">
             <span>2026</span>
             <div class="status-bar-controls">
-                <button id="liveModeBtn" onclick="toggleLiveMeetingMode()">⚫ Offline</button>
+                <button id="liveModeBtn" onclick="refresh()">↻ Refresh</button>
                 <img src="assets/images/band/Settings-White.png" class="settings-icon" onclick="openSettings()" alt="Settings">
             </div>
         </div>
@@ -356,26 +356,25 @@
         import { supabase } from './supabase.js';
 
         let cities = [];
-        let baseline = [];          // deep copy of the last server state our local edits are relative to
         let currentCity = null;
-        let currentCityIndex = -1;
-        let lastSyncTimestamp = null;
-        let realtimeChannel = null;
-        let isLiveMeetingMode = false;
-        let isConnected = false;    // real backend connectivity, drives the status label
-        let pendingSave = false;
-        let saveQueue = [];
+        let currentCityName = null;
+        let renderedLeaders = [];   // leader names in the order the buttons were drawn
+        let renderedCities = [];    // city names in the order the overview rows were drawn
+        let isConnected = false;
+        let writeChain = Promise.resolve();
+        let inFlight = 0;
+        const savingPosts = new Set();  // leader names with a save in flight
         const streamLevels = ['1st Gen', '2nd Gen', '3rd Gen', '4th Gen'];
 
-        function snapshot(x) { return JSON.parse(JSON.stringify(x || [])); }
+        function escapeHtml(s) {
+            return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        }
 
-        // ============================================================
-        // SANITIZE: postHistory must always be a plain object {}
-        // Arrays silently drop string keys during JSON serialization
-        // ============================================================
+        // postHistory must always be a plain object {}
         function sanitizeLeaders(citiesArr) {
             (citiesArr || []).forEach(city => {
-                (city.leaders || []).forEach(leader => {
+                if (!Array.isArray(city.leaders)) city.leaders = [];
+                city.leaders.forEach(leader => {
                     if (!leader.postHistory || Array.isArray(leader.postHistory)) {
                         leader.postHistory = {};
                     }
@@ -528,367 +527,116 @@
             return 'gen-1';
         }
 
-        function showSaveIndicator(state) {
-            console.log('[saveIndicator]', state);
+        // ============================================================
+        // SAVE STATUS
+        // Failures stay on screen until the next successful save or a
+        // dismiss tap — nobody should walk away thinking a tap counted.
+        // ============================================================
+        function showSaveError(msg) {
             const el = document.getElementById('saveIndicator');
             if (!el) return;
-            // Success chrome ("Saving.../Saved") is kept quiet on purpose — it was
-            // noisy during normal use. Failures must NEVER be silent, though: a save
-            // that did not land has to be visible so nobody thinks their edit stuck.
-            if (state === 'error') {
-                el.className = 'save-indicator error';
-                el.textContent = 'Save failed — not saved ✗';
-                setTimeout(() => { el.className = 'save-indicator'; }, 4000);
-            }
+            el.className = 'save-indicator error';
+            el.textContent = `Not saved — ${msg}. Tap to dismiss.`;
         }
 
-        function getMaxStreamDepth(d1, d2) {
-            return streamLevels[Math.max(streamLevels.indexOf(d1 || '1st Gen'), streamLevels.indexOf(d2 || '1st Gen'))];
+        function clearSaveError() {
+            const el = document.getElementById('saveIndicator');
+            if (el && el.classList.contains('error')) el.className = 'save-indicator';
         }
 
-        // ============================================================
-        // THREE-WAY MERGE (base ↔ local ↔ server)
-        //
-        // A last-write-wins / Math.max merge cannot tell "I deliberately
-        // changed this" apart from "I'm holding a stale copy I never touched".
-        // That is what let concurrent increments collapse and let one user's
-        // unrelated edit revert another's correction, un-mark, or deletion.
-        //
-        // `baseline` is a deep copy of the server state our local edits are
-        // relative to. For every field we compare local↔base:
-        //   - counters       → apply our delta (local - base) on top of server
-        //   - post history   → per meeting key, take our value only where we
-        //                      actually changed it, otherwise take server
-        //   - adds/deletes   → honor whoever actually made the change
-        // ============================================================
-        function mergeLeadersThreeWay(base, local, server) {
-            const bMap = {}, lMap = {}, sMap = {};
-            (base || []).forEach(x => { bMap[x.name] = x; });
-            (local || []).forEach(x => { lMap[x.name] = x; });
-            (server || []).forEach(x => { sMap[x.name] = x; });
-            const names = new Set([...Object.keys(bMap), ...Object.keys(lMap), ...Object.keys(sMap)]);
-            const out = [];
-            names.forEach(name => {
-                const b = bMap[name], l = lMap[name], s = sMap[name];
-                const inBase = !!b, inLocal = !!l, inServer = !!s;
-
-                // Deleted locally → stays deleted.
-                if (inBase && !inLocal) return;
-
-                // Server deleted it (in base + local, gone on server).
-                if (inBase && inLocal && !inServer) {
-                    const changedLocally = JSON.stringify(b.postHistory || {}) !== JSON.stringify(l.postHistory || {});
-                    if (!changedLocally) return;            // we didn't touch it → honor server's delete
-                    out.push({ name, postHistory: { ...(l.postHistory || {}) } }); // we changed it → keep our data
-                    return;
-                }
-
-                // Added locally only.
-                if (!inBase && inLocal && !inServer) {
-                    out.push({ name, postHistory: { ...(l.postHistory || {}) } });
-                    return;
-                }
-
-                // Added on server only.
-                if (!inBase && !inLocal && inServer) {
-                    out.push({ name, postHistory: { ...(s.postHistory || {}) } });
-                    return;
-                }
-
-                // Present on both sides → three-way merge the post history per key.
-                if (inLocal && inServer) {
-                    const bh = (b && b.postHistory) || {}, lh = l.postHistory || {}, sh = s.postHistory || {};
-                    const keys = new Set([...Object.keys(bh), ...Object.keys(lh), ...Object.keys(sh)]);
-                    const ph = {};
-                    keys.forEach(k => {
-                        if (lh[k] !== bh[k]) { if (lh[k]) ph[k] = true; }  // we changed this key → our value wins
-                        else if (sh[k]) ph[k] = true;                       // untouched by us → take server
-                    });
-                    out.push({ name, postHistory: ph });
-                }
-            });
-            return out;
-        }
-
-        function mergeCity(b, l, s) {
-            b = b || {}; l = l || {}; s = s || {};
-            const counter = (field) => Math.max(0, (s[field] || 0) + ((l[field] || 0) - (b[field] || 0)));
-            const stream = (field) => {
-                const bv = b[field] || '1st Gen', lv = l[field] || '1st Gen', sv = s[field] || '1st Gen';
-                const lChanged = lv !== bv, sChanged = sv !== bv;
-                if (lChanged && sChanged) return getMaxStreamDepth(lv, sv);
-                return lChanged ? lv : sv;
-            };
-            return {
-                name: s.name || l.name,
-                leaders: mergeLeadersThreeWay(b.leaders, l.leaders, s.leaders),
-                baptismsYTD: counter('baptismsYTD'),
-                churchesYTD: counter('churchesYTD'),
-                totalChurches: counter('totalChurches'),
-                streamDepth: stream('streamDepth'),
-                totalStreamDepth: stream('totalStreamDepth'),
-                momentumHistory: l.momentumHistory || s.momentumHistory || []
-            };
-        }
-
-        function threeWayMergeCities(base, local, server) {
-            const bMap = {}, lMap = {}, sMap = {};
-            (base || []).forEach(c => { bMap[c.name] = c; });
-            (local || []).forEach(c => { lMap[c.name] = c; });
-            (server || []).forEach(c => { sMap[c.name] = c; });
-            const names = new Set([...Object.keys(bMap), ...Object.keys(lMap), ...Object.keys(sMap)]);
-            const out = [];
-            names.forEach(name => {
-                const b = bMap[name], l = lMap[name], s = sMap[name];
-                const inBase = !!b, inLocal = !!l, inServer = !!s;
-
-                if (inBase && !inLocal) return;                     // deleted locally → stays deleted
-                if (inBase && inLocal && !inServer) {               // server deleted it
-                    if (JSON.stringify(b) === JSON.stringify(l)) return; // untouched locally → honor delete
-                    out.push(mergeCity(b, l, undefined));           // changed locally → keep our data
-                    return;
-                }
-                if (!inBase && inLocal && !inServer) { out.push(l); return; }  // added locally
-                if (!inBase && !inLocal && inServer) { out.push(s); return; }  // added on server
-                if (inLocal && inServer) { out.push(mergeCity(b, l, s)); }     // present both → field merge
-            });
-            return out;
-        }
-
-        async function handleConflict(serverData) {
-            console.log('🔄 Resolving conflict (three-way merge)...');
-            const serverCities = serverData.data.cities || [];
-            cities = sanitizeLeaders(threeWayMergeCities(baseline, cities, serverCities));
-            baseline = snapshot(serverCities);           // our deltas are now measured against this server state
-            lastSyncTimestamp = serverData.lastModified;
-            console.log('[conflict] Merge complete — cities:', cities.length, 'lastSyncTimestamp:', lastSyncTimestamp, '(caller will save)');
-        }
-
-        function startLiveSync() {
-            if (realtimeChannel) return;
-            realtimeChannel = supabase
-                .channel('band_data_changes')
-                .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'band_data', filter: 'id=eq.main' }, (payload) => {
-                    console.log('[realtime] UPDATE received — pendingSave:', pendingSave, 'queue length:', saveQueue.length);
-                    if (pendingSave) return;
-                    const incoming = payload.new;
-                    if (incoming.last_modified === lastSyncTimestamp) return;
-                    const modifiedBy = incoming.modified_by || 'another device';
-                    if (saveQueue.length > 0) {
-                        console.log('[realtime] Queue non-empty — merging incoming data into local state');
-                        handleConflict({ data: { cities: incoming.cities }, lastModified: incoming.last_modified });
-                    } else {
-                        console.log('[realtime] Data updated by', modifiedBy);
-                        cities = sanitizeLeaders(incoming.cities || []);
-                        baseline = snapshot(cities);
-                        lastSyncTimestamp = incoming.last_modified;
-                        updateOverview();
-                        if (currentCityIndex >= 0) renderCityView();
-                    }
-                })
-                .subscribe();
-        }
-
-        function stopLiveSync() {
-            if (realtimeChannel) { supabase.removeChannel(realtimeChannel); realtimeChannel = null; }
-        }
-
-        function showNotification(msg) {
-            const n = document.createElement('div');
-            n.style.cssText = 'position:fixed;top:60px;right:10px;background:#34c759;color:white;padding:12px 20px;border-radius:8px;font-weight:600;z-index:10000;animation:slideIn 0.3s ease-out;';
-            n.textContent = msg;
-            document.body.appendChild(n);
-            setTimeout(() => { n.style.animation = 'slideOut 0.3s ease-out'; setTimeout(() => n.remove(), 300); }, 3000);
-        }
-
-        function toggleLiveMeetingMode() {
-            // Realtime sync is ALWAYS on (started at load) so everyone sees each
-            // other's saves without touching this. Live Meeting Mode only adds the
-            // "already posted — unmark?" guard used while running a live meeting.
-            isLiveMeetingMode = !isLiveMeetingMode;
-            showNotification(isLiveMeetingMode ? 'Live Meeting Mode ON' : 'Live Meeting Mode OFF');
-            updateLiveModeButton();
-        }
-
-        function updateLiveModeButton() {
+        function updateStatusButton() {
             const btn = document.getElementById('liveModeBtn');
             if (!btn) return;
-            if (!isConnected) { btn.textContent = '⚫ Offline'; btn.style.background = '#8e8e93'; }
-            else if (isLiveMeetingMode) { btn.textContent = '🔴 Live'; btn.style.background = '#34c759'; }
-            else { btn.textContent = '🟢 Connected'; btn.style.background = '#8e8e93'; }
+            if (!isConnected) { btn.textContent = '⚫ Offline — Retry'; btn.style.background = '#ff3b30'; }
+            else if (inFlight > 0) { btn.textContent = 'Saving…'; btn.style.background = '#ff9500'; }
+            else { btn.textContent = '↻ Refresh'; btn.style.background = '#8e8e93'; }
         }
 
+        function render() {
+            updateOverview();
+            if (currentCityName) renderCityView();
+        }
+
+        // ============================================================
+        // DATA
+        // Reads: one SELECT of band_data. Writes: band_apply() RPC — one
+        // small change, applied atomically on the server by city/leader
+        // NAME, returning the stored state. The screen only ever shows what
+        // the database returned. No realtime: tap Refresh to see others.
+        // ============================================================
         async function loadData() {
-            console.log('📥 Loading data from Supabase...');
             try {
                 const { data, error } = await supabase
                     .from('band_data')
                     .select('cities, last_modified')
                     .eq('id', 'main')
                     .single();
-                if (error && error.code === 'PGRST116') {
-                    // No row yet — seed it
-                    const { error: insertError } = await supabase
-                        .from('band_data')
-                        .insert({ id: 'main', cities: [], last_modified: new Date().toISOString() });
-                    if (insertError) console.error('❌ Seed error:', insertError);
-                    cities = [];
-                    baseline = [];
-                    lastSyncTimestamp = new Date().toISOString();
-                    isConnected = true;
-                } else if (error) {
-                    throw error;
-                } else {
-                    cities = sanitizeLeaders(data.cities || []);
-                    lastSyncTimestamp = data.last_modified;
-                    isConnected = true;
-                    baseline = snapshot(cities);   // server state — set BEFORE any draft recovery mutates `cities`
-                    console.log('✅ Loaded from Supabase, cities:', cities.length);
-                    recoverDraftIfNewer(data.last_modified);
-                }
+                if (error) throw error;
+                cities = sanitizeLeaders(data.cities || []);
+                isConnected = true;
             } catch(e) {
                 console.error('❌ Load error:', e);
-                cities = [];
-                baseline = [];
-                lastSyncTimestamp = new Date().toISOString();
                 isConnected = false;
+                showSaveError("couldn't reach the server");
             }
-            updateOverview();
-            updateLiveModeButton();
-            if (isConnected) startLiveSync();  // realtime always on so other users' saves propagate automatically
+            render();
+            updateStatusButton();
         }
 
-        async function saveData() {
-            return new Promise((resolve, reject) => {
-                saveQueue.push({ resolve, reject });
-                processSaveQueue();
-            });
+        async function refresh() {
+            if (inFlight > 0) return;
+            clearSaveError();
+            await loadData();
         }
 
-        async function processSaveQueue() {
-            if (pendingSave || saveQueue.length === 0) return;
-            pendingSave = true;
-            console.log('[saveQueue] processSaveQueue started — queue length:', saveQueue.length, 'pendingSave: true');
-            showSaveIndicator('saving');
-            try {
-                // CAS (Compare-And-Swap) write loop.
-                // Only writes if last_modified still matches our lastSyncTimestamp, making
-                // conflict detection atomic at the DB level. Eliminates the race window that
-                // existed between the old two-step SELECT-then-upsert approach.
-                const MAX_RETRIES = 4;
-                let saved = false;
-
-                for (let attempt = 1; attempt <= MAX_RETRIES && !saved; attempt++) {
-                    // Snapshot AFTER any merge so we always write the freshest local state
-                    const citiesSnapshot = JSON.parse(JSON.stringify(cities));
-                    const newTimestamp = new Date().toISOString();
-                    console.log(`💾 CAS attempt ${attempt}/${MAX_RETRIES} — lastSyncTimestamp: ${lastSyncTimestamp}`);
-
-                    const { data: updated, error: writeError } = await supabase
-                        .from('band_data')
-                        .update({ cities: citiesSnapshot, last_modified: newTimestamp, modified_by: getDeviceId() })
-                        .eq('id', 'main')
-                        .eq('last_modified', lastSyncTimestamp)  // atomic condition
-                        .select('id');
-
-                    if (writeError) throw writeError;
-
-                    if (updated && updated.length > 0) {
-                        // CAS succeeded — our write landed cleanly. The state we just
-                        // wrote is now the baseline our next edits are measured against.
-                        lastSyncTimestamp = newTimestamp;
-                        baseline = citiesSnapshot;
-                        saved = true;
-                    } else {
-                        // CAS missed — another device wrote between our last sync and now.
-                        // Re-read the current server state, merge it with our local changes,
-                        // then retry. On each retry the snapshot above captures the merged state.
-                        console.warn(`[saveQueue] CAS miss on attempt ${attempt} — re-reading server state`);
-                        const { data: fresh, error: readError } = await supabase
-                            .from('band_data')
-                            .select('last_modified, cities')
-                            .eq('id', 'main')
-                            .single();
-                        if (readError) throw readError;
-                        // handleConflict merges and updates lastSyncTimestamp so next CAS targets the right row
-                        await handleConflict({ data: { cities: fresh.cities }, lastModified: fresh.last_modified });
-                        if (attempt < MAX_RETRIES) await new Promise(r => setTimeout(r, 100 * attempt));
-                    }
+        // Writes run one at a time, in tap order.
+        function apply(op, args, label) {
+            inFlight++;
+            updateStatusButton();
+            const run = writeChain.then(async () => {
+                try {
+                    const { data, error } = await supabase.rpc('band_apply', { p_op: op, p_args: args, p_device: getDeviceId() });
+                    if (error) throw error;
+                    if (!data || !Array.isArray(data.cities)) throw new Error('empty response');
+                    cities = sanitizeLeaders(data.cities);
+                    isConnected = true;
+                    clearSaveError();
+                    return true;
+                } catch(e) {
+                    console.error(`❌ ${op} failed:`, e);
+                    showSaveError(label);
+                    return false;
                 }
-
-                if (!saved) throw new Error(`CAS failed after ${MAX_RETRIES} attempts — too many concurrent writers`);
-
-                clearDraft();
-                console.log('✅ Saved to Supabase');
-                showSaveIndicator('saved');
-                updateOverview();
-                while (saveQueue.length > 0) { const { resolve } = saveQueue.shift(); resolve(); }
-            } catch(e) {
-                console.error('❌ Save error:', e);
-                showSaveIndicator('error');
-                while (saveQueue.length > 0) { const { reject } = saveQueue.shift(); reject(e); }
-            } finally {
-                pendingSave = false;
-                console.log('[saveQueue] pendingSave cleared — remaining queue:', saveQueue.length);
-                if (saveQueue.length > 0) setTimeout(processSaveQueue, 100);
-            }
+            });
+            writeChain = run.then(async ok => {
+                // On failure, re-read so the screen shows what is really stored.
+                if (!ok) await loadData();
+            }).finally(() => {
+                inFlight--;
+                updateStatusButton();
+                render();
+            });
+            return run;
         }
 
         function getDeviceId() {
-            let id = localStorage.getItem('band_device_id');
-            if (!id) { id = 'device_' + Math.random().toString(36).slice(2, 9); localStorage.setItem('band_device_id', id); }
-            return id;
-        }
-
-        // ---- local draft helpers (data-loss protection) ----
-        function writeDraft() {
             try {
-                localStorage.setItem('band_draft', JSON.stringify({
-                    cities: JSON.parse(JSON.stringify(cities)),
-                    ts: new Date().toISOString()
-                }));
-            } catch(e) {}
+                let id = localStorage.getItem('band_device_id');
+                if (!id) { id = 'device_' + Math.random().toString(36).slice(2, 9); localStorage.setItem('band_device_id', id); }
+                return id;
+            } catch(e) { return 'device_unknown'; }
         }
 
-        function clearDraft() {
-            try { localStorage.removeItem('band_draft'); } catch(e) {}
-        }
-
-        function recoverDraftIfNewer(serverTs) {
-            try {
-                const raw = localStorage.getItem('band_draft');
-                if (!raw) return;
-                const draft = JSON.parse(raw);
-                if (!draft.ts || !Array.isArray(draft.cities)) { clearDraft(); return; }
-                if (new Date(draft.ts) > new Date(serverTs || 0)) {
-                    console.warn('[draft] Recovering unsaved local draft from', draft.ts, '— queueing save');
-                    cities = sanitizeLeaders(draft.cities);
-                    saveData().catch(e => console.error('[draft] Recovery save failed:', e));
-                } else {
-                    clearDraft();
-                }
-            } catch(e) { console.error('[draft] Recovery error:', e); }
-        }
-
-        // Flush draft on page hide so the latest mutation survives navigation
-        window.addEventListener('pagehide', () => {
-            if (pendingSave || saveQueue.length > 0) {
-                writeDraft();
-                console.log('[pagehide] Page hiding with pending save — draft written to localStorage');
-            }
-        });
+        // Coming back to the tab: pull fresh data (cheap, not live).
         document.addEventListener('visibilitychange', () => {
-            if (document.hidden && (pendingSave || saveQueue.length > 0)) {
-                writeDraft();
-                console.log('[visibilitychange] Tab hidden with pending save — draft written to localStorage');
-            }
+            if (!document.hidden && inFlight === 0) loadData();
         });
 
         function updateOverview() {
             let totalLeaders = 0, totalActive = 0, totalBaptisms = 0, totalChurches = 0, cities3rdPlus = 0;
             const cm = getCurrentMeetingPeriod();
 
-            cities.forEach((city, index) => {
+            cities.forEach(city => {
                 (city.leaders || []).forEach(l => {
                     totalLeaders++;
                     if (l.postHistory && l.postHistory[cm.key]) totalActive++;
@@ -897,7 +645,6 @@
                 totalChurches += city.totalChurches || 0;
                 const sd = city.totalStreamDepth || '1st Gen';
                 if (sd === '3rd Gen' || sd === '4th Gen') cities3rdPlus++;
-                
             });
 
             document.getElementById('totalActive').textContent = `${totalActive} / ${totalLeaders}`;
@@ -907,12 +654,14 @@
 
             const tbody = document.getElementById('cityTableBody');
             if (cities.length === 0) {
+                renderedCities = [];
                 tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No cities added yet. Tap the settings icon to add cities.</td></tr>';
                 return;
             }
 
-            const sorted = cities.map((c, i) => ({ c, i })).sort((a, b) => a.c.name.localeCompare(b.c.name));
-            tbody.innerHTML = sorted.map(({ c, i }) => {
+            const sorted = [...cities].sort((a, b) => a.name.localeCompare(b.name));
+            renderedCities = sorted.map(c => c.name);
+            tbody.innerHTML = sorted.map((c, i) => {
                 let activeCount = 0;
                 (c.leaders || []).forEach(l => { if (l.postHistory && l.postHistory[cm.key]) activeCount++; });
                 const participation = calculateCityParticipation(c);
@@ -921,7 +670,7 @@
                 const streakText = streakEmojis !== '⚫' ? `<span class="streak-text">${streakEmojis}</span>` : '';
                 return `
                     <tr>
-                        <td class="city-name">${c.name}</td>
+                        <td class="city-name">${escapeHtml(c.name)}</td>
                         <td style="text-align:center;"><span class="participation-text ${textClass}">${activeCount}/${(c.leaders || []).length}</span>${getMomentumArrow(calculateMomentum(c))}${streakText}</td>
                         <td class="metric-number" style="text-align:center;">${c.baptismsYTD || 0}</td>
                         <td class="metric-number" style="text-align:center;">${c.totalChurches || 0}</td>
@@ -938,40 +687,23 @@
         }
 
         function openCity(index) {
-            currentCityIndex = index;
-            currentCity = cities[index];
-            if (!currentCity.leaders) currentCity.leaders = [];
+            currentCityName = renderedCities[index];
+            if (!currentCityName) return;
             document.getElementById('overviewSection').style.display = 'none';
             document.getElementById('citySection').classList.add('active');
             renderCityView();
         }
 
-        async function backToOverview() {
-            // Wait for any in-flight save before navigating (max 3 s)
-            if (pendingSave || saveQueue.length > 0) {
-                console.log('[backToOverview] Waiting for pending save before navigating...');
-                await new Promise(resolve => {
-                    const timeout = setTimeout(resolve, 3000);
-                    const check = setInterval(() => {
-                        if (!pendingSave && saveQueue.length === 0) {
-                            clearInterval(check);
-                            clearTimeout(timeout);
-                            resolve();
-                        }
-                    }, 50);
-                });
-            }
+        function backToOverview() {
             document.getElementById('overviewSection').style.display = 'block';
             document.getElementById('citySection').classList.remove('active');
             currentCity = null;
-            currentCityIndex = -1;
+            currentCityName = null;
         }
 
         function renderCityView() {
-            // ✅ FIX: always re-sync from live array — prevents stale reference after save/load cycles
-            if (currentCityIndex < 0) return;
-            currentCity = cities[currentCityIndex];
-            if (!currentCity) return;
+            currentCity = cities.find(c => c.name === currentCityName);
+            if (!currentCity) { if (currentCityName) backToOverview(); return; }
 
             const cm = getCurrentMeetingPeriod();
             document.getElementById('currentMeetingDate').textContent = formatMeetingDate(cm.date);
@@ -980,25 +712,31 @@
             document.getElementById('churchesCounter').textContent = currentCity.totalChurches || 0;
             document.getElementById('streamCounter').textContent = currentCity.streamDepth || '1st Gen';
 
+            const leaders = currentCity.leaders || [];
+            renderedLeaders = leaders.map(l => l.name);
+
             const leadersList = document.getElementById('leadersList');
             leadersList.innerHTML = '';
-
-            if (!currentCity.leaders || currentCity.leaders.length === 0) {
+            if (leaders.length === 0) {
                 leadersList.innerHTML = '<div class="empty-state">No leaders added yet. Click "+ Add Leader" below.</div>';
             } else {
-                currentCity.leaders.forEach((leader, index) => {
+                leaders.forEach((leader, index) => {
                     const hasPosted = !!(leader.postHistory && leader.postHistory[cm.key]);
+                    const saving = savingPosts.has(leader.name);
+                    const label = saving ? 'Saving…'
+                        : hasPosted ? `✓ Posted for ${formatMeetingDate(cm.date)}`
+                        : `Mark as Posted for ${formatMeetingDate(cm.date)}`;
                     const card = document.createElement('div');
                     card.className = 'leader-card';
                     card.innerHTML = `
                         <div class="leader-card-header">
-                            <div class="leader-name">${leader.name}</div>
+                            <div class="leader-name">${escapeHtml(leader.name)}</div>
                             <div class="leader-streak">${getStreakEmojis(calculateStreak(leader))}</div>
                         </div>
                         <button class="post-toggle-btn ${hasPosted ? 'posted' : 'not-posted'}"
                                 onclick="togglePostStatus(${index})"
-                                id="leader-btn-${index}">
-                            ${hasPosted ? `✓ Posted for ${formatMeetingDate(cm.date)}` : `Mark as Posted for ${formatMeetingDate(cm.date)}`}
+                                id="leader-btn-${index}" ${saving ? 'disabled' : ''}>
+                            ${label}
                         </button>
                     `;
                     leadersList.appendChild(card);
@@ -1007,11 +745,11 @@
 
             const manageList = document.getElementById('manageLeadersList');
             manageList.innerHTML = '';
-            if (currentCity.leaders && currentCity.leaders.length > 0) {
-                currentCity.leaders.forEach((leader, index) => {
+            if (leaders.length > 0) {
+                leaders.forEach((leader, index) => {
                     const div = document.createElement('div');
                     div.className = 'manage-leader-item';
-                    div.innerHTML = `<span class="manage-leader-name">${leader.name}</span><button class="delete-leader-btn" onclick="removeLeader(${index})">Remove</button>`;
+                    div.innerHTML = `<span class="manage-leader-name">${escapeHtml(leader.name)}</span><button class="delete-leader-btn" onclick="removeLeader(${index})">Remove</button>`;
                     manageList.appendChild(div);
                 });
             } else {
@@ -1027,86 +765,45 @@
 
         async function addLeader() {
             const name = document.getElementById('leaderNameInput').value.trim();
-            if (!name) return;
-            cities[currentCityIndex].leaders.push({ name, postHistory: {} }); // ✅ always {}
+            if (!name || !currentCityName) return;
             document.getElementById('leaderNameInput').value = '';
             toggleAddLeaderForm();
-            renderCityView();
-            writeDraft();
-            try { await saveData(); } catch(e) { console.error('Failed to save leader:', e); }
+            await apply('add_leader', { city: currentCityName, name }, `leader "${name}" was not added`);
         }
 
         async function removeLeader(index) {
-            if (confirm(`Remove ${cities[currentCityIndex].leaders[index].name}?`)) {
-                cities[currentCityIndex].leaders.splice(index, 1);
-                renderCityView();
-                writeDraft();
-                try { await saveData(); } catch(e) { console.error('Failed to save:', e); }
-            }
+            const name = renderedLeaders[index];
+            if (!name || !currentCityName) return;
+            if (!confirm(`Remove ${name}?`)) return;
+            await apply('remove_leader', { city: currentCityName, name }, `${name} was not removed`);
         }
 
         async function togglePostStatus(leaderIndex) {
-            // ✅ FIX: read directly from live cities array, not stale currentCity ref
-            const leader = cities[currentCityIndex].leaders[leaderIndex];
-            const btn = document.getElementById(`leader-btn-${leaderIndex}`);
-
-            if (!leader.postHistory || Array.isArray(leader.postHistory)) {
-                leader.postHistory = {};
-            }
+            const name = renderedLeaders[leaderIndex];
+            const city = cities.find(c => c.name === currentCityName);
+            const leader = city && city.leaders.find(l => l.name === name);
+            if (!leader || savingPosts.has(name)) return;   // ignore double-taps while saving
 
             const cm = getCurrentMeetingPeriod();
-            const prev = leader.postHistory[cm.key];
+            const posted = !!leader.postHistory[cm.key];
+            if (posted && !confirm(`${name} is already marked as posted. Unmark?`)) return;
 
-            if (isLiveMeetingMode && prev === true) {
-                if (!confirm('Already marked as posted. Unmark?')) return;
-            }
-
-            leader.postHistory[cm.key] = !prev;
-            writeDraft();
-
-            console.log('✏️ Toggling post status:', {
-                leader: leader.name,
-                meeting: cm.key,
-                newValue: leader.postHistory[cm.key],
-                fullHistory: leader.postHistory
-            });
-
-            btn.disabled = true;
+            savingPosts.add(name);
             renderCityView();
-
-            try {
-                await saveData();
-                console.log('✅ Post status saved successfully');
-            } catch(e) {
-                console.error('❌ Failed to save post status:', e);
-                leader.postHistory[cm.key] = prev;
-                renderCityView();
-            } finally {
-                btn.disabled = false;
-            }
+            const ok = await apply('set_post', { city: city.name, leader: name, key: cm.key, value: !posted },
+                `${name}'s tap didn't record, tap again`);
+            savingPosts.delete(name);
+            if (ok) renderCityView();
         }
 
         async function updateCityCounter(field, change) {
-            const city = cities[currentCityIndex];
-            if (!city) return;
-            if (!city[field]) city[field] = 0;
-            city[field] = Math.max(0, city[field] + change);
-            if (field === 'churchesYTD') city.totalChurches = city[field];
-            renderCityView();
-            writeDraft();
-            try { await saveData(); } catch(e) { console.error('Failed to save counter:', e); }
+            if (!currentCityName) return;
+            await apply('adjust_counter', { city: currentCityName, field, delta: change }, 'counter change');
         }
 
         async function updateCityStreamDepth(change) {
-            const city = cities[currentCityIndex];
-            if (!city) return;
-            const idx = streamLevels.indexOf(city.streamDepth || '1st Gen');
-            const newIdx = Math.max(0, Math.min(streamLevels.length - 1, idx + change));
-            city.streamDepth = streamLevels[newIdx];
-            city.totalStreamDepth = streamLevels[newIdx];
-            renderCityView();
-            writeDraft();
-            try { await saveData(); } catch(e) { console.error('Failed to save stream depth:', e); }
+            if (!currentCityName) return;
+            await apply('step_stream', { city: currentCityName, delta: change }, 'stream change');
         }
 
         function openSettings() {
@@ -1128,7 +825,7 @@
             list.innerHTML = '';
             cities.forEach((city, index) => {
                 const li = document.createElement('li');
-                li.innerHTML = `<span>${city.name}</span><button class="delete-city-btn" onclick="deleteCity(${index})">Delete</button>`;
+                li.innerHTML = `<span>${escapeHtml(city.name)}</span><button class="delete-city-btn" onclick="deleteCity(${index})">Delete</button>`;
                 list.appendChild(li);
             });
         }
@@ -1138,29 +835,25 @@
             if (!name) return;
             const totalChurches = parseInt(document.getElementById('totalChurchesInput').value) || 0;
             const streamDepth = document.getElementById('streamDepthInput').value;
-            cities.push({ name, leaders: [], baptismsYTD: 0, churchesYTD: totalChurches, streamDepth, totalChurches, totalStreamDepth: streamDepth });
             document.getElementById('newCityInput').value = '';
             document.getElementById('totalChurchesInput').value = '0';
             document.getElementById('streamDepthInput').value = '1st Gen';
-            updateOverview();
+            await apply('add_city', { name, totalChurches, streamDepth }, `city "${name}" was not added`);
             updateCityList();
-            writeDraft();
-            try { await saveData(); } catch(e) { console.error('Failed to save city:', e); }
         }
 
         async function deleteCity(index) {
-            if (confirm(`Delete ${cities[index].name}? This cannot be undone.`)) {
-                cities.splice(index, 1);
-                updateOverview();
-                updateCityList();
-                writeDraft();
-                backToOverview();
-                try { await saveData(); } catch(e) { console.error('Failed to save after delete:', e); }
-            }
+            const name = cities[index] && cities[index].name;
+            if (!name || !confirm(`Delete ${name}? This cannot be undone.`)) return;
+            if (currentCityName === name) backToOverview();
+            await apply('delete_city', { city: name }, `${name} was not deleted`);
+            updateCityList();
         }
 
+        document.getElementById('saveIndicator').addEventListener('click', clearSaveError);
+
         // Expose handlers to global scope (required for inline onclick with type="module")
-        window.toggleLiveMeetingMode = toggleLiveMeetingMode;
+        window.refresh = refresh;
         window.openSettings = openSettings;
         window.closeSettings = closeSettings;
         window.backToOverview = backToOverview;

@@ -74,6 +74,53 @@ const server = http.createServer(async (req, res) => {
     return json(res, 400, { error: { message: 'bad op' } });
   }
 
+  // band_apply(): mirrors supabase/band-rpc/01_band_apply.sql
+  if (url.pathname === '/rpc/band_apply' && req.method === 'POST') {
+    const { p_op: op, p_args: a = {}, p_device } = await readBody(req);
+    try {
+      if (!row) throw new Error('band_data row missing');
+      const cities = JSON.parse(JSON.stringify(row.cities || []));
+      const levels = ['1st Gen', '2nd Gen', '3rd Gen', '4th Gen'];
+      const city = op === 'add_city' ? null : cities.find((c) => c.name === a.city);
+      if (op !== 'add_city' && !city) throw new Error('Unknown city: ' + a.city);
+      if (city && !Array.isArray(city.leaders)) city.leaders = [];
+      const leaderName = op === 'set_post' ? a.leader : a.name;
+      const li = city ? city.leaders.findIndex((l) => l.name === leaderName) : -1;
+      if ((op === 'set_post' || op === 'remove_leader') && li < 0) throw new Error('Unknown leader: ' + leaderName);
+      if (op === 'set_post') {
+        if (!/^\d{4}-\d{1,2}-[24]$/.test(a.key)) throw new Error('Invalid meeting key');
+        const ph = { ...(city.leaders[li].postHistory || {}) };
+        if (a.value) ph[a.key] = true; else delete ph[a.key];
+        city.leaders[li].postHistory = ph;
+      } else if (op === 'adjust_counter') {
+        if (!['baptismsYTD', 'churchesYTD'].includes(a.field)) throw new Error('Invalid field');
+        city[a.field] = Math.max(0, (city[a.field] || 0) + a.delta);
+        if (a.field === 'churchesYTD') city.totalChurches = city[a.field];
+      } else if (op === 'step_stream') {
+        const i = Math.max(0, levels.indexOf(city.streamDepth || '1st Gen'));
+        const n = levels[Math.min(3, Math.max(0, i + Math.sign(a.delta)))];
+        city.streamDepth = n; city.totalStreamDepth = n;
+      } else if (op === 'add_leader') {
+        if (city.leaders.some((l) => l.name === a.name)) throw new Error('Leader already exists');
+        city.leaders.push({ name: a.name, postHistory: {} });
+      } else if (op === 'remove_leader') {
+        city.leaders.splice(li, 1);
+      } else if (op === 'add_city') {
+        if (cities.some((c) => c.name === a.name)) throw new Error('City already exists');
+        const sd = levels.includes(a.streamDepth) ? a.streamDepth : '1st Gen';
+        const n = Math.max(0, a.totalChurches || 0);
+        cities.push({ name: a.name, leaders: [], baptismsYTD: 0, churchesYTD: n, totalChurches: n, streamDepth: sd, totalStreamDepth: sd, momentumHistory: [] });
+      } else if (op === 'delete_city') {
+        cities.splice(cities.indexOf(city), 1);
+      } else throw new Error('Unknown op');
+      row = { ...row, cities, last_modified: new Date().toISOString(), modified_by: p_device };
+      version++;
+      return json(res, 200, { data: { cities, last_modified: row.last_modified }, error: null });
+    } catch (e) {
+      return json(res, 200, { data: null, error: { message: e.message } });
+    }
+  }
+
   json(res, 404, { error: 'not found' });
 });
 
