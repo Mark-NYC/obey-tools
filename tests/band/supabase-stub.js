@@ -59,6 +59,11 @@ class Channel {
 export function createClient(url, key, opts) {
   return {
     from(table) { return new Query(); },
+    rpc(fn, args) {
+      return fetch(BASE + '/rpc/' + fn, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(args),
+      }).then((r) => r.json()).then((j) => ({ data: j.data, error: j.error || null }));
+    },
     channel(name) { return new Channel(); },
     removeChannel(ch) { ch.stop(); },
   };

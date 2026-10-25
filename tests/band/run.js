@@ -148,8 +148,8 @@ async function visibleFailureShown(page) {
   record('R1: connected page does not display "Offline"; status reflects real connectivity',
     !/offline/i.test(label), `header status control reads "${label.trim()}" on a fresh, connected load`);
 
-  // R2: another user's saved update must appear automatically (no manual
-  // reload, no manual toggle) within 5 seconds.
+  // R2: another user's saved update must appear via the obvious Refresh
+  // control (live push was dropped by request 2026-10-25; refresh is fine).
   await seed(seedCities());
   const A = await newSession(browser, 'R2A');
   const B = await newSession(browser, 'R2B');
@@ -158,14 +158,15 @@ async function visibleFailureShown(page) {
   await openCity(A.page, 'Austin');
   await A.page.click(PLUS); // 5 -> 6
   await waitForVersion(v + 1);
+  await B.page.click('#liveModeBtn');
   let propagated = false;
   for (let i = 0; i < 25 && !propagated; i++) {
     await B.page.waitForTimeout(200);
     propagated = (await B.page.textContent(overviewBaptisms('Austin'))).trim() === '6';
   }
   await B.page.screenshot({ path: path.join(SHOTS, 'R2-auto-propagation.png') });
-  record('R2: other sessions see a saved update automatically within 5s',
-    propagated, `session B ${propagated ? 'auto-updated to 6' : 'still shows ' + (await B.page.textContent(overviewBaptisms('Austin'))).trim()} after A's save, with no manual action`);
+  record('R2: other sessions see a saved update after tapping Refresh',
+    propagated, `session B ${propagated ? 'auto-updated to 6' : 'still shows ' + (await B.page.textContent(overviewBaptisms('Austin'))).trim()} after A's save and one Refresh tap`);
 
   // R3: two users incrementing the same metric near-simultaneously -> BOTH
   // increments persist (5 + 1 + 1 = 7).
@@ -282,6 +283,45 @@ async function visibleFailureShown(page) {
   record('R8: a confirmed save survives a full page reload',
     afterReload === '6' && (await dbCity('Austin')).baptismsYTD === 6,
     `after save + reload the page shows ${afterReload} and the database holds ${(await dbCity('Austin')).baptismsYTD}`);
+
+  // R9: several people tapping different leaders at the same moment -> every
+  // tap is recorded.
+  const four = [{ name: 'Austin', leaders: ['Ann', 'Ben', 'Cal', 'Dee'].map((name) => ({ name, postHistory: {} })), baptismsYTD: 0, churchesYTD: 0, totalChurches: 0 }];
+  await seed(four);
+  const tappers = [];
+  for (let i = 0; i < 4; i++) { const s = await newSession(browser, 'R9-' + i); await load(s.page); await openCity(s.page, 'Austin'); tappers.push(s.page); }
+  await Promise.all(tappers.map((pg, i) => pg.click('#leader-btn-' + i)));
+  await tappers[0].waitForTimeout(1500);
+  const posted9 = (await dbCity('Austin')).leaders.filter((l) => Object.values(l.postHistory).includes(true)).length;
+  record('R9: four simultaneous taps on different leaders are all recorded',
+    posted9 === 4, `${posted9}/4 leaders marked posted in db`);
+
+  // R10: a double-tap must not undo itself. A tap on an already-posted leader
+  // asks "Unmark?" — an accidental second tap is answered "no" here.
+  await seed(seedCities());
+  const M = await newSession(browser, 'R10');
+  M.page.removeAllListeners('dialog');
+  M.page.on('dialog', (d) => d.dismiss());
+  await load(M.page); await openCity(M.page, 'Austin');
+  await M.page.click('#leader-btn-0');
+  await M.page.click('#leader-btn-0', { force: true }).catch(() => {});
+  await M.page.waitForTimeout(1200);
+  const jamie10 = Object.values((await dbCity('Austin')).leaders[0].postHistory).includes(true);
+  record('R10: double-tapping "Mark as Posted" leaves the leader posted',
+    jamie10, `Jamie posted in db after double-tap: ${jamie10}`);
+
+  // R11: a tap that fails must not display "Posted".
+  await seed(seedCities());
+  const N = await newSession(browser, 'R11');
+  await load(N.page); await openCity(N.page, 'Austin');
+  await N.page.route('http://127.0.0.1:8787/rpc/**', (r) => r.abort());
+  await N.page.click('#leader-btn-0');
+  await N.page.waitForTimeout(1500);
+  const btn11 = (await N.page.textContent('#leader-btn-0')).trim();
+  const fail11 = await visibleFailureShown(N.page);
+  record('R11: a failed tap never shows "Posted" and the failure stays visible',
+    /^mark as posted/i.test(btn11) && fail11,
+    `button reads "${btn11}", failure visible=${fail11}`);
 
   fs.writeFileSync(path.join(SHOTS, 'results.json'), JSON.stringify(results, null, 2));
   const fails = results.filter((r) => !r.pass);
