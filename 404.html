@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script>
+      // GitHub Pages 404s on "/page/" when only "page.html" exists.
+      // Strip the trailing slash and retry before showing the not-found page.
+      (function () {
+        var p = window.location.pathname;
+        if (p.length > 1 && p.charAt(p.length - 1) === '/') {
+          window.location.replace(p.replace(/\/+$/, '') + window.location.search + window.location.hash);
+        }
+      })();
+    </script>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-M4S72WQ54N"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-M4S72WQ54N');
+    </script>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/x-icon" href="/assets/images/favicons/favicon.ico">
+    <meta name="theme-color" content="#000000">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/fonts.css">
+    <title>Page Not Found — OBEY.TOOLS</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+            background: #f2f2f7;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+        .card {
+            background: #fff;
+            border-radius: 18px;
+            padding: 36px 32px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+            text-align: center;
+        }
+        .logo {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 36px;
+            letter-spacing: 2px;
+            color: var(--ot-accent, #00D084);
+            -webkit-text-stroke: 2px #000;
+            margin-bottom: 8px;
+        }
+        h1 { font-size: 20px; font-weight: 700; color: #1c1c1e; margin-bottom: 8px; }
+        p { font-size: 14px; color: #8e8e93; margin-bottom: 24px; }
+        a.home {
+            display: inline-block;
+            background: #000;
+            color: #fff;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 12px 24px;
+            border-radius: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="logo">OBEY.TOOLS</div>
+        <h1>Page not found</h1>
+        <p>That page doesn't exist or has moved.</p>
+        <a class="home" href="/">Go home</a>
+    </div>
+</body>
+</html>
