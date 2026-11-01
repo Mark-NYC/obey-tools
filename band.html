@@ -14,7 +14,7 @@
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kingdom Stewardship Dashboard</title>
+    <title data-i18n="site_text.s_831b2775a231">Kingdom Stewardship Dashboard</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
@@ -181,6 +181,7 @@
         }
     </style>
     <link rel="stylesheet" href="/buttons.css">
+<script type="module" src="/i18n.js"></script>
 </head>
 <body>
     <div class="save-indicator" id="saveIndicator" role="alert"></div>
@@ -189,72 +190,72 @@
         <div class="status-bar">
             <span>2026</span>
             <div class="status-bar-controls">
-                <button id="liveModeBtn" onclick="refresh()">↻ Refresh</button>
-                <img src="assets/images/band/Settings-White.png" class="settings-icon" onclick="openSettings()" alt="Settings">
+                <button id="liveModeBtn" onclick="refresh()" data-i18n="site_text.s_9ca7f5105a74">↻ Refresh</button>
+                <img src="assets/images/band/Settings-White.png" class="settings-icon" onclick="openSettings()" alt="Settings" data-i18n-alt="site_text.s_c7f73bb54d92">
             </div>
         </div>
         
         <div class="header">
-            <h1>The Band</h1>
-            <p class="subtitle">WHY: God's glory through faithful obedience.<br>VISION: Generations of multiplying disciples, leaders, and churches across North America.<br>2030 ASPIRATION: Biblical worldview in North America: 4% → 5%.</p>
+            <h1 data-i18n="site_text.s_ed8216122f2f">The Band</h1>
+            <p class="subtitle"><span data-i18n="site_text.s_c77f9d2cb22e">WHY: God's glory through faithful obedience.</span><br><span data-i18n="site_text.s_6c7d7df73852">VISION: Generations of multiplying disciples, leaders, and churches across North America.</span><br><span data-i18n="site_text.s_226fcad8ab5b">2030 ASPIRATION: Biblical worldview in North America: 4% → 5%.</span></p>
         </div>
 
         <div id="overviewSection">
             <div class="summary-section">
                 <div class="summary-header">
-                    <div class="summary-title">Summary</div>
-                    <div class="summary-subtitle">Cumulative metrics across all cities</div>
+                    <div class="summary-title" data-i18n="site_text.s_12b71c3e0fe5">Summary</div>
+                    <div class="summary-subtitle" data-i18n="site_text.s_1a87b6892e4e">Cumulative metrics across all cities</div>
                 </div>
                 <div class="metrics-grid">
                     <div class="metric-item">
                         <div class="metric-value" id="totalActive">0 / 0</div>
-                        <div class="metric-label">Leaders Posted This Meeting</div>
+                        <div class="metric-label" data-i18n="site_text.s_6410b7472771">Leaders Posted This Meeting</div>
                     </div>
                     <div class="metric-item">
                         <div class="metric-value" id="totalBaptisms">0</div>
                         <div class="metric-label">
-                            <img src="assets/images/band/baptisms-2.png" class="metric-icon" alt="">Baptisms YTD
+                            <img src="assets/images/band/baptisms-2.png" class="metric-icon" alt=""><span data-i18n="site_text.s_975f7d3340c4">Baptisms YTD</span>
                         </div>
                     </div>
                     <div class="metric-item">
                         <div class="metric-value" id="totalChurches">0</div>
                         <div class="metric-label">
-                            <img src="assets/images/band/churches-2.png" class="metric-icon" alt="">Total Churches (All Time)
+                            <img src="assets/images/band/churches-2.png" class="metric-icon" alt=""><span data-i18n="site_text.s_52718dbca7b3">Total Churches (All Time)</span>
                         </div>
                     </div>
                     <div class="metric-item">
                         <div class="metric-value" id="cities4thGen">0 / 4</div>
                         <div class="metric-label">
-                            <img src="assets/images/band/stream-depth-2.png" class="metric-icon" alt="">Cities with 3rd Gen+
+                            <img src="assets/images/band/stream-depth-2.png" class="metric-icon" alt=""><span data-i18n="site_text.s_ba38f3239912">Cities with 3rd Gen+</span>
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="city-table">
-                <div class="table-header"><div class="table-title">Cities</div></div>
+                <div class="table-header"><div class="table-title" data-i18n="how_were_doing.scope_cities">Cities</div></div>
                 <div class="city-table-container">
                     <table>
                         <thead>
                             <tr>
-                                <th>City</th>
-                                <th style="text-align:center;">Active</th>
-                                <th style="text-align:center;"><img src="assets/images/band/baptisms-2.png" alt="Baptisms" style="height:20px;vertical-align:middle;"></th>
-                                <th style="text-align:center;"><img src="assets/images/band/churches-2.png" alt="Churches" style="height:20px;vertical-align:middle;"></th>
-                                <th style="text-align:center;"><img src="assets/images/band/stream-depth-2.png" alt="Stream" style="height:20px;vertical-align:middle;"></th>
-                                <th style="text-align:center;">Action</th>
+                                <th data-i18n="site_text.s_4271627f4f0b">City</th>
+                                <th style="text-align:center;" data-i18n="leader_tools.badge_active">Active</th>
+                                <th style="text-align:center;"><img src="assets/images/band/baptisms-2.png" alt="Baptisms" style="height:20px;vertical-align:middle;" data-i18n-alt="how_were_doing.metric_baptisms"></th>
+                                <th style="text-align:center;"><img src="assets/images/band/churches-2.png" alt="Churches" style="height:20px;vertical-align:middle;" data-i18n-alt="how_were_doing.layer_churches"></th>
+                                <th style="text-align:center;"><img src="assets/images/band/stream-depth-2.png" alt="Stream" style="height:20px;vertical-align:middle;" data-i18n-alt="site_text.s_df063869e11d"></th>
+                                <th style="text-align:center;" data-i18n="site_text.s_97c89a4d6630">Action</th>
                             </tr>
                         </thead>
                         <tbody id="cityTableBody">
-                            <tr><td colspan="6" class="empty-state">No cities added yet.</td></tr>
+                            <tr><td colspan="6" class="empty-state" data-i18n="site_text.s_9d75fad2b153">No cities added yet.</td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
 
             <div class="summary-section" style="margin-top:16px;">
-                <div class="summary-header"><div class="summary-title">City to City Hub Definition</div></div>
-                <div style="padding:16px;font-size:15px;line-height:1.6;color:#3a3a3c;">
+                <div class="summary-header"><div class="summary-title" data-i18n="site_text.s_4898d5833b65">City to City Hub Definition</div></div>
+                <div style="padding:16px;font-size:15px;line-height:1.6;color:#3a3a3c;" data-i18n="site_text.s_f419e936736c">
                     A City to City hub is a collection of churches in a local city, autonomous from prevailing model of churches, with appointed elders and servant equippers, that reaches to at least the third generation of churches.
                 </div>
             </div>
@@ -262,30 +263,30 @@
 
         <div id="citySection" class="section">
             <div class="city-view-header">
-                <button class="back-btn-inline" onclick="backToOverview()">← Back</button>
+                <button class="back-btn-inline" onclick="backToOverview()" data-i18n="church_assessment.present_back">← Back</button>
             </div>
             <div class="city-view-body">
                 <div class="meeting-banner">
-                    <span class="meeting-banner-label">Next Meeting:</span>
+                    <span class="meeting-banner-label" data-i18n="site_text.s_cf4e32f473f4">Next Meeting:</span>
                     <span class="meeting-banner-date" id="currentMeetingDate">—</span>
                 </div>
                 <div class="leaders-section">
-                    <div class="section-label" id="leadersLabel">Leaders</div>
+                    <div class="section-label" id="leadersLabel" data-i18n="site_text.s_027de9d1ce67">Leaders</div>
                     <div id="leadersList"></div>
                     <div class="add-leader-form" id="addLeaderForm">
-                        <input type="text" class="form-input" id="leaderNameInput" placeholder="Leader name">
+                        <input type="text" class="form-input" id="leaderNameInput" placeholder="Leader name" data-i18n-placeholder="site_text.s_3583e7920022">
                         <div class="form-buttons">
-                            <button class="form-btn primary" onclick="addLeader()">Add</button>
-                            <button class="form-btn secondary" onclick="toggleAddLeaderForm()">Cancel</button>
+                            <button class="form-btn primary" onclick="addLeader()" data-i18n="conversation_box.add_btn">Add</button>
+                            <button class="form-btn secondary" onclick="toggleAddLeaderForm()" data-i18n="mawl.cancel">Cancel</button>
                         </div>
                     </div>
-                    <button class="add-leader-inline" onclick="toggleAddLeaderForm()">+ Add Leader</button>
+                    <button class="add-leader-inline" onclick="toggleAddLeaderForm()" data-i18n="site_text.s_d7111945e9f1">+ Add Leader</button>
                 </div>
                 <div class="counters-section">
-                    <div class="section-label">City Metrics</div>
+                    <div class="section-label" data-i18n="site_text.s_2e1d59b87dd3">City Metrics</div>
                     <div class="counter-row">
                         <div class="counter-label-text">
-                            <img src="assets/images/band/baptisms-2.png" class="counter-label-icon" alt="">Baptisms YTD
+                            <img src="assets/images/band/baptisms-2.png" class="counter-label-icon" alt=""><span data-i18n="site_text.s_975f7d3340c4">Baptisms YTD</span>
                         </div>
                         <div class="counter-controls">
                             <button class="counter-btn minus" onclick="updateCityCounter('baptismsYTD',-1)">−</button>
@@ -295,7 +296,7 @@
                     </div>
                     <div class="counter-row">
                         <div class="counter-label-text">
-                            <img src="assets/images/band/churches-2.png" class="counter-label-icon" alt="">Churches
+                            <img src="assets/images/band/churches-2.png" class="counter-label-icon" alt=""><span data-i18n="how_were_doing.layer_churches">Churches</span>
                         </div>
                         <div class="counter-controls">
                             <button class="counter-btn minus" onclick="updateCityCounter('churchesYTD',-1)">−</button>
@@ -305,17 +306,17 @@
                     </div>
                     <div class="counter-row">
                         <div class="counter-label-text">
-                            <img src="assets/images/band/stream-depth-2.png" class="counter-label-icon" alt="">Stream Depth
+                            <img src="assets/images/band/stream-depth-2.png" class="counter-label-icon" alt=""><span data-i18n="site_text.s_87e97eaabd9b">Stream Depth</span>
                         </div>
                         <div class="counter-controls">
                             <button class="counter-btn minus" onclick="updateCityStreamDepth(-1)">−</button>
-                            <div class="counter-value" id="streamCounter">1st Gen</div>
+                            <div class="counter-value" id="streamCounter" data-i18n="site_text.s_fd5e5f81800b">1st Gen</div>
                             <button class="counter-btn plus" onclick="updateCityStreamDepth(1)">+</button>
                         </div>
                     </div>
                 </div>
                 <div class="manage-section">
-                    <div class="section-label">Manage Leaders</div>
+                    <div class="section-label" data-i18n="site_text.s_37777d67343b">Manage Leaders</div>
                     <div id="manageLeadersList"></div>
                 </div>
             </div>
@@ -324,18 +325,18 @@
 
     <div id="settingsModal" class="modal">
         <div class="modal-content">
-            <div class="modal-header"><div class="modal-title">Manage Cities</div></div>
+            <div class="modal-header"><div class="modal-title" data-i18n="site_text.s_ad2f4f62a582">Manage Cities</div></div>
             <div class="modal-body">
                 <ul class="city-list" id="cityList"></ul>
                 <div style="border-top:1px solid #c6c6c8;padding-top:16px;margin-top:16px;">
-                    <div style="font-size:17px;font-weight:600;margin-bottom:16px;">Add New City</div>
-                    <input type="text" class="modal-input" id="newCityInput" placeholder="City name">
+                    <div style="font-size:17px;font-weight:600;margin-bottom:16px;" data-i18n="site_text.s_67bf4b648c67">Add New City</div>
+                    <input type="text" class="modal-input" id="newCityInput" placeholder="City name" data-i18n-placeholder="site_text.s_25b7b06de0eb">
                     <div class="input-group">
-                        <label>Total Churches (All Time)</label>
+                        <label data-i18n="site_text.s_52718dbca7b3">Total Churches (All Time)</label>
                         <input type="number" class="modal-input" id="totalChurchesInput" placeholder="0" value="0" min="0">
                     </div>
                     <div class="input-group">
-                        <label>Current Stream Depth</label>
+                        <label data-i18n="site_text.s_01c7ba03e9bb">Current Stream Depth</label>
                         <select class="stream-select" id="streamDepthInput">
                             <option value="1st Gen">1st Gen</option>
                             <option value="2nd Gen">2nd Gen</option>
@@ -345,8 +346,8 @@
                     </div>
                 </div>
                 <div class="modal-buttons">
-                    <button class="btn-primary" onclick="addCity()">Add City</button>
-                    <button class="btn-secondary" onclick="closeSettings()">Close</button>
+                    <button class="btn-primary" onclick="addCity()" data-i18n="site_text.s_f842656644fe">Add City</button>
+                    <button class="btn-secondary" onclick="closeSettings()" data-i18n="settings.close">Close</button>
                 </div>
             </div>
         </div>
@@ -354,6 +355,7 @@
 
     <script type="module">
         import { supabase } from './supabase.js';
+        import { ready, t } from './i18n.js';
 
         let cities = [];
         let currentCity = null;
@@ -448,7 +450,7 @@
         function formatMeetingDate(date) {
             const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
             const estDate = new Date(date.toLocaleString("en-US", {timeZone: "America/New_York"}));
-            return `${months[estDate.getMonth()]} ${estDate.getDate()}`;
+            return window.i18n.getLang() === 'ur' ? new Intl.DateTimeFormat('ur-PK',{month:'short',day:'numeric'}).format(estDate) : `${months[estDate.getMonth()]} ${estDate.getDate()}`;
         }
 
         function calculateStreak(leader) {
@@ -516,7 +518,7 @@
 
         function getStreamDisplay(sd) {
             const match = (sd || '').match(/(\d+)(st|nd|rd|th)/);
-            return match ? match[1] + match[2] : sd;
+            return match ? (window.i18n.getLang() === 'ur' ? t('band_ui.generation',{n:match[1]}) : match[1] + match[2]) : sd;
         }
 
         function getStreamClass(sd) {
@@ -536,7 +538,7 @@
             const el = document.getElementById('saveIndicator');
             if (!el) return;
             el.className = 'save-indicator error';
-            el.textContent = `Not saved — ${msg}. Tap to dismiss.`;
+            el.textContent = t('band_ui.not_saved');
         }
 
         function clearSaveError() {
@@ -547,9 +549,9 @@
         function updateStatusButton() {
             const btn = document.getElementById('liveModeBtn');
             if (!btn) return;
-            if (!isConnected) { btn.textContent = '⚫ Offline — Retry'; btn.style.background = '#ff3b30'; }
-            else if (inFlight > 0) { btn.textContent = 'Saving…'; btn.style.background = '#ff9500'; }
-            else { btn.textContent = '↻ Refresh'; btn.style.background = '#8e8e93'; }
+            if (!isConnected) { btn.textContent = window.i18n.text("⚫ Offline — Retry"); btn.style.background = '#ff3b30'; }
+            else if (inFlight > 0) { btn.textContent = window.i18n.text("Saving…"); btn.style.background = '#ff9500'; }
+            else { btn.textContent = window.i18n.text("↻ Refresh"); btn.style.background = '#8e8e93'; }
         }
 
         function render() {
@@ -655,7 +657,7 @@
             const tbody = document.getElementById('cityTableBody');
             if (cities.length === 0) {
                 renderedCities = [];
-                tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No cities added yet. Tap the settings icon to add cities.</td></tr>';
+                tbody.innerHTML = "<tr><td colspan=\"6\" class=\"empty-state\" data-i18n=\"site_text.s_2cf5d4a5f9fc\">No cities added yet. Tap the settings icon to add cities.</td></tr>";
                 return;
             }
 
@@ -677,7 +679,7 @@
                         <td style="text-align:center;"><span class="stream-badge ${getStreamClass(c.totalStreamDepth || '1st Gen')}">${getStreamDisplay(c.totalStreamDepth || '1st Gen')}</span></td>
                         <td style="text-align:center;">
                             <button class="update-btn" onclick="openCity(${i})">
-                                <span class="update-btn-text">UPDATE</span>
+                                <span class="update-btn-text">${window.i18n.text('UPDATE')}</span>
                                 <img src="assets/images/band/edit-qtep4ftgzlsz4sl22a43m9-1.webp" class="update-btn-icon" alt="Update">
                             </button>
                         </td>
@@ -707,10 +709,10 @@
 
             const cm = getCurrentMeetingPeriod();
             document.getElementById('currentMeetingDate').textContent = formatMeetingDate(cm.date);
-            document.getElementById('leadersLabel').textContent = `${currentCity.name.toUpperCase()} LEADERS`;
+            document.getElementById('leadersLabel').textContent = t('band_ui.leaders', {city:currentCity.name});
             document.getElementById('baptismsCounter').textContent = currentCity.baptismsYTD || 0;
             document.getElementById('churchesCounter').textContent = currentCity.totalChurches || 0;
-            document.getElementById('streamCounter').textContent = currentCity.streamDepth || '1st Gen';
+            document.getElementById('streamCounter').textContent = getStreamDisplay(currentCity.streamDepth || '1st Gen');
 
             const leaders = currentCity.leaders || [];
             renderedLeaders = leaders.map(l => l.name);
@@ -718,14 +720,14 @@
             const leadersList = document.getElementById('leadersList');
             leadersList.innerHTML = '';
             if (leaders.length === 0) {
-                leadersList.innerHTML = '<div class="empty-state">No leaders added yet. Click "+ Add Leader" below.</div>';
+                leadersList.innerHTML = "<div class=\"empty-state\" data-i18n=\"site_text.s_848e1e4590a4\">No leaders added yet. Click \"+ Add Leader\" below.</div>";
             } else {
                 leaders.forEach((leader, index) => {
                     const hasPosted = !!(leader.postHistory && leader.postHistory[cm.key]);
                     const saving = savingPosts.has(leader.name);
-                    const label = saving ? 'Saving…'
-                        : hasPosted ? `✓ Posted for ${formatMeetingDate(cm.date)}`
-                        : `Mark as Posted for ${formatMeetingDate(cm.date)}`;
+                    const label = saving ? window.i18n.text('Saving…')
+                        : hasPosted ? t('band_ui.posted',{date:formatMeetingDate(cm.date)})
+                        : t('band_ui.mark_posted',{date:formatMeetingDate(cm.date)});
                     const card = document.createElement('div');
                     card.className = 'leader-card';
                     card.innerHTML = `
@@ -749,11 +751,11 @@
                 leaders.forEach((leader, index) => {
                     const div = document.createElement('div');
                     div.className = 'manage-leader-item';
-                    div.innerHTML = `<span class="manage-leader-name">${escapeHtml(leader.name)}</span><button class="delete-leader-btn" onclick="removeLeader(${index})">Remove</button>`;
+                    div.innerHTML = `<span class="manage-leader-name">${escapeHtml(leader.name)}</span><button class="delete-leader-btn" onclick="removeLeader(${index})">${window.i18n.text('Remove')}</button>`;
                     manageList.appendChild(div);
                 });
             } else {
-                manageList.innerHTML = '<div class="empty-state">No leaders to manage.</div>';
+                manageList.innerHTML = "<div class=\"empty-state\" data-i18n=\"site_text.s_56a03698d10b\">No leaders to manage.</div>";
             }
         }
 
@@ -774,7 +776,7 @@
         async function removeLeader(index) {
             const name = renderedLeaders[index];
             if (!name || !currentCityName) return;
-            if (!confirm(`Remove ${name}?`)) return;
+            if (!confirm(t('band_ui.remove',{name}))) return;
             await apply('remove_leader', { city: currentCityName, name }, `${name} was not removed`);
         }
 
@@ -786,7 +788,7 @@
 
             const cm = getCurrentMeetingPeriod();
             const posted = !!leader.postHistory[cm.key];
-            if (posted && !confirm(`${name} is already marked as posted. Unmark?`)) return;
+            if (posted && !confirm(t('band_ui.unmark',{name}))) return;
 
             savingPosts.add(name);
             renderCityView();
@@ -807,12 +809,12 @@
         }
 
         function openSettings() {
-            const pw = prompt('Enter password to access settings:');
+            const pw = prompt(window.i18n.text("Enter password to access settings:"));
             if (pw === 'Matthew28!') {
                 document.getElementById('settingsModal').classList.add('active');
                 updateCityList();
             } else if (pw !== null) {
-                alert('Incorrect password');
+                alert(window.i18n.text("Incorrect password"));
             }
         }
 
@@ -825,7 +827,7 @@
             list.innerHTML = '';
             cities.forEach((city, index) => {
                 const li = document.createElement('li');
-                li.innerHTML = `<span>${escapeHtml(city.name)}</span><button class="delete-city-btn" onclick="deleteCity(${index})">Delete</button>`;
+                li.innerHTML = `<span>${escapeHtml(city.name)}</span><button class="delete-city-btn" onclick="deleteCity(${index})">${window.i18n.text('Delete')}</button>`;
                 list.appendChild(li);
             });
         }
@@ -844,7 +846,7 @@
 
         async function deleteCity(index) {
             const name = cities[index] && cities[index].name;
-            if (!name || !confirm(`Delete ${name}? This cannot be undone.`)) return;
+            if (!name || !confirm(t('band_ui.delete',{name}))) return;
             if (currentCityName === name) backToOverview();
             await apply('delete_city', { city: name }, `${name} was not deleted`);
             updateCityList();
@@ -867,7 +869,8 @@
         window.addCity = addCity;
         window.deleteCity = deleteCity;
 
-        // Initialize
+        // Initialize after language strings are loaded.
+        await ready;
         loadData();
     </script>
 </body>

@@ -216,7 +216,8 @@ export function initAccountOverlay() {
         const close = document.createElement('button')
         close.type = 'button'
         close.className = 'acct-close'
-        close.setAttribute('aria-label', 'Close')
+        close.setAttribute('aria-label', t('settings.close'))
+        close.dataset.i18nAriaLabel = 'settings.close'
         close.innerHTML = '&times;'
         close.addEventListener('click', closeOverlay)
 
@@ -238,7 +239,7 @@ export function initAccountOverlay() {
     const trigger = document.createElement('button')
     trigger.type = 'button'
     trigger.className = 'acct-icon-btn'
-    trigger.setAttribute('aria-label', 'Open sign in')
+    trigger.setAttribute('aria-label', t('study_ui.open_sign_in'))
     trigger.innerHTML = PERSON_SVG
     trigger.addEventListener('click', openOverlay)
     document.body.appendChild(trigger)
@@ -257,7 +258,7 @@ export function initAccountOverlay() {
         lastUser = user
         window._supabaseUser = user
         trigger.classList.toggle('signed-in', !!user)
-        trigger.setAttribute('aria-label', user ? 'Open signed-in account' : 'Open sign in')
+        trigger.setAttribute('aria-label', t(user ? 'study_ui.open_account' : 'study_ui.open_sign_in'))
         // Form-vs-status is driven by this class + !important CSS above.
         section.classList.toggle('acct-authed', !!user)
         if (statusText) statusText.textContent = user

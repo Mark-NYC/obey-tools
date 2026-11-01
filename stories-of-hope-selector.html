@@ -24,7 +24,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="preload" href="/assets/fonts/bebas-neue-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="/fonts.css">
-    <title>Stories Selector — OBEY.TOOLS</title>
+    <title data-i18n="site_text.s_303a3280796a">Stories Selector — OBEY.TOOLS</title>
     <script type="module">
         import { supabase } from './supabase.js';
         window.supabase = supabase;
@@ -152,10 +152,10 @@
 </head>
 <body>
 
-<div class="sync-indicator" id="sync-indicator">Syncing...</div>
+<div class="sync-indicator" id="sync-indicator" data-i18n="sync.syncing">Syncing...</div>
 
 <div style="text-align:center; padding:20px 0 8px;">
-    <a href="/" style="display:inline-block; background:#000; color:#fff; font-weight:700; font-size:17px; padding:12px 28px; border-radius:50px; text-decoration:none;">Home</a>
+    <a href="/" style="display:inline-block; background:#000; color:#fff; font-weight:700; font-size:17px; padding:12px 28px; border-radius:50px; text-decoration:none;" data-i18n="nav.home">Home</a>
 </div>
 
 <div class="container">
@@ -171,34 +171,34 @@
         <button type="button" class="auth-forgot-btn" data-i18n="auth.forgot_password" onclick="authForgotPassword()" style="display:block;width:100%;margin-top:6px;padding:6px;background:none;border:none;color:#8e8e93;font-size:13px;cursor:pointer;text-align:center;font-family:inherit;">Forgot password?</button>
         </div>
         <div class="auth-status" id="auth-status" style="display:none">
-            <span class="auth-status-text" id="auth-status-text">Not signed in</span>
+            <span class="auth-status-text" id="auth-status-text" data-i18n="auth.not_signed_in">Not signed in</span>
             <button class="auth-logout-btn" onclick="authLogOut()" data-i18n="auth.log_out">Log Out</button>
         </div>
     </div>
 
     <div class="page-header">
-        <div class="page-title">Story Selector</div>
-        <div class="page-subtitle">Choose what the person is dealing with. Then send the right story.</div>
+        <div class="page-title" data-i18n="site_text.s_0ab1fe730a6d">Story Selector</div>
+        <div class="page-subtitle" data-i18n="site_text.s_ee063ffca2ba">Choose what the person is dealing with. Then send the right story.</div>
         <div class="accent-bar"></div>
     </div>
 
-    <div class="tool-note">
+    <div class="tool-note" data-i18n="site_text.s_fa4ee45c3dd0">
         This tool helps responders quickly match a person&rsquo;s pain point with the right story to send.
     </div>
 
     <div class="search-wrap">
-        <input class="search-input" type="search" id="search-input" placeholder="Search pain points&hellip;" autocomplete="off" autocorrect="off" spellcheck="false">
+        <input class="search-input" type="search" id="search-input" placeholder="Search pain points&hellip;" autocomplete="off" autocorrect="off" spellcheck="false" data-i18n-placeholder="site_text.s_9c651d8250ea">
     </div>
 
-    <div class="section-label">What is the person dealing with?</div>
+    <div class="section-label" data-i18n="site_text.s_de64c2bccb9c">What is the person dealing with?</div>
     <div class="category-list" id="category-list"></div>
 
     <div class="show-all-wrap">
-        <button class="show-all-btn" id="show-all-btn" onclick="toggleShowAll()">Show All Stories</button>
+        <button class="show-all-btn" id="show-all-btn" onclick="toggleShowAll()" data-i18n="site_text.s_c8106b9c4353">Show All Stories</button>
     </div>
 
     <div class="results-section" id="results-section">
-        <div class="results-heading" id="results-heading">Matching Story</div>
+        <div class="results-heading" id="results-heading" data-i18n="site_text.s_e2401fbd2f17">Matching Story</div>
         <div id="story-cards"></div>
     </div>
 
@@ -297,7 +297,7 @@
         listEl.innerHTML = '';
 
         if (filtered.length === 0) {
-            listEl.innerHTML = '<p class="no-results">No matching pain points.</p>';
+            listEl.innerHTML = "<p class=\"no-results\" data-i18n=\"site_text.s_6d0c4985eefc\">No matching pain points.</p>";
             return;
         }
 
@@ -348,7 +348,8 @@
     }
 
     function renderResults(items, heading) {
-        document.getElementById('results-heading').textContent = heading;
+        document.getElementById('results-heading').removeAttribute('data-i18n');
+        document.getElementById('results-heading').textContent = window.i18n.text(heading);
         const cardsEl = document.getElementById('story-cards');
         cardsEl.innerHTML = '';
 
@@ -359,16 +360,16 @@
                 '<div class="story-title">'   + esc(s.title) + '</div>' +
                 '<div class="story-desc">'    + esc(s.desc)  + '</div>' +
                 '<div class="story-actions">' +
-                    '<a href="' + esc(s.url) + '" target="_blank" rel="noopener noreferrer" class="btn-open">Form</a>' +
-                    '<button class="btn-copy">Copy Link</button>' +
-                    '<button class="btn-copy">Copy Message</button>' +
+                    '<a href="' + esc(new URL(s.url,location.origin).href) + '" target="_blank" rel="noopener noreferrer" class="btn-open">'+window.i18n.text('Form')+'</a>' +
+                    '<button class="btn-copy">'+window.i18n.text('Copy Link')+'</button>' +
+                    '<button class="btn-copy">'+window.i18n.text('Copy Message')+'</button>' +
                 '</div>';
             const copyBtns = card.querySelectorAll('.btn-copy');
             copyBtns[0].addEventListener('click', function () {
-                copyLink(s.url, this);
+                copyLink(new URL(s.url,location.origin).href, this);
             });
             copyBtns[1].addEventListener('click', function () {
-                copyMessage(s.messageTemplate, s.url, this);
+                copyMessage(s.messageTemplate, new URL(s.url,location.origin).href, this);
             });
             cardsEl.appendChild(card);
         });
@@ -384,10 +385,10 @@
 
     function copyLink(url, btn) {
         const confirm = () => {
-            btn.textContent = 'Copied!';
+            btn.textContent = window.i18n.text('Copied!');
             btn.classList.add('copied');
             setTimeout(() => {
-                btn.textContent = 'Copy Link';
+                btn.textContent = window.i18n.text("Copy Link");
                 btn.classList.remove('copied');
             }, 2000);
         };
@@ -402,10 +403,10 @@
     function copyMessage(template, url, btn) {
         const text = template.replace('[LINK]', url);
         const confirm = () => {
-            btn.textContent = 'Copied \u2713';
+            btn.textContent = window.i18n.text("Copied ✓");
             btn.classList.add('copied');
             setTimeout(() => {
-                btn.textContent = 'Copy Message';
+                btn.textContent = window.i18n.text("Copy Message");
                 btn.classList.remove('copied');
             }, 2000);
         };
@@ -441,6 +442,14 @@
 
 
 
+
+    window.addEventListener('i18n:ready', () => {
+        if (window.i18n.getLang() === 'ur') {
+            const translated = window.i18n.raw('selector');
+            STORIES.forEach(story => Object.assign(story, translated[story.id]));
+        }
+        renderCategories();
+    });
 
     /* ── Init ─────────────────────────────────────────────────────────── */
 

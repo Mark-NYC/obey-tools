@@ -21,7 +21,7 @@
     <meta name="theme-color" content="#000000">
     <meta name="apple-mobile-web-app-title" content="Obey Tools">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Conversation Box</title>
+    <title data-i18n="index.conversation_box">Conversation Box</title>
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <script type="module">
       import { supabase } from './supabase.js';
@@ -292,7 +292,7 @@
             <button type="button" class="auth-forgot-btn" data-i18n="auth.forgot_password" onclick="authForgotPassword()" style="display:block;width:100%;margin-top:6px;padding:6px;background:none;border:none;color:#8e8e93;font-size:13px;cursor:pointer;text-align:center;font-family:inherit;">Forgot password?</button>
             </div>
             <div class="auth-status" id="auth-status" style="display:none">
-                <span class="auth-status-text" id="auth-status-text">Not signed in</span>
+                <span class="auth-status-text" id="auth-status-text" data-i18n="auth.not_signed_in">Not signed in</span>
                 <button class="auth-logout-btn" onclick="authLogOut()" data-i18n="auth.log_out">Log Out</button>
             </div>
         </div>
@@ -310,7 +310,7 @@
                 <div class="conversation-box spiritual">
                     <div class="box-header">
                         <div class="box-title" data-i18n="conversation_box.box_spiritual">Spiritual</div>
-                        <div class="share-indicator" title="Share Upstream"></div>
+                        <div class="share-indicator" title="Share Upstream" data-i18n-title="site_text.s_8a8003cbe0a1"></div>
                     </div>
                     <div class="conversation-list" id="spiritual-list"></div>
                 </div>
@@ -327,7 +327,7 @@
                 <div class="view-map-row">
                     <a href="view-progress" class="btn-view-map">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>
-                        View Map
+                        <span data-i18n="site_text.s_7e06a4c7c4de">View Map</span>
                     </a>
                 </div>
                 <div class="view-map-row" style="text-align:center;">
@@ -422,25 +422,25 @@
         <div class="person-details-sheet" id="person-details-sheet">
             <div class="details-drag-handle"></div>
             <div>
-                <input type="text" class="details-person-name" id="details-person-name" placeholder="Name">
-                <div class="details-name-hint">Tap to rename</div>
+                <input type="text" class="details-person-name" id="details-person-name" placeholder="Name" data-i18n-placeholder="four_questions.diagram.name_center">
+                <div class="details-name-hint" data-i18n="site_text.s_22d1999cabbf">Tap to rename</div>
                 <div class="details-quadrant" id="details-quadrant"></div>
             </div>
             <div class="details-field">
-                <label for="details-next-step">Next step</label>
-                <input type="text" id="details-next-step" placeholder="What's the next step?">
+                <label for="details-next-step" data-i18n="site_text.s_5500eef9fdb1">Next step</label>
+                <input type="text" id="details-next-step" placeholder="What's the next step?" data-i18n-placeholder="site_text.s_1255ee5014fb">
             </div>
             <div class="details-field">
-                <label for="details-note">Note</label>
-                <textarea id="details-note" placeholder="Optional note..."></textarea>
+                <label for="details-note" data-i18n="site_text.s_2c924e308820">Note</label>
+                <textarea id="details-note" placeholder="Optional note..." data-i18n-placeholder="site_text.s_58b5664c6b2d"></textarea>
             </div>
             <div class="details-field">
-                <label for="details-follow-up-date">Follow-up date</label>
+                <label for="details-follow-up-date" data-i18n="site_text.s_b8da11963e47">Follow-up date</label>
                 <input type="date" id="details-follow-up-date">
             </div>
             <div class="details-actions">
-                <button class="btn btn-secondary" onclick="closePersonDetails()">Cancel</button>
-                <button class="btn btn-primary" onclick="savePersonDetails()">Save</button>
+                <button class="btn btn-secondary" onclick="closePersonDetails()" data-i18n="mawl.cancel">Cancel</button>
+                <button class="btn btn-primary" onclick="savePersonDetails()" data-i18n="conversation_box.save">Save</button>
             </div>
         </div>
     </div>

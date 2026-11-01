@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title data-i18n="site_text.s_d8732d00cc2e">Urdu Bible | OBEY.TOOLS</title>
+<link rel="stylesheet" href="/fonts.css">
+<link rel="stylesheet" href="/urdu.css">
+<style>body{margin:0;background:#f8f8f8;color:#222;font-family:system-ui,sans-serif;line-height:1.7}main{max-width:760px;margin:24px auto;padding:24px;background:white;border-radius:16px}a{color:inherit}.bible-text{font-family:'Obey Urdu',serif;font-size:20px;line-height:2}.bible-verse{margin-block:16px}.verse-num{margin-inline-end:.5em}h1{font-size:28px}.toolbar{display:flex;justify-content:space-between;gap:16px}@media(max-width:600px){main{margin:0;padding:20px;border-radius:0}}</style>
+<script type="module" src="/i18n.js"></script>
+</head>
+<body><main>
+<nav class="toolbar"><a href="/" data-i18n="nav.home">Home</a><a href="/bible-study/" data-i18n="bible.daily_readings">Daily readings</a></nav>
+<h1 data-i18n="bible.title">Urdu Bible</h1>
+<div id="passage" class="bible-text" lang="ur" dir="rtl" aria-live="polite"></div>
+</main>
+<script type="module">
+import { ready, t } from '/i18n.js'
+import { loadBible, renderPassage } from '/urdu.js'
+await ready
+const element = document.getElementById('passage')
+const ref = new URLSearchParams(location.search).get('ref') || 'MRK 1:1-8'
+try {
+    const data = await loadBible()
+    const title = renderPassage(element, data, ref)
+    document.title = title + ' (OUCV) | OBEY.TOOLS'
+} catch {
+    element.textContent = t('bible.unavailable')
+    const link = document.createElement('a')
+    link.href = 'https://ebible.org/urdoucv/'
+    link.textContent = t('bible.open_full')
+    element.append(document.createElement('br'), link)
+}
+</script>
+</body></html>

@@ -28,6 +28,8 @@
     <title>OBEY.TOOLS</title>
     <script type="module">
         import { supabase } from './supabase.js'
+        import { ready } from './i18n.js'
+        await ready
         import { fetchRole, authSignUp, authLogIn, authLogOut, authForgotPassword, initAuthSection } from './auth.js'
 
         window.authSignUp = authSignUp
@@ -55,7 +57,7 @@
             if (isError) {
                 const btn = document.createElement('button')
                 btn.className = 'auth-toast-close'
-                btn.setAttribute('aria-label', 'Dismiss')
+                btn.setAttribute('aria-label', window.i18n.text("Dismiss"))
                 btn.textContent = '×'
                 btn.onclick = () => el.remove()
                 el.appendChild(btn)
@@ -72,8 +74,8 @@
             const decoded = rawDesc.replace(/\+/g, ' ')
             // Map common Supabase error types to user-friendly messages
             const msg = _authError === 'access_denied' || decoded.toLowerCase().includes('expired')
-                ? 'This sign-in link is invalid or expired. Request a new one.'
-                : decoded || 'Sign-in failed. Please try again.'
+                ? window.t('auth.invalid_link')
+                : window.t('auth.signin_failed')
             showAuthToast(msg, true)
             // Clean up the error hash so it doesn't persist on refresh
             history.replaceState(null, '', window.location.pathname + window.location.search)
@@ -113,7 +115,7 @@
         supabase.auth.onAuthStateChange((_event, session) => {
             // Surface successful sign-in from email link
             if (_event === 'SIGNED_IN' && _isAuthRedirect) {
-                showAuthToast("You're signed in.", false)
+                showAuthToast(window.i18n.text("You're signed in."), false)
                 // Clean up the ?code= param left in URL after PKCE exchange
                 if (window.location.search.includes('code=')) {
                     history.replaceState(null, '', window.location.pathname)
@@ -339,7 +341,7 @@
 <body>
 
 
-    <h1 style="margin-bottom:16px;">OBEY.TOOLS</h1>
+    <h1 class="site-wordmark" style="margin-bottom:16px;">OBEY.TOOLS</h1>
     <p data-i18n-html="index.tagline" style="max-width:320px; text-align:center; font-size:16px; line-height:1.45; color:#3a3a3c; margin-bottom:44px;">Simple tools to understand, obey, and pass on the commands of&nbsp;Jesus.</p>
 
     <div class="buttons">
@@ -351,7 +353,7 @@
         <a href="stories-of-hope" class="btn btn-stories" data-i18n="index.stories_of_hope">Stories of Hope</a>
 
         <!-- PLACEHOLDER: page not yet created -->
-        <a href="4-questions" class="btn btn-questions" aria-label="4-1-1 (4 Questions)">4-1-1 <span class="btn-paren" data-i18n="four_questions.title_paren">(4 Questions)</span></a>
+        <a href="4-questions" class="btn btn-questions" aria-label="4-1-1 (4 Questions)" data-i18n-aria-label="index.four_questions">4-1-1 <span class="btn-paren" data-i18n="four_questions.title_paren">(4 Questions)</span></a>
 
         <!-- LIVE: links to commands-of-christ.html -->
         <a href="commands-of-christ" class="btn btn-commands" data-i18n="index.commands_of_christ">Commands of Christ</a>
@@ -394,13 +396,14 @@
     <option value="ru">Русский (Russian)</option>
     <option value="si">සිංහල (Sinhala)</option>
     <option value="ta">தமிழ் (Tamil)</option>
+    <option value="ur">اردو (Urdu)</option>
     <option value="uk">Українська (Ukrainian)</option>
 </select>
 
     <div id="install-banner">
         <span id="install-text"></span>
         <button id="install-btn" style="display:none" data-i18n="pwa.install_btn">Install App</button>
-        <button id="install-dismiss" aria-label="Dismiss">&#x2715;</button>
+        <button id="install-dismiss" aria-label="Dismiss" data-i18n-aria-label="pwa.dismiss_aria">&#x2715;</button>
     </div>
 
     <script>
@@ -441,7 +444,7 @@
         if (isIOS && !isStandalone) {
             window.addEventListener('load', function () {
                 if (deferredPrompt) return  // Chromium already showing
-                text.innerHTML = 'Tap <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" width="16" height="16" style="vertical-align:middle;display:inline-block;margin:0 1px -1px" fill="currentColor"><path d="M30.3 13.7L25 8.4l-5.3 5.3-1.4-1.4L25 5.6l6.7 6.7z"/><path d="M24 7h2v21h-2z"/><path d="M35 40H15c-1.7 0-3-1.3-3-3V19c0-1.7 1.3-3 3-3h7v2h-7c-.6 0-1 .4-1 1v18c0 .6.4 1 1 1h20c.6 0 1-.4 1-1V19c0-.6-.4-1-1-1h-7v-2h7c1.7 0 3 1.3 3 3v18c0 1.7-1.3 3-3 3z"/></svg> Share, then “Add to Home Screen” to install.'
+                text.innerHTML = window.t('pwa.ios_install', { icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" width="16" height="16" style="vertical-align:middle;display:inline-block;margin:0 1px -1px" fill="currentColor"><path d="M30.3 13.7L25 8.4l-5.3 5.3-1.4-1.4L25 5.6l6.7 6.7z"/><path d="M24 7h2v21h-2z"/><path d="M35 40H15c-1.7 0-3-1.3-3-3V19c0-1.7 1.3-3 3-3h7v2h-7c-.6 0-1 .4-1 1v18c0 .6.4 1 1 1h20c.6 0 1-.4 1-1V19c0-.6-.4-1-1-1h-7v-2h7c1.7 0 3 1.3 3 3v18c0 1.7-1.3 3-3 3z"/></svg>' })
                 banner.style.display = 'flex'
             })
         }
@@ -491,10 +494,10 @@
     </script>
 
     <footer style="margin-top:48px; text-align:center; font-size:13px; color:#8e8e93; padding:0 20px;">
-        <p>Part of a small family of disciple-making tools:
-            <a href="https://churchwaffle.com" style="color:#8e8e93; text-decoration:underline;">Church Waffle</a> ·
+        <p><span data-i18n="site_text.s_dabba0907e32">Part of a small family of disciple-making tools:</span>
+            <a href="https://churchwaffle.com" style="color:#8e8e93; text-decoration:underline;" data-i18n="site_text.s_f3f597349ab9">Church Waffle</a> ·
             <a href="https://covomultipliers.com" style="color:#8e8e93; text-decoration:underline;">Covo Multipliers</a> ·
-            <a href="https://conversationquadrant.com" style="color:#8e8e93; text-decoration:underline;">Conversation Quadrant</a>
+            <a href="https://conversationquadrant.com" style="color:#8e8e93; text-decoration:underline;" data-i18n="site_text.s_f56452e63335">Conversation Quadrant</a>
         </p>
     </footer>
 

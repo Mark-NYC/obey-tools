@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UCO Checklist Tracker</title>
+    <title data-i18n="site_text.s_f97676d055c8">UCO Checklist Tracker</title>
     <style>
         * {
             margin: 0;
@@ -283,22 +283,23 @@
             font-size: 16px;
         }
     </style>
+<script type="module" src="/i18n.js"></script>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1 class="title">UCO Checklist</h1>
+            <h1 class="title" data-i18n="site_text.s_361d1e76429c">UCO Checklist</h1>
             
             <div class="admin-toggle">
                 <span id="admin-status">Admin Mode: OFF</span>
-                <button onclick="toggleAdminMode()">Toggle Admin</button>
+                <button onclick="toggleAdminMode()" data-i18n="site_text.s_30fb2cdbef4e">Toggle Admin</button>
             </div>
 
             <div class="church-section">
                 <select id="church-select" onchange="switchChurch()">
                     <option value="">Select Church</option>
                 </select>
-                <button class="btn btn-primary" id="add-church-btn" onclick="showAddChurchModal()" disabled>+Church</button>
+                <button class="btn btn-primary" id="add-church-btn" onclick="showAddChurchModal()" disabled data-i18n="site_text.s_fe4e56f1cac1">+Church</button>
                 <button class="btn btn-danger" id="delete-church-btn" onclick="showDeleteChurchModal()" disabled>X</button>
             </div>
 
@@ -306,62 +307,62 @@
                 <select id="leader-select" onchange="switchLeader()">
                     <option value="">Select Leader</option>
                 </select>
-                <button class="btn btn-primary" onclick="showAddLeaderModal()">+Leader</button>
+                <button class="btn btn-primary" onclick="showAddLeaderModal()" data-i18n="site_text.s_16e81196c8c8">+Leader</button>
                 <button class="btn btn-danger" onclick="showDeleteLeaderModal()">X</button>
             </div>
         </div>
 
         <div class="controls">
-            <button class="btn btn-secondary" style="flex: 1" onclick="shareProgress()">Share</button>
-            <button class="btn btn-secondary" style="flex: 1" onclick="resetCurrent()">Reset Current</button>
-            <button class="btn btn-secondary" style="flex: 1" onclick="resetAll()">Reset All</button>
+            <button class="btn btn-secondary" style="flex: 1" onclick="shareProgress()" data-i18n="how_were_doing.share">Share</button>
+            <button class="btn btn-secondary" style="flex: 1" onclick="resetCurrent()" data-i18n="site_text.s_6abea35cd0c6">Reset Current</button>
+            <button class="btn btn-secondary" style="flex: 1" onclick="resetAll()" data-i18n="site_text.s_58f5fb89a3e6">Reset All</button>
         </div>
 
-        <div id="checklist-content"><div class="loading">Loading...</div></div>
+        <div id="checklist-content"><div class="loading" data-i18n="leader_tools.loading">Loading...</div></div>
     </div>
 
     <div class="modal" id="admin-password-modal">
-        <h3>Admin Password</h3>
-        <input type="password" id="admin-password-input" placeholder="Enter admin password">
+        <h3 data-i18n="site_text.s_88d492492f94">Admin Password</h3>
+        <input type="password" id="admin-password-input" placeholder="Enter admin password" data-i18n-placeholder="site_text.s_731970028a8d">
         <div class="modal-buttons">
-            <button class="btn btn-primary" style="flex: 1" onclick="verifyAdminPassword()">Unlock</button>
-            <button class="btn btn-secondary" style="flex: 1" onclick="closeModal('admin-password-modal')">Cancel</button>
+            <button class="btn btn-primary" style="flex: 1" onclick="verifyAdminPassword()" data-i18n="site_text.s_1526a17ee757">Unlock</button>
+            <button class="btn btn-secondary" style="flex: 1" onclick="closeModal('admin-password-modal')" data-i18n="mawl.cancel">Cancel</button>
         </div>
     </div>
 
     <div class="modal" id="add-church-modal">
-        <h3>Add New Church</h3>
-        <input type="text" id="church-name-input" placeholder="Enter church name">
+        <h3 data-i18n="site_text.s_64331199475c">Add New Church</h3>
+        <input type="text" id="church-name-input" placeholder="Enter church name" data-i18n-placeholder="site_text.s_61ee1ab254fe">
         <div class="modal-buttons">
-            <button class="btn btn-primary" style="flex: 1" onclick="addChurch()">Add</button>
-            <button class="btn btn-secondary" style="flex: 1" onclick="closeModal('add-church-modal')">Cancel</button>
+            <button class="btn btn-primary" style="flex: 1" onclick="addChurch()" data-i18n="conversation_box.add_btn">Add</button>
+            <button class="btn btn-secondary" style="flex: 1" onclick="closeModal('add-church-modal')" data-i18n="mawl.cancel">Cancel</button>
         </div>
     </div>
 
     <div class="modal" id="delete-church-modal">
-        <h3>Delete Church</h3>
+        <h3 data-i18n="site_text.s_aff403424691">Delete Church</h3>
         <p id="delete-church-text" style="color: #8e8e93; font-size: 15px; margin: 8px 0;"></p>
         <div class="modal-buttons">
-            <button class="btn btn-danger" style="flex: 1" onclick="confirmDeleteChurch()">Delete</button>
-            <button class="btn btn-secondary" style="flex: 1" onclick="closeModal('delete-church-modal')">Cancel</button>
+            <button class="btn btn-danger" style="flex: 1" onclick="confirmDeleteChurch()" data-i18n="site_text.s_f6fdbe48dc54">Delete</button>
+            <button class="btn btn-secondary" style="flex: 1" onclick="closeModal('delete-church-modal')" data-i18n="mawl.cancel">Cancel</button>
         </div>
     </div>
 
     <div class="modal" id="add-leader-modal">
-        <h3>Add New Leader</h3>
-        <input type="text" id="leader-name-input" placeholder="Enter leader name">
+        <h3 data-i18n="site_text.s_393ef95040e1">Add New Leader</h3>
+        <input type="text" id="leader-name-input" placeholder="Enter leader name" data-i18n-placeholder="site_text.s_91e7a4a61b6f">
         <div class="modal-buttons">
-            <button class="btn btn-primary" style="flex: 1" onclick="addLeader()">Add</button>
-            <button class="btn btn-secondary" style="flex: 1" onclick="closeModal('add-leader-modal')">Cancel</button>
+            <button class="btn btn-primary" style="flex: 1" onclick="addLeader()" data-i18n="conversation_box.add_btn">Add</button>
+            <button class="btn btn-secondary" style="flex: 1" onclick="closeModal('add-leader-modal')" data-i18n="mawl.cancel">Cancel</button>
         </div>
     </div>
 
     <div class="modal" id="delete-leader-modal">
-        <h3>Delete Leader</h3>
+        <h3 data-i18n="site_text.s_5b5d6eecc7b6">Delete Leader</h3>
         <p id="delete-leader-text" style="color: #8e8e93; font-size: 15px; margin: 8px 0;"></p>
         <div class="modal-buttons">
-            <button class="btn btn-danger" style="flex: 1" onclick="confirmDeleteLeader()">Delete</button>
-            <button class="btn btn-secondary" style="flex: 1" onclick="closeModal('delete-leader-modal')">Cancel</button>
+            <button class="btn btn-danger" style="flex: 1" onclick="confirmDeleteLeader()" data-i18n="site_text.s_f6fdbe48dc54">Delete</button>
+            <button class="btn btn-secondary" style="flex: 1" onclick="closeModal('delete-leader-modal')" data-i18n="mawl.cancel">Cancel</button>
         </div>
     </div>
 
@@ -449,7 +450,7 @@
                 renderChecklist();
             } catch(e) {
                 console.error('Load failed:', e);
-                showNotification('Failed to load data');
+                showNotification(window.i18n.text("Failed to load data"));
             } finally {
                 isLoading = false;
             }
@@ -476,7 +477,7 @@
                     });
                 } catch(e) {
                     console.error('Save failed:', e);
-                    showNotification('Failed to save changes');
+                    showNotification(window.i18n.text("Failed to save changes"));
                 }
             }, 500);
         }
@@ -485,7 +486,7 @@
             if (isAdminMode) {
                 isAdminMode = false;
                 updateAdminUI();
-                showNotification('Admin mode disabled');
+                showNotification(window.i18n.text("Admin mode disabled"));
             } else {
                 document.getElementById('admin-password-modal').style.display = 'flex';
                 document.getElementById('admin-password-input').focus();
@@ -500,15 +501,15 @@
                 isAdminMode = true;
                 updateAdminUI();
                 closeModal('admin-password-modal');
-                showNotification('Admin mode enabled');
+                showNotification(window.i18n.text("Admin mode enabled"));
             } else {
-                showNotification('Incorrect password');
+                showNotification(window.i18n.text("Incorrect password"));
             }
             input.value = '';
         }
 
         function updateAdminUI() {
-            document.getElementById('admin-status').textContent = `Admin Mode: ${isAdminMode ? 'ON' : 'OFF'}`;
+            document.getElementById('admin-status').textContent = window.t('uco_ui.admin',{state:window.t(isAdminMode ? 'uco_ui.on' : 'uco_ui.off')});
             document.getElementById('add-church-btn').disabled = !isAdminMode;
             document.getElementById('delete-church-btn').disabled = !isAdminMode;
             
@@ -555,7 +556,7 @@
 
         function showAddChurchModal() {
             if (!isAdminMode) {
-                showNotification('Admin mode required');
+                showNotification(window.t('uco_ui.admin_required'));
                 return;
             }
             document.getElementById('add-church-modal').style.display = 'flex';
@@ -564,21 +565,21 @@
 
         function showDeleteChurchModal() {
             if (!isAdminMode) {
-                showNotification('Admin mode required');
+                showNotification(window.t('uco_ui.admin_required'));
                 return;
             }
             if (!currentChurch) {
-                showNotification('Please select a church first');
+                showNotification(window.t('uco_ui.church_required'));
                 return;
             }
             
-            document.getElementById('delete-church-text').textContent = `Are you sure you want to delete "${currentChurch}" and all its leaders and progress?`;
+            document.getElementById('delete-church-text').textContent = window.t('uco_ui.delete_church',{name:currentChurch});
             document.getElementById('delete-church-modal').style.display = 'flex';
         }
 
         function showAddLeaderModal() {
             if (!currentChurch) {
-                showNotification('Please select a church first');
+                showNotification(window.t('uco_ui.church_required'));
                 return;
             }
             document.getElementById('add-leader-modal').style.display = 'flex';
@@ -587,11 +588,11 @@
 
         function showDeleteLeaderModal() {
             if (!currentLeader) {
-                showNotification('Please select a leader first');
+                showNotification(window.t('uco_ui.leader_required'));
                 return;
             }
             
-            document.getElementById('delete-leader-text').textContent = `Are you sure you want to delete "${currentLeader}" and all their progress?`;
+            document.getElementById('delete-leader-text').textContent = window.t('uco_ui.delete_leader',{name:currentLeader});
             document.getElementById('delete-leader-modal').style.display = 'flex';
         }
 
@@ -610,7 +611,7 @@
 
         function addChurch() {
             if (!isAdminMode) {
-                showNotification('Admin mode required');
+                showNotification(window.t('uco_ui.admin_required'));
                 return;
             }
             
@@ -627,9 +628,9 @@
                     initializeLeaderSelect();
                     renderChecklist();
                     closeModal('add-church-modal');
-                    showNotification(`Church "${name}" added`);
+                    showNotification(window.t('uco_ui.church_added',{name:name}));
                 } else {
-                    showNotification('Church already exists');
+                    showNotification(window.i18n.text("Church already exists"));
                 }
             }
         }
@@ -649,12 +650,12 @@
             initializeLeaderSelect();
             renderChecklist();
             closeModal('delete-church-modal');
-            showNotification(`Church "${deletedName}" deleted`);
+            showNotification(window.t('uco_ui.church_deleted',{name:deletedName}));
         }
 
         function addLeader() {
             if (!currentChurch) {
-                showNotification('Please select a church first');
+                showNotification(window.t('uco_ui.church_required'));
                 return;
             }
             
@@ -669,9 +670,9 @@
                     initializeLeaderSelect();
                     renderChecklist();
                     closeModal('add-leader-modal');
-                    showNotification(`Leader "${name}" added`);
+                    showNotification(window.t('uco_ui.leader_added',{name:name}));
                 } else {
-                    showNotification('Leader already exists');
+                    showNotification(window.i18n.text("Leader already exists"));
                 }
             }
         }
@@ -689,7 +690,7 @@
             initializeLeaderSelect();
             renderChecklist();
             closeModal('delete-leader-modal');
-            showNotification(`Leader "${deletedName}" deleted`);
+            showNotification(window.t('uco_ui.leader_deleted',{name:deletedName}));
         }
 
         function switchChurch() {
@@ -710,7 +711,7 @@
 
         function toggleCheck(item, column) {
             if (!currentChurch || !currentLeader) {
-                showNotification('Please select a church and leader first');
+                showNotification(window.i18n.text("Please select a church and leader first"));
                 return;
             }
 
@@ -745,19 +746,19 @@
             const content = document.getElementById('checklist-content');
             
             if (!currentChurch) {
-                content.innerHTML = '<div class="empty-state">Please select or add a church to begin</div>';
+                content.innerHTML = "<div class=\"empty-state\" data-i18n=\"site_text.s_fc7f33c0f186\">Please select or add a church to begin</div>";
                 return;
             }
 
             if (!currentLeader) {
-                content.innerHTML = '<div class="empty-state">Please select or add a leader to begin tracking</div>';
+                content.innerHTML = "<div class=\"empty-state\" data-i18n=\"site_text.s_f44fbddaae0d\">Please select or add a leader to begin tracking</div>";
                 return;
             }
 
-            let html = '<table class="checklist-table"><thead><tr><th style="text-align: left">Item</th><th>M</th><th>A</th><th>W</th><th>L</th></tr></thead><tbody>';
+            let html = "<table class=\"checklist-table\"><thead><tr><th style=\"text-align: left\" data-i18n=\"site_text.s_ecdda59aea5e\">Item</th><th>M</th><th>A</th><th>W</th><th>L</th></tr></thead><tbody>";
 
             checklistItems.forEach(section => {
-                html += `<tr class="category-row"><td>${section.category}</td>`;
+                html += `<tr class="category-row"><td>${window.i18n.text(section.category)}</td>`;
                 ['M', 'A', 'W', 'L'].forEach(col => {
                     const key = `${section.category}_${col}`;
                     const checked = churches[currentChurch]?.leaders[currentLeader]?.[key];
@@ -769,7 +770,7 @@
                 
                 if (section.items.length > 0) {
                     section.items.forEach(item => {
-                        html += `<tr><td>${item}</td>`;
+                        html += `<tr><td>${window.i18n.text(item)}</td>`;
                         ['M', 'A', 'W', 'L'].forEach(col => {
                             const key = `${item}_${col}`;
                             const checked = churches[currentChurch]?.leaders[currentLeader]?.[key];
@@ -788,14 +789,14 @@
 
         function shareProgress() {
             if (!currentChurch || !currentLeader) {
-                showNotification('Please select a church and leader first');
+                showNotification(window.i18n.text("Please select a church and leader first"));
                 return;
             }
 
-            let message = `UCO Checklist Progress\nChurch: ${currentChurch}\nLeader: ${currentLeader}\n\n`;
+            let message = window.t('uco_ui.share',{church:currentChurch,leader:currentLeader});
             
             checklistItems.forEach(section => {
-                message += `${section.category}\n`;
+                message += `${window.i18n.text(section.category)}\n`;
                 const catStatuses = ['M', 'A', 'W', 'L'].map(col => {
                     const key = `${section.category}_${col}`;
                     return churches[currentChurch]?.leaders[currentLeader]?.[key] ? '✓' : '○';
@@ -804,7 +805,7 @@
                 
                 if (section.items.length > 0) {
                     section.items.forEach(item => {
-                        message += `${item}\n`;
+                        message += `${window.i18n.text(item)}\n`;
                         const statuses = ['M', 'A', 'W', 'L'].map(col => {
                             const key = `${item}_${col}`;
                             return churches[currentChurch]?.leaders[currentLeader]?.[key] ? '✓' : '○';
@@ -820,20 +821,20 @@
 
         function resetCurrent() {
             if (!currentChurch || !currentLeader) {
-                showNotification('Please select a church and leader first');
+                showNotification(window.i18n.text("Please select a church and leader first"));
                 return;
             }
 
-            if (confirm(`Reset all progress for ${currentLeader}?`)) {
+            if (confirm(window.t('uco_ui.reset',{name:currentLeader}))) {
                 churches[currentChurch].leaders[currentLeader] = {};
                 saveData();
                 renderChecklist();
-                showNotification('Progress reset');
+                showNotification(window.i18n.text("Progress reset"));
             }
         }
 
         function resetAll() {
-            if (confirm('Delete all churches, leaders and reset all progress?')) {
+            if (confirm(window.i18n.text("Delete all churches, leaders and reset all progress?"))) {
                 churches = {};
                 currentChurch = '';
                 currentLeader = '';
@@ -841,7 +842,7 @@
                 initializeChurchSelect();
                 initializeLeaderSelect();
                 renderChecklist();
-                showNotification('All data cleared');
+                showNotification(window.i18n.text("All data cleared"));
             }
         }
 
@@ -868,7 +869,7 @@
         });
 
         // Initialize
-        updateAdminUI();
+        window.addEventListener('i18n:ready',()=>{updateAdminUI();initializeChurchSelect();initializeLeaderSelect();renderChecklist();});
         initAPI();
     </script>
 </body>
