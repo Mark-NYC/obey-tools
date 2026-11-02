@@ -43,7 +43,7 @@
             accountBtn.setAttribute('aria-label', signedIn ? 'Open signed-in account' : 'Open sign in');
         });
     </script>
-<title>Hope for the Rejected — Live Facilitation (Test) - Luke 7:36-50</title>
+<title data-i18n="site_text.s_f964da9c1a8e">Hope for the Rejected — Live Facilitation (Test) - Luke 7:36-50</title>
 <meta content="noindex, nofollow" name="robots"/>
 <script src="/i18n.js" type="module"></script>
 <script defer="" src="/pwa.js"></script>
@@ -1170,7 +1170,7 @@ button {
 <button type="button" class="auth-forgot-btn" data-i18n="auth.forgot_password" onclick="authForgotPassword()" style="display:block;width:100%;margin-top:6px;padding:6px;background:none;border:none;color:#8e8e93;font-size:13px;cursor:pointer;text-align:center;font-family:inherit;">Forgot password?</button>
 </div>
 <div class="auth-status" id="auth-status" style="display:none">
-<span class="auth-status-text" id="auth-status-text">Not signed in</span>
+<span class="auth-status-text" id="auth-status-text" data-i18n="auth.not_signed_in">Not signed in</span>
 <button class="auth-logout-btn" data-i18n="auth.log_out" onclick="authLogOut()">Log Out</button>
 </div>
 </div>
@@ -1220,13 +1220,13 @@ button {
 <div class="card-content">
 <div class="card-icon discover-icon"></div>
 <div class="card-text"><div class="card-title" data-i18n="common.read_story_title">Read the Story</div><div class="card-description" data-i18n="hope_rejected.read_story_desc">Read Luke 7:36–50 together.</div></div>
-<button class="bible-btn bible-btn-desktop" onclick="toggleBible(event)"><span>Luke 7:36–50 (CSB)</span><span class="bible-btn-icon">▼</span></button>
+<button class="bible-btn bible-btn-desktop" onclick="toggleBible(event)"><span data-i18n="worship_page.bible_btn">Luke 7:36–50 (CSB)</span><span class="bible-btn-icon">▼</span></button>
 <div class="card-checkbox"></div>
 </div>
 </div>
-<div class="bible-btn-mobile-wrap"><button class="bible-btn bible-btn-mobile" onclick="toggleBible(event)"><span>Luke 7:36–50 (CSB)</span><span class="bible-btn-icon">▼</span></button></div>
+<div class="bible-btn-mobile-wrap"><button class="bible-btn bible-btn-mobile" onclick="toggleBible(event)"><span data-i18n="worship_page.bible_btn">Luke 7:36–50 (CSB)</span><span class="bible-btn-icon">▼</span></button></div>
 <div class="bible-accordion" id="bible-accordion">
-<div class="bible-text">
+<div class="bible-text" data-bible-ref="LUK 7:36-50">
 <div class="bible-translation">Christian Standard Bible</div>
 <p class="bible-verse"><span class="verse-num">36</span>Then one of the Pharisees invited him to eat with him. He entered the Pharisee's house and reclined at the table.</p>
 <p class="bible-verse"><span class="verse-num">37</span>And a woman in the town who was a sinner found out that Jesus was reclining at the table in the Pharisee's house. She brought an alabaster jar of perfume</p>
@@ -1304,7 +1304,7 @@ button {
 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v14m0 0-6-6m6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
 <span data-i18n="live.go_to_current">Go to current part</span>
 </button>
-<div class="popup-overlay" id="visionPopup" onclick="closeVisionPopup()"><div class="popup-content" onclick="event.stopPropagation()"><button class="popup-close" onclick="closeVisionPopup()">×</button><img alt="Church Circle" class="popup-image" src="assets/images/popups/vision-popup.jpg"/><div class="popup-text" data-i18n="common.vision_popup_text">Read Acts 2:36-47. Be a part of a church and start a church</div></div></div>
+<div class="popup-overlay" id="visionPopup" onclick="closeVisionPopup()"><div class="popup-content" onclick="event.stopPropagation()"><button class="popup-close" onclick="closeVisionPopup()">×</button><img alt="Church Circle" class="popup-image" src="assets/images/popups/vision-popup.jpg" data-i18n-alt="index.church_circle"/><div class="popup-text" data-i18n="common.vision_popup_text">Read Acts 2:36-47. Be a part of a church and start a church</div></div></div>
 <div class="popup-overlay" id="sharePopup" onclick="LIVE.closeShare()"><div class="popup-content share-sheet" onclick="event.stopPropagation()"><button class="popup-close" onclick="LIVE.closeShare()">×</button>
 <h2 data-i18n="live.share_heading">Invite your group</h2>
 <p class="share-sheet-sub" data-i18n="live.share_instructions">Share the link, or have people open the join page and enter the code below.</p>
@@ -1329,17 +1329,17 @@ button {
 <div class="stepper-row">
 <span class="stepper-label" data-i18n="live.people_present">People present</span>
 <span class="stepper">
-<button type="button" aria-label="minus" onclick="LIVE.stepReport('present',-1)">−</button>
+<button type="button" aria-label="minus" onclick="LIVE.stepReport('present',-1)" data-i18n-aria-label="site_text.s_59b6536256b8">−</button>
 <input id="reportPresent" type="number" inputmode="numeric" min="0" value="0" onchange="LIVE.validateReport()"/>
-<button type="button" aria-label="plus" onclick="LIVE.stepReport('present',1)">+</button>
+<button type="button" aria-label="plus" onclick="LIVE.stepReport('present',1)" data-i18n-aria-label="site_text.s_6a8437dd0009">+</button>
 </span>
 </div>
 <div class="stepper-row">
 <span class="stepper-label" data-i18n="live.people_set_goal">People who set a goal</span>
 <span class="stepper">
-<button type="button" aria-label="minus" onclick="LIVE.stepReport('goal',-1)">−</button>
+<button type="button" aria-label="minus" onclick="LIVE.stepReport('goal',-1)" data-i18n-aria-label="site_text.s_59b6536256b8">−</button>
 <input id="reportGoal" type="number" inputmode="numeric" min="0" value="0" onchange="LIVE.validateReport()"/>
-<button type="button" aria-label="plus" onclick="LIVE.stepReport('goal',1)">+</button>
+<button type="button" aria-label="plus" onclick="LIVE.stepReport('goal',1)" data-i18n-aria-label="site_text.s_6a8437dd0009">+</button>
 </span>
 </div>
 <p class="report-error" id="reportError" hidden></p>
@@ -1484,7 +1484,7 @@ button {
 
         accordionRoot = document.createElement('main');
         accordionRoot.className = 'accordion-overview';
-        accordionRoot.setAttribute('aria-label', 'Stories of Hope 3/3 process');
+        accordionRoot.setAttribute('aria-label', window.i18n.text("Stories of Hope 3/3 process"));
 
         sectionList().forEach(function (section) {
             var label = document.createElement('div');

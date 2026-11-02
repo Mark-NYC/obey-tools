@@ -24,7 +24,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="preload" href="/assets/fonts/bebas-neue-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="/fonts.css">
-    <title>Leader Tools — OBEY.TOOLS</title>
+    <title data-i18n="site_text.s_a5c73116f864">Leader Tools — OBEY.TOOLS</title>
     <script type="module">
         import { supabase } from './supabase.js'
         import { authSignUp, authLogIn, authLogOut, initLeaderPage, fetchRole, showNotification, authForgotPassword} from './auth.js'
@@ -320,7 +320,7 @@
             <button type="button" class="auth-forgot-btn" data-i18n="auth.forgot_password" onclick="authForgotPassword()" style="display:block;width:100%;margin-top:6px;padding:6px;background:none;border:none;color:#8e8e93;font-size:13px;cursor:pointer;text-align:center;font-family:inherit;">Forgot password?</button>
             </div>
             <div class="auth-status" id="auth-status" style="display:none">
-                <span class="auth-status-text" id="auth-status-text">Not signed in</span>
+                <span class="auth-status-text" id="auth-status-text" data-i18n="auth.not_signed_in">Not signed in</span>
                 <button class="auth-logout-btn" onclick="authLogOut()" data-i18n="auth.log_out">Log Out</button>
             </div>
         </div>
@@ -355,7 +355,7 @@
             <input type="email" id="invite-email" class="invite-email-input" placeholder="Email (optional — leave blank for generic link)" data-i18n-placeholder="leader_tools.email_placeholder" autocomplete="off">
             <button class="invite-generate-btn" id="generate-invite-btn" onclick="generateInvite()" data-i18n="leader_tools.generate_invite">Generate Leader Invite</button>
             <div id="invite-result" style="display:none" class="invite-result">
-                <div class="invite-url-label" id="invite-url-label">Invite link (expires in 7 days):</div>
+                <div class="invite-url-label" id="invite-url-label" data-i18n="leader_tools.invite_link_label">Invite link (expires in 7 days):</div>
                 <div class="invite-url-box"><span id="invite-url"></span></div>
                 <button class="invite-copy-btn" id="copy-btn" onclick="copyInvite()" data-i18n="leader_tools.copy_link">Copy Link</button>
             </div>

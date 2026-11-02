@@ -45,7 +45,7 @@
             accountBtn.setAttribute('aria-label', signedIn ? 'Open signed-in account' : 'Open sign in');
         });
     </script>
-<title>Signs &amp; Wonders</title>
+<title data-i18n="commands_of_christ.cmd_8_title">Signs &amp; Wonders</title>
 <script src="/i18n.js" type="module"></script>
 <script defer="" src="/pwa.js"></script>
 <style>
@@ -866,18 +866,18 @@ button {
 <button type="button" class="auth-forgot-btn" data-i18n="auth.forgot_password" onclick="authForgotPassword()" style="display:block;width:100%;margin-top:6px;padding:6px;background:none;border:none;color:#8e8e93;font-size:13px;cursor:pointer;text-align:center;font-family:inherit;">Forgot password?</button>
 </div>
 <div class="auth-status" id="auth-status" style="display:none">
-<span class="auth-status-text" id="auth-status-text">Not signed in</span>
+<span class="auth-status-text" id="auth-status-text" data-i18n="auth.not_signed_in">Not signed in</span>
 <button class="auth-logout-btn" data-i18n="auth.log_out" onclick="authLogOut()">Log Out</button>
 </div>
 </div>
 <div class="header">
-<img alt="Command Icon" class="header-icon" src="assets/images/header/signs-and-wonder-header.webp"/>
+<img alt="Command Icon" class="header-icon" src="assets/images/header/signs-and-wonder-header.webp" data-i18n-alt="site_text.s_67606fce946b"/>
 <h1 data-i18n="signs_and_wonders.title">SIGNS &amp; WONDERS</h1>
 <div class="scripture" data-i18n="signs_and_wonders.scripture">Command: John 14:6–14 | Story: Luke 5:17–26</div>
 </div>
 <div class="progress-bar-container">
 <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
-<div class="progress-text" id="progressText">0 of 9 completed</div>
+<div class="progress-text" id="progressText" data-i18n="site_text.s_1543d489a01c">0 of 9 completed</div>
 </div>
 <div class="content">
 <div class="section-divider"><div class="section-divider-line"></div><div class="section-divider-text" data-i18n="common.look_back">Look Back</div><div class="section-divider-line"></div></div>
@@ -897,7 +897,7 @@ button {
 </div>
 <div class="bible-btn-mobile-wrap"><button class="bible-btn bible-btn-mobile" onclick="toggleBible(event)"><span data-i18n="signs_and_wonders.bible_btn">Luke 5:17–26 (CSB)</span><span class="bible-btn-icon">▼</span></button></div>
 <div class="bible-accordion" id="bible-accordion">
-<div class="bible-text">
+<div class="bible-text" data-bible-ref="LUK 5:17-26">
 <div class="bible-translation" data-i18n="common.christian_standard_bible">Christian Standard Bible</div>
 <p class="bible-verse"><span class="verse-num">17</span>On one of those days while he was teaching, Pharisees and teachers of the law were sitting there who had come from every village of Galilee and Judea, and also from Jerusalem. And the Lord's power to heal was present.</p>
 <p class="bible-verse"><span class="verse-num">18</span>Just then some men came, carrying on a stretcher a man who was paralyzed. They tried to bring him in and set him down before Jesus,</p>
@@ -923,7 +923,7 @@ button {
 </div>
 <div class="reset-section"><div class="next-command" id="next-command-panel"><div class="nc-eyebrow" data-i18n="common.command_complete">Command complete</div><a class="nc-btn" href="generosity" data-i18n="common.next_command">Next Command →</a><div class="nc-up-next"><span data-i18n="common.up_next">Up next:</span> <b data-i18n="generosity.title">Generosity</b></div></div><button class="btn" data-i18n="common.reset" onclick="resetAll()">RESET</button></div>
 </div>
-<div class="popup-overlay" id="visionPopup" onclick="closeVisionPopup()"><div class="popup-content" onclick="event.stopPropagation()"><button class="popup-close" onclick="closeVisionPopup()">×</button><img alt="Church Circle" class="popup-image" src="assets/images/popups/vision-popup.jpg"/><div class="popup-text" data-i18n="common.vision_popup_text">Read Acts 2:36-47. Be a part of a church and start a church</div></div></div>
+<div class="popup-overlay" id="visionPopup" onclick="closeVisionPopup()"><div class="popup-content" onclick="event.stopPropagation()"><button class="popup-close" onclick="closeVisionPopup()">×</button><img alt="Church Circle" class="popup-image" src="assets/images/popups/vision-popup.jpg" data-i18n-alt="index.church_circle"/><div class="popup-text" data-i18n="common.vision_popup_text">Read Acts 2:36-47. Be a part of a church and start a church</div></div></div>
 <script>
         let storageKey = 'command-signs-and-wonders-progress';
         let completedCards = [], stepProgress = {};
@@ -1224,7 +1224,7 @@ button {
     function createAccordion(content, resetSection) {
         accordionRoot = document.createElement('main');
         accordionRoot.className = 'accordion-overview';
-        accordionRoot.setAttribute('aria-label', 'Eight ordered meeting steps');
+        accordionRoot.setAttribute('aria-label', window.i18n.text("Eight ordered meeting steps"));
 
         sectionList().forEach(function (section) {
             const label = document.createElement('div');

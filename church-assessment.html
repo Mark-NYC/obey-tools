@@ -25,7 +25,7 @@
     <link rel="preload" href="/assets/fonts/bebas-neue-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="/fonts.css">
     <link rel="stylesheet" href="/buttons.css">
-    <title>Church Assessment Tool</title>
+    <title data-i18n="site_text.s_074f1b88c7ff">Church Assessment Tool</title>
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <script type="module">
         import { supabase } from './supabase.js';
@@ -37,7 +37,7 @@
 <body>
 
 <div id="top-home" style="text-align:center; padding:20px 0 8px;">
-    <a href="/" style="display:inline-block; background:#000; color:#fff; font-weight:700; font-size:17px; padding:12px 28px; border-radius:50px; text-decoration:none;">Home</a>
+    <a href="/" style="display:inline-block; background:#000; color:#fff; font-weight:700; font-size:17px; padding:12px 28px; border-radius:50px; text-decoration:none;" data-i18n="nav.home">Home</a>
 </div>
 
 <div class="container">
@@ -56,18 +56,18 @@
                 <div class="horizontal-line top"></div>
                 <div class="horizontal-line bottom"></div>
                 <div class="icon-grid">
-                    <div class="icon-cell bg-none"><img src="assets/images/icons/gospel-icon.webp" alt="The Gospel"></div>
-                    <div class="icon-cell bg-none"><img src="assets/images/icons/repent-icon.webp" alt="Repent & Believe"></div>
-                    <div class="icon-cell bg-none"><img src="assets/images/icons/baptism-icon.webp" alt="Baptism"></div>
-                    <div class="icon-cell bg-none"><img src="assets/images/icons/holy-spirit-icon.webp" alt="Holy Spirit"></div>
-                    <div class="icon-cell bg-none"><img src="assets/images/icons/word-icon.webp" alt="The Word"></div>
-                    <div class="icon-cell bg-none"><img src="assets/images/icons/love-icon.webp" alt="Love"></div>
-                    <div class="icon-cell bg-none"><img src="assets/images/icons/lords-supper-icon.webp" alt="Lord's Supper"></div>
-                    <div class="icon-cell bg-none"><img src="assets/images/icons/pray-icon.webp" alt="Prayer"></div>
-                    <div class="icon-cell bg-none"><img src="assets/images/icons/signs-and-wonders-icon.webp" alt="Signs & Wonders"></div>
-                    <div class="icon-cell bg-none"><img src="assets/images/icons/give-icon.webp" alt="Giving"></div>
-                    <div class="icon-cell bg-none"><img src="assets/images/icons/worship-icon.webp" alt="Worship"></div>
-                    <div class="icon-cell bg-none"><img src="assets/images/icons/go-make-disciples-icon.webp" alt="Make Disciples"></div>
+                    <div class="icon-cell bg-none"><img src="assets/images/icons/gospel-icon.webp" alt="The Gospel" data-i18n-alt="church_assessment.gospel_label"></div>
+                    <div class="icon-cell bg-none"><img src="assets/images/icons/repent-icon.webp" alt="Repent & Believe" data-i18n-alt="commands_of_christ.cmd_1_title"></div>
+                    <div class="icon-cell bg-none"><img src="assets/images/icons/baptism-icon.webp" alt="Baptism" data-i18n-alt="site_text.s_f71b265d0d5c"></div>
+                    <div class="icon-cell bg-none"><img src="assets/images/icons/holy-spirit-icon.webp" alt="Holy Spirit" data-i18n-alt="commands_of_christ.cmd_3_title"></div>
+                    <div class="icon-cell bg-none"><img src="assets/images/icons/word-icon.webp" alt="The Word" data-i18n-alt="site_text.s_e82d3a6d9146"></div>
+                    <div class="icon-cell bg-none"><img src="assets/images/icons/love-icon.webp" alt="Love" data-i18n-alt="site_text.s_4f61ec4d2d1f"></div>
+                    <div class="icon-cell bg-none"><img src="assets/images/icons/lords-supper-icon.webp" alt="Lord's Supper" data-i18n-alt="commands_of_christ.cmd_6_title"></div>
+                    <div class="icon-cell bg-none"><img src="assets/images/icons/pray-icon.webp" alt="Prayer" data-i18n-alt="site_text.s_8c4f3272183b"></div>
+                    <div class="icon-cell bg-none"><img src="assets/images/icons/signs-and-wonders-icon.webp" alt="Signs & Wonders" data-i18n-alt="commands_of_christ.cmd_8_title"></div>
+                    <div class="icon-cell bg-none"><img src="assets/images/icons/give-icon.webp" alt="Giving" data-i18n-alt="site_text.s_6f721cb7d724"></div>
+                    <div class="icon-cell bg-none"><img src="assets/images/icons/worship-icon.webp" alt="Worship" data-i18n-alt="common.worship_title"></div>
+                    <div class="icon-cell bg-none"><img src="assets/images/icons/go-make-disciples-icon.webp" alt="Make Disciples" data-i18n-alt="site_text.s_01f838841906"></div>
                 </div>
             </div>
         </div>
@@ -89,7 +89,7 @@
     <div id="presentation-view" class="focus-view" style="display:none;">
         <div class="present-topbar">
             <div class="present-count" id="present-count">1 / 12</div>
-            <div class="present-ref" id="present-ref">Acts 2:36</div>
+            <div class="present-ref" id="present-ref" data-i18n="church_assessment.present.refs.0">Acts 2:36</div>
             <button class="ot-exit" onclick="exitPresentation()" aria-label="Exit presentation" data-i18n-aria-label="church_assessment.present_exit">&times;</button>
         </div>
 
@@ -103,18 +103,18 @@
                 <div class="horizontal-line top"></div>
                 <div class="horizontal-line bottom"></div>
                 <div class="icon-grid" id="present-grid">
-                    <div class="icon-cell dim"><img src="assets/images/icons/gospel-icon.webp" alt="The Gospel"></div>
-                    <div class="icon-cell dim"><img src="assets/images/icons/repent-icon.webp" alt="Repent & Believe"></div>
-                    <div class="icon-cell dim"><img src="assets/images/icons/baptism-icon.webp" alt="Baptism"></div>
-                    <div class="icon-cell dim"><img src="assets/images/icons/holy-spirit-icon.webp" alt="Holy Spirit"></div>
-                    <div class="icon-cell dim"><img src="assets/images/icons/word-icon.webp" alt="The Word"></div>
-                    <div class="icon-cell dim"><img src="assets/images/icons/love-icon.webp" alt="Love"></div>
-                    <div class="icon-cell dim"><img src="assets/images/icons/lords-supper-icon.webp" alt="Lord's Supper"></div>
-                    <div class="icon-cell dim"><img src="assets/images/icons/pray-icon.webp" alt="Prayer"></div>
-                    <div class="icon-cell dim"><img src="assets/images/icons/signs-and-wonders-icon.webp" alt="Signs & Wonders"></div>
-                    <div class="icon-cell dim"><img src="assets/images/icons/give-icon.webp" alt="Giving"></div>
-                    <div class="icon-cell dim"><img src="assets/images/icons/worship-icon.webp" alt="Worship"></div>
-                    <div class="icon-cell dim"><img src="assets/images/icons/go-make-disciples-icon.webp" alt="Make Disciples"></div>
+                    <div class="icon-cell dim"><img src="assets/images/icons/gospel-icon.webp" alt="The Gospel" data-i18n-alt="church_assessment.gospel_label"></div>
+                    <div class="icon-cell dim"><img src="assets/images/icons/repent-icon.webp" alt="Repent & Believe" data-i18n-alt="commands_of_christ.cmd_1_title"></div>
+                    <div class="icon-cell dim"><img src="assets/images/icons/baptism-icon.webp" alt="Baptism" data-i18n-alt="site_text.s_f71b265d0d5c"></div>
+                    <div class="icon-cell dim"><img src="assets/images/icons/holy-spirit-icon.webp" alt="Holy Spirit" data-i18n-alt="commands_of_christ.cmd_3_title"></div>
+                    <div class="icon-cell dim"><img src="assets/images/icons/word-icon.webp" alt="The Word" data-i18n-alt="site_text.s_e82d3a6d9146"></div>
+                    <div class="icon-cell dim"><img src="assets/images/icons/love-icon.webp" alt="Love" data-i18n-alt="site_text.s_4f61ec4d2d1f"></div>
+                    <div class="icon-cell dim"><img src="assets/images/icons/lords-supper-icon.webp" alt="Lord's Supper" data-i18n-alt="commands_of_christ.cmd_6_title"></div>
+                    <div class="icon-cell dim"><img src="assets/images/icons/pray-icon.webp" alt="Prayer" data-i18n-alt="site_text.s_8c4f3272183b"></div>
+                    <div class="icon-cell dim"><img src="assets/images/icons/signs-and-wonders-icon.webp" alt="Signs & Wonders" data-i18n-alt="commands_of_christ.cmd_8_title"></div>
+                    <div class="icon-cell dim"><img src="assets/images/icons/give-icon.webp" alt="Giving" data-i18n-alt="site_text.s_6f721cb7d724"></div>
+                    <div class="icon-cell dim"><img src="assets/images/icons/worship-icon.webp" alt="Worship" data-i18n-alt="common.worship_title"></div>
+                    <div class="icon-cell dim"><img src="assets/images/icons/go-make-disciples-icon.webp" alt="Make Disciples" data-i18n-alt="site_text.s_01f838841906"></div>
                 </div>
             </div>
         </div>
@@ -138,7 +138,7 @@
     <div id="assessment-view" class="focus-view" style="display:none;">
         <div class="present-topbar">
             <div class="assess-eyebrow" id="date-info" data-i18n="church_assessment.assess_tap_hint">Tap each practice to rate it</div>
-            <button class="ot-exit" onclick="closeAssessment()" aria-label="Close">&times;</button>
+            <button class="ot-exit" onclick="closeAssessment()" aria-label="Close" data-i18n-aria-label="settings.close">&times;</button>
         </div>
 
         <div class="assess-actions">
@@ -154,18 +154,18 @@
                 <div class="horizontal-line top"></div>
                 <div class="horizontal-line bottom"></div>
                 <div class="icon-grid" id="assess-grid">
-                    <div class="icon-cell bg-none"><img src="assets/images/icons/gospel-icon.webp" alt="The Gospel"></div>
-                    <div class="icon-cell bg-none"><img src="assets/images/icons/repent-icon.webp" alt="Repent & Believe"></div>
-                    <div class="icon-cell bg-none"><img src="assets/images/icons/baptism-icon.webp" alt="Baptism"></div>
-                    <div class="icon-cell bg-none"><img src="assets/images/icons/holy-spirit-icon.webp" alt="Holy Spirit"></div>
-                    <div class="icon-cell bg-none"><img src="assets/images/icons/word-icon.webp" alt="The Word"></div>
-                    <div class="icon-cell bg-none"><img src="assets/images/icons/love-icon.webp" alt="Love"></div>
-                    <div class="icon-cell bg-none"><img src="assets/images/icons/lords-supper-icon.webp" alt="Lord's Supper"></div>
-                    <div class="icon-cell bg-none"><img src="assets/images/icons/pray-icon.webp" alt="Prayer"></div>
-                    <div class="icon-cell bg-none"><img src="assets/images/icons/signs-and-wonders-icon.webp" alt="Signs & Wonders"></div>
-                    <div class="icon-cell bg-none"><img src="assets/images/icons/give-icon.webp" alt="Giving"></div>
-                    <div class="icon-cell bg-none"><img src="assets/images/icons/worship-icon.webp" alt="Worship"></div>
-                    <div class="icon-cell bg-none"><img src="assets/images/icons/go-make-disciples-icon.webp" alt="Make Disciples"></div>
+                    <div class="icon-cell bg-none"><img src="assets/images/icons/gospel-icon.webp" alt="The Gospel" data-i18n-alt="church_assessment.gospel_label"></div>
+                    <div class="icon-cell bg-none"><img src="assets/images/icons/repent-icon.webp" alt="Repent & Believe" data-i18n-alt="commands_of_christ.cmd_1_title"></div>
+                    <div class="icon-cell bg-none"><img src="assets/images/icons/baptism-icon.webp" alt="Baptism" data-i18n-alt="site_text.s_f71b265d0d5c"></div>
+                    <div class="icon-cell bg-none"><img src="assets/images/icons/holy-spirit-icon.webp" alt="Holy Spirit" data-i18n-alt="commands_of_christ.cmd_3_title"></div>
+                    <div class="icon-cell bg-none"><img src="assets/images/icons/word-icon.webp" alt="The Word" data-i18n-alt="site_text.s_e82d3a6d9146"></div>
+                    <div class="icon-cell bg-none"><img src="assets/images/icons/love-icon.webp" alt="Love" data-i18n-alt="site_text.s_4f61ec4d2d1f"></div>
+                    <div class="icon-cell bg-none"><img src="assets/images/icons/lords-supper-icon.webp" alt="Lord's Supper" data-i18n-alt="commands_of_christ.cmd_6_title"></div>
+                    <div class="icon-cell bg-none"><img src="assets/images/icons/pray-icon.webp" alt="Prayer" data-i18n-alt="site_text.s_8c4f3272183b"></div>
+                    <div class="icon-cell bg-none"><img src="assets/images/icons/signs-and-wonders-icon.webp" alt="Signs & Wonders" data-i18n-alt="commands_of_christ.cmd_8_title"></div>
+                    <div class="icon-cell bg-none"><img src="assets/images/icons/give-icon.webp" alt="Giving" data-i18n-alt="site_text.s_6f721cb7d724"></div>
+                    <div class="icon-cell bg-none"><img src="assets/images/icons/worship-icon.webp" alt="Worship" data-i18n-alt="common.worship_title"></div>
+                    <div class="icon-cell bg-none"><img src="assets/images/icons/go-make-disciples-icon.webp" alt="Make Disciples" data-i18n-alt="site_text.s_01f838841906"></div>
                 </div>
             </div>
         </div>
@@ -489,7 +489,7 @@ function getStep(i) {
     const P = (window.i18n && window.i18n.raw && window.i18n.raw('church_assessment.present')) || {};
     return {
         icon: i,
-        ref: (P.refs && P.refs[i]) || '',
+        ref: window.i18n.reference((P.refs && P.refs[i]) || ''),
         text: (P.verses && P.verses[i]) || '',
         highlight: (P.highlights && P.highlights[i]) || ''
     };

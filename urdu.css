@@ -1,0 +1,46 @@
+/* Urdu uses a self-hosted joining font. Never letter-space connected script. */
+@font-face {
+  font-family: 'Obey Urdu';
+  src: url('/assets/fonts/noto-naskh-arabic-variable.ttf') format('truetype');
+  font-weight: 400 700;
+  font-display: swap;
+}
+html[lang="ur"] body,
+html[lang="ur"] :is(h1,h2,h3,h4,p,a,button,input,select,textarea,label,summary,table,svg text,div,span) {
+  font-family: 'Obey Urdu', 'Geeza Pro', 'Segoe UI', Tahoma, sans-serif !important;
+  letter-spacing: normal !important;
+  word-spacing: normal;
+  text-transform: none;
+}
+html[lang="ur"] body { line-height: 1.65; }
+html[lang="ur"] :is(h1,h2,h3,.page-title,.card-title) { line-height: 1.5; -webkit-text-stroke: 0; }
+html[lang="ur"] :is(button,select,input,textarea) { line-height: 1.6; }
+html[lang="ur"] :is(.card-description,.step-summary,.guide-flow-text,.page-subtitle,.category-hint) { line-height: 1.7; }
+html[lang="ur"] :is(.bible-text,.verse-text) { font-size: max(1em,18px); line-height: 1.95; text-align: start; }
+html[lang="ur"] :is(.card-text,.guide-flow-text,.bible-btn,.error-msg,th,td,.benefits-list) { text-align: start; }
+html[lang="ur"] :is(input[type="email"],input[type="password"],input[type="url"],#join-code,.share-code) { direction: ltr; unicode-bidi: isolate; }
+html[lang="ur"] .verse-num { display: inline-block; margin-inline-end: .4em; margin-left: 0; margin-right: 0; direction: ltr; unicode-bidi: isolate; }
+html[lang="ur"] select { padding-inline: 16px 40px; background-position: left 14px center; }
+html[lang="ur"] .benefits-list li { padding-left: 0; padding-inline-start: 29px; }
+html[lang="ur"] .benefits-list li::before { left: auto; inset-inline-start: 0; }
+html[lang="ur"] .reading ol { padding-left: 0; padding-inline-start: 25px; }
+html[lang="ur"] svg text { font-family: 'Obey Urdu',sans-serif !important; letter-spacing: normal !important; }
+/* Spatial teaching diagrams and the Conversation Box keep their original
+   coordinates/clockwise cycle. Only their labels read right to left. */
+html[lang="ur"] :is(.svg-wrap,.church-circle) { direction: ltr; }
+html[lang="ur"] svg text { direction: rtl; unicode-bidi: plaintext; }
+html[lang="ur"] :is(.btn,.step-title,.guide-title,.category-name) { white-space: normal; overflow-wrap: anywhere; }
+html[lang="ur"] :is(.page-header,.header) { height: auto; }
+.bible-attribution { margin-block: 16px 6px; font-size: 12px; line-height: 1.65; color: #626262; text-align: start; overflow-wrap: anywhere; }
+.bible-attribution a { color: inherit; text-decoration: underline; }
+.bible-notes { font-size: .85em; line-height: 1.7; margin-block: 4px 12px; }
+.bible-notes summary { cursor: pointer; }
+.urdu-print-guide { max-width: 750px; margin: 20px auto; padding: 24px; border: 1px solid #bbb; border-radius: 12px; background: white; text-align: start; }
+.urdu-print-guide ol { padding-inline-start: 24px; }
+@media print {
+  .urdu-guide-page body > :not(main),.urdu-guide-page main > :not(.hero),.urdu-guide-page .hero > :not(.urdu-print-guide) { display: none !important; }
+  .urdu-guide-page :is(main,.hero,.urdu-print-guide) { display: block; width: 100%; margin: 0; padding: 0; border: 0; box-shadow: none; background: white; }
+}
+html[lang="ur"] :is(.site-wordmark,.brand,.logo) { font-family: 'Bebas Neue', Impact, sans-serif !important; direction: ltr; line-height: 1.1; }
+html[lang="ur"] .bible-attribution { padding-inline: 12px; }
+.bible-attribution summary { cursor: pointer; padding-block: 8px; }
