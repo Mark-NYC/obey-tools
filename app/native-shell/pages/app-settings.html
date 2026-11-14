@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#f2f2f7">
+<link rel="stylesheet" href="/fonts.css">
+<title>Settings · OBEY.TOOLS</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #f2f2f7; color: #000; font: 17px/1.35 -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif; min-height: 100vh; }
+  main { max-width: 640px; margin: 0 auto; padding: 8px 16px 32px; }
+  h1 { font: 700 34px/1.15 -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif; letter-spacing: 0.3px; margin: 12px 4px 18px; }
+  h2 { font-size: 13px; font-weight: 400; color: #6c6c70; text-transform: uppercase; letter-spacing: 0.2px; margin: 26px 16px 7px; }
+  .group { background: #fff; border-radius: 12px; overflow: hidden; }
+  .row { display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 11px 16px; position: relative; color: inherit; text-decoration: none; width: 100%; background: none; border: 0; font: inherit; text-align: start; }
+  .row + .row::before { content: ''; position: absolute; top: 0; inset-inline-start: 16px; inset-inline-end: 0; border-top: 0.5px solid #c6c6c8; }
+  a.row:active, button.row:active { background: #e5e5ea; }
+  .row[hidden] { display: none; }
+  .row .label { flex: 1; }
+  .row .value { color: #6c6c70; font-size: 16px; }
+  .row .chev { color: #c4c4c7; font-size: 20px; line-height: 1; }
+  [dir=rtl] .row .chev { transform: scaleX(-1); }
+  .note { font-size: 13px; color: #6c6c70; margin: 7px 16px 0; line-height: 1.4; }
+  .danger { color: #d70015; }
+  .badge { display: inline-block; font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 99px; background: #e3f7ee; color: #00704e; }
+  .badge.off { background: #fde8e8; color: #a3000f; }
+  select, input[type=time] { font: inherit; color: #3c3c43; background: transparent; border: 0; text-align: end; -webkit-appearance: none; appearance: none; }
+  select:focus-visible, input:focus-visible, .row:focus-visible { outline: 2px solid #00875f; outline-offset: -2px; }
+  .switch { position: relative; width: 51px; height: 31px; flex: none; }
+  .switch input { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; z-index: 1; }
+  .switch span { position: absolute; inset: 0; border-radius: 99px; background: #e9e9eb; transition: background .2s; }
+  .switch span::after { content: ''; position: absolute; top: 2px; left: 2px; width: 27px; height: 27px; border-radius: 50%; background: #fff; box-shadow: 0 3px 8px rgba(0,0,0,.15), 0 1px 1px rgba(0,0,0,.16); transition: transform .2s; }
+  .switch input:checked + span { background: #34c759; }
+  .switch input:checked + span::after { transform: translateX(20px); }
+  .switch input:focus-visible + span { outline: 2px solid #00875f; outline-offset: 2px; }
+  #reminder-time-row[hidden] { display: none; }
+  dialog { margin: auto; border: 0; border-radius: 14px; padding: 20px; max-width: 320px; width: calc(100% - 48px); text-align: center; }
+  dialog::backdrop { background: rgba(0,0,0,.4); }
+  dialog h3 { font-size: 17px; margin-bottom: 8px; }
+  dialog p { font-size: 13px; color: #3c3c43; margin-bottom: 16px; }
+  dialog .actions { display: flex; gap: 8px; }
+  dialog button { flex: 1; font: inherit; font-size: 16px; padding: 11px; border-radius: 10px; border: 0; background: #e5e5ea; }
+  dialog button.destroy { background: #d70015; color: #fff; font-weight: 600; }
+  @media (prefers-reduced-motion: reduce) { .switch span, .switch span::after { transition: none; } }
+</style>
+<script type="module">
+  import { supabase } from '/supabase.js'
+  import { ready } from '/i18n.js'
+  import { initAuthSection, authLogOut, authLogIn, authSignUp, authForgotPassword, showAuthMessage } from '/auth.js'
+  await ready
+  window.authLogIn = authLogIn
+  window.authSignUp = authSignUp
+  window.authLogOut = authLogOut
+  window.authForgotPassword = authForgotPassword
+
+  const $ = (id) => document.getElementById(id)
+  const app = window.ObeyApp || { native: false, plugins: {}, toast: alert, share: (d) => navigator.share?.(d) }
+
+  // ── Account ────────────────────────────────────────────────────────
+  initAuthSection((session) => {
+    const user = session?.user
+    $('account-status').textContent = user ? user.email : 'Not signed in'
+    $('account-signin').hidden = !!user
+    $('account-signout').hidden = !user
+    $('account-delete').hidden = !user
+  })
+  $('account-signin').addEventListener('click', () => document.querySelector('.acct-icon-btn')?.click())
+  $('account-signout').addEventListener('click', () => authLogOut())
+
+  const dlg = $('delete-dialog')
+  $('account-delete').addEventListener('click', () => dlg.showModal())
+  $('delete-cancel').addEventListener('click', () => dlg.close())
+  $('delete-confirm').addEventListener('click', async () => {
+    const btn = $('delete-confirm')
+    btn.disabled = true
+    btn.textContent = 'Deleting…'
+    // Server-side function (see supabase/account-deletion/). It deletes the
+    // caller's own data and auth user; nobody can delete another account.
+    const { error } = await supabase.rpc('delete_my_account')
+    btn.disabled = false
+    btn.textContent = 'Delete'
+    dlg.close()
+    if (error) {
+      const notDeployed = error.code === 'PGRST202' || /could not find the function/i.test(error.message || '')
+      showAuthMessage(notDeployed
+        ? 'Account deletion is not enabled on the server yet. Your account was not changed.'
+        : 'Could not delete your account: ' + error.message + '. Nothing was deleted. Please try again when online.',
+        { type: 'error' })
+      return
+    }
+    await authLogOut()
+    showAuthMessage('Your account and its saved data were deleted.', { type: 'success' })
+  })
+
+  // ── Language ───────────────────────────────────────────────────────
+  const langSel = $('lang')
+  langSel.value = window.i18n?.getLang?.() || localStorage.getItem('obeytools_lang') || 'en'
+  langSel.addEventListener('change', () => window.i18n.setLang(langSel.value))
+
+  // ── Daily reminder (local notification — no server, no account) ───
+  const LN = app.plugins.LocalNotifications
+  const REMINDER_KEY = 'obeyapp_reminder'
+  const REMINDER_ID = 4101
+  const prefs = (() => { try { return JSON.parse(localStorage.getItem(REMINDER_KEY)) || {} } catch { return {} } })()
+  const toggle = $('reminder-toggle'), time = $('reminder-time')
+  toggle.checked = !!prefs.enabled
+  time.value = prefs.time || '07:00'
+  $('reminder-time-row').hidden = !toggle.checked
+
+  async function schedule() {
+    const enabled = toggle.checked
+    $('reminder-time-row').hidden = !enabled
+    localStorage.setItem(REMINDER_KEY, JSON.stringify({ enabled, time: time.value }))
+    if (!app.native || !LN) return
+    await LN.cancel({ notifications: [{ id: REMINDER_ID }] }).catch(() => {})
+    if (!enabled) return
+    let perm = await LN.checkPermissions()
+    if (perm.display !== 'granted') perm = await LN.requestPermissions()
+    if (perm.display !== 'granted') {
+      toggle.checked = false
+      $('reminder-time-row').hidden = true
+      localStorage.setItem(REMINDER_KEY, JSON.stringify({ enabled: false, time: time.value }))
+      app.toast('Notifications are off for Obey Tools. You can turn them on in iPhone Settings.')
+      return
+    }
+    const [hour, minute] = time.value.split(':').map(Number)
+    await LN.schedule({ notifications: [{
+      id: REMINDER_ID,
+      title: 'Hear. Obey. Share.',
+      body: 'What is Jesus asking you to obey today, and who will you tell?',
+      schedule: { on: { hour, minute }, allowWhileIdle: true },
+      extra: { path: '/commands-of-christ.html' },
+    }] })
+    app.toast('Daily reminder set')
+  }
+  toggle.addEventListener('change', schedule)
+  time.addEventListener('change', schedule)
+
+  // ── Offline status ─────────────────────────────────────────────────
+  async function netStatus() {
+    let online = navigator.onLine
+    try { if (app.plugins.Network) online = (await app.plugins.Network.getStatus()).connected } catch {}
+    const b = $('net-badge')
+    b.textContent = online ? 'Online' : 'Offline'
+    b.classList.toggle('off', !online)
+  }
+  netStatus()
+  addEventListener('online', netStatus); addEventListener('offline', netStatus)
+  app.plugins.Network?.addListener?.('networkStatusChange', netStatus)
+
+  // ── Share + about ──────────────────────────────────────────────────
+  $('share-app').addEventListener('click', () => app.share({
+    title: 'OBEY.TOOLS',
+    text: 'Simple tools to understand, obey, and pass on the commands of Jesus.',
+    url: 'https://obey.tools',
+  }).catch(() => {}))
+  fetch('/app-build.json').then(r => r.json()).then(b => {
+    $('version').textContent = `${b.version} (${b.commit})`
+  }).catch(() => {})
+</script>
+<script type="module" src="/i18n.js"></script>
+</head>
+<body>
+<main>
+  <h1>Settings</h1>
+
+  <h2>Account</h2>
+  <div class="group">
+    <div class="row"><span class="label">Signed in as</span><span class="value" id="account-status">…</span></div>
+    <button class="row" id="account-signin" hidden><span class="label">Sign in or create account</span><span class="chev">›</span></button>
+    <button class="row" id="account-signout" hidden><span class="label">Sign out</span></button>
+    <button class="row danger" id="account-delete" hidden><span class="label">Delete account…</span></button>
+  </div>
+  <p class="note">An account syncs your progress across devices. Every tool also works without one.</p>
+
+  <!-- Standard sign-in box: account-overlay.js turns it into the full-screen sign-in. -->
+  <div class="auth-section" id="auth-section" style="display:none">
+    <div id="auth-form" style="display:none">
+      <input type="email" id="auth-email" placeholder="Email" autocomplete="email" data-i18n-placeholder="auth.email_placeholder">
+      <input type="password" id="auth-password" placeholder="Password" autocomplete="current-password" data-i18n-placeholder="auth.password_placeholder">
+      <div class="auth-buttons">
+        <button class="auth-btn-primary" data-i18n="auth.log_in" onclick="authLogIn()">Log In</button>
+        <button class="auth-btn-secondary" data-i18n="auth.sign_up" onclick="authSignUp()">Sign Up</button>
+      </div>
+      <button type="button" class="auth-forgot-btn" data-i18n="auth.forgot_password" onclick="authForgotPassword()">Forgot password?</button>
+    </div>
+    <div class="auth-status" id="auth-status" style="display:none">
+      <span class="auth-status-text" id="auth-status-text" data-i18n="auth.not_signed_in">Not signed in</span>
+      <button class="auth-logout-btn" data-i18n="auth.log_out" onclick="authLogOut()">Log Out</button>
+    </div>
+  </div>
+
+  <h2>Daily reminder</h2>
+  <div class="group">
+    <label class="row" for="reminder-toggle">
+      <span class="label">Remind me to obey and share</span>
+      <span class="switch"><input type="checkbox" role="switch" id="reminder-toggle"><span></span></span>
+    </label>
+    <label class="row" id="reminder-time-row" for="reminder-time">
+      <span class="label">Time</span>
+      <input type="time" id="reminder-time" value="07:00">
+    </label>
+  </div>
+  <p class="note">A private notification scheduled on this iPhone. Nothing is sent to a server.</p>
+
+  <h2>Language</h2>
+  <div class="group">
+    <label class="row" for="lang"><span class="label">App language</span>
+      <select id="lang">
+        <option value="en">English</option>
+        <option value="ar">العربية</option>
+        <option value="bn">বাংলা</option>
+        <option value="bo">བོད་སྐད་</option>
+        <option value="de">Deutsch</option>
+        <option value="es">Español</option>
+        <option value="ne">नेपाली</option>
+        <option value="ru">Русский</option>
+        <option value="si">සිංහල</option>
+        <option value="ta">தமிழ்</option>
+        <option value="ur">اردو</option>
+        <option value="uk">Українська</option>
+      </select>
+    </label>
+  </div>
+
+  <h2>Available offline <span class="badge" id="net-badge">Online</span></h2>
+  <div class="group">
+    <a class="row" href="/commands-of-christ.html"><span class="label">Commands of Christ</span><span class="chev">›</span></a>
+    <a class="row" href="/4-questions.html"><span class="label">4-1-1 (4 Questions)</span><span class="chev">›</span></a>
+    <a class="row" href="/3-circles.html"><span class="label">3 Circles</span><span class="chev">›</span></a>
+    <a class="row" href="/stories-of-hope.html"><span class="label">Stories of Hope</span><span class="chev">›</span></a>
+    <a class="row" href="/signs-of-john.html"><span class="label">Signs of John</span><span class="chev">›</span></a>
+    <a class="row" href="/bible-study/index.html"><span class="label">Bible Study</span><span class="chev">›</span></a>
+  </div>
+  <p class="note">These tools are stored on your iPhone and open without a connection. Videos, maps, sign-in, and syncing need the internet.</p>
+
+  <h2>About</h2>
+  <div class="group">
+    <button class="row" id="share-app"><span class="label">Share OBEY.TOOLS</span><span class="chev">›</span></button>
+    <a class="row" href="https://obey.tools" data-oa-external><span class="label">Open obey.tools website</span><span class="chev">›</span></a>
+    <div class="row"><span class="label">Version</span><span class="value" id="version">—</span></div>
+  </div>
+</main>
+
+<dialog id="delete-dialog" aria-labelledby="delete-title">
+  <h3 id="delete-title">Delete your account?</h3>
+  <p>This permanently deletes your sign-in and the progress saved to your account. It cannot be undone.</p>
+  <div class="actions">
+    <button type="button" id="delete-cancel" autofocus>Cancel</button>
+    <button type="button" id="delete-confirm" class="destroy">Delete</button>
+  </div>
+</dialog>
+</body>
+</html>

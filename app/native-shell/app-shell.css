@@ -1,0 +1,117 @@
+/* OBEY.TOOLS native shell styles — app bundle only (see app-shell.js). */
+:root {
+  --oa-sat: env(safe-area-inset-top, 0px);
+  --oa-sab: env(safe-area-inset-bottom, 0px);
+  --oa-sal: env(safe-area-inset-left, 0px);
+  --oa-sar: env(safe-area-inset-right, 0px);
+  --oa-tabbar-h: 50px;
+  --oa-accent: #00875f; /* brand green darkened for 4.5:1 contrast on light bars */
+  --oa-page-bg: #f8f8f8;
+}
+
+html.oa-app {
+  /* Content starts below the status bar / Dynamic Island and above the home
+     indicator. Fixed full-screen layers (maps, presenters) are unaffected. */
+  padding-top: var(--oa-sat);
+  padding-bottom: var(--oa-sab);
+  padding-left: var(--oa-sal);
+  padding-right: var(--oa-sar);
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: none;
+}
+html.oa-app.oa-has-tabbar { padding-bottom: calc(var(--oa-tabbar-h) + var(--oa-sab) + 8px); }
+
+/* Native apps don't select UI chrome on long-press; keep reading text selectable. */
+html.oa-app a, html.oa-app button, html.oa-app .btn, html.oa-app .ot-btn { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+
+/* Translucent bar behind the status bar so scrolled content never collides with it. */
+#oa-status-scrim {
+  position: fixed; top: 0; left: 0; right: 0;
+  height: var(--oa-sat);
+  background: var(--oa-page-bg);
+  z-index: 9000;
+  pointer-events: none;
+}
+@supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  #oa-status-scrim {
+    background: color-mix(in srgb, var(--oa-page-bg) 82%, transparent);
+    -webkit-backdrop-filter: saturate(180%) blur(18px);
+    backdrop-filter: saturate(180%) blur(18px);
+  }
+}
+
+/* Website-only chrome that makes no sense inside the app. */
+html.oa-app #install-banner { display: none !important; }
+
+/* Existing fixed top-of-screen UI on the site: drop below the status bar. */
+html.oa-app .notification,
+html.oa-app .sync-indicator,
+html.oa-app .save-indicator,
+html.oa-app .auth-toast { margin-top: var(--oa-sat); }
+html.oa-app #auth-section.account-overlay { padding-top: calc(var(--oa-sat) + 12px); padding-bottom: calc(var(--oa-sab) + 12px); }
+html.oa-has-tabbar .auth-banner { bottom: calc(var(--oa-tabbar-h) + var(--oa-sab) + 16px) !important; }
+
+/* ── Tab bar ─────────────────────────────────────────────────────────── */
+#oa-tabbar {
+  position: fixed; left: 0; right: 0; bottom: 0;
+  z-index: 9001;
+  display: flex;
+  padding: 0 var(--oa-sar) var(--oa-sab) var(--oa-sal);
+  background: rgba(249, 249, 249, 0.94);
+  border-top: 0.5px solid rgba(60, 60, 67, 0.29);
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+}
+@supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  #oa-tabbar { background: rgba(249, 249, 249, 0.8); -webkit-backdrop-filter: saturate(180%) blur(20px); backdrop-filter: saturate(180%) blur(20px); }
+}
+#oa-tabbar .oa-tab {
+  flex: 1;
+  height: var(--oa-tabbar-h);
+  min-width: 44px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  color: #6e6e73;
+  text-decoration: none;
+  font-size: 10.5px; font-weight: 500; letter-spacing: 0.1px;
+}
+#oa-tabbar .oa-tab svg { width: 26px; height: 26px; }
+#oa-tabbar .oa-tab.is-active { color: var(--oa-accent); font-weight: 600; }
+#oa-tabbar .oa-tab:active { opacity: 0.55; }
+#oa-tabbar .oa-tab:focus-visible { outline: 2px solid var(--oa-accent); outline-offset: -4px; border-radius: 10px; }
+
+/* ── Offline banner + toast ─────────────────────────────────────────── */
+#oa-offline {
+  position: fixed; left: 12px; right: 12px;
+  top: calc(var(--oa-sat) + 6px);
+  z-index: 9002;
+  padding: 9px 14px;
+  border-radius: 12px;
+  background: #1c1c1e; color: #fff;
+  font: 500 13px/1.35 -apple-system, BlinkMacSystemFont, sans-serif;
+  text-align: center;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.22);
+  pointer-events: none;
+}
+.oa-toast {
+  position: fixed; left: 50%; transform: translateX(-50%);
+  bottom: calc(var(--oa-sab) + 24px);
+  z-index: 9003;
+  padding: 10px 16px; border-radius: 12px;
+  background: rgba(28, 28, 30, 0.92); color: #fff;
+  font: 600 14px/1.3 -apple-system, BlinkMacSystemFont, sans-serif;
+  max-width: calc(100% - 32px);
+  animation: oa-toast 2.6s ease forwards;
+}
+html.oa-has-tabbar .oa-toast { bottom: calc(var(--oa-tabbar-h) + var(--oa-sab) + 16px); }
+@keyframes oa-toast { 0% { opacity: 0; transform: translate(-50%, 8px); } 10%, 85% { opacity: 1; transform: translate(-50%, 0); } 100% { opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .oa-toast { animation: none; }
+  html.oa-app { scroll-behavior: auto !important; }
+}
+
+/* Dark-mode tab bar only on pages that are themselves dark. The website is a
+   light design; we don't invert it. */
+html.oa-dark-page #oa-tabbar { background: rgba(28, 28, 30, 0.9); border-top-color: rgba(84, 84, 88, 0.6); }
+html.oa-dark-page #oa-tabbar .oa-tab { color: #a1a1a6; }
+html.oa-dark-page #oa-tabbar .oa-tab.is-active { color: #30d58f; }

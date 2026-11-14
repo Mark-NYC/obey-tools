@@ -1,0 +1,38 @@
+{
+  "name": "obey-tools-ios",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Capacitor iOS shell for OBEY.TOOLS. The website at the repo root stays the single source of truth; this folder packages it as an offline-capable iOS app.",
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "build": "node scripts/build-web.mjs",
+    "assets": "node scripts/generate-assets.mjs",
+    "sync": "npm run build && npx cap sync ios",
+    "test": "node tests/offline-smoke.mjs",
+    "check": "npm run build && npm test"
+  },
+  "dependencies": {
+    "@capacitor/app": "8.1.2",
+    "@capacitor/browser": "8.0.5",
+    "@capacitor/clipboard": "8.0.1",
+    "@capacitor/core": "8.6.2",
+    "@capacitor/filesystem": "8.1.5",
+    "@capacitor/haptics": "8.0.2",
+    "@capacitor/ios": "8.6.2",
+    "@capacitor/local-notifications": "8.3.1",
+    "@capacitor/network": "8.0.1",
+    "@capacitor/share": "8.0.3",
+    "@capacitor/splash-screen": "8.0.2",
+    "@capacitor/status-bar": "8.0.4"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "8.6.2",
+    "@supabase/supabase-js": "2.110.6",
+    "esbuild": "0.28.2",
+    "html2canvas": "1.4.1",
+    "leaflet": "1.9.4",
+    "qrcode-generator": "1.4.4",
+    "sharp": "0.35.5"
+  }
+}

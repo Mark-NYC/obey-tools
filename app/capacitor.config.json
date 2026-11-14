@@ -1,0 +1,30 @@
+{
+  "appId": "tools.obey.app",
+  "appName": "Obey Tools",
+  "webDir": "www",
+  "backgroundColor": "#f8f8f8",
+  "loggingBehavior": "debug",
+  "ios": {
+    "contentInset": "never",
+    "backgroundColor": "#f8f8f8",
+    "preferredContentMode": "mobile",
+    "scrollEnabled": true,
+    "allowsLinkPreview": false
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchAutoHide": false,
+      "launchShowDuration": 0,
+      "backgroundColor": "#f8f8f8",
+      "showSpinner": false,
+      "iosSpinnerStyle": "small"
+    },
+    "StatusBar": {
+      "style": "LIGHT",
+      "overlaysWebView": true
+    },
+    "LocalNotifications": {
+      "iconColor": "#00B884"
+    }
+  }
+}

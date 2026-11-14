@@ -1,0 +1,148 @@
+# iOS app CI — builds and smoke-tests the Capacitor app WITHOUT any Apple
+# signing credentials or paid membership. Nothing here deploys the website or
+# touches production; GitHub Pages publishing is unaffected.
+#
+#   web  (Linux, cheap):  build the offline web bundle + offline smoke test
+#   ios  (macOS):         compile for Simulator and for device (unsigned),
+#                         install + launch in the iOS Simulator, screenshot
+#
+# Artifacts: smoke-test screenshots, Simulator screenshots, launch logs.
+name: iOS app
+
+on:
+  pull_request:
+  push:
+    branches: [main, 'claude/**', 'feature/**']
+    paths:
+      - 'app/**'
+      - '.github/workflows/ios.yml'
+      - '*.html'
+      - '*.js'
+      - '*.css'
+      - 'lang/**'
+      - 'assets/**'
+  workflow_dispatch:
+
+concurrency:
+  group: ios-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  web:
+    name: Web bundle + offline smoke test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults: { run: { working-directory: app } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+      - run: npm ci
+      - run: npm run build
+      - name: Install Playwright Chromium (test only)
+        run: npm i --no-save playwright@1.63.0 && npx playwright install --with-deps chromium
+      - run: npm test
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: web-smoke-screenshots
+          path: app/test-output/
+          if-no-files-found: ignore
+
+  ios:
+    name: Xcode build + Simulator launch (unsigned)
+    needs: web
+    runs-on: macos-latest
+    timeout-minutes: 45
+    defaults: { run: { working-directory: app } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - name: Select newest installed Xcode
+        run: |
+          XCODE=$(ls -d /Applications/Xcode_*.app 2>/dev/null | grep -v -i beta | sort -V | tail -1)
+          if [ -n "$XCODE" ]; then sudo xcode-select -s "$XCODE"; fi
+          xcodebuild -version
+          xcrun simctl list runtimes | grep -i ios
+
+      - run: npm ci
+      - run: npm run build
+      - run: npx cap sync ios
+
+      - name: Build for iOS Simulator
+        run: |
+          set -o pipefail
+          mkdir -p build
+          xcodebuild -project ios/App/App.xcodeproj -scheme App \
+            -configuration Debug -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath build/sim \
+            CODE_SIGNING_ALLOWED=NO build | tee build/sim.log | grep -E "error:|warning: .*Obey|BUILD (SUCCEEDED|FAILED)" || true
+          test -d build/sim/Build/Products/Debug-iphonesimulator/App.app
+
+      - name: Build for iPhone hardware (Release, unsigned)
+        run: |
+          set -o pipefail
+          mkdir -p build
+          xcodebuild -project ios/App/App.xcodeproj -scheme App \
+            -configuration Release -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath build/device \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
+            build | tee build/device.log | grep -E "error:|BUILD (SUCCEEDED|FAILED)" || true
+          test -d build/device/Build/Products/Release-iphoneos/App.app
+
+      - name: Install and launch in the iOS Simulator
+        run: |
+          mkdir -p sim-output
+          UDID=$(xcrun simctl list devices available -j | python3 -c "
+          import json, sys
+          d = json.load(sys.stdin)['devices']
+          c = [(r, x) for r, l in d.items() if 'iOS' in r for x in l if x['name'].startswith('iPhone')]
+          c.sort(key=lambda t: (t[0], t[1]['name']))
+          print(c[-1][1]['udid'])")
+          echo "Simulator: $(xcrun simctl list devices | grep $UDID)"
+          xcrun simctl boot "$UDID" || true
+          xcrun simctl bootstatus "$UDID" -b
+          xcrun simctl status_bar "$UDID" override --time 9:41 --batteryState charged --batteryLevel 100 || true
+          xcrun simctl install "$UDID" build/sim/Build/Products/Debug-iphonesimulator/App.app
+          xcrun simctl launch "$UDID" tools.obey.app
+          sleep 15
+          xcrun simctl io "$UDID" screenshot sim-output/01-home.png
+          # Fail if the app crashed or quit during startup.
+          if ! xcrun simctl spawn "$UDID" launchctl list | grep -q "tools.obey.app"; then
+            echo "::error::App is not running 15s after launch (crash on startup?)"
+            xcrun simctl spawn "$UDID" log show --last 3m --style compact --predicate 'process == "App"' > sim-output/app.log || true
+            exit 1
+          fi
+          xcrun simctl spawn "$UDID" log show --last 3m --style compact --predicate 'process == "App"' > sim-output/app.log || true
+          # Capacitor logs page-load failures; surface them.
+          if grep -E "Error loading page|fatalLoadError|Unable to load|JS Eval error" sim-output/app.log; then
+            echo "::warning::Capacitor reported load errors — see app.log artifact"
+          fi
+          # Re-launch to confirm a warm start is clean too.
+          xcrun simctl terminate "$UDID" tools.obey.app
+          xcrun simctl launch "$UDID" tools.obey.app
+          sleep 6
+          xcrun simctl io "$UDID" screenshot sim-output/02-relaunch.png
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ios-simulator-output
+          path: |
+            app/sim-output/
+            app/build/sim.log
+            app/build/device.log
+          if-no-files-found: ignore
