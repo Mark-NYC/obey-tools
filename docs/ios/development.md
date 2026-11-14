@@ -112,7 +112,10 @@ Free-account limits (from Apple, subject to change):
 - [ ] Type a name in Conversation Box without adding it → Home asks before leaving
 - [ ] Swipe from the left edge goes back on detail pages
 - [ ] Extensionless links (Home → Commands → Be Baptized → back) open the right pages
-- [ ] Airplane mode: offline banner; Commands, 4-1-1, 3 Circles, Stories, Bible Study all open
+- [ ] Airplane mode, signed out: offline banner; all five tools open. In Conversation Box add a person, add a note, move them, force-quit, reopen: still there. Church Circle: assess, force-quit, reopen
+- [ ] Airplane mode, signed in: tools open instantly; edits saved; turn airplane mode off → edits appear on the website account
+- [ ] Sign out in the app → people and progress still on the phone
+- [ ] Storage-loss recovery (Simulator on a Mac): add people, quit the app, then `rm -rf "$(xcrun simctl get_app_container booted tools.obey.app data)/Library/WebKit"`, relaunch → "restored" toast and the people are back
 - [ ] Sign in with an existing account; progress syncs; sign out
 - [ ] Sign up: confirmation email opens obey.tools in Safari; then sign in in the app works
 - [ ] Forgot password: reset on the website; sign in in the app with the new password

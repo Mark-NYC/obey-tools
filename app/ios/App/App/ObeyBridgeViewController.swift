@@ -38,10 +38,49 @@ struct ObeyRouter: Router {
     }
 }
 
+/// Native safety copy of the web layer's saved data (people, progress,
+/// assessments). The web shell (app-shell.js) writes it to
+/// Library/obey-local-data-backup.json after every change. If iOS ever clears
+/// WebKit storage, the shell restores missing keys from this copy at the next
+/// launch. It never overwrites a key that still exists.
+enum ObeyLocalBackup {
+    static let fileName = "obey-local-data-backup.json"
+
+    /// JavaScript run at document start on every page:
+    /// window.__OBEY_BACKUP_STATUS = "ok" | "none" | "error", plus the items when "ok".
+    static func userScriptSource() -> String {
+        guard let library = FileManager.default.urls(for: .libraryDirectory, in: .userDomainMask).first else {
+            return "window.__OBEY_BACKUP_STATUS='error';"
+        }
+        let url = library.appendingPathComponent(fileName)
+        guard FileManager.default.fileExists(atPath: url.path) else {
+            return "window.__OBEY_BACKUP_STATUS='none';"
+        }
+        guard let data = try? Data(contentsOf: url),
+              let root = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let items = root["items"] as? [String: String],
+              let itemsJSON = try? JSONSerialization.data(withJSONObject: items),
+              let itemsString = String(data: itemsJSON, encoding: .utf8) else {
+            // Unreadable backup: tell the shell not to overwrite it.
+            return "window.__OBEY_BACKUP_STATUS='error';"
+        }
+        return "window.__OBEY_BACKUP_STATUS='ok';window.__OBEY_BACKUP=\(itemsString);"
+    }
+}
+
 /// Root view controller: Capacitor's bridge plus native navigation behaviour.
 class ObeyBridgeViewController: CAPBridgeViewController {
     override func router() -> Router {
         return ObeyRouter()
+    }
+
+    override func webViewConfiguration(for instanceConfiguration: InstanceConfiguration) -> WKWebViewConfiguration {
+        let configuration = super.webViewConfiguration(for: instanceConfiguration)
+        let script = WKUserScript(source: ObeyLocalBackup.userScriptSource(),
+                                  injectionTime: .atDocumentStart,
+                                  forMainFrameOnly: true)
+        configuration.userContentController.addUserScript(script)
+        return configuration
     }
 
     override func capacitorDidLoad() {

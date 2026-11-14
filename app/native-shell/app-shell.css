@@ -130,7 +130,12 @@ html.oa-has-bar #onboarding-overlay { top: var(--oa-top) !important; }
   text-align: center;
   box-shadow: 0 4px 18px rgba(0, 0, 0, 0.22);
   pointer-events: none;
+  transition: left .25s ease, right .25s ease, padding .25s ease;
 }
+#oa-offline .oa-offline-short { display: none; }
+#oa-offline.oa-compact { left: 50%; right: auto; transform: translateX(-50%); padding: 4px 12px; border-radius: 99px; font-size: 12px; opacity: .9; }
+#oa-offline.oa-compact .oa-offline-full { display: none; }
+#oa-offline.oa-compact .oa-offline-short { display: inline; }
 .oa-toast {
   position: fixed; left: 50%; transform: translateX(-50%);
   bottom: calc(var(--oa-sab) + 24px);

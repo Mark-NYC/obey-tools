@@ -27,6 +27,7 @@
     <link rel="stylesheet" href="/buttons.css">
     <title data-i18n="site_text.s_074f1b88c7ff">Church Assessment Tool</title>
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="/local-sync.js"></script>
     <script type="module">
         import { supabase } from './supabase.js';
         window.supabase = supabase;
@@ -751,38 +752,64 @@ if (SAFETY_MODE) putSignalFirst();   // share popup markup is above this script
 
 function getCurrentUser() { return window._supabaseUser || null; }
 
+// ── Offline-first account sync (see /local-sync.js) ────────────────────
+// This device's assessment is shown first and is never silently replaced by
+// the account copy: the two are merged, conflicts keep this device's version
+// and save the account's version for recovery.
+let _reconciledUserId = null, _reconciling = false, _syncing = false, _syncPending = false;
+const currentRecord = () => ({ assessment_state: assessmentState || {}, is_church: !!isChurch, church_generation: churchGeneration || null, baptism_count: baptismCount || 0 });
+const isEmptyRecord = (r) => !r || (!Object.values(r.assessment_state || {}).some(v => +v > 0) && !r.is_church && !r.church_generation && !r.baptism_count);
+function applyRecord(r) {
+    assessmentState = r.assessment_state || {}; isChurch = !!r.is_church;
+    churchGeneration = r.church_generation || null; baptismCount = r.baptism_count || 0;
+    localStorage.setItem('churchAssessmentState', JSON.stringify(assessmentState));
+    localStorage.setItem('isChurch', JSON.stringify(isChurch));
+    if (churchGeneration) localStorage.setItem('churchGeneration', churchGeneration); else localStorage.removeItem('churchGeneration');
+    localStorage.setItem('baptismCount', String(baptismCount));
+    if (appInitialized) { renderCells(); updateCircleBorder(); updateDateDisplay(); }
+}
+async function fetchCloudAssessment(userId) {   // throws on any error: device copy is kept
+    const { data, error } = await window.supabase.from('church_assessments').select('*').eq('user_id', userId).maybeSingle();
+    if (error) throw error;
+    return data ? { assessment_state: data.assessment_state || {}, is_church: !!data.is_church, church_generation: data.church_generation || null, baptism_count: data.baptism_count || 0 } : null;
+}
+async function reconcileWithCloud(user) {
+    if (!user || !window.supabase || !window.ObeySync || _reconciling) return;
+    if (!ObeySync.mayMerge(user.id)) return;   // this device's data belongs to another account
+    _reconciling = true;
+    try {
+        let cloud;
+        try { cloud = await fetchCloudAssessment(user.id); } catch (err) { console.warn('Sync postponed (device copy kept):', err && err.message); return; }
+        const r = ObeySync.mergeRecord(currentRecord(), cloud, ObeySync.base('churchAssessment', user.id), isEmptyRecord);
+        if (r.conflict) {
+            ObeySync.keep('church-circle', 'Church Circle', r.conflict.other, 'Your account had a different assessment. This device’s version was kept.');
+            showNotification('Your account had a different Church Circle. This device’s version was kept; the other is saved in Settings.');
+        }
+        if (!ObeySync.same(r.value, currentRecord())) applyRecord(r.value);
+        ObeySync.setOwner(user.id);
+        _reconciledUserId = user.id;
+    } finally { _reconciling = false; }
+    if (_reconciledUserId === user.id) saveToSupabase();
+}
 async function saveToSupabase() {
     const user = getCurrentUser();
     if (!user || !window.supabase) return;
+    if (_reconciledUserId !== user.id) { reconcileWithCloud(user); return; }
+    if (_syncing) { _syncPending = true; return; }
+    _syncing = true; _syncPending = false;
+    const record = currentRecord();
     try {
-        await window.supabase.from('church_assessments').upsert({
-            user_id: user.id,
-            assessment_state: assessmentState,
-            is_church: isChurch,
-            church_generation: churchGeneration,
-            baptism_count: baptismCount,
+        const { error } = await window.supabase.from('church_assessments').upsert({
+            user_id: user.id, ...record,
             leader_name: localStorage.getItem('user-name') || null,
             updated_at: new Date().toISOString()
         }, { onConflict: 'user_id' });
-    } catch (err) { console.error('Supabase save error:', err); }
-}
-async function loadFromSupabase(userId) {
-    try {
-        const { data, error } = await window.supabase
-            .from('church_assessments').select('*').eq('user_id', userId).maybeSingle();
         if (error) throw error;
-        if (!data) return false;
-        assessmentState  = data.assessment_state || {};
-        isChurch         = data.is_church || false;
-        churchGeneration = data.church_generation || null;
-        baptismCount     = data.baptism_count || 0;
-        localStorage.setItem('churchAssessmentState', JSON.stringify(assessmentState));
-        localStorage.setItem('isChurch', JSON.stringify(isChurch));
-        if (churchGeneration) localStorage.setItem('churchGeneration', churchGeneration);
-        localStorage.setItem('baptismCount', baptismCount.toString());
-        return true;
-    } catch (err) { console.error('Supabase load error:', err); return false; }
+        ObeySync.setBase('churchAssessment', user.id, record);
+    } catch (err) { console.warn('Sync failed (device copy kept):', err && err.message); }
+    finally { _syncing = false; if (_syncPending) saveToSupabase(); }
 }
+window.addEventListener('online', () => { const u = getCurrentUser(); if (u) reconcileWithCloud(u); });
 function loadFromLocalStorage() {
     assessmentState  = JSON.parse(localStorage.getItem('churchAssessmentState')) || {};
     isChurch         = JSON.parse(localStorage.getItem('isChurch')) || false;
@@ -1044,18 +1071,16 @@ function initializeChurchAssessment() {
 }
 async function initializeApp() {
     if (appInitialized) return;
-    if (window.supabase) {
-        try {
-            const { data: { session } } = await window.supabase.auth.getSession();
-            if (session?.user) {
-                window._supabaseUser = session.user;
-                const loaded = await loadFromSupabase(session.user.id);
-                if (!loaded) loadFromLocalStorage();
-            } else { loadFromLocalStorage(); }
-        } catch (e) { loadFromLocalStorage(); }
-    } else { loadFromLocalStorage(); }
+    // Offline-first: the device copy opens immediately; account sync (if
+    // signed in and online) merges in the background and never blocks.
+    loadFromLocalStorage();
     initializeChurchAssessment();
     appInitialized = true;
+    if (window.supabase) {
+        window.supabase.auth.getSession().then(({ data: { session } }) => {
+            if (session?.user) { window._supabaseUser = session.user; reconcileWithCloud(session.user); }
+        }).catch(() => {});
+    }
 }
 
 function playTapHint() {

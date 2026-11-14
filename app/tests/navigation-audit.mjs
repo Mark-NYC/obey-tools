@@ -149,6 +149,33 @@ for (const size of SIZES) {
   await ctx.close()
 }
 
+// ── Home parity with the website: same tools, order, labels, colours ─────
+{
+  const SITE = path.resolve(APP, '..')
+  const site = http.createServer((req, res) => {
+    let p = decodeURIComponent(new URL(req.url, 'http://x').pathname); if (p === '/') p = '/index.html'
+    const f = path.join(SITE, p)
+    if (!f.startsWith(SITE) || !fs.existsSync(f) || fs.statSync(f).isDirectory()) { res.writeHead(404); return res.end() }
+    res.writeHead(200, { 'Content-Type': MIME[path.extname(f)] || 'text/html' }); fs.createReadStream(f).pipe(res)
+  })
+  await new Promise((r) => site.listen(8127, '127.0.0.1', r))
+  const read = async (url) => {
+    const c = await browser.newContext({ viewport: { width: 390, height: 844 } })
+    await c.route('**/*', (r) => { const u = r.request().url(); if (u.includes('supabase-js')) return r.fulfill({ contentType: 'text/javascript', body: 'export function createClient(){return {auth:{getSession:async()=>({data:{session:null}}),onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}})},from:()=>({select(){return this},eq(){return this},maybeSingle:async()=>({data:null})})}}' }); return u.startsWith('http://127.0.0.1') ? r.continue() : r.abort() })
+    const pg = await c.newPage(); await pg.goto(url); await pg.waitForTimeout(900)
+    const v = await pg.evaluate(() => [...document.querySelectorAll('.buttons > a')].filter((a) => a.getClientRects().length).map((a) => {
+      const cs = getComputedStyle(a); return { label: a.textContent.replace(/\s+/g, ' ').trim(), href: a.getAttribute('href'), bg: cs.backgroundColor, ink: cs.color, border: cs.borderTopColor }
+    }))
+    await c.close(); return v
+  }
+  const web = await read('http://127.0.0.1:8127/index.html')
+  const app = await read(`${BASE}/index.html`)
+  const same = JSON.stringify(web) === JSON.stringify(app)
+  console.log(`${same ? 'PASS' : 'FAIL'}  Home matches the website: ${app.map((b) => b.label).join(' · ')}`)
+  if (!same) { console.log('       web:', JSON.stringify(web), '\n       app:', JSON.stringify(app)); failures.push('home parity') }
+  site.close()
+}
+
 // ── Interactive navigation checks (390 × 844) ────────────────────────────
 const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true })
 await ctx.route('**/*', (r) => (r.request().url().startsWith(BASE) ? r.continue() : r.abort()))

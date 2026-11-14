@@ -4,6 +4,8 @@ Status: **first working build, not yet run on a physical iPhone.** CI compiles
 it for the iOS Simulator and for iPhone hardware (unsigned) and launches it in
 the Simulator. Nobody has tested it on a real device yet.
 
+- [offline-and-data.md](offline-and-data.md): what works offline, the sync rules, where data lives, update safety
+- [privacy-policy-draft.md](privacy-policy-draft.md): draft privacy policy and App Privacy answers (not published)
 - [development.md](development.md): local dev, CI, Xcode, Simulator, installing on your own iPhone with a free Apple ID
 - [release.md](release.md): TestFlight / App Store steps, what needs the paid membership, review checklist
 
@@ -76,9 +78,10 @@ offline, and every site deploy would ship to app users without review.
 ## Known issues and limitations
 
 - **Not device-tested.** It is Simulator-launched in CI only.
+- **Offline-first:** all five tools work with no internet and no account; see [offline-and-data.md](offline-and-data.md).
 - **Account deletion needs a server function** (`supabase/account-deletion/`). It is drafted, **not applied**. Until it is, the Delete button says deletion isn't enabled and changes nothing. This **blocks App Store submission**.
 - **No privacy policy page exists** on obey.tools. One is required for submission.
 - The top bar uses the site's own translations. The Settings screen, offline banner and unsaved-changes prompt are English only for now. Site content stays fully translated.
 - Full-screen task dialogs on the site (for example editing a person in Conversation Box) cover the bar while open, as dialogs should. Close them to reach Home.
-- Pre-existing website bug found by the new tests: `conversation-box.html` throws `Cannot read properties of undefined (reading 'length')` in `updateDisplay()` on first load at phone size (`conversations` is still `{}`). It is also on the live site; left unfixed here.
+- Fixed: `conversation-box.html` threw on first load at phone size because `updateDisplay()` ran before data and translations were ready. Two guarded lines; this also fixes the website. Regression test: `app/tests/offline-first.mjs` D.
 - Videos (YouTube), maps, sign-in and sync need a connection, as expected.

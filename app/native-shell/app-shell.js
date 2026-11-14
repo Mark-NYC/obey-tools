@@ -18,7 +18,7 @@ import { Capacitor } from '@capacitor/core'
 import { App } from '@capacitor/app'
 import { Browser } from '@capacitor/browser'
 import { Clipboard } from '@capacitor/clipboard'
-import { Directory, Filesystem } from '@capacitor/filesystem'
+import { Directory, Encoding, Filesystem } from '@capacitor/filesystem'
 import { Haptics, ImpactStyle } from '@capacitor/haptics'
 import { LocalNotifications } from '@capacitor/local-notifications'
 import { Network } from '@capacitor/network'
@@ -32,6 +32,82 @@ const NATIVE = Capacitor.isNativePlatform()
 const root = document.documentElement
 root.classList.add('oa-app')
 if (NATIVE) root.classList.add('oa-native')
+
+// ── Durable local data ─────────────────────────────────────────────────────
+// Everything people save (Conversation Box people, notes, progress, Church
+// Circle) lives in this WebView's localStorage. iOS keeps that across restarts
+// and updates, but WebKit storage can in rare cases be cleared (e.g. storage
+// pressure). So every change is also copied to a native file
+// (Library/obey-local-data-backup.json, included in iCloud/device backups),
+// and ObeyBridgeViewController.swift hands that copy to each page before any
+// page script runs (window.__OBEY_BACKUP).
+//
+// Restore rules: only when this WebView's storage has been wiped (our marker
+// key is gone), and only keys that don't exist now. Nothing is overwritten.
+// Sign-in tokens are not copied; after a wipe, people simply sign in again.
+const STORAGE_MARKER = 'obeyapp:storage-marker'
+const BACKUP_FILE = 'obey-local-data-backup.json'
+const NOT_BACKED_UP = /^(obey-tools-auth|sb-.*-auth-token|obeyapp:storage-marker)$/
+const backupStatus = window.__OBEY_BACKUP_STATUS   // 'ok' | 'none' | 'error' | undefined (web)
+let restoredKeys = 0
+let backupWritable = false
+// Tests run this logic in Chromium (Filesystem falls back to IndexedDB there).
+const DURABLE = NATIVE || window.__OBEY_TEST_DURABLE === true
+;(function restoreLocalData() {
+  if (!DURABLE) return
+  let marker = null
+  try { marker = localStorage.getItem(STORAGE_MARKER) } catch { return }
+  if (marker === null && backupStatus === 'ok' && window.__OBEY_BACKUP && typeof window.__OBEY_BACKUP === 'object') {
+    for (const [k, v] of Object.entries(window.__OBEY_BACKUP)) {
+      try { if (typeof v === 'string' && localStorage.getItem(k) === null) { localStorage.setItem(k, v); restoredKeys++ } } catch {}
+    }
+  }
+  // An unreadable backup ('error') or a missing native hand-off is never overwritten.
+  if (backupStatus === 'ok' || backupStatus === 'none') {
+    try { if (marker === null) localStorage.setItem(STORAGE_MARKER, new Date().toISOString()) } catch {}
+    backupWritable = true
+  }
+})()
+
+function snapshotLocalData() {
+  const items = {}
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i)
+    if (k != null && !NOT_BACKED_UP.test(k)) items[k] = localStorage.getItem(k)
+  }
+  return items
+}
+let backupTimer = null, backupWriting = false, backupAgain = false
+async function writeBackupNow() {
+  clearTimeout(backupTimer); backupTimer = null
+  if (!backupWritable) return
+  if (backupWriting) { backupAgain = true; return }
+  backupWriting = true
+  try {
+    await Filesystem.writeFile({
+      path: BACKUP_FILE, directory: Directory.Library, encoding: Encoding.UTF8,
+      data: JSON.stringify({ version: 1, savedAt: new Date().toISOString(), items: snapshotLocalData() }),
+    })
+  } catch (e) { console.warn('[obey] local backup failed', e) }
+  finally { backupWriting = false; if (backupAgain) { backupAgain = false; writeBackupNow() } }
+}
+function scheduleBackup() { if (backupWritable) { clearTimeout(backupTimer); backupTimer = setTimeout(writeBackupNow, 350) } }
+async function readBackup() {
+  const r = await Filesystem.readFile({ path: BACKUP_FILE, directory: Directory.Library, encoding: Encoding.UTF8 })
+  return JSON.parse(typeof r.data === 'string' ? r.data : await r.data.text())
+}
+if (DURABLE) {
+  const proto = Storage.prototype
+  for (const m of ['setItem', 'removeItem', 'clear']) {
+    const orig = proto[m]
+    proto[m] = function () { const r = orig.apply(this, arguments); if (this === window.localStorage) scheduleBackup(); return r }
+  }
+  // Leaving a page (navigation, app switch): flush any pending write now.
+  addEventListener('pagehide', () => { if (backupTimer) writeBackupNow() })
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden' && backupTimer) writeBackupNow() })
+  // First run of this version: make sure a backup exists.
+  if (backupWritable && backupStatus === 'none') scheduleBackup()
+}
 
 // Analytics are stripped from the app build; keep any stray gtag() calls harmless.
 window.dataLayer = window.dataLayer || []
@@ -49,6 +125,7 @@ const STRINGS = {
     bar: 'App navigation',
     unsaved: 'You have changes that are not saved yet. Leave this screen anyway?',
     offline: 'Offline. Saved tools still work. Sign-in and syncing resume when you reconnect.',
+    offline_short: 'Offline',
     back_online: 'Back online',
     share_failed: 'Sharing is not available right now.',
     copied: 'Copied',
@@ -344,8 +421,12 @@ function setOffline(offline, announce) {
       bar = document.createElement('div')
       bar.id = 'oa-offline'
       bar.setAttribute('role', 'status')
-      bar.textContent = s('offline')
+      bar.innerHTML = `<span class="oa-offline-full"></span><span class="oa-offline-short">${s('offline_short')}</span>`
+      bar.querySelector('.oa-offline-full').textContent = s('offline')
+      bar.setAttribute('aria-label', s('offline'))
       document.body.appendChild(bar)
+      // Explain once, then get out of the way: shrink to a small pill.
+      setTimeout(() => bar.classList.add('oa-compact'), 4000)
     }
   } else {
     if (bar) bar.remove()
@@ -424,6 +505,7 @@ function boot() {
       if (e.target.closest && e.target.closest('.btn, .ot-btn, button')) tap()
     }, { passive: true })
   }
+  if (restoredKeys) toast('Your saved tools were restored from this iPhone’s backup.')
   requestAnimationFrame(hideSplash)
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, { once: true })
@@ -431,4 +513,7 @@ else boot()
 
 // Shared helpers for app-only pages (Settings).
 window.ObeyApp = { native: NATIVE, share: nativeShare, toPublicUrl, toast, tap, s, goHome,
+  // Signing out / deleting the account never deletes data saved on this phone (auth.js).
+  keepDeviceData: true,
+  backup: { status: backupStatus, restoredKeys, writable: backupWritable, writeNow: writeBackupNow, read: readBackup, snapshot: snapshotLocalData },
   plugins: { App, Browser, LocalNotifications, Network, Share, Haptics } }

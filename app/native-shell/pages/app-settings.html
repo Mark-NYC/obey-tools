@@ -44,6 +44,7 @@
   dialog button.destroy { background: #d70015; color: #fff; font-weight: 600; }
   @media (prefers-reduced-motion: reduce) { .switch span, .switch span::after { transition: none; } }
 </style>
+<script src="/local-sync.js"></script>
 <script type="module">
   import { supabase } from '/supabase.js'
   import { ready } from '/i18n.js'
@@ -89,8 +90,12 @@
         { type: 'error' })
       return
     }
+    // The account is gone; what is saved on this iPhone stays (No account, no
+    // problem). Detach it from the deleted account so it can be used freely.
     await authLogOut()
-    showAuthMessage('Your account and its saved data were deleted.', { type: 'success' })
+    window.ObeySync?.setOwner(null)
+    ;['conversations-synced', 'churchAssessment-synced'].forEach(k => localStorage.removeItem(k))
+    showAuthMessage('Your account and the data stored in it were deleted. Everything saved on this iPhone was kept.', { type: 'success' })
   })
 
   // ── Language ───────────────────────────────────────────────────────
@@ -149,6 +154,42 @@
   addEventListener('online', netStatus); addEventListener('offline', netStatus)
   app.plugins.Network?.addListener?.('networkStatusChange', netStatus)
 
+  // ── Data export + sync recovery ────────────────────────────────────
+  const recovery = window.ObeySync ? ObeySync.recovery() : []
+  $('recovery-count').textContent = recovery.length
+  $('show-recovery').addEventListener('click', () => {
+    const box = $('recovery-list')
+    if (!box.hidden) { box.hidden = true; return }
+    box.innerHTML = ''
+    if (!recovery.length) {
+      const r = document.createElement('div'); r.className = 'row'; r.textContent = 'Nothing to recover.'; box.appendChild(r)
+    }
+    recovery.forEach((item) => {
+      const r = document.createElement('div'); r.className = 'row'; r.style.flexDirection = 'column'; r.style.alignItems = 'flex-start'
+      const title = document.createElement('strong'); title.textContent = item.label
+      const why = document.createElement('span'); why.className = 'note'; why.style.margin = '2px 0 0'
+      why.textContent = item.reason + ' · ' + new Date(item.at).toLocaleString()
+      const pre = document.createElement('code'); pre.style.cssText = 'font-size:12px;white-space:pre-wrap;word-break:break-word;color:#3c3c43;margin-top:6px'
+      pre.textContent = JSON.stringify(item.data, null, 1)
+      r.append(title, why, pre); box.appendChild(r)
+    })
+    box.hidden = false
+  })
+  $('export-data').addEventListener('click', async () => {
+    const items = {}
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i)
+      if (/^(obey-tools-auth|sb-|obeyapp:)/.test(k)) continue   // never export sign-in tokens
+      const v = localStorage.getItem(k)
+      try { items[k] = JSON.parse(v) } catch { items[k] = v }
+    }
+    const body = JSON.stringify({ app: 'OBEY.TOOLS', exportedAt: new Date().toISOString(), data: items }, null, 2)
+    const name = 'obey-tools-data-' + new Date().toISOString().slice(0, 10) + '.json'
+    const file = new File([body], name, { type: 'application/json' })
+    try { await app.share({ title: name, files: [file] }) }
+    catch (e) { if (e?.name !== 'AbortError') app.toast('Could not export right now.') }
+  })
+
   // ── Share + about ──────────────────────────────────────────────────
   $('share-app').addEventListener('click', () => app.share({
     title: 'OBEY.TOOLS',
@@ -172,7 +213,7 @@
     <button class="row" id="account-signout" hidden><span class="label">Sign out</span></button>
     <button class="row danger" id="account-delete" hidden><span class="label">Delete account…</span></button>
   </div>
-  <p class="note">An account syncs your progress across devices. Every tool also works without one.</p>
+  <p class="note">Optional. Every tool works without an account and without internet; everything is saved on this iPhone. An account adds a synced copy for your other devices. Signing out never deletes what is saved here.</p>
 
   <!-- Standard sign-in box: account-overlay.js turns it into the full-screen sign-in. -->
   <div class="auth-section" id="auth-section" style="display:none">
@@ -224,16 +265,33 @@
     </label>
   </div>
 
-  <h2>Available offline <span class="badge" id="net-badge">Online</span></h2>
+  <h2>Works offline, no account <span class="badge" id="net-badge">Online</span></h2>
   <div class="group">
-    <a class="row" href="/commands-of-christ.html"><span class="label">Commands of Christ</span><span class="chev">›</span></a>
-    <a class="row" href="/4-questions.html"><span class="label">4-1-1 (4 Questions)</span><span class="chev">›</span></a>
-    <a class="row" href="/3-circles.html"><span class="label">3 Circles</span><span class="chev">›</span></a>
+    <a class="row" href="/conversation-box.html"><span class="label">Conversation Box</span><span class="chev">›</span></a>
     <a class="row" href="/stories-of-hope.html"><span class="label">Stories of Hope</span><span class="chev">›</span></a>
-    <a class="row" href="/signs-of-john.html"><span class="label">Signs of John</span><span class="chev">›</span></a>
-    <a class="row" href="/bible-study/index.html"><span class="label">Bible Study</span><span class="chev">›</span></a>
+    <a class="row" href="/4-questions.html"><span class="label">4-1-1 (4 Questions)</span><span class="chev">›</span></a>
+    <a class="row" href="/commands-of-christ.html"><span class="label">Commands of Christ</span><span class="chev">›</span></a>
+    <a class="row" href="/church-assessment.html"><span class="label">Church Circle</span><span class="chev">›</span></a>
   </div>
-  <p class="note">These tools are stored on your iPhone and open without a connection. Videos, maps, sign-in, and syncing need the internet.</p>
+  <p class="note">Also offline: Signs of John, the 3 Circles diagram (inside 4-1-1), Bible Study plans and the Urdu Bible text. Everything you add or check off is saved on this iPhone.</p>
+
+  <h2>Needs internet</h2>
+  <div class="group">
+    <div class="row"><span class="label">Account sign-in and sync</span></div>
+    <div class="row"><span class="label">Progress map and worldwide totals</span></div>
+    <div class="row"><span class="label">Videos (3 Circles, stories)</span></div>
+    <div class="row"><span class="label">Adding a conversation to the map</span><span class="value">sent later</span></div>
+    <div class="row"><span class="label">Leader tools, invites, live sessions</span></div>
+  </div>
+  <p class="note">Nothing you save waits on the internet. Map contributions made offline are sent automatically when you are back online and signed in.</p>
+
+  <h2 id="data">Your data on this iPhone</h2>
+  <div class="group">
+    <button class="row" id="export-data"><span class="label">Export a copy of my data</span><span class="chev">›</span></button>
+    <button class="row" id="show-recovery"><span class="label">Recovered from sync</span><span class="value" id="recovery-count">0</span></button>
+  </div>
+  <p class="note">Export saves a file with your people, notes and progress (share it to Files, or to yourself). When this iPhone and your account disagreed, this iPhone’s version was kept and the other version is listed under “Recovered from sync”.</p>
+  <div class="group" id="recovery-list" hidden></div>
 
   <h2>About</h2>
   <div class="group">
@@ -245,7 +303,7 @@
 
 <dialog id="delete-dialog" aria-labelledby="delete-title">
   <h3 id="delete-title">Delete your account?</h3>
-  <p>This permanently deletes your sign-in and the progress saved to your account. It cannot be undone.</p>
+  <p>This permanently deletes your sign-in and the copy of your progress stored in your account. It cannot be undone. People and progress saved on this iPhone are kept.</p>
   <div class="actions">
     <button type="button" id="delete-cancel" autofocus>Cancel</button>
     <button type="button" id="delete-confirm" class="destroy">Delete</button>

@@ -48,6 +48,8 @@ jobs:
       - name: Install Playwright Chromium (test only)
         run: npm i --no-save playwright@1.63.0 && npx playwright install --with-deps chromium
       - run: npm test
+      - name: Offline-first suite (airplane mode, sync safety, durable storage)
+        run: node tests/offline-first.mjs
       - name: Navigation audit (every screen × 3 iPhone sizes)
         run: node tests/navigation-audit.mjs
       - uses: actions/upload-artifact@v4
@@ -119,25 +121,50 @@ jobs:
           xcrun simctl bootstatus "$UDID" -b
           xcrun simctl status_bar "$UDID" override --time 9:41 --batteryState charged --batteryLevel 100 || true
           xcrun simctl install "$UDID" build/sim/Build/Products/Debug-iphonesimulator/App.app
+          # Wait for WebKit's first meaningful paint instead of a fixed sleep:
+          # a cold CI simulator can take 20 s+ to paint even a local page.
+          wait_for_paint() {   # $1 = label, $2 = seconds, $3 = log start time
+            local start=$(date +%s)
+            while [ $(( $(date +%s) - start )) -lt "$2" ]; do
+              if xcrun simctl spawn "$UDID" log show --start "$3" --style compact \
+                   --predicate 'process == "App" AND eventMessage CONTAINS "firstMeaningfulPaint"' 2>/dev/null \
+                   | grep -o "firstMeaningfulPaint=[0-9.]*" | tail -1 > "sim-output/$1-paint.txt" && [ -s "sim-output/$1-paint.txt" ]; then
+                echo "$1: $(cat sim-output/$1-paint.txt) s after load start (waited $(( $(date +%s) - start )) s)"
+                return 0
+              fi
+              sleep 2
+            done
+            echo "::error::$1: no first paint within $2 s"; return 1
+          }
+          T0=$(date '+%Y-%m-%d %H:%M:%S')
           xcrun simctl launch "$UDID" tools.obey.app
-          sleep 15
-          xcrun simctl io "$UDID" screenshot sim-output/01-home.png
+          PAINTED=0; wait_for_paint cold 90 "$T0" && PAINTED=1
+          sleep 2
+          xcrun simctl io "$UDID" screenshot sim-output/01-home-cold.png
           # Fail if the app crashed or quit during startup.
           if ! xcrun simctl spawn "$UDID" launchctl list | grep -q "tools.obey.app"; then
-            echo "::error::App is not running 15s after launch (crash on startup?)"
-            xcrun simctl spawn "$UDID" log show --last 3m --style compact --predicate 'process == "App"' > sim-output/app.log || true
+            echo "::error::App is not running after launch (crash on startup?)"
+            xcrun simctl spawn "$UDID" log show --last 3m --style compact --predicate 'process == "App"' > sim-output/app-cold.log || true
             exit 1
           fi
-          xcrun simctl spawn "$UDID" log show --last 3m --style compact --predicate 'process == "App"' > sim-output/app.log || true
-          # Capacitor logs page-load failures; surface them.
-          if grep -E "Error loading page|fatalLoadError|Unable to load|JS Eval error" sim-output/app.log; then
-            echo "::warning::Capacitor reported load errors — see app.log artifact"
+          xcrun simctl spawn "$UDID" log show --last 3m --style compact --predicate 'process == "App"' > sim-output/app-cold.log || true
+          if grep -E "Error loading page|fatalLoadError|Unable to load|JS Eval error" sim-output/app-cold.log; then
+            echo "::warning::Capacitor reported load errors — see app-cold.log artifact"
           fi
-          # Re-launch to confirm a warm start is clean too.
+          # Warm start: what a person sees on every launch after the first.
           xcrun simctl terminate "$UDID" tools.obey.app
+          sleep 3
+          T1=$(date '+%Y-%m-%d %H:%M:%S')
           xcrun simctl launch "$UDID" tools.obey.app
-          sleep 6
-          xcrun simctl io "$UDID" screenshot sim-output/02-relaunch.png
+          wait_for_paint warm 45 "$T1" || PAINTED=0
+          sleep 1
+          xcrun simctl io "$UDID" screenshot sim-output/02-home-warm.png
+          {
+            echo "### iOS Simulator launch"
+            echo "- Cold start first paint: $(cat sim-output/cold-paint.txt 2>/dev/null || echo none)"
+            echo "- Warm start first paint: $(cat sim-output/warm-paint.txt 2>/dev/null || echo none)"
+          } >> "$GITHUB_STEP_SUMMARY"
+          [ "$PAINTED" = 1 ]
 
       - uses: actions/upload-artifact@v4
         if: always()

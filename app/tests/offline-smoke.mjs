@@ -73,7 +73,7 @@ await context.setOffline(false) // local server must stay reachable; externals a
 // Bugs that also occur on the live website (same code, mobile emulation), not
 // introduced by the app build. Reported, not hidden: they print as KNOWN.
 const KNOWN_SITE_ISSUES = {
-  'conversation-box': /Cannot read properties of undefined \(reading 'length'\)/,
+  // (empty — the Conversation Box first-load error was fixed; keep it that way)
 }
 const failures = []
 const known = []
