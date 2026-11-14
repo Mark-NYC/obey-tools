@@ -44,7 +44,7 @@ Apple rejects apps that are "a repackaged website". Notes for App Review:
 
 > OBEY.TOOLS is a discipleship toolkit used in low-connectivity settings. The
 > app bundles every tool for offline use (the website requires a connection),
-> adds a native tab bar and swipe navigation, daily on-device reminders to act on
+> adds native navigation (a consistent top bar and swipe-back), daily on-device reminders to act on
 > what users learn, the native share sheet for sharing generated images and
 > links, and in-app account management including account deletion.
 

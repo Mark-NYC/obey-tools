@@ -2,7 +2,10 @@
 // scripts/build-web.mjs. Never shipped to the public website.
 //
 // Responsibilities:
-//   • Native tab bar on hub pages, safe-area handling, status-bar styling
+//   • Minimal top bar on every screen: Home (left), Account + Settings (right).
+//     Home is the tool-selection screen; there is deliberately NO tab bar —
+//     the tools are a coordinated set, not interchangeable app sections.
+//   • Safe-area handling, status-bar styling
 //   • Native share sheet for links AND images (navigator.share, <a download>)
 //   • Reliable clipboard, haptics, offline banner
 //   • External links in an in-app Safari sheet; obey.tools links stay in-app
@@ -42,8 +45,9 @@ setTimeout(hideSplash, 2500)
 // ── Strings (app-only UI). Falls back to English. ──────────────────────────
 const STRINGS = {
   en: {
-    home: 'Home', commands: 'Commands', stories: 'Stories', settings: 'Settings',
-    tabs: 'App sections',
+    home: 'Home', settings: 'Settings', account: 'Open account', sign_in: 'Open sign in',
+    bar: 'App navigation',
+    unsaved: 'You have changes that are not saved yet. Leave this screen anyway?',
     offline: 'Offline. Saved tools still work. Sign-in and syncing resume when you reconnect.',
     back_online: 'Back online',
     share_failed: 'Sharing is not available right now.',
@@ -52,6 +56,13 @@ const STRINGS = {
 }
 const lang = (() => { try { return localStorage.getItem('obeytools_lang') || 'en' } catch { return 'en' } })()
 export const s = (k) => (STRINGS[lang] && STRINGS[lang][k]) || STRINGS.en[k] || k
+// Prefer the site's own translations (all 12 languages) when a key exists.
+const SITE_KEYS = { home: 'nav.home', settings: 'site_text.s_c7f73bb54d92', account: 'site_text.s_db17a329d4f5', sign_in: 'study_ui.open_sign_in' }
+const tr = (k) => {
+  const key = SITE_KEYS[k]
+  if (key && typeof window.t === 'function') { const v = window.t(key); if (v && v !== key) return v }
+  return s(k)
+}
 
 // ── URL helpers ────────────────────────────────────────────────────────────
 // Links produced inside the app must point at the public site, never at
@@ -197,55 +208,122 @@ document.addEventListener('click', async (e) => {
   }
 }, false)
 
-// ── Tab bar ────────────────────────────────────────────────────────────────
+// ── Top bar ────────────────────────────────────────────────────────────────
+// One consistent bar on every screen. Left: Home (hidden on Home itself).
+// Right: Account (opens the site's own sign-in overlay) and Settings.
 const ICONS = {
-  home: '<path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5.5v-6h-5v6H4a1 1 0 0 1-1-1z"/>',
-  commands: '<path d="M5 3.5h10.5L19 7v13.5H5z"/><path d="M8.5 9.5h7M8.5 13h7M8.5 16.5h4.5"/>',
-  stories: '<path d="M4 5.5C6.5 4 9.5 4 12 5.5 14.5 4 17.5 4 20 5.5V19c-2.5-1.5-5.5-1.5-8 0-2.5-1.5-5.5-1.5-8 0z"/><path d="M12 5.5V19"/>',
-  settings: '<circle cx="12" cy="12" r="3.2"/><path d="M12 2.8v2.4M12 18.8v2.4M21.2 12h-2.4M5.2 12H2.8M18.5 5.5l-1.7 1.7M7.2 16.8l-1.7 1.7M18.5 18.5l-1.7-1.7M7.2 7.2 5.5 5.5"/>',
+  back: '<path d="M15 4.5 7.5 12l7.5 7.5"/>',
+  account: '<circle cx="12" cy="8.2" r="4"/><path d="M4.5 20.5c.6-3.9 3.7-6.3 7.5-6.3s6.9 2.4 7.5 6.3"/>',
+  settings: '<circle cx="12" cy="12" r="3.1"/><path d="M19.4 13.5a7.7 7.7 0 0 0 0-3l2-1.6-2-3.4-2.4.9a7.6 7.6 0 0 0-2.6-1.5L14 2.4h-4l-.4 2.5A7.6 7.6 0 0 0 7 6.4l-2.4-.9-2 3.4 2 1.6a7.7 7.7 0 0 0 0 3l-2 1.6 2 3.4 2.4-.9a7.6 7.6 0 0 0 2.6 1.5l.4 2.5h4l.4-2.5a7.6 7.6 0 0 0 2.6-1.5l2.4.9 2-3.4z"/>',
+}
+const svg = (k) => `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${ICONS[k]}</svg>`
+
+const isHome = () => normalizedPath() === '/'
+const isSettings = () => normalizedPath() === '/app-settings'
+
+// Unsaved-work guard. Pages autosave progress, but some sheets (e.g. a
+// person's note in Conversation Box) only save on their Save button. Track
+// text the user typed that no button press has followed, and confirm before
+// leaving with it. Sign-in fields are not "work".
+const dirty = new Set()
+document.addEventListener('input', (e) => {
+  const el = e.target
+  if (!el || !el.matches || !el.matches('textarea, input:not([type=email]):not([type=password]):not([type=checkbox]):not([type=radio]):not([type=range]), [contenteditable=""], [contenteditable=true]')) return
+  if (el.closest('#auth-section, #oa-bar')) return
+  dirty.add(el)
+}, true)
+document.addEventListener('click', (e) => {
+  if (e.target.closest && e.target.closest('button, [role=button], input[type=submit]') && !e.target.closest('#oa-bar')) dirty.clear()
+}, true)
+function hasUnsavedWork() {
+  for (const el of dirty) {
+    if (!el.isConnected || !el.getClientRects().length) { dirty.delete(el); continue }
+    if (String(el.value ?? el.textContent).trim()) return true
+  }
+  return false
+}
+export function goHome() {
+  if (hasUnsavedWork() && !window.confirm(s('unsaved'))) return
+  tap()
+  // Coming straight from Home: go back so Home keeps its scroll position.
+  let fromHome = false
+  try { const r = new URL(document.referrer); fromHome = r.origin === location.origin && /^\/(index(\.html)?)?$/.test(r.pathname) } catch {}
+  if (fromHome && history.length > 1) history.back()
+  else location.assign('/index.html')
 }
 
-function storiesHref() {
-  // Mirrors the website: Ukraine time zones get Signs of John instead.
-  let tz = ''
-  try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '' } catch {}
-  return ['Europe/Kyiv', 'Europe/Kiev', 'Europe/Uzhgorod', 'Europe/Zaporozhye', 'Europe/Simferopol'].includes(tz)
-    ? '/signs-of-john.html' : '/stories-of-hope.html'
+function openAccount() {
+  tap()
+  const trigger = document.querySelector('.acct-icon-btn')
+  if (trigger) { trigger.click(); return }
+  // Pages without the shared sign-in box: account lives in Settings.
+  if (!isSettings()) location.assign('/app-settings.html#account')
+  else document.getElementById('account-signin')?.scrollIntoView({ block: 'center' })
 }
 
-const HUBS = {
-  '/': 'home',
-  '/commands-of-christ': 'commands',
-  '/stories-of-hope': 'stories',
-  '/signs-of-john': 'stories',
-  '/app-settings': 'settings',
-}
-
-function mountTabBar() {
-  const active = HUBS[normalizedPath()]
-  if (!active) return
-  root.classList.add('oa-has-tabbar')
-  const tabs = [
-    ['home', '/index.html'],
-    ['commands', '/commands-of-christ.html'],
-    ['stories', storiesHref()],
-    ['settings', '/app-settings.html'],
-  ]
-  const nav = document.createElement('nav')
-  nav.id = 'oa-tabbar'
-  nav.setAttribute('aria-label', s('tabs'))
-  nav.innerHTML = tabs.map(([key, href]) => `
-    <a href="${href}" class="oa-tab${key === active ? ' is-active' : ''}" ${key === active ? 'aria-current="page"' : ''} data-tab="${key}">
-      <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ICONS[key]}</svg>
-      <span>${s(key)}</span>
-    </a>`).join('')
-  nav.addEventListener('click', (e) => {
-    const a = e.target.closest('a')
-    if (!a) return
-    tap(ImpactStyle.Light)
-    if (a.classList.contains('is-active')) { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }) }
+function mountTopBar() {
+  root.classList.add('oa-has-bar')
+  if (isHome()) root.classList.add('oa-home')
+  const bar = document.createElement('nav')
+  bar.id = 'oa-bar'
+  bar.setAttribute('aria-label', s('bar'))
+  bar.innerHTML = `
+    <div class="oa-bar-row">
+      <div class="oa-bar-start">${isHome() ? '' : `<a href="/index.html" class="oa-bar-home" id="oa-home">${svg('back')}<span class="oa-home-label">${tr('home')}</span></a>`}</div>
+      <div class="oa-bar-end">
+        <button type="button" class="oa-bar-icon" id="oa-account" aria-label="${tr('sign_in')}">${svg('account')}<span class="oa-dot" hidden></span></button>
+        ${isSettings() ? '' : `<a href="/app-settings.html" class="oa-bar-icon" id="oa-settings" aria-label="${tr('settings')}">${svg('settings')}</a>`}
+      </div>
+    </div>`
+  document.body.prepend(bar)
+  bar.querySelector('#oa-home')?.addEventListener('click', (e) => { e.preventDefault(); goHome() })
+  bar.querySelector('#oa-account').addEventListener('click', openAccount)
+  bar.querySelector('#oa-settings')?.addEventListener('click', (e) => {
+    if (hasUnsavedWork() && !window.confirm(s('unsaved'))) e.preventDefault()
+    else tap()
   })
-  document.body.appendChild(nav)
+
+  // Labels follow the page language once the site's translations load.
+  window.addEventListener('i18n:ready', () => {
+    const l = bar.querySelector('.oa-home-label'); if (l) l.textContent = tr('home')
+    const st = bar.querySelector('#oa-settings'); if (st) st.setAttribute('aria-label', tr('settings'))
+    syncAccount()
+  })
+
+  // Mirror the site's account icon state (signed-in dot, label).
+  const acct = bar.querySelector('#oa-account')
+  const dot = acct.querySelector('.oa-dot')
+  function syncAccount() {
+    const src = document.querySelector('.acct-icon-btn')
+    const signedIn = src ? src.classList.contains('signed-in') : !!window._supabaseUser
+    dot.hidden = !signedIn
+    acct.setAttribute('aria-label', signedIn ? tr('account') : tr('sign_in'))
+  }
+  syncAccount()
+  new MutationObserver(syncAccount).observe(document.body, { subtree: true, attributes: true, attributeFilter: ['class'], childList: true })
+}
+
+// The app bar is the one way home. Hide each page's own Home pill / wordmark
+// link at the top of the page (in-tool links such as "← Commands of Christ"
+// stay), and collapse a header row that held nothing else.
+function hideDuplicateHomeLinks() {
+  const links = document.querySelectorAll('a[href="/"], a[href="/index.html"], a[href="index.html"], a.mobile-home-btn')
+  for (const a of links) {
+    if (a.closest('#oa-bar, footer')) continue
+    const top = a.getBoundingClientRect().top + scrollY - (parseFloat(getComputedStyle(root).paddingTop) || 0)
+    if (top > 140) continue
+    a.classList.add('oa-dup-home')
+    a.setAttribute('aria-hidden', 'true')
+    a.tabIndex = -1
+    const parent = a.parentElement
+    // Collapse the row only if the Home link is literally its only content.
+    // (Not "the only visible content": e.g. the progress map toolbar's Log Out
+    // button is invisible while signed out and must reappear after sign-in.)
+    if (parent && parent !== document.body && parent.tagName !== 'MAIN' &&
+        [...parent.childNodes].every((n) => n === a || n.nodeType === 8 || (n.nodeType === 3 && !n.textContent.trim()))) {
+      parent.classList.add('oa-dup-home-row')
+    }
+  }
 }
 
 // ── Toast / offline banner ────────────────────────────────────────────────
@@ -333,11 +411,11 @@ if (NATIVE) {
 function boot() {
   const skip = document.querySelector('meta[http-equiv="refresh"]')
   if (!skip) {
-    const scrim = document.createElement('div')
-    scrim.id = 'oa-status-scrim'
-    scrim.setAttribute('aria-hidden', 'true')
-    document.body.appendChild(scrim)
-    mountTabBar()
+    mountTopBar()
+    hideDuplicateHomeLinks()
+    // Bar is transparent at the top of a page, translucent once content scrolls under it.
+    const onScroll = () => root.classList.toggle('oa-scrolled', scrollY > 4)
+    addEventListener('scroll', onScroll, { passive: true }); onScroll()
     applyStatusBar(pageBackground())
     watchOverlays()
     watchNetwork()
@@ -352,5 +430,5 @@ if (document.readyState === 'loading') document.addEventListener('DOMContentLoad
 else boot()
 
 // Shared helpers for app-only pages (Settings).
-window.ObeyApp = { native: NATIVE, share: nativeShare, toPublicUrl, toast, tap, s,
+window.ObeyApp = { native: NATIVE, share: nativeShare, toPublicUrl, toast, tap, s, goHome,
   plugins: { App, Browser, LocalNotifications, Network, Share, Haptics } }

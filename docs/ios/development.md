@@ -19,12 +19,18 @@ npx cap sync ios   # copy www + plugin config into the Xcode project
 
 `npm test` serves `app/www` with the same routing rules as the iOS app and
 **blocks all network traffic**. Then it opens every page at iPhone size and
-fails on script errors, missing bundled files, a missing tab bar or horizontal
-overflow. Screenshots go to `app/test-output/`. If Playwright can't find a
+fails on script errors, missing bundled files, a missing top bar or Home button,
+or horizontal overflow. Screenshots go to `app/test-output/`. If Playwright can't find a
 browser, set `CHROMIUM_PATH=/path/to/chromium`.
 
+`node tests/navigation-audit.mjs` opens every screen at iPhone SE, 14 and Pro Max
+sizes with realistic safe-area insets. It checks the top bar can always be reached,
+that nothing sits under it, the Home order and colours, touch targets, RTL and
+translated labels, and walks the five tools Home → tool → Home, including the
+unsaved-changes prompt. Screenshots go to `app/test-output/nav/`.
+
 Preview the bundle in a desktop browser with `npx serve app/www`. The shell
-runs in "web mode": the tab bar and layout show, and native plugins are skipped.
+runs in "web mode": the top bar and layout show, and native plugins are skipped.
 Extensionless links won't route there; open `.html` URLs.
 
 Regenerate the icon and launch images after a branding change: `npm run assets`.
@@ -101,7 +107,9 @@ Free-account limits (from Apple, subject to change):
 ### Device test checklist (do this before saying "device-tested")
 
 - [ ] Cold start: splash → Home with no white flash; status bar readable
-- [ ] Tab bar: all four tabs; active tab highlighted; tap active → scroll to top
+- [ ] Home shows the five tools in order and colour; no tab bar anywhere
+- [ ] Each tool: **‹ Home** returns to the tool screen; Account opens sign-in; Settings opens
+- [ ] Type a name in Conversation Box without adding it → Home asks before leaving
 - [ ] Swipe from the left edge goes back on detail pages
 - [ ] Extensionless links (Home → Commands → Be Baptized → back) open the right pages
 - [ ] Airplane mode: offline banner; Commands, 4-1-1, 3 Circles, Stories, Bible Study all open
@@ -115,7 +123,7 @@ Free-account limits (from Apple, subject to change):
 - [ ] External link (YouTube, Church Waffle) opens in an in-app Safari sheet
 - [ ] Settings → Daily reminder → allow → set the time 2 min ahead → notification arrives → tap opens Commands
 - [ ] Location prompt shows the usage text; map pages work
-- [ ] Urdu / Arabic: RTL layout, tab bar still usable
-- [ ] VoiceOver: tab bar items read as "Home, tab"-style links with labels; Settings switch announces state
+- [ ] Urdu / Arabic: RTL layout, top bar mirrored (Home on the right), labels translated
+- [ ] VoiceOver: top bar reads "Home, link", "Open sign in, button", "Settings, link"; Settings switch announces state
 - [ ] Larger Text (Settings → Accessibility → Display & Text Size): text still readable
 - [ ] Rotate on the 4-1-1 presenter

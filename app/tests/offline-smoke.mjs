@@ -58,7 +58,6 @@ const BASE = 'http://127.0.0.1:8123'
 
 const pages = fs.readdirSync(WWW).filter((f) => f.endsWith('.html') && f !== '404.html')
   .concat(['bible-study/', 'stories-of-hope/', 'band/', 'uco', 'commands-of-christ', 'conversation-box'])
-const HUBS = new Set(['index.html', 'commands-of-christ.html', 'commands-of-christ', 'stories-of-hope.html', 'stories-of-hope/', 'signs-of-john.html', 'app-settings.html'])
 const SHOTS = new Set(['index.html', 'commands-of-christ.html', 'be-baptized.html', 'stories-of-hope.html', 'app-settings.html', '4-questions.html', '3-circles.html', 'conversation-box.html'])
 
 const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {})
@@ -89,14 +88,19 @@ for (const file of pages) {
   } catch (e) { errors.push('navigation: ' + e.message) }
   if (await page.evaluate(() => !!document.querySelector('meta[http-equiv="refresh"]')).catch(() => true)) { await page.close(); continue }
   const r = await page.evaluate(() => ({
-    shell: document.documentElement.classList.contains('oa-app') && !!document.getElementById('oa-status-scrim'),
-    tabbar: !!document.getElementById('oa-tabbar'),
+    shell: document.documentElement.classList.contains('oa-app'),
+    bar: !!document.getElementById('oa-bar'),
+    tabbar: !!document.querySelector('#oa-tabbar, [class*=tabbar]'),
+    home: !!document.getElementById('oa-home'),
+    isHome: document.documentElement.classList.contains('oa-home'),
     overflow: document.documentElement.scrollWidth > innerWidth + 2,
   })).catch((e) => ({ evalError: e.message }))
   const problems = []
   if (r.evalError) problems.push(r.evalError)
   if (!r.shell) problems.push('native shell not mounted')
-  if (r.tabbar !== HUBS.has(file)) problems.push(`tab bar ${r.tabbar ? 'unexpected' : 'missing'}`)
+  if (!r.bar) problems.push('top bar missing')
+  if (r.tabbar) problems.push('a tab bar is present (there must be none)')
+  if (!r.isHome && !r.home) problems.push('no Home button in the top bar')
   if (r.overflow) problems.push('horizontal overflow at 390px')
   const knownRe = KNOWN_SITE_ISSUES[file.replace(/\.html$/, '')]
   const realErrors = errors.filter((m) => !(knownRe && knownRe.test(m)))
@@ -112,11 +116,11 @@ for (const file of pages) {
 // Behaviour checks on the shell itself.
 const page = await context.newPage()
 await page.goto(`${BASE}/index.html`)
-await page.click('#oa-tabbar a[data-tab="commands"]')
+await page.click('a.btn-commands')
 await page.waitForURL(/commands-of-christ/)
-const active = await page.getAttribute('#oa-tabbar a[aria-current="page"]', 'data-tab')
-console.log(`${active === 'commands' ? 'PASS' : 'FAIL'}  tab navigation marks Commands active`)
-if (active !== 'commands') failures.push('tab navigation')
+await page.click('#oa-home')
+await page.waitForURL(/\/(index(\.html)?)?$/)
+console.log('PASS  Home button returns to the tool-selection screen')
 
 const rewritten = await page.evaluate(() => ({
   url: window.ObeyApp.toPublicUrl('/be-baptized.html?x=1'),
@@ -132,6 +136,7 @@ console.log(`${accent.toUpperCase() === '#00D084' ? 'PASS' : 'FAIL'}  site desig
 if (accent.toUpperCase() !== '#00D084') failures.push('design tokens')
 
 await page.goto(`${BASE}/app-settings.html`)
+await page.waitForTimeout(400)
 const hiddenOk = await page.evaluate(() => ['account-signout', 'account-delete'].every((id) => getComputedStyle(document.getElementById(id)).display === 'none'))
 console.log(`${hiddenOk ? 'PASS' : 'FAIL'}  signed-out Settings hides Sign out / Delete account`)
 if (!hiddenOk) failures.push('settings signed-out state')

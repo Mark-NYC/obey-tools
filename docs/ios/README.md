@@ -42,7 +42,8 @@ offline, and every site deploy would ship to app users without review.
 | Feature | How |
 |---|---|
 | **Works offline** | Every page, script, font, language file and the Urdu Bible are bundled. All CDN libraries are vendored. The build **fails** if any page still references a CDN. Supabase calls fail gracefully offline, and an offline banner explains what still works. |
-| **Native tab bar** | Home · Commands · Stories · Settings on hub pages, with blur and haptics. Tapping the active tab scrolls to the top. Stories switches to Signs of John in Ukrainian time zones, the same as the site. |
+| **Tool-first navigation** | Home **is** the tool-selection screen: the five tools in the website's order and colours (Conversation Box, Stories of Hope, 4-1-1, Commands of Christ, Church Circle). There is deliberately **no tab bar**: the tools are a coordinated set, not interchangeable app sections. Every screen has one minimal top bar: **‹ Home** on the left (hidden on Home), **Account** and **Settings** on the right. The bar is transparent at the top and turns translucent when content scrolls under it. Labels are translated (all 12 languages) and mirror for RTL. In-tool links such as "← Commands of Christ" stay as they are; the page's own duplicate Home pill is hidden in the app only. |
+| **Never lose work** | Tools already save progress as you go; going Home doesn't touch it. If you've typed text that no button has saved yet, Home and Settings ask before leaving. |
 | **Swipe-back navigation** | Native edge-swipe between pages (`ObeyBridgeViewController`). |
 | **Native share sheet** | `navigator.share` for links **and generated images** (Conversation Box, Church Circle) goes through the iOS share sheet. `<a download>` links, which WKWebView ignores, open the share sheet so people can Save Image or Save to Files. Shared links are rewritten to `https://obey.tools/...`, never `capacitor://localhost`. |
 | **Daily reminder** | An optional local notification ("What is Jesus asking you to obey today, and who will you tell?"). Tapping it opens Commands of Christ. On-device only: no server, no push certificate. |
@@ -77,6 +78,7 @@ offline, and every site deploy would ship to app users without review.
 - **Not device-tested.** It is Simulator-launched in CI only.
 - **Account deletion needs a server function** (`supabase/account-deletion/`). It is drafted, **not applied**. Until it is, the Delete button says deletion isn't enabled and changes nothing. This **blocks App Store submission**.
 - **No privacy policy page exists** on obey.tools. One is required for submission.
-- App-only labels (tab bar, Settings, offline banner) are English only for now. Site content stays fully translated.
+- The top bar uses the site's own translations. The Settings screen, offline banner and unsaved-changes prompt are English only for now. Site content stays fully translated.
+- Full-screen task dialogs on the site (for example editing a person in Conversation Box) cover the bar while open, as dialogs should. Close them to reach Home.
 - Pre-existing website bug found by the new tests: `conversation-box.html` throws `Cannot read properties of undefined (reading 'length')` in `updateDisplay()` on first load at phone size (`conversations` is still `{}`). It is also on the live site; left unfixed here.
 - Videos (YouTube), maps, sign-in and sync need a connection, as expected.

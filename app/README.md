@@ -11,8 +11,9 @@ npx cap sync ios  # → ios/App
 ```
 
 - `scripts/build-web.mjs`: copy, vendor CDNs, strip GA, inject shell
-- `native-shell/`: tab bar, safe areas, share, haptics, offline banner, Settings page
+- `native-shell/`: top bar (Home / Account / Settings), safe areas, share, haptics, offline banner, Settings page
 - `ios/App/App/ObeyBridgeViewController.swift`: GitHub-Pages-style router, swipe-back
 - `tests/offline-smoke.mjs`: every page, offline, iPhone-sized
+- `tests/navigation-audit.mjs`: every screen × 3 iPhone sizes, plus the navigation flows
 
 Full docs: [`docs/ios/`](../docs/ios/README.md).
