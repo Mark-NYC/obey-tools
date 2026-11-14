@@ -211,10 +211,17 @@ export async function resendConfirmation(email) {
 // names no one else) and story progress (no names).
 const PRIVATE_DEVICE_KEYS = [
     'conversations', 'submittedEvents', 'submittedGreenLights', 'firstOnMapChecked',
-    'churchAssessmentState', 'isChurch', 'churchGeneration', 'baptismCount'
+    'churchAssessmentState', 'isChurch', 'churchGeneration', 'baptismCount',
+    // Sync bookkeeping (local-sync.js) must go with the data it describes, or
+    // a later sign-in would read "empty device" as "user deleted everything".
+    'conversations-synced', 'churchAssessment-synced', 'obey-local-owner'
 ]
 
 export function clearDeviceData() {
+    // iOS app: the phone is the person's own, and "No account" is a promise —
+    // signing out never deletes what they saved on it. (Website keeps its
+    // shared-computer wipe.)
+    if (window.ObeyApp && window.ObeyApp.keepDeviceData) return
     PRIVATE_DEVICE_KEYS.forEach(k => { try { localStorage.removeItem(k) } catch {} })
 }
 

@@ -23,6 +23,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title data-i18n="index.conversation_box">Conversation Box</title>
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="/local-sync.js"></script>
     <script type="module">
       import { supabase } from './supabase.js';
       window.supabase = supabase;
@@ -585,7 +586,9 @@
     </div>
     <script src="/geo.js"></script>
     <script>
-        let conversations = {};
+        // Start with the empty boxes (not {}): the i18n:ready listener can call
+        // updateDisplay() before initializeApp() has loaded saved data.
+        let conversations = { casual: [], meaningful: [], discovery: [], spiritual: [] };
         let currentName = null, currentFromBox = null, currentToBox = null;
         let editingName = null, editingBox = null, pendingNewName = null;
         const colorMap = { 'open': '#ffd700', 'trusted': '#90ee90', 'existing': '#228b22' };
@@ -594,7 +597,9 @@
         let appInitialized = false;
         let _saving = false;       // serialize concurrent saveToSupabase calls
         let _savePending = false;
-        let _lastLoadedUserId = null; // prevent double-load on page init
+        let _reconciledUserId = null; // account whose cloud copy is merged into this device (this page session)
+        let _reconciling = false;
+        let _syncPausedNotice = false;
         let wpAjaxUrl = null;
         let wpNonce = null;
         let wpPageId = null;
@@ -692,143 +697,187 @@ function saveConversations() {
             return window._supabaseUser || null;
         }
 
-        // Load all data for userId from Supabase into the in-memory state.
-        // Returns true if rows were found, false if the user has no data yet.
-        async function loadFromSupabase(userId) {
+        // ── Offline-first account sync (see /local-sync.js) ─────────────────
+        // This device's copy is always shown first and is never replaced
+        // wholesale by the account copy. They are merged person by person.
+        const BOXES = ['casual', 'meaningful', 'discovery', 'spiritual'];
+        const SEP = '\u0000';
+        function flattenPeople(conv) {
+            const out = {};
+            BOXES.forEach(box => ((conv && conv[box]) || []).forEach(p => { out[box + SEP + p.name] = p; }));
+            return out;
+        }
+        function unflattenPeople(map) {
+            const conv = { casual: [], meaningful: [], discovery: [], spiritual: [] };
+            Object.entries(map).forEach(([key, p]) => { const box = key.split(SEP)[0]; if (conv[box]) conv[box].push(p); });
+            return conv;
+        }
+        const PERSON_FIELDS = ['color', 'next_step', 'person_note', 'follow_up_date'];
+        const samePerson = (a, b) => PERSON_FIELDS.every(f => (a[f] || null) === (b[f] || null));
+
+        // Read the account copy. Throws on any error (offline, server) so the
+        // caller keeps the device copy untouched.
+        async function fetchCloud(userId) {
+            const { data: people, error } = await window.supabase
+                .from('conversation_people')
+                .select('person_name, box_name, color, next_step, person_note, follow_up_date')
+                .eq('user_id', userId);
+            if (error) throw error;
+            const conv = { casual: [], meaningful: [], spiritual: [], discovery: [] };
+            (people || []).forEach(row => {
+                if (conv[row.box_name] && !conv[row.box_name].some(p => p.name === row.person_name)) {
+                    conv[row.box_name].push({ name: row.person_name, date: '', color: row.color, next_step: row.next_step || null, person_note: row.person_note || null, follow_up_date: row.follow_up_date || null });
+                }
+            });
+            const { data: events, error: evErr } = await window.supabase
+                .from('submitted_events').select('person_name, event_type').eq('user_id', userId);
+            if (evErr) throw evErr;
+            const { data: greenLights, error: glErr } = await window.supabase
+                .from('submitted_green_lights').select('person_name').eq('user_id', userId);
+            if (glErr) throw glErr;
+            const userName = localStorage.getItem('user-name') || 'Anonymous';
+            return {
+                people: conv,
+                events: (events || []).map(r => ({ type: r.event_type, key: r.person_name + '-' + r.event_type })),
+                greenLights: (greenLights || []).map(r => `${userName}-${r.person_name}`)
+            };
+        }
+
+        function writeLocal() {
+            localStorage.setItem('conversations', JSON.stringify(conversations));
+            localStorage.setItem('submittedEvents', JSON.stringify({
+                spiritual: Array.from(submittedEvents.spiritual),
+                discovery: Array.from(submittedEvents.discovery)
+            }));
+            localStorage.setItem('submittedGreenLights', JSON.stringify(submittedGreenLights));
+        }
+
+        // Merge the account copy into this device, then push the result.
+        async function reconcileWithCloud(user) {
+            if (!user || !window.supabase || !window.ObeySync || _reconciling) return;
+            if (!ObeySync.mayMerge(user.id)) {
+                // Saved data here belongs to a different account: never mix them.
+                if (!_syncPausedNotice) {
+                    _syncPausedNotice = true;
+                    showNotification('Sync paused: the people saved on this device belong to a different account. They are safe here.');
+                }
+                return;
+            }
+            _reconciling = true;
             try {
-                const { data: people, error } = await window.supabase
-                    .from('conversation_people')
-                    .select('person_name, box_name, color, next_step, person_note, follow_up_date')
-                    .eq('user_id', userId);
+                let cloud;
+                try { cloud = await fetchCloud(user.id); }
+                catch (err) { console.warn('Sync postponed (device copy kept):', err && err.message); return; }
 
-                if (error) throw error;
-                if (!people || people.length === 0) return false;
+                const base = ObeySync.base('conversations', user.id);
+                const r = ObeySync.mergeKeyed(flattenPeople(conversations), flattenPeople(cloud.people),
+                                              base ? flattenPeople(base) : null, samePerson);
+                r.conflicts.forEach(c => ObeySync.keep('conversation-box', c.key.split(SEP).reverse().join(' · '), c.other,
+                    'Your account had a different version. This device’s version was kept.'));
+                r.removed.forEach(x => ObeySync.keep('conversation-box', x.key.split(SEP).reverse().join(' · '), x.record,
+                    'Removed in your account on another device.'));
+                conversations = unflattenPeople(r.merged);
+                cloud.events.forEach(e => { if (submittedEvents[e.type]) submittedEvents[e.type].add(e.key); });
+                cloud.greenLights.forEach(k => { if (!submittedGreenLights.includes(k)) submittedGreenLights.push(k); });
+                writeLocal();
+                ObeySync.setOwner(user.id);
+                _reconciledUserId = user.id;
+                updateDisplay();
+                if (r.conflicts.length) {
+                    showNotification(r.conflicts.length === 1
+                        ? '1 person was different in your account. This device’s version was kept; the other is saved in Settings.'
+                        : r.conflicts.length + ' people were different in your account. This device’s versions were kept; the others are saved in Settings.');
+                }
+            } finally {
+                _reconciling = false;
+            }
+            // Push through the serialized save path so it can't interleave with
+            // a push triggered by an edit made meanwhile.
+            if (_reconciledUserId === user.id) saveToSupabase();
+        }
 
-                conversations = { casual: [], meaningful: [], spiritual: [], discovery: [] };
-                people.forEach(row => {
-                    if (conversations[row.box_name]) {
-                        conversations[row.box_name].push({ name: row.person_name, date: '', color: row.color, next_step: row.next_step || null, person_note: row.person_note || null, follow_up_date: row.follow_up_date || null });
-                    }
-                });
-                // Deduplicate by name within each box (guards against prior save-race doubles in DB)
-                ['casual', 'meaningful', 'spiritual', 'discovery'].forEach(box => {
-                    const seen = new Set();
-                    conversations[box] = conversations[box].filter(p => {
-                        if (seen.has(p.name)) return false;
-                        seen.add(p.name);
-                        return true;
-                    });
-                });
+        // Replace the account copy with this device's (already merged) copy.
+        // Returns true only if every write succeeded.
+        async function pushToCloud(userId) {
+            const check = (res) => { if (res && res.error) throw res.error; return res; };
+            try {
+                await window.supabase.from('profiles').upsert({ id: userId }, { onConflict: 'id', ignoreDuplicates: true });
 
-                const { data: events } = await window.supabase
-                    .from('submitted_events')
-                    .select('person_name, event_type')
-                    .eq('user_id', userId);
+                const peopleRows = [];
+                BOXES.forEach(box => (conversations[box] || []).forEach(p => {
+                    peopleRows.push({ user_id: userId, person_name: p.name, box_name: box, color: p.color || null, next_step: p.next_step || null, person_note: p.person_note || null, follow_up_date: p.follow_up_date || null });
+                }));
+                check(await window.supabase.from('conversation_people').delete().eq('user_id', userId));
+                if (peopleRows.length > 0) check(await window.supabase.from('conversation_people').insert(peopleRows));
 
-                submittedEvents = { spiritual: new Set(), discovery: new Set() };
-                (events || []).forEach(row => {
-                    if (submittedEvents[row.event_type]) {
-                        // reconstruct the in-memory key format: "personName-eventType"
-                        submittedEvents[row.event_type].add(row.person_name + '-' + row.event_type);
-                    }
-                });
+                const eventRows = [];
+                ['spiritual', 'discovery'].forEach(type => submittedEvents[type].forEach(key => {
+                    eventRows.push({ user_id: userId, person_name: key.slice(0, -(type.length + 1)), event_type: type });
+                }));
+                check(await window.supabase.from('submitted_events').delete().eq('user_id', userId));
+                if (eventRows.length > 0) check(await window.supabase.from('submitted_events').insert(eventRows));
 
-                const { data: greenLights } = await window.supabase
-                    .from('submitted_green_lights')
-                    .select('person_name')
-                    .eq('user_id', userId);
-
-                // reconstruct in-memory key format: "userName-personName"
                 const userName = localStorage.getItem('user-name') || 'Anonymous';
-                submittedGreenLights = (greenLights || []).map(r => `${userName}-${r.person_name}`);
-
+                const glRows = submittedGreenLights.map(key => ({
+                    user_id: userId,
+                    person_name: key.startsWith(userName + '-') ? key.slice(userName.length + 1) : key
+                }));
+                check(await window.supabase.from('submitted_green_lights').delete().eq('user_id', userId));
+                if (glRows.length > 0) check(await window.supabase.from('submitted_green_lights').insert(glRows));
                 return true;
             } catch (err) {
-                console.error('Supabase load error:', err);
+                // Device copy is intact; the next save or reconnect retries.
+                console.warn('Sync failed (device copy kept):', err && err.message);
                 return false;
             }
         }
 
-        // Persist current in-memory state to Supabase for the signed-in user.
-        // No-ops silently if no user is signed in.
-        // Self-serializing: a second call while one is in flight sets _savePending and
-        // returns; when the first finishes it re-runs so the final state always wins.
+        // Called after every local save. Pushes only once this device has been
+        // merged with the account — pushing an unmerged copy could overwrite
+        // edits made on another device.
         async function saveToSupabase() {
+            const user = getCurrentUser();
+            if (!user || !window.supabase) return;
+            if (_reconciledUserId !== user.id) { reconcileWithCloud(user); return; }
             if (_saving) { _savePending = true; return; }
             _saving = true;
             _savePending = false;
-            const user = getCurrentUser();
-            if (!user) { _saving = false; return; }
-            const userId = user.id;
-
             try {
-                // Ensure a profile row exists (display_name left null for now)
-                await window.supabase
-                    .from('profiles')
-                    .upsert({ id: userId }, { onConflict: 'id', ignoreDuplicates: true });
-
-                // Replace conversation_people rows
-                await window.supabase.from('conversation_people').delete().eq('user_id', userId);
-                const peopleRows = [];
-                ['casual', 'meaningful', 'spiritual', 'discovery'].forEach(box => {
-                    (conversations[box] || []).forEach(p => {
-                        peopleRows.push({ user_id: userId, person_name: p.name, box_name: box, color: p.color || null, next_step: p.next_step || null, person_note: p.person_note || null, follow_up_date: p.follow_up_date || null });
-                    });
-                });
-                if (peopleRows.length > 0) await window.supabase.from('conversation_people').insert(peopleRows);
-
-                // Replace submitted_events rows
-                await window.supabase.from('submitted_events').delete().eq('user_id', userId);
-                const eventRows = [];
-                ['spiritual', 'discovery'].forEach(type => {
-                    submittedEvents[type].forEach(key => {
-                        // in-memory key is "personName-eventType"; extract person_name
-                        const personName = key.slice(0, -(type.length + 1));
-                        eventRows.push({ user_id: userId, person_name: personName, event_type: type });
-                    });
-                });
-                if (eventRows.length > 0) await window.supabase.from('submitted_events').insert(eventRows);
-
-                // Replace submitted_green_lights rows
-                await window.supabase.from('submitted_green_lights').delete().eq('user_id', userId);
-                const userName = localStorage.getItem('user-name') || 'Anonymous';
-                const glRows = submittedGreenLights.map(key => ({
-                    user_id: userId,
-                    // in-memory key is "userName-personName"; extract person_name
-                    person_name: key.startsWith(userName + '-') ? key.slice(userName.length + 1) : key
-                }));
-                if (glRows.length > 0) await window.supabase.from('submitted_green_lights').insert(glRows);
-
-            } catch (err) {
-                console.error('Supabase save error:', err);
+                if (await pushToCloud(user.id)) ObeySync.setBase('conversations', user.id, conversations);
             } finally {
                 _saving = false;
-                if (_savePending) saveToSupabase(); // run any queued call with final state
+                if (_savePending) saveToSupabase();
             }
         }
+
+        // Map contributions made while offline wait here and are sent later.
+        const OUTBOX_KEY = 'obey-pending-map-events';
+        async function flushMapOutbox() {
+            const user = getCurrentUser();
+            if (!user || !window.supabase || !navigator.onLine) return;
+            let queue; try { queue = JSON.parse(localStorage.getItem(OUTBOX_KEY)) || []; } catch { queue = []; }
+            const left = [];
+            for (const p of queue) {
+                if (p.user_id !== user.id) { left.push(p); continue; }
+                const { error } = await window.supabase.from('conversation_events').insert(p);
+                if (error) left.push(p);
+            }
+            localStorage.setItem(OUTBOX_KEY, JSON.stringify(left));
+        }
+        window.addEventListener('online', () => {
+            const user = getCurrentUser();
+            if (user && _reconciledUserId !== user.id) reconcileWithCloud(user);
+            flushMapOutbox();
+        });
 
         // Initialize app - wait for progress system
         async function initializeApp() {
             if (appInitialized) return;
 
-            // Check for a signed-in user; load from Supabase if available.
-            // window.supabase is guaranteed set by DOMContentLoaded (module runs first).
-            if (window.supabase) {
-                const { data: { session } } = await window.supabase.auth.getSession();
-                if (session?.user) {
-                    window._supabaseUser = session.user;
-                    const loaded = await loadFromSupabase(session.user.id);
-                    _lastLoadedUserId = session.user.id; // prevent updateAuthUI from reloading on init
-                    if (!loaded) {
-                        loadFromLocalStorage();
-                    }
-                } else {
-                    loadFromLocalStorage();
-                }
-            } else {
-                loadFromLocalStorage();
-            }
-
+            // Offline-first: show what is saved on this device immediately.
+            // Account sync (if signed in and online) merges in the background
+            // and can never block or blank the tool.
+            loadFromLocalStorage();
             updateDisplay();
             preloadImages();
             appInitialized = true;
@@ -838,6 +887,16 @@ function saveConversations() {
                 showOnboarding(4);
             }
             if (SAFETY_MODE) putSignalFirst();
+
+            if (window.supabase) {
+                window.supabase.auth.getSession().then(({ data: { session } }) => {
+                    if (session?.user) {
+                        window._supabaseUser = session.user;
+                        reconcileWithCloud(session.user);
+                        flushMapOutbox();
+                    }
+                }).catch(() => {});
+            }
         }
 
         // Wait for WordPress progress system to load
@@ -961,6 +1020,13 @@ function saveConversations() {
                 }
                 if (evErr) {
                     console.error('[conversation_events:insert:error]', evErr);
+                    if (window.ObeySync && ObeySync.isNetworkError(evErr)) {
+                        // Offline: keep it and send when back online.
+                        let queue; try { queue = JSON.parse(localStorage.getItem(OUTBOX_KEY)) || []; } catch { queue = []; }
+                        queue.push(payload);
+                        localStorage.setItem(OUTBOX_KEY, JSON.stringify(queue.slice(-200)));
+                        showNotification(window.t('conversation_box.saved_locally'));
+                    }
                     return;
                 }
                 celebrateFirstOnMap(place);
@@ -1341,6 +1407,8 @@ function saveConversations() {
         }
 
         function updateDisplay() {
+            // Too early: i18n.js hasn't run yet. Its i18n:ready event re-renders.
+            if (typeof window.t !== 'function') return;
             ['casual', 'meaningful', 'discovery', 'spiritual'].forEach(box => {
                 const listElement = document.getElementById(`${box}-list`);
                 listElement.innerHTML = '';
@@ -1662,13 +1730,10 @@ function saveConversations() {
                 status.style.display    = 'flex';
                 text.textContent        = window.t('auth.signed_in_as', { email: user.email });
 
-                // Reload from Supabase when auth state changes to a new user.
-                // Skip if initializeApp already loaded this user to avoid a double-load race.
-                if (appInitialized && user.id !== _lastLoadedUserId) {
-                    _lastLoadedUserId = user.id;
-                    loadFromSupabase(user.id).then(() => {
-                        updateDisplay();
-                    });
+                // Signed in (or switched account): merge that account's copy in.
+                if (appInitialized && user.id !== _reconciledUserId) {
+                    reconcileWithCloud(user);
+                    flushMapOutbox();
                 }
             } else {
                 collapsed.style.display = '';
@@ -1676,9 +1741,9 @@ function saveConversations() {
                 status.style.display    = 'none';
                 text.textContent        = window.t('auth.not_signed_in');
 
-                // Revert to localStorage when signed out (wiped by authLogOut), and
-                // forget who was loaded so signing back in reloads from Supabase.
-                _lastLoadedUserId = null;
+                // Signed out: show the device copy (the website wipes it on sign-out;
+                // the iOS app keeps it). Signing back in merges again.
+                _reconciledUserId = null;
                 if (appInitialized) {
                     loadFromLocalStorage();
                     updateDisplay();

@@ -1,0 +1,154 @@
+/* OBEY.TOOLS native shell styles — app bundle only (see app-shell.js).
+   Prefix: oa- ("obey app"). Never reuse the site's ot- tokens/classes. */
+:root {
+  --oa-sat: env(safe-area-inset-top, 0px);
+  --oa-sab: env(safe-area-inset-bottom, 0px);
+  --oa-sal: env(safe-area-inset-left, 0px);
+  --oa-sar: env(safe-area-inset-right, 0px);
+  --oa-bar-h: 48px;
+  --oa-top: calc(var(--oa-sat) + var(--oa-bar-h));
+  --oa-page-bg: #f8f8f8;
+  --oa-ink: #1c1c1e;
+  --oa-focus: #00875f;
+}
+
+html.oa-app {
+  /* Content starts below the top bar and above the home indicator. Fixed
+     full-screen layers (maps, presenters) are unaffected. */
+  padding-top: var(--oa-sat);
+  padding-bottom: var(--oa-sab);
+  padding-left: var(--oa-sal);
+  padding-right: var(--oa-sar);
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+html.oa-app.oa-has-bar { padding-top: var(--oa-top); scroll-padding-top: calc(var(--oa-top) + 8px); }
+
+/* Native apps don't select UI chrome on long-press; reading text stays selectable. */
+html.oa-app a, html.oa-app button, html.oa-app .btn, html.oa-app .ot-btn { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+
+/* Website-only chrome that makes no sense inside the app. */
+html.oa-app #install-banner { display: none !important; }
+/* The bar's account button replaces the site's floating account icon. The icon
+   stays in the DOM (hidden) because the bar triggers it to open the overlay. */
+html.oa-has-bar .acct-icon-btn { display: none !important; }
+/* Study pages pad their header for the notch themselves; the bar already does. */
+html.oa-has-bar .top-nav { padding: 10px 12px 9px !important; }
+/* Duplicate Home pills / wordmark links at the top of pages (see app-shell.js). */
+html.oa-has-bar .oa-dup-home, html.oa-has-bar .oa-dup-home-row { display: none !important; }
+
+/* Existing fixed top-of-screen UI on the site: drop below the bar. */
+html.oa-has-bar .notification,
+html.oa-has-bar .sync-indicator,
+html.oa-has-bar .save-indicator,
+html.oa-has-bar .auth-toast { margin-top: var(--oa-top); }
+html.oa-app #auth-section.account-overlay { padding-top: calc(var(--oa-sat) + 12px); padding-bottom: calc(var(--oa-sab) + 12px); }
+
+/* ── Top bar ─────────────────────────────────────────────────────────── */
+#oa-bar {
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 1400;               /* above page content, below the site's modals/overlays (2000+) */
+  padding: var(--oa-sat) calc(8px + var(--oa-sar)) 0 calc(8px + var(--oa-sal));
+  background: var(--oa-page-bg);
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+  transition: background-color .2s ease, box-shadow .2s ease;
+}
+@supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  html.oa-scrolled #oa-bar {
+    background: color-mix(in srgb, var(--oa-page-bg) 78%, transparent);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    backdrop-filter: saturate(180%) blur(20px);
+  }
+}
+html.oa-scrolled #oa-bar { box-shadow: 0 0.5px 0 rgba(60, 60, 67, 0.29); }
+.oa-bar-row { height: var(--oa-bar-h); display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.oa-bar-start, .oa-bar-end { display: flex; align-items: center; gap: 4px; min-width: 0; }
+
+#oa-bar .oa-bar-home {
+  display: inline-flex; align-items: center; gap: 2px;
+  min-height: 44px; padding: 0 12px 0 4px;
+  color: var(--oa-ink); text-decoration: none;
+  font-size: 17px; font-weight: 600; letter-spacing: -0.2px;
+  border-radius: 12px;
+}
+#oa-bar .oa-bar-home svg { width: 24px; height: 24px; flex: none; }
+#oa-bar .oa-home-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 40vw; }
+[dir=rtl] #oa-bar .oa-bar-home svg { transform: scaleX(-1); }
+
+#oa-bar .oa-bar-icon {
+  position: relative;
+  width: 44px; height: 44px;
+  display: grid; place-items: center;
+  margin: 0; padding: 0; border: 0; border-radius: 12px;
+  background: transparent; color: var(--oa-ink);
+  cursor: pointer; text-decoration: none;
+}
+#oa-bar .oa-bar-icon svg { width: 25px; height: 25px; }
+#oa-bar .oa-dot {
+  position: absolute; top: 9px; right: 8px;
+  width: 9px; height: 9px; border-radius: 50%;
+  background: #00b884; box-shadow: 0 0 0 2px var(--oa-page-bg);
+}
+#oa-bar .oa-dot[hidden] { display: none; }
+#oa-bar a:active, #oa-bar button:active { opacity: .45; }
+#oa-bar a:focus-visible, #oa-bar button:focus-visible { outline: 2px solid var(--oa-focus); outline-offset: -2px; }
+
+/* Dark pages / dark overlays. */
+html.oa-dark-page { --oa-ink: #f2f2f7; --oa-focus: #30d58f; }
+
+/* ── Home: the tool-selection screen ─────────────────────────────────── */
+/* The website's home spacing is tuned for a browser with no app chrome;
+   tighten the top so the five tools sit comfortably in the first screen. */
+html.oa-home body { padding-top: clamp(4px, 2vh, 24px) !important; }
+html.oa-home h1.site-wordmark { margin-top: 0; }
+/* Never set display on the tool buttons: the site hides Leader Tools with
+   inline display:none until the user's role is confirmed. */
+
+/* ── Pages with their own full-screen UI ─────────────────────────────── */
+/* 4-1-1 presenter takes the whole screen. */
+body.presenting #oa-bar { display: none; }
+html.oa-has-bar:has(body.presenting) { padding-top: 0; }
+/* Progress map: its floating toolbar sits under the app bar; the map stays full-bleed. */
+@media (max-width: 767px) {
+  html.oa-has-bar #mobile-topbar { top: var(--oa-top) !important; padding-top: 8px !important; }
+  /* Its signed-out panel is a full-screen layer; keep the bar reachable above it. */
+  html.oa-has-bar .access-denied { top: var(--oa-top) !important; }
+}
+
+/* Conversation Box first-run walkthrough: keep Home reachable without Skip. */
+html.oa-has-bar #onboarding-overlay { top: var(--oa-top) !important; }
+
+/* ── Offline banner + toast ─────────────────────────────────────────── */
+#oa-offline {
+  position: fixed; left: 12px; right: 12px;
+  top: calc(var(--oa-top) + 6px);
+  z-index: 1401;
+  padding: 9px 14px;
+  border-radius: 12px;
+  background: #1c1c1e; color: #fff;
+  font: 500 13px/1.35 -apple-system, BlinkMacSystemFont, sans-serif;
+  text-align: center;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.22);
+  pointer-events: none;
+  transition: left .25s ease, right .25s ease, padding .25s ease;
+}
+#oa-offline .oa-offline-short { display: none; }
+#oa-offline.oa-compact { left: 50%; right: auto; transform: translateX(-50%); padding: 4px 12px; border-radius: 99px; font-size: 12px; opacity: .9; }
+#oa-offline.oa-compact .oa-offline-full { display: none; }
+#oa-offline.oa-compact .oa-offline-short { display: inline; }
+.oa-toast {
+  position: fixed; left: 50%; transform: translateX(-50%);
+  bottom: calc(var(--oa-sab) + 24px);
+  z-index: 9003;
+  padding: 10px 16px; border-radius: 12px;
+  background: rgba(28, 28, 30, 0.92); color: #fff;
+  font: 600 14px/1.3 -apple-system, BlinkMacSystemFont, sans-serif;
+  max-width: calc(100% - 32px);
+  animation: oa-toast 2.6s ease forwards;
+}
+@keyframes oa-toast { 0% { opacity: 0; transform: translate(-50%, 8px); } 10%, 85% { opacity: 1; transform: translate(-50%, 0); } 100% { opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .oa-toast { animation: none; }
+  #oa-bar { transition: none; }
+}
