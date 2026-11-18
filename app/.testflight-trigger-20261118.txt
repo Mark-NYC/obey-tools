@@ -1,0 +1,2 @@
+Trigger TestFlight pipeline after Apple app registration and GitHub Actions secrets setup.
+No application code or production site changes.
