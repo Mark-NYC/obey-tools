@@ -1,2 +1,3 @@
 Trigger TestFlight pipeline after Apple app registration and GitHub Actions secrets setup.
+Retry after correcting ASC_KEY_P8 PEM headers and footers.
 No application code or production site changes.
