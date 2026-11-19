@@ -89,7 +89,7 @@ any time in iPhone Settings → Privacy & Security → Location Services → OBE
 
 - **Export:** in the app, Settings → Export a copy of my data.
 - **Delete your account:** in the app, Settings → Delete account. This deletes your sign-in and the data stored in your account. **[CONFIRM: the server function is reviewed and applied; see `supabase/account-deletion/`.]** It does not delete what's on your phone. Delete the app to remove that.
-- **Without the app:** mark.a.goering@gmail.com. We answer within **[30]** days.
+- **Without the app:** contact@multiplyingdisciples.us. We answer within **[30]** days.
 - **Retention:** account data is kept until you delete it. **[CONFIRM: backup retention period at Supabase.]**
 
 ## 7. Children
@@ -102,7 +102,7 @@ We'll update this page and its date when this changes.
 
 ## 9. Contact
 
-Email: mark.a.goering@gmail.com. Operator: **Multiplying Disciples**. Postal address: **[CONFIRM if required]**.
+Email: contact@multiplyingdisciples.us. Operator: **Multiplying Disciples**. Postal address: **[CONFIRM if required]**.
 
 ---
 
