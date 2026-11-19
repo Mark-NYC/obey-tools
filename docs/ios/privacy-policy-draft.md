@@ -102,7 +102,7 @@ We'll update this page and its date when this changes.
 
 ## 9. Contact
 
-Email: mark.a.goering@gmail.com. **[CONFIRM: legal name and postal address if required.]**
+Email: mark.a.goering@gmail.com. Operator: **Multiplying Disciples**. Postal address: **[CONFIRM if required]**.
 
 ---
 
