@@ -45,7 +45,7 @@ computer is shared. In the **app**, signing out keeps it on your phone.
 ## 2. Information stored if you create an account (optional)
 
 We use Supabase (supabase.com) to host accounts and synced data.
-**[CONFIRM: project region.]** If you create an account we store:
+The Supabase project is hosted in us-east-1 (United States). If you create an account we store:
 
 - **Account:** your email address and a password. Supabase stores the password hashed; we never see it. Your role (for example "leader") is also stored.
 - **Synced tool data:** the device information in section 1 for Conversation Box, Church Circle, and Commands/Stories progress, so it can sync to your other devices.
@@ -89,7 +89,7 @@ any time in iPhone Settings → Privacy & Security → Location Services → OBE
 
 - **Export:** in the app, Settings → Export a copy of my data.
 - **Delete your account:** in the app, Settings → Delete account. This deletes your sign-in and the data stored in your account. **[CONFIRM: the server function is reviewed and applied; see `supabase/account-deletion/`.]** It does not delete what's on your phone. Delete the app to remove that.
-- **Without the app:** **[CONFIRM: contact email]**. We answer within **[30]** days.
+- **Without the app:** mark.a.goering@gmail.com. We answer within **[30]** days.
 - **Retention:** account data is kept until you delete it. **[CONFIRM: backup retention period at Supabase.]**
 
 ## 7. Children
@@ -102,7 +102,7 @@ We'll update this page and its date when this changes.
 
 ## 9. Contact
 
-**[CONFIRM: name, email, postal address if required.]**
+Email: mark.a.goering@gmail.com. **[CONFIRM: legal name and postal address if required.]**
 
 ---
 
