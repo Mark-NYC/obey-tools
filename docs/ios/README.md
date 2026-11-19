@@ -4,6 +4,7 @@ Status: **first working build, not yet run on a physical iPhone.** CI compiles
 it for the iOS Simulator and for iPhone hardware (unsigned) and launches it in
 the Simulator. Nobody has tested it on a real device yet.
 
+- [testflight.md](testflight.md): one-time Apple setup and the signed TestFlight upload workflow
 - [offline-and-data.md](offline-and-data.md): what works offline, the sync rules, where data lives, update safety
 - [privacy-policy-draft.md](privacy-policy-draft.md): draft privacy policy and App Privacy answers (not published)
 - [development.md](development.md): local dev, CI, Xcode, Simulator, installing on your own iPhone with a free Apple ID

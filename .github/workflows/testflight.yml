@@ -1,0 +1,228 @@
+# TestFlight — signed Release build of the iOS app, uploaded to TestFlight.
+#
+# Credentials: ONE App Store Connect API key, stored as encrypted GitHub
+# secrets (Settings → Secrets and variables → Actions):
+#   ASC_KEY_ID      Key ID shown next to the key in App Store Connect
+#   ASC_ISSUER_ID   Issuer ID shown above the keys list
+#   ASC_KEY_P8      Full text of the downloaded AuthKey_XXXX.p8 file
+#   APPLE_TEAM_ID   10-character Team ID (developer.apple.com → Membership)
+# Until all four exist, the upload job explains what's missing and skips.
+#
+# Signing: each run generates a private key ON THE RUNNER, asks Apple (via the
+# API key) for a temporary Apple Distribution certificate + App Store profile,
+# signs, uploads, then revokes the certificate and deletes the profile. No
+# signing key or certificate is ever stored in GitHub or anywhere else.
+#
+# Safety: builds are uploaded as "TestFlight internal testing only", so they
+# can't be submitted to App Review or released. Nothing touches the website,
+# Supabase or user data.
+#
+# Versioning: version from app/package.json ("1.0.0"); build number = this
+# workflow's run number (always increases).
+name: TestFlight
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [claude/keen-heisenberg-czraan]
+    paths:
+      - 'app/**'
+      - '*.html'
+      - '*.js'
+      - '*.css'
+      - 'lang/**'
+      - 'assets/**'
+      - '.github/workflows/testflight.yml'
+
+concurrency:
+  group: testflight
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Offline + sync tests (gate)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults: { run: { working-directory: app } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm, cache-dependency-path: app/package-lock.json }
+      - run: npm ci
+      - run: npm run build
+      - run: npm i --no-save playwright@1.63.0 && npx playwright install --with-deps chromium
+      - run: npm test
+      - run: node tests/offline-first.mjs
+
+  upload:
+    name: Sign and upload to TestFlight
+    needs: verify
+    runs-on: macos-latest
+    timeout-minutes: 60
+    defaults: { run: { working-directory: app } }
+    env:
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      BUNDLE_ID: tools.obey.app
+      APP_CONFIG_ID: 504EC3181FED79650016851F   # App target → Release (project.pbxproj)
+    steps:
+      - name: Check credentials
+        id: creds
+        working-directory: .
+        run: |
+          missing=""
+          for v in ASC_KEY_ID ASC_ISSUER_ID ASC_KEY_P8 APPLE_TEAM_ID; do [ -n "${!v}" ] || missing="$missing $v"; done
+          if [ -n "$missing" ]; then
+            echo "::warning::TestFlight upload skipped. Missing GitHub secrets:$missing (see docs/ios/testflight.md)"
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.creds.outputs.ready == 'true'
+      - uses: actions/setup-node@v4
+        if: steps.creds.outputs.ready == 'true'
+        with: { node-version: 22, cache: npm, cache-dependency-path: app/package-lock.json }
+
+      - name: Select newest installed Xcode
+        if: steps.creds.outputs.ready == 'true'
+        run: |
+          XCODE=$(ls -d /Applications/Xcode_*.app 2>/dev/null | grep -v -i beta | sort -V | tail -1)
+          if [ -n "$XCODE" ]; then sudo xcode-select -s "$XCODE"; fi
+          xcodebuild -version
+
+      - name: API key → temporary file
+        if: steps.creds.outputs.ready == 'true'
+        run: |
+          echo "ASC_KEY_PATH=$RUNNER_TEMP/AuthKey.p8" >> "$GITHUB_ENV"
+          printf '%s\n' "$ASC_KEY_P8" > "$RUNNER_TEMP/AuthKey.p8"
+          chmod 600 "$RUNNER_TEMP/AuthKey.p8"
+
+      - name: Check App Store Connect (key works, app record exists)
+        if: steps.creds.outputs.ready == 'true'
+        run: node scripts/asc.mjs check "$BUNDLE_ID"
+
+      - name: Build web bundle and sync iOS project
+        if: steps.creds.outputs.ready == 'true'
+        run: |
+          npm ci
+          npm run build
+          npx cap sync ios
+          VERSION=$(node -p "require('./package.json').version")
+          BUILD=${{ github.run_number }}
+          echo "APP_VERSION=$VERSION" >> "$GITHUB_ENV"
+          echo "APP_BUILD=$BUILD" >> "$GITHUB_ENV"
+          echo "Version $VERSION ($BUILD)"
+
+      - name: Temporary signing certificate + profile (via API)
+        if: steps.creds.outputs.ready == 'true'
+        run: |
+          set -euo pipefail
+          S="$RUNNER_TEMP/signing"; mkdir -p "$S"; chmod 700 "$S"
+          OPENSSL=/usr/bin/openssl
+          # Private key exists only on this runner, for this run.
+          $OPENSSL genrsa -out "$S/key.pem" 2048 2>/dev/null
+          $OPENSSL req -new -key "$S/key.pem" -out "$S/csr.pem" -subj "/CN=OBEY TOOLS CI ${{ github.run_number }}/O=${APPLE_TEAM_ID}/C=US"
+          node scripts/asc.mjs prune-profiles "OBEY TOOLS CI"
+          CERT_ID=$(node scripts/asc.mjs create-cert "$S/csr.pem" "$S/cert.cer")
+          echo "CERT_ID=$CERT_ID" >> "$GITHUB_ENV"
+          BUNDLE_RES=$(node scripts/asc.mjs bundle-id "$BUNDLE_ID")
+          PROFILE_NAME="OBEY TOOLS CI ${{ github.run_number }}"
+          PROFILE_ID=$(node scripts/asc.mjs create-profile "$PROFILE_NAME" "$BUNDLE_RES" "$CERT_ID" "$S/profile.mobileprovision")
+          echo "PROFILE_ID=$PROFILE_ID" >> "$GITHUB_ENV"
+          echo "PROFILE_NAME=$PROFILE_NAME" >> "$GITHUB_ENV"
+
+          # Certificate + key → .p12 → throwaway keychain.
+          P12PW=$($OPENSSL rand -hex 16); KCPW=$($OPENSSL rand -hex 16)
+          echo "::add-mask::$P12PW"; echo "::add-mask::$KCPW"
+          $OPENSSL x509 -inform DER -in "$S/cert.cer" -out "$S/cert.pem"
+          # SHA1/3DES: the p12 format macOS Keychain accepts from every OpenSSL/LibreSSL.
+          $OPENSSL pkcs12 -export -inkey "$S/key.pem" -in "$S/cert.pem" -out "$S/cert.p12" -passout "pass:$P12PW" \
+            -keypbe PBE-SHA1-3DES -certpbe PBE-SHA1-3DES -macalg sha1
+          KC="$RUNNER_TEMP/obey-signing.keychain-db"
+          echo "KEYCHAIN=$KC" >> "$GITHUB_ENV"
+          security create-keychain -p "$KCPW" "$KC"
+          security set-keychain-settings -lut 3600 "$KC"
+          security unlock-keychain -p "$KCPW" "$KC"
+          curl -fsSL -o "$S/wwdr.cer" https://www.apple.com/certificateauthority/AppleWWDRCAG3.cer
+          security import "$S/wwdr.cer" -k "$KC" -T /usr/bin/codesign || true
+          security import "$S/cert.p12" -k "$KC" -P "$P12PW" -f pkcs12 -A -T /usr/bin/codesign -T /usr/bin/security
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KCPW" "$KC" > /dev/null
+          security list-keychains -d user -s "$KC" $(security list-keychains -d user | sed 's/"//g')
+          security find-identity -v -p codesigning "$KC"
+
+          # Install the profile where Xcode looks for it.
+          security cms -D -i "$S/profile.mobileprovision" > "$S/profile.plist"
+          UUID=$(plutil -extract UUID raw "$S/profile.plist")
+          for d in "$HOME/Library/MobileDevice/Provisioning Profiles" "$HOME/Library/Developer/Xcode/UserData/Provisioning Profiles"; do
+            mkdir -p "$d"; cp "$S/profile.mobileprovision" "$d/$UUID.mobileprovision"
+          done
+          rm -f "$S/key.pem" "$S/cert.p12"   # the key now lives only in the throwaway keychain
+
+          node scripts/asc.mjs pbx-manual ios/App/App.xcodeproj/project.pbxproj "$APP_CONFIG_ID" "$APPLE_TEAM_ID" "$PROFILE_NAME"
+
+      - name: Archive (Release)
+        if: steps.creds.outputs.ready == 'true'
+        run: |
+          set -o pipefail
+          mkdir -p build
+          xcodebuild archive \
+            -project ios/App/App.xcodeproj -scheme App -configuration Release \
+            -destination 'generic/platform=iOS' -archivePath build/App.xcarchive \
+            -derivedDataPath build/dd \
+            MARKETING_VERSION="$APP_VERSION" CURRENT_PROJECT_VERSION="$APP_BUILD" \
+            OTHER_CODE_SIGN_FLAGS="--keychain $KEYCHAIN" \
+            | tee build/archive.log | grep -E "error:|warning: .*(sign|profile)|ARCHIVE (SUCCEEDED|FAILED)" || true
+          test -d build/App.xcarchive
+
+      - name: Upload to TestFlight (internal testing only)
+        if: steps.creds.outputs.ready == 'true'
+        run: |
+          set -o pipefail
+          cat > build/ExportOptions.plist <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0"><dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>destination</key><string>upload</string>
+            <key>testFlightInternalTestingOnly</key><true/>
+            <key>signingStyle</key><string>manual</string>
+            <key>teamID</key><string>${APPLE_TEAM_ID}</string>
+            <key>signingCertificate</key><string>Apple Distribution</string>
+            <key>provisioningProfiles</key><dict><key>${BUNDLE_ID}</key><string>${PROFILE_NAME}</string></dict>
+            <key>manageAppVersionAndBuildNumber</key><false/>
+            <key>uploadSymbols</key><true/>
+          </dict></plist>
+          EOF
+          xcodebuild -exportArchive -archivePath build/App.xcarchive \
+            -exportOptionsPlist build/ExportOptions.plist -exportPath build/export \
+            -authenticationKeyPath "$ASC_KEY_PATH" -authenticationKeyID "$ASC_KEY_ID" -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
+            | tee build/export.log | grep -E "error|Upload|EXPORT (SUCCEEDED|FAILED)" || true
+          grep -q "EXPORT SUCCEEDED" build/export.log
+          {
+            echo "### Uploaded to TestFlight"
+            echo "OBEY.TOOLS **$APP_VERSION ($APP_BUILD)**, internal testing only."
+            echo "Apple processes it in ~5–30 minutes; then it appears in the TestFlight app on your iPhone."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Revoke temporary certificate, delete profile and keychain
+        if: always() && steps.creds.outputs.ready == 'true'
+        run: |
+          node scripts/asc.mjs cleanup "${CERT_ID:--}" "${PROFILE_ID:--}" || true
+          [ -n "${KEYCHAIN:-}" ] && security delete-keychain "$KEYCHAIN" || true
+          rm -rf "$RUNNER_TEMP/signing" "$RUNNER_TEMP/AuthKey.p8"
+
+      - uses: actions/upload-artifact@v4
+        if: failure() && steps.creds.outputs.ready == 'true'
+        with:
+          name: testflight-logs
+          path: |
+            app/build/archive.log
+            app/build/export.log
+          if-no-files-found: ignore
