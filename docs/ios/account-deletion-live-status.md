@@ -1,22 +1,29 @@
-# Account deletion: production status (2026-11-18)
+# Account deletion: production status (2026-11-19)
 
-The production Supabase project is `mjiswwujcsmayuytoaul` (Obey Tools).
+Production Supabase project: `mjiswwujcsmayuytoaul` (OBEY.TOOLS).
 
-## Deployed
-- Migration `safe_self_service_account_deletion` installed `public.delete_my_account()`.
-- The native Settings page already invokes `supabase.rpc('delete_my_account')`.
-- `authenticated` has EXECUTE; `anon` does not.
-- A SQL test of an unauthenticated call returned the expected denial, without modifying user records.
-- The function preserves shared resources by refusing deletion while the caller owns a network, MAWL checklist, or MAWL progress row.
-- It detaches optional user references from shared records, deletes the caller's invites, then deletes their auth user. Database cascades remove directly linked private rows.
+## Deployed in Supabase
 
-## Not yet verified
-- A real authenticated disposable-account end-to-end deletion.
-- The ownership-blocked path with a disposable network/checklist.
-- Local iPhone data preservation after deletion.
-- Every user-linked table and non-FK reference has been reviewed for privacy/retention.
-- A self-service ownership transfer path. Currently the error directs owners to support.
+- `public.delete_my_account()`: existing self-only deletion for an account with no blocking shared resources.
+- `public.account_deletion_impact()`: authenticated, read-only preview of owned networks, additional owned MAWL checklists, and attributed progress outside those resources.
+- `public.delete_my_account_with_owned_content('DELETE SHARED DATA')`: self-only, explicit destructive option. Deletes owned networks and related shared checklists/content, separately owned checklists, and progress attributed to the caller, then invokes `delete_my_account()` in the same transaction.
+- No deletion performed by migration. 128 auth accounts before and after it.
+- `anon` has no EXECUTE on these functions. `authenticated` has EXECUTE. Confirmed anonymous denial.
 
-Do **not** claim App Store readiness or successful end-to-end deletion until these are tested. Do not use an existing person's account as a test fixture.
+## iOS interface (this pull request, not yet released)
 
-The older `01_delete_my_account.sql` is a superseded draft; do not apply it over the deployed function.
+- Settings → Delete account fetches the impact preview; disables deletion if unavailable.
+- No shared ownership: original simple deletion with confirmation.
+- Shared ownership: explains exact counts and that other users' shared data may be removed; requires an explicit checkbox before enabling Delete.
+- On success, removes cloud account, signs out, detaches sync bookkeeping; offline device data is retained.
+- On failure, displays the error without reporting success.
+
+## Important remaining checks before App Store submission
+
+1. Merge this PR and upload a **new signed App Store build**; an already-uploaded binary will not contain the iOS change.
+2. Validate both paths with newly created disposable accounts, including one with a disposable network and checklist; do not test with existing user accounts.
+3. Test on a physical iPhone: confirmation, no-network error handling, native settings presentation, sign-out and offline preservation.
+4. Review all non-FK personal-data references and intended retention of shared records.
+5. Obtain sign-off on the explicit choice to destroy shared resource data instead of transferring ownership.
+
+The earlier `01_delete_my_account.sql` is a superseded draft. Do not apply it.
