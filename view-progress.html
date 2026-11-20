@@ -1003,7 +1003,10 @@
             .overlay-panel.sheet-peek #map-controls,
             .overlay-panel.sheet-peek #metrics-view { display: none !important; }
             .overlay-panel.sheet-peek .overlay-body { overflow: hidden; }
-            .mobile-filter-btn { display: inline-flex; align-items:center; justify-content:center; min-width:44px; min-height:44px; border:0; border-radius:8px; background:#e5e5ea; color:#3a3a3c; font:600 13px inherit; cursor:pointer; }
+            .overlay-panel.sheet-peek .tab-bar { padding-top: 0; padding-bottom: 4px; }
+            .overlay-panel:not(.sheet-peek) .mobile-filter-btn { background:#333; color:white; }
+            .overlay-panel:not(.sheet-peek) #map-controls { padding-bottom: 16px; }
+            .mobile-filter-btn { display: inline-flex; align-items:center; justify-content:center; min-width:44px; min-height:44px; border:0; border-radius:8px; background:#e5e5ea; color:#3a3a3c; font-family:inherit; font-size:18px; font-weight:600; cursor:pointer; }
             .overlay-panel.sheet-peek .mobile-filter-btn { display:inline-flex; }
             .layer-toggle { min-height:44px; display:inline-flex; align-items:center; }
             .layer-toggle input { width:22px; height:22px; }
@@ -1158,7 +1161,8 @@
 
 
 
-            <div class="tab-bar">\n                <button type="button" class="mobile-filter-btn" onclick="openMapFilters()" aria-label="Show map filters" title="Show map filters">☷</button>
+            <div class="tab-bar">
+                <button type="button" class="mobile-filter-btn" onclick="openMapFilters()" aria-label="Show map filters" title="Show map filters"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M7 12h10M10 17h4"/></svg></button>
                 <button class="tab-btn active" id="tab-map" onclick="switchTab('map')" data-i18n="how_were_doing.tab_map">Map</button>
                 <button class="tab-btn" id="tab-metrics" onclick="switchTab('metrics')" data-i18n="how_were_doing.tab_metrics">Metrics</button>
                 <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" title="Toggle dark map" aria-label="Toggle dark map" data-i18n-title="site_text.s_9038e2555fe3" data-i18n-aria-label="site_text.s_9038e2555fe3"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
@@ -1575,15 +1579,19 @@
     function openMapFilters() {
         if (window.innerWidth >= 768) return
         if (!document.getElementById('tab-map').classList.contains('active')) switchTab('map')
-        window.__setSheet?.('half')
-        setTimeout(() => document.getElementById('map-controls')?.scrollIntoView({ block: 'nearest', behavior: 'smooth' }), 100)
+        const sheet = document.querySelector('.overlay-panel')
+        if (sheet?.classList.contains('sheet-peek')) {
+            window.__setSheet?.('half')
+        } else {
+            window.__setSheet?.('peek')
+        }
     }
 
     function initMobileSheet() {
         const sheet = document.querySelector('.overlay-panel')
         const grip = document.getElementById('sheet-grip')
         if (!sheet || !grip) return
-        const PEEK = () => 188 + (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--safe-bottom')) || 0)
+        const PEEK = () => 166 + (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--safe-bottom')) || 0)
         const HALF = () => Math.max(PEEK() + 90, Math.round(window.innerHeight * 0.55))
         const FULL = () => Math.max(HALF() + 50, window.innerHeight - 64)
         const points = () => [PEEK(), HALF(), FULL()]
