@@ -984,6 +984,36 @@
             #map-bottom-right { display: none !important; }
         }
 
+
+        /* Mobile map sheet: keep the map usable and controls reachable. */
+        @media (max-width: 767px) {
+            .overlay-panel { height: var(--sheet-h, 188px) !important; max-height: calc(100dvh - 64px) !important; }
+            .sheet-grip { min-height: 30px; padding: 12px 0 9px; }
+            .sheet-grip::before { width: 44px; }
+            .overlay-body { padding-bottom: max(20px, env(safe-area-inset-bottom)); }
+            .tab-bar { padding: 4px 12px 10px; gap: 8px; }
+            .tab-btn, .theme-toggle { min-height: 44px; }
+            .pulse-band { margin: 0; }
+            .pulse-stats { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); }
+            .pulse-item { min-width: 0; }
+            .pulse-item:nth-child(3) { display: none; }
+            .pulse-num { font-size: 24px; }
+            .pulse-lab { font-size: 10px; }
+            .overlay-panel.sheet-peek .celebrate-banner,
+            .overlay-panel.sheet-peek #map-controls,
+            .overlay-panel.sheet-peek #metrics-view { display: none !important; }
+            .overlay-panel.sheet-peek .overlay-body { overflow: hidden; }
+            .mobile-filter-btn { display: inline-flex; align-items:center; justify-content:center; min-width:44px; min-height:44px; border:0; border-radius:8px; background:#e5e5ea; color:#3a3a3c; font:600 13px inherit; cursor:pointer; }
+            .overlay-panel.sheet-peek .mobile-filter-btn { display:inline-flex; }
+            .layer-toggle { min-height:44px; display:inline-flex; align-items:center; }
+            .layer-toggle input { width:22px; height:22px; }
+            .filter-select { min-height:44px; }
+            #mobile-topbar .mobile-signin-text, #mobile-topbar .mobile-logout-btn { display:none !important; }
+            #mobile-topbar { padding-bottom: 6px; }
+            .mobile-home-btn { min-height:44px; display:inline-flex; align-items:center; }
+        }
+        @media (min-width: 768px) { .mobile-filter-btn { display:none; } }
+
         /* ── Dark theme ─────────────────────────────────────────────── */
         .theme-toggle {
             flex: 0 0 auto;
@@ -1128,7 +1158,7 @@
 
 
 
-            <div class="tab-bar">
+            <div class="tab-bar">\n                <button type="button" class="mobile-filter-btn" onclick="openMapFilters()" aria-label="Show map filters" title="Show map filters">☷</button>
                 <button class="tab-btn active" id="tab-map" onclick="switchTab('map')" data-i18n="how_were_doing.tab_map">Map</button>
                 <button class="tab-btn" id="tab-metrics" onclick="switchTab('metrics')" data-i18n="how_were_doing.tab_metrics">Metrics</button>
                 <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" title="Toggle dark map" aria-label="Toggle dark map" data-i18n-title="site_text.s_9038e2555fe3" data-i18n-aria-label="site_text.s_9038e2555fe3"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
@@ -1542,23 +1572,36 @@
     // ── Mobile bottom sheet ──────────────────────────────────────────────────
     // The overlay-panel becomes a draggable sheet on mobile. Height is stored in
     // the CSS var --sheet-h; two snap points (peek / full) plus free drag.
+    function openMapFilters() {
+        if (window.innerWidth >= 768) return
+        if (!document.getElementById('tab-map').classList.contains('active')) switchTab('map')
+        window.__setSheet?.('half')
+        setTimeout(() => document.getElementById('map-controls')?.scrollIntoView({ block: 'nearest', behavior: 'smooth' }), 100)
+    }
+
     function initMobileSheet() {
         const sheet = document.querySelector('.overlay-panel')
-        const grip  = document.getElementById('sheet-grip')
+        const grip = document.getElementById('sheet-grip')
         if (!sheet || !grip) return
-
-        const PEEK = () => 210
-        const FULL = () => Math.max(PEEK() + 80, window.innerHeight - 60)
+        const PEEK = () => 188 + (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--safe-bottom')) || 0)
+        const HALF = () => Math.max(PEEK() + 90, Math.round(window.innerHeight * 0.55))
+        const FULL = () => Math.max(HALF() + 50, window.innerHeight - 64)
+        const points = () => [PEEK(), HALF(), FULL()]
         const clamp = h => Math.max(PEEK(), Math.min(FULL(), h))
-        const setH  = h => sheet.style.setProperty('--sheet-h', clamp(h) + 'px')
-
-        // Expose a snap helper for tab switching.
-        window.__setSheet = state => setH(state === 'full' ? FULL() : PEEK())
-
+        const setH = h => {
+            const height = clamp(h)
+            sheet.style.setProperty('--sheet-h', height + 'px')
+            sheet.classList.toggle('sheet-peek', height <= PEEK() + 8)
+            grip.setAttribute('aria-expanded', String(height > PEEK() + 8))
+        }
+        window.__setSheet = state => setH(state === 'full' ? FULL() : state === 'half' ? HALF() : PEEK())
+        sheet.classList.add('sheet-peek')
+        grip.setAttribute('role', 'button')
+        grip.setAttribute('tabindex', '0')
+        grip.setAttribute('aria-label', 'Expand or collapse map controls')
+        window.__setSheet('peek')
         let dragging = false, startY = 0, startH = 0, moved = false
-
-        const pointY = e => (e.touches ? e.touches[0].clientY : e.clientY)
-
+        const pointY = e => e.touches ? e.touches[0].clientY : e.clientY
         const onDown = e => {
             if (window.innerWidth >= 768) return
             dragging = true; moved = false
@@ -1567,14 +1610,15 @@
             sheet.classList.add('sheet-dragging')
             window.addEventListener('mousemove', onMove)
             window.addEventListener('mouseup', onUp)
-            window.addEventListener('touchmove', onMove, { passive: false })
+            window.addEventListener('touchmove', onMove, { passive:false })
             window.addEventListener('touchend', onUp)
+            window.addEventListener('touchcancel', onUp)
         }
         const onMove = e => {
             if (!dragging) return
             if (e.cancelable) e.preventDefault()
             const dy = startY - pointY(e)
-            if (Math.abs(dy) > 4) moved = true
+            if (Math.abs(dy) > 5) moved = true
             setH(startH + dy)
         }
         const onUp = () => {
@@ -1585,18 +1629,22 @@
             window.removeEventListener('mouseup', onUp)
             window.removeEventListener('touchmove', onMove)
             window.removeEventListener('touchend', onUp)
-            if (!moved) {                      // treated as a tap → toggle
-                const h = sheet.getBoundingClientRect().height
-                setH(h <= PEEK() + 30 ? FULL() : PEEK())
+            window.removeEventListener('touchcancel', onUp)
+            if (!moved) {
+                window.__setSheet(sheet.getBoundingClientRect().height <= PEEK()+8 ? 'half' : 'peek')
                 return
             }
-            // Snap to nearer of peek / full.
             const h = sheet.getBoundingClientRect().height
-            setH(h > (PEEK() + FULL()) / 2 ? FULL() : PEEK())
+            setH(points().reduce((best,p) => Math.abs(p-h) < Math.abs(best-h) ? p : best))
         }
-
         grip.addEventListener('mousedown', onDown)
-        grip.addEventListener('touchstart', onDown, { passive: true })
+        grip.addEventListener('touchstart', onDown, { passive:true })
+        grip.addEventListener('keydown', e => {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); window.__setSheet(sheet.classList.contains('sheet-peek') ? 'half' : 'peek') }
+        })
+        window.addEventListener('resize', () => {
+            if (window.innerWidth < 768) setH(sheet.classList.contains('sheet-peek') ? PEEK() : Math.min(sheet.getBoundingClientRect().height, FULL()))
+        })
     }
 
     // ── Tab switching ────────────────────────────────────────────────────────
