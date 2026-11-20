@@ -35,7 +35,7 @@
   .switch input:checked + span::after { transform: translateX(20px); }
   .switch input:focus-visible + span { outline: 2px solid #00875f; outline-offset: 2px; }
   #reminder-time-row[hidden] { display: none; }
-  dialog { margin: auto; border: 0; border-radius: 14px; padding: 20px; max-width: 320px; width: calc(100% - 48px); text-align: center; }
+  dialog { margin: auto; border: 0; border-radius: 14px; padding: 20px; max-width: 360px; max-height: calc(100dvh - 72px); overflow-y: auto; width: calc(100% - 48px); text-align: center; }
   dialog::backdrop { background: rgba(0,0,0,.4); }
   dialog h3 { font-size: 17px; margin-bottom: 8px; }
   dialog p { font-size: 13px; color: #3c3c43; margin-bottom: 16px; }
