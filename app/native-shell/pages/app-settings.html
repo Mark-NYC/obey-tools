@@ -16,7 +16,7 @@
   .row { display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 11px 16px; position: relative; color: inherit; text-decoration: none; width: 100%; background: none; border: 0; font: inherit; text-align: start; }
   .row + .row::before { content: ''; position: absolute; top: 0; inset-inline-start: 16px; inset-inline-end: 0; border-top: 0.5px solid #c6c6c8; }
   a.row:active, button.row:active { background: #e5e5ea; }
-  .row[hidden] { display: none; }
+  .row[hidden], #delete-owned-option[hidden] { display: none !important; }
   .row .label { flex: 1; }
   .row .value { color: #6c6c70; font-size: 16px; }
   .row .chev { color: #c4c4c7; font-size: 20px; line-height: 1; }
@@ -35,7 +35,7 @@
   .switch input:checked + span::after { transform: translateX(20px); }
   .switch input:focus-visible + span { outline: 2px solid #00875f; outline-offset: 2px; }
   #reminder-time-row[hidden] { display: none; }
-  dialog { margin: auto; border: 0; border-radius: 14px; padding: 20px; max-width: 320px; width: calc(100% - 48px); text-align: center; }
+  dialog { margin: auto; border: 0; border-radius: 14px; padding: 20px; max-width: 360px; max-height: calc(100dvh - 72px); overflow-y: auto; width: calc(100% - 48px); text-align: center; }
   dialog::backdrop { background: rgba(0,0,0,.4); }
   dialog h3 { font-size: 17px; margin-bottom: 8px; }
   dialog p { font-size: 13px; color: #3c3c43; margin-bottom: 16px; }
@@ -70,32 +70,67 @@
   $('account-signout').addEventListener('click', () => authLogOut())
 
   const dlg = $('delete-dialog')
-  $('account-delete').addEventListener('click', () => dlg.showModal())
+  let deletionImpact = null
+  const destructiveCount = (i) => i.owned_networks + i.owned_checklists + i.other_progress
+  $('account-delete').addEventListener('click', async () => {
+    $('delete-confirm').disabled = true
+    $('delete-summary').textContent = 'Checking what will be deleted…'
+    $('delete-owned-option').hidden = true
+    $('delete-owned-checkbox').checked = false
+    dlg.showModal()
+    const { data, error } = await supabase.rpc('account_deletion_impact')
+    if (!dlg.open) return
+    if (error || !data) {
+      deletionImpact = null
+      $('delete-summary').textContent = 'Cannot check your account data right now. Please reconnect and try again. Nothing was deleted.'
+      return
+    }
+    deletionImpact = data
+    if (destructiveCount(data) > 0) {
+      $('delete-summary').textContent =
+        'This account owns ' + data.owned_networks + ' network(s), ' +
+        data.owned_checklists + ' additional checklist(s), and ' +
+        data.other_progress + ' progress record(s) in others’ checklists. ' +
+        'Deleting these networks also permanently removes their members, shared checklists and progress. Other people may lose access. Export or transfer anything you need before continuing. Your iPhone’s local data will be kept.'
+      $('delete-owned-option').hidden = false
+    } else {
+      $('delete-summary').textContent =
+        'This permanently deletes your sign-in and synced personal data. It cannot be undone. Information saved on this iPhone stays on this device.'
+      $('delete-confirm').disabled = false
+    }
+  })
   $('delete-cancel').addEventListener('click', () => dlg.close())
+  $('delete-owned-checkbox').addEventListener('change', () => {
+    $('delete-confirm').disabled = !$('delete-owned-checkbox').checked
+  })
   $('delete-confirm').addEventListener('click', async () => {
+    if (!deletionImpact) return
+    const isOwner = destructiveCount(deletionImpact) > 0
+    if (isOwner && !$('delete-owned-checkbox').checked) return
     const btn = $('delete-confirm')
     btn.disabled = true
     btn.textContent = 'Deleting…'
-    // Server-side function (see supabase/account-deletion/). It deletes the
-    // caller's own data and auth user; nobody can delete another account.
-    const { error } = await supabase.rpc('delete_my_account')
-    btn.disabled = false
-    btn.textContent = 'Delete'
-    dlg.close()
+    const args = isOwner
+      ? ['delete_my_account_with_owned_content', { p_confirmation: 'DELETE SHARED DATA' }]
+      : ['delete_my_account']
+    let error
+    try {
+      ;({ error } = await supabase.rpc(...args))
+    } catch (e) { error = e }
+    btn.textContent = 'Delete account'
     if (error) {
-      const notDeployed = error.code === 'PGRST202' || /could not find the function/i.test(error.message || '')
-      showAuthMessage(notDeployed
-        ? 'Account deletion is not enabled on the server yet. Your account was not changed.'
-        : 'Could not delete your account: ' + error.message + '. Nothing was deleted. Please try again when online.',
-        { type: 'error' })
+      $('delete-summary').textContent = 'Account deletion failed: ' + (error.message || String(error)) +
+        '. Your account was not deleted. Check your connection and try again.'
+      btn.disabled = false
       return
     }
-    // The account is gone; what is saved on this iPhone stays (No account, no
-    // problem). Detach it from the deleted account so it can be used freely.
+    dlg.close()
+    // Keep the offline-first device data but sever its sync ownership.
     await authLogOut()
     window.ObeySync?.setOwner(null)
     ;['conversations-synced', 'churchAssessment-synced'].forEach(k => localStorage.removeItem(k))
-    showAuthMessage('Your account and the data stored in it were deleted. Everything saved on this iPhone was kept.', { type: 'success' })
+    deletionImpact = null
+    showAuthMessage('Your account was deleted. Data saved on this iPhone was kept.', { type: 'success' })
   })
 
   // ── Language ───────────────────────────────────────────────────────
@@ -305,10 +340,14 @@
 
 <dialog id="delete-dialog" aria-labelledby="delete-title">
   <h3 id="delete-title">Delete your account?</h3>
-  <p>This permanently deletes your sign-in and the copy of your progress stored in your account. It cannot be undone. People and progress saved on this iPhone are kept.</p>
+  <p id="delete-summary" role="status">Checking what will be deleted…</p>
+  <label id="delete-owned-option" hidden style="display:block;text-align:left;font-size:13px;line-height:1.5;margin-bottom:16px">
+    <input type="checkbox" id="delete-owned-checkbox" style="margin-right:8px">
+    I understand that my shared networks and their checklists may be permanently deleted for other members.
+  </label>
   <div class="actions">
     <button type="button" id="delete-cancel" autofocus>Cancel</button>
-    <button type="button" id="delete-confirm" class="destroy">Delete</button>
+    <button type="button" id="delete-confirm" class="destroy" disabled>Delete account</button>
   </div>
 </dialog>
 </body>
