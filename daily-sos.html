@@ -4,7 +4,7 @@
 <meta name="theme-color" content="#00A468">
 <link rel="icon" href="assets/images/favicons/favicon.ico">
 <link rel="stylesheet" href="/fonts.css"><link rel="stylesheet" href="/buttons.css"><link rel="stylesheet" href="/grow/grow.css">
-<title>Follow Daily · Abide in Jesus | OBEY.TOOLS</title>
+<title>Following Jesus’ Way | Follow Daily | OBEY.TOOLS</title>
 <style>
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:#1c1c1e;background:#f2f2f7;font:16px/1.45 -apple-system,BlinkMacSystemFont,"SF Pro Display",sans-serif}
 .shell{max-width:480px;margin:auto;background:#fff;min-height:100dvh;padding-bottom:38px}
@@ -176,10 +176,10 @@ body{padding:0;background:#f8f8f8}
 @media(max-width:520px){.sos-sync .sync-row{flex-direction:column}.sos-sync input,.sos-sync button{width:100%}}
 </style></head>
 <body><div class="shell">
-<header><a class="site-logo" href="/" aria-label="Obey Tools home">OBEY.TOOLS</a><a class="round" href="/grow/" aria-label="Back to Growing Faith">‹</a><div class="headline"><strong>Overview</strong><small id="topday">Day 1</small></div><button class="round" id="menu" type="button" aria-label="Follow Daily options">···</button></header>
+<header><a class="site-logo" href="/" aria-label="Obey Tools home">OBEY.TOOLS</a><a class="round" href="/follow-daily/" aria-label="Back to Follow Daily">‹</a><div class="headline"><strong>Overview</strong><small id="topday">Day 1</small></div><button class="round" id="menu" type="button" aria-label="Following Jesus’ Way options">···</button></header>
 <nav class="desktop-nav" aria-label="Obey Tools navigation">
 <a href="/">⌂ &nbsp; Home</a>
-<a href="/grow/">◈ &nbsp; Growing Faith</a><a href="/daily-sos.html" aria-current="page">▣ &nbsp; Follow Daily</a><a href="/commands-of-christ.html">✓ &nbsp; Commands of Christ</a><a href="/4-questions.html">◯ &nbsp; 4 Questions</a></nav><div class="brand"><span>OBEY.TOOLS</span><h1>FOLLOW DAILY</h1><p>ABIDE IN JESUS · SAY, OBEY, SHARE</p></div>
+<a href="/follow-daily/">◈ &nbsp; Follow Daily</a><a href="/daily-sos.html" aria-current="page">▣ &nbsp; Following Jesus’ Way</a><a href="/commands-of-christ.html">✓ &nbsp; Commands of Christ</a><a href="/4-questions.html">◯ &nbsp; 4 Questions</a></nav><div class="brand"><span>OBEY.TOOLS</span><h1>FOLLOWING JESUS’ WAY</h1><p>ABIDE IN JESUS · SAY, OBEY, SHARE</p></div>
 <nav id="days" class="days" aria-label="Reading days"></nav>
 <main class="content">
 <div class="row"><h2 class="daytitle" id="daytitle">Day 1</h2><span class="pill" id="phase">IDENTIFY</span></div>
@@ -225,8 +225,8 @@ body{padding:0;background:#f8f8f8}
 <button id="sos-sync-signout" type="button" class="secondary">Sign out</button>
 </div>
 </section>
-<section class="email-card" id="email-reminders" aria-label="Follow Daily email reminders">
-<h2>Follow Daily in your inbox</h2>
+<section class="email-card" id="email-reminders" aria-label="Following Jesus’ Way email reminders">
+<h2>Following Jesus’ Way in your inbox</h2>
 <p>Start with Day 1 whenever you join. Receive one full Bible passage and one discovery question each morning, at a time you choose.</p>
 <div id="email-not-ready">Email reminders are being prepared. They are not sending yet.</div>
 <div id="email-public-signup" hidden>
@@ -247,13 +247,13 @@ body{padding:0;background:#f8f8f8}
 <div id="email-reminder-status" role="status" aria-live="polite"></div>
 </section>
 <div class="notice">365 readings through the Gospel harmony and Acts, with WEB Updated Scripture on the page. Guest responses stay on this device. Signed-in users can sync readings and SOS answers securely across devices. Daily email reminders remain optional and account-free.</div>
-</main><aside class="desktop-aside" aria-label="About Follow Daily">
+</main><aside class="desktop-aside" aria-label="About Following Jesus’ Way">
 <div class="desktop-side-card"><h2>Following Jesus’ Way</h2>
 <p>A 365-day journey through a harmony of the Gospels and Acts, learning how Jesus made disciples who multiplied.</p>
 <div class="desktop-phases"><div class="desktop-phase"><b>1</b>Identify</div><div class="desktop-phase"><b>2</b>Equip</div><div class="desktop-phase"><b>3</b>Invest</div><div class="desktop-phase"><b>4</b>Entrust</div></div></div>
 <div class="desktop-side-card"><h2>The daily flow</h2><div class="desktop-flow"><b>1</b><div><strong>Read</strong><small>One primary passage. Parallel accounts optional.</small></div></div><div class="desktop-flow"><b>2</b><div><strong>SOS</strong><small>Say · Obey · Share. Save a draft anytime.</small></div></div></div>
 <div class="desktop-side-card"><h2>Grow at your pace</h2><p>Save just one answer and finish the rest later. Sign in to keep drafts across devices.</p><button type="button" class="secondary" id="desktop-plan-info">View plan info</button></div></aside></div><div id="menu-backdrop" class="menu-backdrop" hidden></div>
-<div id="plan-menu" class="menu-pop" role="menu" aria-label="Follow Daily plan options" hidden>
+<div id="plan-menu" class="menu-pop" role="menu" aria-label="Following Jesus’ Way options" hidden>
 <button type="button" role="menuitem" data-action="share"><span class="menu-ico">↗</span>Share</button>
 <button type="button" role="menuitem" data-action="settings"><span class="menu-ico">⚙</span>Settings</button>
 <button type="button" role="menuitem" data-action="info"><span class="menu-ico">ⓘ</span>Plan Info</button>
@@ -410,7 +410,7 @@ for(const key of ['say','obey','share']){
 window.addEventListener('pagehide',()=>{if(!$('sos-panel').hidden)save(true)});
 
 document.querySelectorAll('[data-check]').forEach(b=>b.addEventListener('click',()=>{if(state.day===0)return;const e=entry(state.day-1);e.check=b.dataset.check;state.entries[state.day-1]=e;persist();document.querySelectorAll('[data-check]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)))}));
-$('share-btn').addEventListener('click',async()=>{save(true);const r=readings[state.day],e=entry(),msg='Follow Daily · SOS: '+r[0]+' ('+r[1]+')\nSay: '+(e.say||'')+'\nObey: '+(e.obey||'')+'\nShare: '+(e.share||'')+'\nhttps://obey.tools/daily-sos.html';try{if(navigator.share)await navigator.share({title:'Follow Daily · SOS',text:msg});else if(navigator.clipboard){await navigator.clipboard.writeText(msg);$('status').textContent='Copied to clipboard.'}else $('status').textContent='Sharing is unavailable here.'}catch(err){if(err.name!=='AbortError')$('status').textContent='Sharing failed.'}});
+$('share-btn').addEventListener('click',async()=>{save(true);const r=readings[state.day],e=entry(),msg='Following Jesus’ Way · SOS: '+r[0]+' ('+r[1]+')\nSay: '+(e.say||'')+'\nObey: '+(e.obey||'')+'\nShare: '+(e.share||'')+'\nhttps://obey.tools/daily-sos.html';try{if(navigator.share)await navigator.share({title:'Following Jesus’ Way · SOS',text:msg});else if(navigator.clipboard){await navigator.clipboard.writeText(msg);$('status').textContent='Copied to clipboard.'}else $('status').textContent='Sharing is unavailable here.'}catch(err){if(err.name!=='AbortError')$('status').textContent='Sharing failed.'}});
 
 const MENU_KEY='obeytools:daily-sos:preferences:v1';
 let prefs={startDate:null,paused:false,reminderTime:'07:00',timeZone:Intl.DateTimeFormat().resolvedOptions().timeZone||'local'};
@@ -430,11 +430,11 @@ function dialog(title,body,confirmText=null,onConfirm=null){
  overlay.hidden=false;cancelBtn.focus()
 }
 function node(tag,text,cls){const el=document.createElement(tag);if(text!=null)el.textContent=text;if(cls)el.className=cls;return el}
-function planShare(){const text="Follow Daily: a Gospel harmony focused on how Jesus made disciples. Practice SOS: Say, Obey, Share. https://obey.tools/daily-sos.html";
+function planShare(){const text="Following Jesus’ Way: a Gospel harmony focused on how Jesus made disciples. Practice SOS: Say, Obey, Share. https://obey.tools/daily-sos.html";
  closeMenu();
- if(navigator.share){navigator.share({title:'Follow Daily',text,url:'https://obey.tools/daily-sos.html'}).catch(()=>{})}
- else if(navigator.clipboard){navigator.clipboard.writeText(text).then(()=>dialog('Share Follow Daily','Invitation copied to your clipboard.')).catch(()=>dialog('Share Follow Daily',text))}
- else dialog('Share Follow Daily',text);
+ if(navigator.share){navigator.share({title:'Following Jesus’ Way',text,url:'https://obey.tools/daily-sos.html'}).catch(()=>{})}
+ else if(navigator.clipboard){navigator.clipboard.writeText(text).then(()=>dialog('Share Following Jesus’ Way','Invitation copied to your clipboard.')).catch(()=>dialog('Share Following Jesus’ Way',text))}
+ else dialog('Share Following Jesus’ Way',text);
 }
 function infoDialog(){
  const body=node('div');
@@ -456,9 +456,9 @@ function catchupDialog(){
  else dialog('Catch Me Up',body,'Go to Day '+(target+1),()=>move(target))
 }
 function stopDialog(){
- if(prefs.paused){dialog('Resume Follow Daily','Resume your reading journey? Your saved answers are still here. To resume paused emails, use Manage reminders in your inbox.','Resume plan',()=>{prefs.paused=false;savePrefs();updatePlanStatus();void 0});return}
+ if(prefs.paused){dialog('Resume Following Jesus’ Way','Resume your reading journey? Your saved answers are still here. To resume paused emails, use Manage reminders in your inbox.','Resume plan',()=>{prefs.paused=false;savePrefs();updatePlanStatus();void 0});return}
  const body=node('div');
- body.append(node('p','Stop your Follow Daily journey on this device? Your responses will remain saved. You can resume anytime from this menu.'));
+ body.append(node('p','Stop your Following Jesus’ Way study on this device? Your responses will remain saved. You can resume anytime from this menu.'));
  body.append(node('p','Stopping your reading plan on this device will not pause subscribed emails. Use Manage reminders in any email to pause delivery.','small-notice'));
  dialog('Stop This Plan',body,'Stop plan',()=>{prefs.paused=true;savePrefs();updatePlanStatus();void 0});
 }

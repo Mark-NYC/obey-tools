@@ -28,7 +28,7 @@ try{
   await context.route('**/*',route=>route.request().url().startsWith(base)?route.continue():route.abort())
   const page=await context.newPage()
   const errors=[];page.on('pageerror',e=>errors.push(e.message))
-  for(const [route,label] of [['/grow/','grow'],['/questions/','questions'],['/daily-sos.html','sos']]){
+  for(const [route,label] of [['/follow-daily/','grow'],['/questions/','questions'],['/daily-sos.html','sos']]){
    const response=await page.goto(base+route,{waitUntil:'load'})
    assert.equal(response.status(),200,label+' is not served')
    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2),true,label+' overflows at '+width+'px')
@@ -58,6 +58,7 @@ try{
    if(label==='grow'){
     assert.equal(await page.locator('.hero h1').count(),1,'one hero headline')
     assert.equal(await page.locator('.cards .card').count(),2,'two clear paths')
+    assert.equal(await page.locator('.card.sos h3').innerText(),'FOLLOWING JESUS’ WAY','study has its own name')
     assert.equal(await page.locator('.eyebrow').count(),0,'no repeated eyebrow labels')
 
     assert.equal(await page.locator('a[href="/questions/"]').count(),1)
