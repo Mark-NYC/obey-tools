@@ -79,6 +79,18 @@ body{padding:26px;background:#f2f3f4}
 }
 @media(min-width:1100px) and (max-width:1250px){.shell{grid-template-columns:150px minmax(0,1fr) 270px;column-gap:16px}.desktop-side-card{padding:16px}.desktop-aside{padding-right:15px}.brand h1{font-size:58px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+/* Open Scripture reading: always visible, no accordion required. */
+#reading-panel{border:0;padding:6px 0 15px;margin:8px 0 12px;background:transparent}
+#reading-panel .sub{margin-bottom:10px}
+.scripture-copy{font-family:Georgia,"Times New Roman",serif;font-size:18px;line-height:1.82;color:#24272a;overflow-wrap:break-word}
+.scripture-copy p{font-size:inherit!important;line-height:inherit;margin:0 0 20px}
+.scripture-copy h3{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",sans-serif;font-size:14px;font-weight:800;letter-spacing:.02em;color:#008755;margin:22px 0 9px}
+.scripture-verse sup{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",sans-serif;font-size:10px;font-weight:750;color:#008755;vertical-align:super;margin-right:3px}
+.scripture-copy .scripture-error{font:14px/1.6 -apple-system,BlinkMacSystemFont,sans-serif;color:#a33}
+.scripture-source{font-size:12px;color:#73737c;margin-top:8px}
+#read-link{display:none}
+@media(min-width:1100px){.scripture-copy{font-size:19px;line-height:1.9;max-width:70ch}#reading-panel{padding:10px 10px 18px 4px}}
 </style></head>
 <body><div class="shell">
 <header><a class="round" href="/" aria-label="Back to Obey Tools">×</a><div class="headline"><strong>Overview</strong><small id="topday">Day 1</small></div><button class="round" id="menu" type="button" aria-label="Daily SOS options">···</button></header>
@@ -93,10 +105,11 @@ body{padding:26px;background:#f2f3f4}
 <button class="task" id="open-reading" type="button"><span class="circle" id="read-check" aria-hidden="true"></span><span><strong id="passage"></strong><small>One Scripture passage · WEB Updated</small></span><span class="chevron" aria-hidden="true">›</span></button>
 <button class="task" id="open-sos" type="button"><span class="circle" id="sos-check" aria-hidden="true"></span><span><strong>SOS</strong><small>Say · Obey · Share</small><small id="sos-draft-note" hidden>Draft saved</small></span><span class="chevron" aria-hidden="true">›</span></button>
 </div>
-<section class="panel" id="reading-panel" hidden tabindex="-1" aria-label="Scripture reading">
+<section class="panel" id="reading-panel" tabindex="-1" aria-label="Scripture reading">
 <h2 id="reading-title"></h2><div class="sub">Today's primary reading</div>
 <p><a class="ref" id="read-link" href="https://ebible.org/engwebu/" target="_blank" rel="noopener">Read Scripture in WEB Updated ↗</a></p>
-<p class="muted">The passage opens in the WEB Updated Bible. Return here to mark the reading complete.</p>
+<div class="scripture-copy" id="scripture-copy" aria-label="WEB Updated Scripture passage"></div>
+<p class="scripture-source">World English Bible Updated (WEBU), public domain. <a href="https://ebible.org/engwebu/" target="_blank" rel="noopener">Source: eBible.org</a></p>
 <details class="optional" id="parallel-box" hidden><summary>Optional parallel Gospel accounts</summary><p id="parallel-text"></p></details>
 <button id="mark-read" class="primary" type="button">Mark Scripture as read</button>
 </section>
@@ -109,7 +122,7 @@ body{padding:26px;background:#f2f3f4}
 <button id="save" class="primary" type="button">Save today's SOS</button><button id="share-btn" class="secondary" type="button" style="width:100%;margin-top:10px">Share my SOS</button>
 <div id="status" class="status" role="status" aria-live="polite"></div>
 </section>
-<button id="start" class="primary" type="button">Start Reading ↑</button>
+<button id="start" class="primary" type="button">Open SOS ↑</button>
 <div id="progress" class="muted" style="text-align:center;margin-top:13px"></div>
 <div class="notice">Preview: 14 curated readings. The 365-day harmony, in-app WEBU passage text, account syncing, and daily email/text delivery are still in development. SOS answers are saved only on this device.</div>
 </main><aside class="desktop-aside" aria-label="About Daily SOS">
@@ -131,6 +144,7 @@ body{padding:26px;background:#f2f3f4}
 <div class="dialog-actions"><button id="dialog-cancel" type="button" class="secondary">Close</button><button id="dialog-confirm" type="button" class="primary" hidden>Confirm</button></div>
 </div></div>
 
+<script src="/daily-sos-scripture.js"></script>
 <script>
 const readings=[
 ["The Word Became Flesh","John 1:1–18","","IDENTIFY","What does John reveal about who Jesus is and why he came?",1],
@@ -154,8 +168,55 @@ let state={day:0,entries:{}};
 try{const value=JSON.parse(localStorage.getItem(KEY));if(value&&typeof value==='object'){state.day=Math.max(0,Math.min(readings.length-1,Number(value.day)||0));state.entries=value.entries&&typeof value.entries==='object'?value.entries:{}}}catch{}
 function entry(day=state.day){return state.entries[day]||{}}
 function persist(){try{localStorage.setItem(KEY,JSON.stringify(state));return true}catch{return false}}
-function changePanel(name){if(!$('sos-panel').hidden)save(true);const isRead=name==='reading';$('reading-panel').hidden=!isRead;$('sos-panel').hidden=isRead;$('start').textContent=isRead?'Continue to SOS ↑':'Start Reading ↑';$(isRead?'reading-panel':'sos-panel').focus()}
+function changePanel(name){
+ if(!$('sos-panel').hidden)save(true);
+ const isRead=name==='reading';
+ $('reading-panel').hidden=false;
+ $('sos-panel').hidden=isRead;
+ $('start').textContent=isRead?'Open SOS ↑':'Return to Scripture ↑';
+ (isRead?$('reading-panel'):$('sos-panel')).scrollIntoView({behavior:'smooth',block:'start'});
+ (isRead?$('reading-panel'):$('sos-panel')).focus({preventScroll:true});
+}
 const bookFiles={Matthew:'MAT',Mark:'MRK',Luke:'LUK',John:'JHN',Acts:'ACT'};
+
+function parseReadingReference(ref){
+ const normal=String(ref).replace(/\u2013|\u2014/g,'-').trim();
+ const m=normal.match(/^(.+?)\s+(\d+):(\d+)(?:-(?:(\d+):)?(\d+))?$/);
+ if(!m)return null;
+ const startChapter=Number(m[2]),startVerse=Number(m[3]);
+ const endChapter=m[4]?Number(m[4]):startChapter;
+ const endVerse=m[5]?Number(m[5]):startVerse;
+ if(endChapter<startChapter||(endChapter===startChapter&&endVerse<startVerse))return null;
+ return {book:m[1],startChapter,startVerse,endChapter,endVerse};
+}
+function showScripture(ref){
+ const target=$('scripture-copy'),parsed=parseReadingReference(ref);
+ target.replaceChildren();
+ if(!parsed||!window.OBEY_WEBU?.[parsed.book]){
+  const error=document.createElement('p');error.className='scripture-error';error.textContent='Scripture text is temporarily unavailable. The reference above is still available.';target.append(error);return;
+ }
+ const chapters=window.OBEY_WEBU[parsed.book];
+ let count=0;
+ for(let ch=parsed.startChapter;ch<=parsed.endChapter;ch++){
+  const verses=chapters[ch]||[];
+  const lower=ch===parsed.startChapter?parsed.startVerse:1;
+  const upper=ch===parsed.endChapter?parsed.endVerse:Infinity;
+  const selected=verses.filter(([v])=>v>=lower&&v<=upper);
+  if(!selected.length)continue;
+  if(parsed.startChapter!==parsed.endChapter){
+   const label=document.createElement('h3');label.textContent=parsed.book+' '+ch;target.append(label);
+  }
+  let paragraph;
+  selected.forEach(([number,content],idx)=>{
+   if(idx%6===0){paragraph=document.createElement('p');target.append(paragraph)}
+   const span=document.createElement('span');span.className='scripture-verse';
+   const num=document.createElement('sup');num.textContent=number;
+   span.append(num,document.createTextNode(content+' '));paragraph.append(span);count++;
+  });
+ }
+ if(count===0){const err=document.createElement('p');err.className='scripture-error';err.textContent='This passage could not be loaded.';target.append(err)}
+}
+
 function render(){
  const i=state.day,r=readings[i],e=entry(),previous=i>0?entry(i-1):null;
  $('topday').textContent='Day '+(i+1);$('daytitle').textContent='Day '+(i+1);$('phase').textContent=r[3];
@@ -165,6 +226,7 @@ function render(){
  const book=r[1].split(' ')[0];
  $('read-link').href='https://ebible.org/engwebu/'+(bookFiles[book]||'MAT')+'.htm';
  $('read-link').textContent='Read '+r[1]+' in WEB Updated ↗';
+ showScripture(r[1]);
  $('parallel-box').hidden=!r[2];$('parallel-text').textContent=r[2]||'';
  ['say','obey','share'].forEach(k=>$(k).value=e[k]||'');
  const sosComplete=!!(e.say&&e.obey&&e.share);
@@ -192,10 +254,10 @@ function save(silent=false){
  return ok;
 }
 function renderAfterSave(){const e=entry(),done=!!(e.say&&e.obey&&e.share),partial=!done&&!!(e.say||e.obey||e.share);const check=$('sos-check');check.classList.toggle('done',done);check.classList.toggle('draft',partial);check.textContent=done?'✓':'';$('sos-draft-note').hidden=!partial;$('progress').textContent=Object.values(state.entries).filter(x=>x.read&&x.say&&x.obey&&x.share).length+' of '+readings.length+' preview days completed'}
-function move(n){clearTimeout(draftTimer);save(true);state.day=Math.max(0,Math.min(readings.length-1,n));persist();render();$('reading-panel').hidden=true;$('sos-panel').hidden=true;$('start').textContent='Start Reading ↑';window.scrollTo({top:0,behavior:'smooth'})}
+function move(n){clearTimeout(draftTimer);save(true);state.day=Math.max(0,Math.min(readings.length-1,n));persist();render();$('reading-panel').hidden=false;$('sos-panel').hidden=true;$('start').textContent='Open SOS ↑';window.scrollTo({top:0,behavior:'smooth'})}
 $('open-reading').addEventListener('click',()=>changePanel('reading'));
 $('open-sos').addEventListener('click',()=>changePanel('sos'));
-$('start').addEventListener('click',()=>changePanel($('reading-panel').hidden?'reading':'sos'));
+$('start').addEventListener('click',()=>changePanel($('sos-panel').hidden?'sos':'reading'));
 $('mark-read').addEventListener('click',()=>{const e=entry();e.read=true;state.entries[state.day]=e;if(persist()){render();changePanel('sos')}});
 $('save').addEventListener('click',()=>save());
 let draftTimer;
@@ -270,7 +332,7 @@ function stopDialog(){
 function updatePlanStatus(){
  $('stop-label').textContent=prefs.paused?'Resume This Plan':'Stop This Plan';
  $('start').disabled=!!prefs.paused;
- $('start').textContent=prefs.paused?'Plan paused':$('reading-panel').hidden?'Start Reading ↑':'Continue to SOS ↑';
+ $('start').textContent=prefs.paused?'Plan paused':$('sos-panel').hidden?'Open SOS ↑':'Return to Scripture ↑';
 }
 $('menu').setAttribute('aria-haspopup','menu');$('menu').setAttribute('aria-expanded','false');
 $('menu').addEventListener('click',()=>menu.hidden?openMenu():closeMenu());
