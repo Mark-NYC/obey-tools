@@ -7,7 +7,8 @@ import {fileURLToPath} from 'node:url'
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'..')
 const read=path=>readFileSync(resolve(root,path),'utf8')
 const index=read('index.html')
-const hub=read('grow/index.html')
+const hub=read('follow-daily/index.html')
+const legacy=read('grow/index.html')
 const questions=read('questions/index.html')
 const sos=read('daily-sos.html')
 const slugs=[
@@ -21,21 +22,24 @@ const slugs=[
  'why-would-god-need-people-to-worship-him-isnt-that-egotistical-and-arrogant',
  'what-are-the-practical-implications-of-an-atheistic-worldview'
 ]
-test('Growing Faith stays available by direct URL without a homepage button',()=>{
- assert.doesNotMatch(index,/href="\/grow\/"/)
+test('Follow Daily collection and legacy redirect stay separate from homepage',()=>{
+ assert.doesNotMatch(index,/href="\/(?:grow|follow-daily)\/"/)
+ assert.match(legacy,/url=\/follow-daily\//)
+ assert.match(hub,/<h1>FOLLOW <span>DAILY<\/span><\/h1>/)
+ assert.match(hub,/FOLLOWING JESUS’ WAY/)
  assert.match(hub,/href="\/questions\/"/)
  assert.match(hub,/href="\/daily-sos\.html"/)
  assert.match(hub,/Explore honest questions\. Follow Jesus daily\./)
- assert.match(hub,/CHOOSE YOUR PATH/)
+ assert.match(hub,/START HERE/)
 })
 test('section navigation and original permalinks work together',()=>{
- assert.match(questions,/href="\/grow\/"/)
- assert.match(sos,/href="\/grow\/"/)
+ assert.match(questions,/href="\/follow-daily\/"/)
+ assert.match(sos,/href="\/follow-daily\/"/)
  for(const slug of slugs){
   const path=slug+'/index.html'
   assert.ok(existsSync(resolve(root,path)), 'missing '+path)
   const page=read(path)
-  assert.match(page,/href="\/grow\/"/)
+  assert.match(page,/href="\/follow-daily\/"/)
   assert.match(page,/href="\/questions\/"/)
   assert.ok(questions.includes('href="/'+slug+'/"'), 'missing card link '+slug)
   assert.ok(page.includes('youtube-nocookie.com/embed/'), 'missing curated video embed '+slug)
@@ -60,11 +64,11 @@ test('shared brand assets and responsive layouts',()=>{
 test('Follow Daily public name is consistent without changing SOS URLs or data keys',()=>{
  const client=read('daily-sos-email.js')
  const sender=read('supabase/functions/daily-sos-delivery/index.ts')
- assert.match(hub,/<h3>FOLLOW DAILY<\/h3>/)
+ assert.match(hub,/<h3>FOLLOWING JESUS’ WAY<\/h3>/)
  assert.match(hub,/Follow Jesus daily\./)
- assert.match(sos,/<h1>FOLLOW DAILY<\/h1>/)
+ assert.match(sos,/<h1>FOLLOWING JESUS’ WAY<\/h1>/)
  assert.match(sos,/ABIDE IN JESUS · SAY, OBEY, SHARE/)
- assert.match(sos,/<h2>Follow Daily in your inbox<\/h2>/)
+ assert.match(sos,/<h2>Following Jesus’ Way in your inbox<\/h2>/)
  assert.match(sos,/obeytools:daily-sos:v2/)
  assert.match(sender,/from:"Follow Daily <daily@obey.tools>"/)
  assert.match(sender,/\| Follow Daily/)
