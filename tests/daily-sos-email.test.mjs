@@ -74,3 +74,16 @@ test('Browser module parses without a build step',()=>{
  const transformed=emailClient.replace(/^import\s+\{[^}]+\}\s+from\s+['"][^'"]+['"];\s*/m,'')
  new Function('async function emailModule(){\n'+transformed+'\n}')
 })
+
+test('Follow Daily email uses one clear reading surface without nested panels',()=>{
+ assert.match(fn,/FOLLOW DAILY/)
+ assert.match(fn,/background:#ffffff/)
+ assert.match(fn,/TODAY’S DISCOVERY/)
+ assert.match(fn,/border-left:3px solid #00a468/)
+ assert.match(fn,/paragraphs\.join/)
+ assert.doesNotMatch(fn,/background:#fbf7f1/)
+ assert.doesNotMatch(fn,/background:#eff6f1/)
+ assert.doesNotMatch(fn,/font-size:32px;font-weight:900/)
+ assert.match(fn,/OPEN TODAY’S SOS/)
+ assert.match(fn,/unsubUrl/)
+})
