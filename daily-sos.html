@@ -252,7 +252,7 @@ body{padding:0;background:#f8f8f8}
 <p>A 365-day journey through a harmony of the Gospels and Acts, learning how Jesus made disciples who multiplied.</p>
 <div class="desktop-phases"><div class="desktop-phase"><b>1</b>Identify</div><div class="desktop-phase"><b>2</b>Equip</div><div class="desktop-phase"><b>3</b>Invest</div><div class="desktop-phase"><b>4</b>Entrust</div></div></div>
 <div class="desktop-side-card"><h2>The daily flow</h2><div class="desktop-flow"><b>1</b><div><strong>Read</strong><small>One primary passage. Parallel accounts optional.</small></div></div><div class="desktop-flow"><b>2</b><div><strong>SOS</strong><small>Say · Obey · Share. Save a draft anytime.</small></div></div></div>
-<div class="desktop-side-card"><h2>Grow at your pace</h2><p>Save one answer now and finish the rest later. Drafts stay on this device.</p><button type="button" class="secondary" id="desktop-plan-info">View plan info</button></div></aside></div><div id="menu-backdrop" class="menu-backdrop" hidden></div>
+<div class="desktop-side-card"><h2>Grow at your pace</h2><p>Save just one answer and finish the rest later. Sign in to keep drafts across devices.</p><button type="button" class="secondary" id="desktop-plan-info">View plan info</button></div></aside></div><div id="menu-backdrop" class="menu-backdrop" hidden></div>
 <div id="plan-menu" class="menu-pop" role="menu" aria-label="Follow Daily plan options" hidden>
 <button type="button" role="menuitem" data-action="share"><span class="menu-ico">↗</span>Share</button>
 <button type="button" role="menuitem" data-action="settings"><span class="menu-ico">⚙</span>Settings</button>
@@ -391,7 +391,7 @@ function render(){
 }
 function save(silent=false){
  const e=entry();['say','obey','share'].forEach(k=>e[k]=$(k).value.trim());state.entries[state.day]=e;
- const ok=persist();if(!silent)$('status').textContent=ok?(e.say&&e.obey&&e.share?'SOS complete. Saved on this device.':(e.say||e.obey||e.share)?'Draft saved. Finish the rest anytime.':'Empty draft saved.'):'Unable to save on this device.';
+ const ok=persist();if(!silent)$('status').textContent=ok?(e.say&&e.obey&&e.share?'SOS complete. Saved locally; cloud sync follows if signed in.':(e.say||e.obey||e.share)?'Draft saved. Finish the rest anytime.':'Empty draft saved.'):'Unable to save on this device.';
  renderAfterSave();
  return ok;
 }
