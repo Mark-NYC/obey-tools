@@ -36,6 +36,19 @@ try{
    if(label==='questions'){
     assert.equal(await page.locator('[data-question]').count(),15,'Questions must have 15 video cards')
     assert.equal(await page.locator('[data-group]').count(),5,'Questions must have five categories')
+    if(width<=768){
+     const gutter=await page.locator('.hero .wrap').evaluate(el=>({
+       left:el.getBoundingClientRect().left,
+       right:innerWidth-el.getBoundingClientRect().right,
+       padLeft:parseFloat(getComputedStyle(el).paddingLeft),
+       padRight:parseFloat(getComputedStyle(el).paddingRight)
+     }))
+     if(width<=375)assert.ok(gutter.padLeft>=20&&gutter.padRight>=20,'mobile hero gutter should be at least 20px')
+     const heroText=await page.locator('.hero h1').boundingBox()
+     assert.ok(heroText.x>=0&&heroText.x+heroText.width<=width+1,'hero headline is clipped at '+width)
+     const feature=await page.locator('.hero-feature').boundingBox()
+     assert.ok(feature.x>=19&&feature.x+feature.width<=width-19,'featured video touches mobile edge at '+width)
+    }
     await page.locator('#question-search').fill('rise from the dead')
     assert.equal(await page.locator('[data-question]:visible').count(),1,'search should filter 15 cards')
     await page.locator('#question-search').fill('')
