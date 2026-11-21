@@ -3,7 +3,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#00A468">
 <link rel="icon" href="assets/images/favicons/favicon.ico">
-<link rel="stylesheet" href="/fonts.css"><link rel="stylesheet" href="/buttons.css">
+<link rel="stylesheet" href="/fonts.css"><link rel="stylesheet" href="/buttons.css"><link rel="stylesheet" href="/grow/grow.css">
 <title>Daily SOS · Following Jesus' Way | OBEY.TOOLS</title>
 <style>
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:#1c1c1e;background:#f2f2f7;font:16px/1.45 -apple-system,BlinkMacSystemFont,"SF Pro Display",sans-serif}
@@ -108,9 +108,62 @@ body{padding:26px;background:#f2f3f4}
 #email-state{font-size:14px;font-weight:800;color:#006f47}
 #email-next{font-size:12px;color:#5b6961;margin-top:4px}
 @media(max-width:360px){.email-card .email-grid{grid-template-columns:1fr}}
+
+/* Growing Faith visual alignment. Full-page workspace, not a phone inside a frame. */
+body{background:#f8f8f8}
+.shell{width:100%;max-width:none;margin:0;min-height:100dvh;background:transparent;padding-bottom:48px}
+.shell>header{min-height:75px;padding:15px max(22px,calc((100vw - 1120px)/2));border-bottom:1px solid #e1e2e4;background:#fff;gap:16px}
+.site-logo{font:30px/1 "Bebas Neue",Impact,sans-serif;letter-spacing:1px;text-decoration:none;color:#1c1c1e}
+.shell>header .round{background:#edf1ee;border-radius:10px;flex:none}
+.shell>.brand{background:#12231c;border-radius:0;margin:0 0 22px;padding:43px 20px 39px}
+.shell>.brand span{color:#83deb0}
+.shell>.brand h1{font-size:clamp(54px,7.5vw,82px);letter-spacing:1px}
+.shell>.brand p{color:#d1e3d7;letter-spacing:.08em}
+.shell>.days,.shell>.content{max-width:760px;width:calc(100% - 36px);margin-left:auto;margin-right:auto}
+.shell>.days{padding:0 0 11px}
+.shell>.content{padding:17px 0 26px}
+.day{background:#f0f2f1}
+.day[aria-current=true]{border-color:#00a468}
+.task{background:#fff}
+.panel,.email-card{border-radius:12px;border-color:#e1e2e4}
+.menu-pop{top:82px;right:18px}
+@media(max-width:1099px){
+.site-logo{display:none}
+.shell>header{padding:12px 18px;min-height:69px}
+.shell>header .headline{flex:1}
+.shell>.brand{padding:34px 18px 32px}
+.shell>.days,.shell>.content{max-width:760px;width:calc(100% - 36px)}
+}
+@media(min-width:1100px){
+body{padding:0;background:#f8f8f8}
+.shell{max-width:none;width:100%;display:grid;grid-template-columns:minmax(168px,210px) minmax(0,800px) minmax(265px,310px);justify-content:center;grid-template-rows:auto auto auto 1fr;column-gap:clamp(18px,2vw,32px);min-height:100dvh;border:none;border-radius:0;box-shadow:none;overflow:visible;padding-bottom:55px;background:#f8f8f8}
+.shell>header{grid-column:1/-1;grid-row:1;padding:13px max(24px,calc((100vw - 1370px)/2));margin:0;min-height:76px;background:#fff;border-bottom:1px solid #e1e2e4}
+.shell>header .site-logo{display:block}
+.shell>header .round:first-of-type{font-size:24px}
+.shell>header .headline{margin-left:0}
+.desktop-nav{grid-column:1;grid-row:2/5;border-right:1px solid #e1e2e4;padding:31px 14px 30px 20px;background:transparent}
+.desktop-nav a{border-radius:9px}
+.shell>.brand{grid-column:2;grid-row:2;min-height:155px;margin:29px 0 22px;padding:26px 24px;background:#12231c;border-radius:13px}
+.shell>.brand h1{font-size:66px}
+.shell>.days{grid-column:2;grid-row:3;width:100%;max-width:none;padding:0 0 12px;margin:0}
+.shell>.content{grid-column:2;grid-row:4;width:100%;max-width:none;margin:0;padding:13px 0 26px}
+.desktop-aside{grid-column:3;grid-row:2/5;padding:29px 18px 25px 0}
+.desktop-side-card{border-radius:12px}
+.menu-pop{top:80px;right:max(25px,calc((100vw - 1370px)/2 + 15px))}
+}
+@media(min-width:1100px) and (max-width:1250px){
+.shell{grid-template-columns:155px minmax(0,1fr) 265px;column-gap:17px}
+.shell>.brand h1{font-size:60px}
+.desktop-nav{padding-left:12px}
+.desktop-aside{padding-right:13px}
+}
+@media(min-width:1500px){
+.shell{grid-template-columns:210px 800px 310px}
+}
+
 </style></head>
 <body><div class="shell">
-<header><a class="round" href="/grow/" aria-label="Back to Growing Faith">×</a><div class="headline"><strong>Overview</strong><small id="topday">Day 1</small></div><button class="round" id="menu" type="button" aria-label="Daily SOS options">···</button></header>
+<header><a class="site-logo" href="/" aria-label="Obey Tools home">OBEY.TOOLS</a><a class="round" href="/grow/" aria-label="Back to Growing Faith">‹</a><div class="headline"><strong>Overview</strong><small id="topday">Day 1</small></div><button class="round" id="menu" type="button" aria-label="Daily SOS options">···</button></header>
 <nav class="desktop-nav" aria-label="Obey Tools navigation">
 <a href="/">⌂ &nbsp; Home</a>
 <a href="/grow/">◈ &nbsp; Growing Faith</a><a href="/daily-sos.html" aria-current="page">▣ &nbsp; Daily SOS</a><a href="/commands-of-christ.html">✓ &nbsp; Commands of Christ</a><a href="/4-questions.html">◯ &nbsp; 4 Questions</a></nav><div class="brand"><span>OBEY.TOOLS</span><h1>DAILY SOS</h1><p>FOLLOWING JESUS' WAY</p></div>
