@@ -1,9 +1,10 @@
-name: Daily SOS email checks
+name: Daily SOS checks
 on:
   pull_request:
     paths:
       - "daily-sos.html"
       - "daily-sos-email.js"
+      - "daily-sos-sync.js"
       - "daily-sos-readings.js"
       - "daily-sos-scripture.js"
       - "supabase/daily-sos-email/**"
@@ -15,6 +16,7 @@ on:
     paths:
       - "daily-sos.html"
       - "daily-sos-email.js"
+      - "daily-sos-sync.js"
       - "daily-sos-readings.js"
       - "daily-sos-scripture.js"
       - "supabase/daily-sos-email/**"
@@ -29,5 +31,5 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
-      - name: Validate 365 readings and daily emails
-        run: node --test tests/daily-sos-schedule.test.mjs tests/daily-sos-email.test.mjs
+      - name: Validate 365 readings, email and cloud syncing
+        run: node --test tests/daily-sos-schedule.test.mjs tests/daily-sos-email.test.mjs tests/daily-sos-sync.test.mjs
