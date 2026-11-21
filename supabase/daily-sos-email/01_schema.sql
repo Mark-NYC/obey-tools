@@ -183,3 +183,12 @@ revoke all on function public.sos_mark_failed(uuid,text) from public,anon,authen
 grant execute on function public.sos_mark_failed(uuid,text) to service_role;
 
 comment on table public.sos_email_runtime is 'Keep enabled=false until sender credentials, scheduler and test delivery have been verified.';
+
+-- Resend sending credential is encrypted in Supabase Vault, not in source code.
+-- This RPC is callable only by the service-role key (used by the Edge Function).
+create or replace function public.sos_resend_token()
+returns text language sql security definer set search_path = public, pg_temp as $$
+  select decrypted_secret from vault.decrypted_secrets where name = 'sos_resend_api_key' limit 1
+$$;
+revoke all on function public.sos_resend_token() from public, anon, authenticated;
+grant execute on function public.sos_resend_token() to service_role;
