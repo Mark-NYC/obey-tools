@@ -2,7 +2,9 @@
 
 ## Editorial status
 
-**Audience:** College students. Aim for 2–5 minutes per topic. Maximum 8 minutes for a particularly valuable campus exchange. Video thumbnails and credits visibly show duration. Do not choose an entire debate for the primary embed.
+**Audience:** English-speaking college students. **English spoken audio required** on all featured clips, with no non-English dubbing or voiceovers. Aim for 2–5 minutes per topic. Maximum 8 minutes for a particularly valuable campus exchange. Video thumbnails and credits visibly show duration. Do not choose an entire debate for the primary embed.
+
+English-language speaker presentations and English descriptions were screened, and an English transcript exists for the two Alex O'Connor excerpts. **Direct audio playback of all nine clips remains unverified** in this environment. The player prefers English captions when they are available; this cannot guarantee the audio or captions are English. A human should listen to each video, confirm English spoken audio, and check for unrelated voiceovers before calling the language audit fully passed.
 
 Two links are YouTube Shorts, so their durations are bounded by YouTube’s three-minute Shorts limit, but exact runtimes have not been confirmed. Two longer interviews are presented as timestamped excerpts using YouTube’s supported `start` and `end` parameters, rather than as unbounded full debates. In the Old Testament example, the selected 7:30 excerpt ends before the full discussion concludes; this deserves editorial review for coherence before being treated as final.
 
@@ -38,6 +40,7 @@ Videos are embedded using the official YouTube privacy-enhanced embed host (`you
 - Recover original YouTube/Vimeo embeds from WordPress export or Wayback HTML, if possible.
 - Replace curated alternatives where the verified original is available and appropriate.
 - Review videos for embed permissions, accuracy, continuity, and appropriate theological framing. Some videos are from different Christian traditions; the website identifies presenters rather than implying endorsement of every conclusion.
+- Reject any clip that is not spoken in English, including foreign-language dubbed reuploads; do not rely on language tags or caption preferences alone.
 - Verify third-party clip attribution and preferentially replace reuploads with direct rights-holder uploads where possible.
 - Perform real browser playback checks, including playback window and correct start/end behavior on excerpted videos. CI only validates URL structure and markup. CI can confirm markup, responsiveness and local routing, but cannot prove a third-party video loads when external network is blocked.
 - Maintain the original permalink and category structure when replacing media.
