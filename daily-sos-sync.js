@@ -8,7 +8,7 @@ if(adapter&&$('sos-sync')){
  const OWNER_KEY='obeytools:daily-sos:sync-owner:v1';
  const META_KEY='obeytools:daily-sos:revisions:v1';
  const BUCKET_PREFIX='obeytools:daily-sos:bucket:v1:';
- const fields=['read','say','obey','share'];
+ const fields=['read','say','obey','share','check'];
  const stateEl=$('sos-sync-state'),loginForm=$('sos-sync-login'),loggedIn=$('sos-sync-logged-in');
  const setStatus=text=>{stateEl.textContent=text};
  const parse=(value,fallback)=>{try{return value?JSON.parse(value):fallback}catch{return fallback}};
@@ -49,6 +49,21 @@ if(adapter&&$('sos-sync')){
   // Guest answers are brought into their first account, but data belonging
   // to a different signed-in user is never imported into another account.
   const found=existing||(owner==='guest'&&nextOwner!=='guest'?previous:null);
+  // Bring NEW guest fields into an existing account without replacing that
+  // account's notes. The original guest copy remains in its own local bucket.
+  if(existing&&owner==='guest'&&nextOwner!=='guest'){
+   found.state=copy(existing.state||{day:0,entries:{}});
+   found.state.entries ||= {};
+   for(const [day,guestEntry] of Object.entries(previous.state?.entries||{})){
+    if(!guestEntry||typeof guestEntry!=='object')continue;
+    const stored=found.state.entries[day]||{};
+    for(const field of fields){
+     if(Object.prototype.hasOwnProperty.call(guestEntry,field)&&!Object.prototype.hasOwnProperty.call(stored,field))
+      stored[field]=guestEntry[field];
+    }
+    found.state.entries[day]=stored;
+   }
+  }
   revisions=found?.revisions&&typeof found.revisions==='object'?found.revisions:{};
   owner=nextOwner;
   try{localStorage.setItem(OWNER_KEY,owner);localStorage.setItem(META_KEY,JSON.stringify(revisions))}catch{}
@@ -114,7 +129,7 @@ if(adapter&&$('sos-sync')){
  }
  async function readCloud(who,generation){
   const result=[];
-  for(let from=0;from<2000;from+=400){
+  for(let from=0;from<3000;from+=400){
    const {data,error}=await supabase.from('sos_daily_progress')
     .select('day_no,field_name,value,revision_ms')
     .eq('user_id',who).order('day_no',{ascending:true}).order('field_name',{ascending:true})
