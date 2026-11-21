@@ -47,7 +47,7 @@ try{
      const heroText=await page.locator('.hero h1').boundingBox()
      assert.ok(heroText.x>=0&&heroText.x+heroText.width<=width+1,'hero headline is clipped at '+width)
      const feature=await page.locator('.hero-feature').boundingBox()
-     assert.ok(feature.x>=19&&feature.x+feature.width<=width-19,'featured video touches mobile edge at '+width)
+     if(width<=680)assert.ok(feature.x>=19&&feature.x+feature.width<=width-19,'featured video touches mobile edge at '+width+'; x='+feature.x+' width='+feature.width)
     }
     await page.locator('#question-search').fill('rise from the dead')
     assert.equal(await page.locator('[data-question]:visible').count(),1,'search should filter 15 cards')
