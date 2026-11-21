@@ -44,3 +44,20 @@ Videos are embedded using the official YouTube privacy-enhanced embed host (`you
 - Verify third-party clip attribution and preferentially replace reuploads with direct rights-holder uploads where possible.
 - Perform real browser playback checks, including playback window and correct start/end behavior on excerpted videos. CI only validates URL structure and markup. CI can confirm markup, responsiveness and local routing, but cannot prove a third-party video loads when external network is blocked.
 - Maintain the original permalink and category structure when replacing media.
+
+## Six new college-student questions (Nov 21, 2026)
+
+These six expand the site from nine to 15 questions. The first wave deliberately prioritizes Jesus, the resurrection, Bible trust, science, religious differences, and Christian hypocrisy. Existing nine question permalinks remain unchanged. All six use the existing Questions page design, English-language source clips, three discussion questions, and Bible readings.
+
+| Topic | Video | Speaker and source | Selected window | Evidence / caveat |
+|---|---|---|---|---|
+| Did Jesus rise? | https://www.youtube.com/watch?v=swVJtigkWR8 | Cliffe Knechtle, Bible Faith campus debate | 10:45–15:05 (4:20) | Source publishes resurrection/evidence chapter at 10:45 and next topic at 15:05; third-party upload |
+| Can we trust the Bible? | https://www.youtube.com/watch?v=mOH2SOyfhJE | Frank Turek, official Cross Examined | Listed 3:07 | Original campus Q&A confirmed by publisher; external video listing identifies 3:07; verify playback |
+| Is Jesus really God? | https://www.youtube.com/watch?v=1NSK21vxnhc | Cliffe Knechtle, short reupload | Short-form video (under 3 minutes) | Indexed with Shorts tag; exact length/audio needs playback confirmation |
+| Why Christianity over another religion? | https://www.youtube.com/watch?v=xe9eg2G3tCk | John Lennox, ChaplaincyPlus Birmingham Q&A | 13:00–17:30 (4:30) | Direct publisher upload; excerpt cutpoints require editorial review for coherence |
+| Science and Christianity | https://www.youtube.com/watch?v=sN_edEpY3lI | John Lennox, Ryan Pauly interview | 11:00–14:35 (3:35) | Published chapter start/end list supports cutpoints |
+| Christian hypocrisy | https://www.youtube.com/watch?v=aye6nor49YY | Frank Turek, official Cross Examined | First 8 minutes maximum | Direct publisher upload; exact source length not confirmed, excerpt may cut off mid-answer |
+
+**Editorial verification pending:** check live playback and English audio for all six, plus whether each segment starts and ends on a complete thought. Textual video metadata and English player preferences do not establish that spoken audio was checked. In particular the religion and hypocrisy excerpts require attentive listening before a final editorial sign-off. Source video thumbnails are served from YouTube, not rehosted.
+
+The subsequent six proposed topics remain a future content phase, not included in this PR: Why did Jesus have to die? Can someone be good without God? Is Christianity anti-LGBTQ? How can I know what's true? Has Christianity caused harm? What if I have doubts?

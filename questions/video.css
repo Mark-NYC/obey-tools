@@ -42,3 +42,6 @@
 button:focus-visible,a:focus-visible{outline:3px solid #00a468;outline-offset:3px}
 @media(max-width:650px){.q-wrap{padding:0 17px}.q-head-inner{min-height:65px}.q-nav{gap:11px;font-size:12px}.q-logo{font-size:27px}.q-hero{padding:25px 0 32px}.q-hero h1{font-size:clamp(43px,10vw,62px)}.q-player{border-radius:7px}.q-content{padding:32px 18px 12px}.q-section{margin-bottom:28px;padding-bottom:28px}.q-section p{font-size:16px}.q-related{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+/* Gentle handoff from questions to the daily discipleship practice. */
+.q-next-step{margin:10px 0 42px;border-top:3px solid #00a468;padding:23px 0 0}.q-next-step strong{font-size:19px}.q-next-step p{margin:7px 0 12px;color:#526258}.q-next-step a{font-weight:800;color:#006b42;text-decoration:none}.q-next-step a:hover{text-decoration:underline}

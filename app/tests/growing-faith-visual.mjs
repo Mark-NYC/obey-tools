@@ -33,6 +33,15 @@ try{
    assert.equal(response.status(),200,label+' is not served')
    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2),true,label+' overflows at '+width+'px')
    assert.deepEqual(errors,[],label+' JS error at '+width+'px')
+   if(label==='questions'){
+    assert.equal(await page.locator('[data-question]').count(),15,'Questions must have 15 video cards')
+    assert.equal(await page.locator('[data-group]').count(),5,'Questions must have five categories')
+    await page.locator('#question-search').fill('rise from the dead')
+    assert.equal(await page.locator('[data-question]:visible').count(),1,'search should filter 15 cards')
+    await page.locator('#question-search').fill('')
+    await page.locator('[data-filter="Jesus & the Gospel"]').click()
+    assert.equal(await page.locator('[data-question]:visible').count(),3,'Jesus category should have three topics')
+   }
    if(label==='grow'){
     assert.equal(await page.locator('a[href="/questions/"]').count(),1)
     assert.equal(await page.locator('a[href="/daily-sos.html"]').count(),1)

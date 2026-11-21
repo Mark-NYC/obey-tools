@@ -74,9 +74,10 @@ test('Follow Daily public name is consistent without changing SOS URLs or data k
 })
 
 test('Questions index promotes nine playable topics without redirecting to archive',()=>{
- assert.equal((questions.match(/class="card-media"/g)||[]).length,9)
+ assert.equal((questions.match(/class="card-media"/g)||[]).length,15)
  assert.equal((questions.match(/data-question/g)||[]).length>=9,true)
- assert.match(questions,/WATCH ON PAGE/)
+ assert.match(questions,/DID JESUS REALLY RISE FROM THE DEAD\?/)
+ assert.equal((questions.match(/data-group>/g)||[]).length,5)
  assert.ok(!questions.includes('https://web.archive.org/'))
  assert.ok(existsSync(resolve(root,'questions/video.css')))
 })
@@ -112,4 +113,39 @@ test('All nine college-facing videos fit in an eight-minute viewing window',()=>
  }
  assert.equal(Object.keys(curated).length,9)
  assert.equal(new Set(Object.values(curated).map(v=>v.id)).size,8)
+})
+
+test('Six new foundational questions have on-page videos, conversation prompts and related content',()=>{
+ const newSlugs=[
+ 'did-jesus-really-rise-from-the-dead',
+ 'how-do-we-know-the-bible-is-reliable',
+ 'is-jesus-really-god-or-just-a-good-teacher',
+ 'why-is-christianity-true-instead-of-another-religion',
+ 'does-science-contradict-christianity',
+ 'why-are-christians-so-hypocritical-and-judgmental'
+ ]
+ for(const slug of newSlugs){
+  const path=slug+'/index.html'
+  assert.ok(existsSync(resolve(root,path)),'new question page missing '+slug)
+  const html=read(path)
+  assert.ok(questions.includes('href="/'+slug+'/"'),'index link missing '+slug)
+  assert.match(html,/youtube-nocookie\.com\/embed\//)
+  assert.match(html,/lang="en"/)
+  assert.match(html,/Three questions worth discussing/)
+  assert.equal((html.match(/<li>/g)||[]).length,3)
+  assert.equal((html.match(/class="q-scripture"/g)||[]).length,1)
+  assert.match(html,/href="\/daily-sos\.html"/)
+  assert.ok(!html.includes('web.archive.org'))
+ }
+ assert.match(questions,/data-filter="Jesus &amp; the Gospel"/)
+ assert.match(questions,/data-filter="Christianity &amp; Culture"/)
+ assert.match(questions,/id="count">15 questions/)
+})
+test('Longer videos are bounded to under eight minutes',()=>{
+ for(const slug of ['did-jesus-really-rise-from-the-dead','why-is-christianity-true-instead-of-another-religion','does-science-contradict-christianity','why-are-christians-so-hypocritical-and-judgmental']){
+  const html=read(slug+'/index.html')
+  const match=html.match(/start=(\d+)&amp;end=(\d+)/)
+  assert.ok(match,'missing bounded excerpt '+slug)
+  assert.ok(Number(match[2])-Number(match[1])<=480,'excerpt exceeds eight minutes '+slug)
+ }
 })
