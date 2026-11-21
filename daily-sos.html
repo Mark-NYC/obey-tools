@@ -174,6 +174,14 @@ body{padding:0;background:#f8f8f8}
 .sos-sync .sync-secondary{font-size:12px;margin-top:10px;color:#586b60}
 .sos-sync button:disabled{opacity:.6;cursor:wait}
 @media(max-width:520px){.sos-sync .sync-row{flex-direction:column}.sos-sync input,.sos-sync button{width:100%}}
+
+.day-jump{display:flex;align-items:center;gap:9px;margin:0 20px 5px;flex-wrap:wrap}
+.day-jump label{font-size:12px;font-weight:750;color:#59635e}
+.day-jump select{flex:1;min-width:95px;max-width:210px;padding:10px;border:1px solid #b9cec1;border-radius:8px;background:#fff;color:#183528;font-size:14px}
+.day-jump button{width:auto!important;min-width:76px;border:1px solid #c6d8cc;border-radius:8px;padding:10px;background:#fff;color:#16472f;font-size:13px;font-weight:700}
+.day-jump button:disabled{opacity:.45;cursor:default}
+@media(min-width:1100px){.day-jump{grid-column:2;grid-row:4;margin:0 0 12px;align-self:start}.shell>.content{grid-row:5}.desktop-nav,.desktop-aside{grid-row:2/6}}
+@media(max-width:450px){.day-jump{margin:0 18px 8px}.day-jump label{display:none}.day-jump select{min-width:95px}}
 </style></head>
 <body><div class="shell">
 <header><a class="site-logo" href="/" aria-label="Obey Tools home">OBEY.TOOLS</a><a class="round" href="/follow-daily/" aria-label="Back to Follow Daily">‹</a><div class="headline"><strong>Overview</strong><small id="topday">Day 1</small></div><button class="round" id="menu" type="button" aria-label="Following Jesus’ Way options">···</button></header>
@@ -181,6 +189,11 @@ body{padding:0;background:#f8f8f8}
 <a href="/">⌂ &nbsp; Home</a>
 <a href="/follow-daily/">◈ &nbsp; Follow Daily</a><a href="/daily-sos.html" aria-current="page">▣ &nbsp; Following Jesus’ Way</a><a href="/commands-of-christ.html">✓ &nbsp; Commands of Christ</a><a href="/4-questions.html">◯ &nbsp; 4 Questions</a></nav><div class="brand"><span>OBEY.TOOLS</span><h1>FOLLOWING JESUS’ WAY</h1><p>ABIDE IN JESUS · SAY, OBEY, SHARE</p></div>
 <nav id="days" class="days" aria-label="Reading days"></nav>
+<div class="day-jump" aria-label="Find a reading">
+<button type="button" id="previous-day" class="day-step" aria-label="Previous day">‹ Previous</button>
+<label for="jump-day">Go to day</label><select id="jump-day" aria-label="Jump to a reading day"></select>
+<button type="button" id="next-day" class="day-step" aria-label="Next day">Next ›</button>
+</div>
 <main class="content">
 <div class="row"><h2 class="daytitle" id="daytitle">Day 1</h2><span class="pill" id="phase">IDENTIFY</span></div>
 <p class="section-note" id="phase-detail"></p>
@@ -227,7 +240,7 @@ body{padding:0;background:#f8f8f8}
 </section>
 <section class="email-card" id="email-reminders" aria-label="Following Jesus’ Way email reminders">
 <h2>Following Jesus’ Way in your inbox</h2>
-<p>Start with Day 1 whenever you join. Receive one full Bible passage and one discovery question each morning, at a time you choose.</p>
+<p>Receive one passage and discovery question each day, beginning at Day 1 after signup. Emails follow their own daily schedule, separate from the days you open here.</p>
 <div id="email-not-ready">Email reminders are being prepared. They are not sending yet.</div>
 <div id="email-public-signup" hidden>
 <form id="follow-daily-form">
@@ -241,7 +254,7 @@ body{padding:0;background:#f8f8f8}
 <div><label for="email-timezone">Time zone</label><select id="email-timezone" aria-label="Your time zone"></select></div>
 </div>
 <button type="submit" id="email-start" class="primary">Start Daily Emails</button>
-<p class="email-caption">We'll email a confirmation button. Tap it once to start Day 1 tomorrow. No account or password needed. Manage, pause, or unsubscribe from your emails anytime.</p>
+<p class="email-caption">One-click email confirmation. No account needed. Your email sequence advances daily even when you haven't marked a reading complete. Pause or unsubscribe from an email's Manage link.</p>
 </form>
 </div>
 <div id="email-reminder-status" role="status" aria-live="polite"></div>
@@ -258,7 +271,7 @@ body{padding:0;background:#f8f8f8}
 <button type="button" role="menuitem" data-action="settings"><span class="menu-ico">⚙</span>Settings</button>
 <button type="button" role="menuitem" data-action="info"><span class="menu-ico">ⓘ</span>Plan Info</button>
 <button type="button" role="menuitem" data-action="catchup"><span class="menu-ico">»</span>Catch Me Up</button>
-<button type="button" role="menuitem" data-action="stop" class="danger"><span class="menu-ico">⊖</span><span id="stop-label">Stop This Plan</span></button>
+<button type="button" role="menuitem" data-action="stop" class="danger"><span class="menu-ico">⊖</span><span id="stop-label">Pause Reading Plan</span></button>
 </div>
 <div id="dialog-overlay" class="dialog-overlay" hidden>
 <div class="dialog-card" role="dialog" aria-modal="true" aria-labelledby="dialog-title">
@@ -377,6 +390,8 @@ function render(){
  $('sos-draft-note').hidden=sosComplete||!(e.say||e.obey||e.share);$('mark-read').textContent=e.read?'Reading completed ✓':'Mark Scripture as read';
  $('previous').hidden=!previous?.obey;
  if(previous?.obey){$('previous-obey').textContent=previous.obey;document.querySelectorAll('[data-check]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.check===previous.check)))}
+ $('jump-day').value=String(i);
+ $('previous-day').disabled=i===0;$('next-day').disabled=i===readings.length-1;
  $('days').replaceChildren();
  for(let n=0;n<readings.length;n++){
   const b=document.createElement('button');b.type='button';b.className='day';b.setAttribute('aria-current',String(i===n));b.setAttribute('aria-label','Day '+(n+1));b.innerHTML='<b>'+(n+1)+'</b><small>Day '+(n+1)+'</small>';
@@ -396,11 +411,17 @@ function save(silent=false){
  return ok;
 }
 function renderAfterSave(){const e=entry(),done=!!(e.say&&e.obey&&e.share),partial=!done&&!!(e.say||e.obey||e.share);const check=$('sos-check');check.classList.toggle('done',done);check.classList.toggle('draft',partial);check.textContent=done?'✓':'';$('sos-draft-note').hidden=!partial;$('progress').textContent=Object.values(state.entries).filter(x=>x.read&&x.say&&x.obey&&x.share).length+' of '+readings.length+' days completed'}
-function move(n){clearTimeout(draftTimer);save(true);state.day=Math.max(0,Math.min(readings.length-1,n));persist();render();$('reading-panel').hidden=false;$('sos-panel').hidden=true;$('start').textContent='Open SOS ↑';window.scrollTo({top:0,behavior:'smooth'})}
+function move(n){clearTimeout(draftTimer);if(!$('sos-panel').hidden)save(true);state.day=Math.max(0,Math.min(readings.length-1,n));persist();render();$('reading-panel').hidden=false;$('sos-panel').hidden=true;$('start').textContent='Open SOS ↑';window.scrollTo({top:0,behavior:'smooth'})}
+for(let day=0;day<readings.length;day++){
+ const option=document.createElement('option');option.value=String(day);option.textContent='Day '+(day+1)+' · '+readings[day][1];$('jump-day').append(option)
+}
+$('jump-day').addEventListener('change',e=>move(Number(e.target.value)));
+$('previous-day').addEventListener('click',()=>move(state.day-1));
+$('next-day').addEventListener('click',()=>move(state.day+1));
 $('open-reading').addEventListener('click',()=>changePanel('reading'));
 $('open-sos').addEventListener('click',()=>changePanel('sos'));
 $('start').addEventListener('click',()=>changePanel($('sos-panel').hidden?'sos':'reading'));
-$('mark-read').addEventListener('click',()=>{const e=entry();e.read=true;state.entries[state.day]=e;if(persist()){render();changePanel('sos')}});
+$('mark-read').addEventListener('click',()=>{if(!$('sos-panel').hidden)save(true);const e=entry();e.read=true;state.entries[state.day]=e;if(persist()){render();changePanel('sos')}});
 $('save').addEventListener('click',()=>save());
 let draftTimer;
 for(const key of ['say','obey','share']){
@@ -410,7 +431,7 @@ for(const key of ['say','obey','share']){
 window.addEventListener('pagehide',()=>{if(!$('sos-panel').hidden)save(true)});
 
 document.querySelectorAll('[data-check]').forEach(b=>b.addEventListener('click',()=>{if(state.day===0)return;const e=entry(state.day-1);e.check=b.dataset.check;state.entries[state.day-1]=e;persist();document.querySelectorAll('[data-check]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)))}));
-$('share-btn').addEventListener('click',async()=>{save(true);const r=readings[state.day],e=entry(),msg='Following Jesus’ Way · SOS: '+r[0]+' ('+r[1]+')\nSay: '+(e.say||'')+'\nObey: '+(e.obey||'')+'\nShare: '+(e.share||'')+'\nhttps://obey.tools/daily-sos.html';try{if(navigator.share)await navigator.share({title:'Following Jesus’ Way · SOS',text:msg});else if(navigator.clipboard){await navigator.clipboard.writeText(msg);$('status').textContent='Copied to clipboard.'}else $('status').textContent='Sharing is unavailable here.'}catch(err){if(err.name!=='AbortError')$('status').textContent='Sharing failed.'}});
+$('share-btn').addEventListener('click',async()=>{if(!$('sos-panel').hidden)save(true);const r=readings[state.day],e=entry(),msg='Following Jesus’ Way · SOS: '+r[0]+' ('+r[1]+')\nSay: '+(e.say||'')+'\nObey: '+(e.obey||'')+'\nShare: '+(e.share||'')+'\nhttps://obey.tools/daily-sos.html';try{if(navigator.share)await navigator.share({title:'Following Jesus’ Way · SOS',text:msg});else if(navigator.clipboard){await navigator.clipboard.writeText(msg);$('status').textContent='Copied to clipboard.'}else $('status').textContent='Sharing is unavailable here.'}catch(err){if(err.name!=='AbortError')$('status').textContent='Sharing failed.'}});
 
 const MENU_KEY='obeytools:daily-sos:preferences:v1';
 let prefs={startDate:null,paused:false,reminderTime:'07:00',timeZone:Intl.DateTimeFormat().resolvedOptions().timeZone||'local'};
@@ -451,16 +472,16 @@ function catchupDialog(){
  const target=Math.min(readings.length-1,elapsed);
  const body=node('div');
  body.append(node('p','Catch Me Up moves you to the reading for today based on your start date. Missed readings remain available and saved SOS answers will not be deleted.'));
- body.append(node('p','Preview plan: Jump to Day '+(target+1)+' of '+readings.length+'.','small-notice'));
- if(target===state.day){body.append(node('p','You are already on the current preview day.'));dialog('Catch Me Up',body)}
+ body.append(node('p','Jump to Day '+(target+1)+' of '+readings.length+'.','small-notice'));
+ if(target===state.day){body.append(node('p','You are already on today's scheduled reading.'));dialog('Catch Me Up',body)}
  else dialog('Catch Me Up',body,'Go to Day '+(target+1),()=>move(target))
 }
 function stopDialog(){
  if(prefs.paused){dialog('Resume Following Jesus’ Way','Resume your reading journey? Your saved answers are still here. To resume paused emails, use Manage reminders in your inbox.','Resume plan',()=>{prefs.paused=false;savePrefs();updatePlanStatus();void 0});return}
  const body=node('div');
- body.append(node('p','Stop your Following Jesus’ Way study on this device? Your responses will remain saved. You can resume anytime from this menu.'));
- body.append(node('p','Stopping your reading plan on this device will not pause subscribed emails. Use Manage reminders in any email to pause delivery.','small-notice'));
- dialog('Stop This Plan',body,'Stop plan',()=>{prefs.paused=true;savePrefs();updatePlanStatus();void 0});
+ body.append(node('p','Pause this study on this device? Your responses will remain saved. You can resume anytime from this menu.'));
+ body.append(node('p','Pausing the study here will not pause subscribed emails. Use Manage reminders in any email to pause delivery.','small-notice'));
+ dialog('Stop This Plan',body,'Pause plan',()=>{prefs.paused=true;savePrefs();updatePlanStatus();void 0});
 }
 function updatePlanStatus(){
  $('stop-label').textContent=prefs.paused?'Resume This Plan':'Stop This Plan';
