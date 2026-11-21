@@ -38,7 +38,11 @@ test('section navigation and original permalinks work together',()=>{
   assert.match(page,/href="\/grow\/"/)
   assert.match(page,/href="\/questions\/"/)
   assert.ok(questions.includes('href="/'+slug+'/"'), 'missing card link '+slug)
-  assert.ok(page.includes('https://web.archive.org/'), 'missing original archive link '+slug)
+  assert.ok(page.includes('youtube-nocookie.com/embed/'), 'missing curated video embed '+slug)
+  assert.match(page,/Curated public video/,'missing attribution '+slug)
+  assert.match(page,/Three questions worth discussing/,'missing discussion '+slug)
+  assert.match(page,/Read it for yourself/,'missing Scripture followup '+slug)
+  assert.ok(!page.includes('https://web.archive.org/'),'public page should not link to archive '+slug)
  }
 })
 test('shared brand assets and responsive layouts',()=>{
@@ -66,4 +70,12 @@ test('Follow Daily public name is consistent without changing SOS URLs or data k
  assert.match(sender,/\| Follow Daily/)
  assert.match(sender,/https:\/\/obey.tools\/daily-sos.html/)
  assert.match(client,/Follow Daily email enabled/)
+})
+
+test('Questions index promotes nine playable topics without redirecting to archive',()=>{
+ assert.equal((questions.match(/class="card-media"/g)||[]).length,9)
+ assert.equal((questions.match(/data-question/g)||[]).length>=9,true)
+ assert.match(questions,/WATCH ON PAGE/)
+ assert.ok(!questions.includes('https://web.archive.org/'))
+ assert.ok(existsSync(resolve(root,'questions/video.css')))
 })
