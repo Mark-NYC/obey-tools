@@ -98,7 +98,9 @@ test('All nine college-facing videos fit in an eight-minute viewing window',()=>
   assert.ok(page.includes('https://www.youtube-nocookie.com/embed/'+v.id),'embed mismatch '+slug)
   assert.ok(page.includes(thumb),'OpenGraph image mismatch '+slug)
   assert.ok(questions.includes(thumb),'landing thumbnail mismatch '+slug)
-  assert.ok(page.includes('· <strong>'+v.duration+'</strong>'),'runtime not visible on detail '+slug)
+  assert.ok(page.includes('English · '+v.duration+'</strong>'),'language and runtime not visible on detail '+slug)
+  assert.ok(page.includes('lang="en" src="https://www.youtube-nocookie.com/embed/'),'English iframe metadata missing '+slug)
+  assert.ok(page.includes('hl=en&amp;cc_lang_pref=en'),'English caption preference missing '+slug)
   assert.ok(questions.includes('Watch · '),'missing index watch label')
   if(v.start!==undefined){
    assert.ok(page.includes('start='+v.start+'&amp;end='+v.end)||page.includes('start='+v.start+'&end='+v.end),'chapter boundaries mismatch '+slug)
