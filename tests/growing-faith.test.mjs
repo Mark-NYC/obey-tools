@@ -157,6 +157,7 @@ test('Growing Faith landing has only one hero headline and two concise choices',
  assert.ok(!hub.includes('class="features"'))
  assert.ok(!hub.includes('class="section-bridge"'))
  assert.ok(!hub.includes('class="purpose"'))
+ assert.ok(!hub.includes('.hero::after'),'Hero should not contain decorative rings')
  assert.match(hub,/Explore the tough questions about God, Jesus, and the Bible\./)
  assert.match(hub,/Read Scripture\. Listen to Jesus\. Put it into practice\./)
 })
