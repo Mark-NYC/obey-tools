@@ -1,4 +1,5 @@
-// No account, no automatic POST. Confirmation requires a human button click.
+// Email link takes the reader to our site, which completes confirmation automatically.
+// Previews and email scanners that only fetch the link do not activate subscriptions.
 (() => {
  'use strict';
  const api='https://mjiswwujcsmayuytoaul.supabase.co/functions/v1/daily-sos-delivery';
@@ -22,16 +23,31 @@
  }
  if(!valid){showError('This link is invalid. Please request a fresh email.');if(isConfirm)$('confirm').hidden=true;return}
  if(isConfirm){
-  const button=$('confirm');button.disabled=false;message.textContent='';
-  button.addEventListener('click',async()=>{
-   button.disabled=true;message.textContent='Confirming your subscription…';
+  const button=$('confirm');
+  let inFlight=false;
+  const confirm=async()=>{
+   if(inFlight)return;
+   inFlight=true;
+   button.disabled=true;
+   message.textContent='Confirming your subscription…';
    try{
     const result=await request('/confirm',{method:'POST',body:'{}'});
     $('heading').textContent='You’re subscribed!';
     description.textContent=result.completed?'Your 365-day journey is already complete.':'Your first or next reading is scheduled for tomorrow at your chosen time.';
-    button.hidden=true;message.textContent='No account needed. You can start reading right now.';
-   }catch(e){showError(e.message);button.disabled=false}
-  });
+    button.hidden=true;
+    message.textContent='No account needed. You can start reading right now.';
+    $('back').textContent='Open Follow Daily';
+   }catch(e){
+    showError(e.message);
+    button.hidden=false;
+    button.disabled=false;
+    button.textContent='Try confirmation again';
+   }finally{inFlight=false}
+  };
+  button.addEventListener('click',confirm);
+  // The email click is the user's confirmation: open the page and auto-submit.
+  // Keep a retry button only if the request fails (e.g. temporary network loss).
+  confirm();
   return;
  }
  let current;
