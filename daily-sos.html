@@ -32,6 +32,21 @@ button{font:inherit;cursor:pointer}.primary{display:block;background:var(--ot-na
 .status{min-height:24px;color:#006a43;font-size:13px;margin:10px 0}.muted{color:#797980;font-size:12px}.notice{margin-top:16px;color:#696971;background:#f7f7f8;padding:13px;border-radius:10px;font-size:12px}
 a{color:#007a57}button:focus-visible,a:focus-visible,textarea:focus-visible,input:focus-visible{outline:3px solid #00a468;outline-offset:2px}
 @media(max-width:350px){.brand h1{font-size:47px}.content{padding:14px}.day{flex-basis:74px}}
+
+/* Daily SOS plan menu */
+.menu-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.18);z-index:30}
+.menu-pop{position:fixed;top:78px;right:max(16px,calc((100vw - 480px)/2 + 16px));z-index:31;width:min(290px,calc(100vw - 32px));padding:8px;background:rgba(249,250,251,.98);border:1px solid #dedfe2;border-radius:18px;box-shadow:0 15px 55px #0002}
+.menu-pop button{width:100%;display:flex;gap:13px;align-items:center;padding:13px 12px;background:transparent;border:0;border-radius:10px;text-align:left;font-size:16px;color:#1c1c1e}
+.menu-pop button:hover,.menu-pop button:focus-visible{background:#e9eaec}.menu-pop .danger{color:#c43c3c}
+.menu-pop .menu-ico{width:24px;font-size:19px;text-align:center;flex-shrink:0}
+.menu-pop button[disabled]{opacity:.45;cursor:not-allowed}
+.dialog-overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);display:grid;place-items:center;z-index:40;padding:18px}
+.dialog-card{background:#fff;border-radius:17px;max-width:420px;width:100%;padding:22px;max-height:calc(100dvh - 36px);overflow:auto;box-shadow:0 15px 45px #0003}
+.dialog-card h2{margin:0 0 10px;font-size:24px}.dialog-card p{font-size:14px;color:#54545b}.dialog-card label{display:block;font-size:14px;font-weight:700;margin:15px 0 6px}.dialog-card select{width:100%;border:1px solid #bdbdc3;border-radius:10px;padding:12px;background:#fff;font:inherit}
+.dialog-card .dialog-actions{display:flex;gap:10px;margin-top:18px}.dialog-card .dialog-actions>*{flex:1}
+.dialog-card .small-notice{padding:10px;background:#f3f3f5;border-radius:9px;font-size:13px;color:#696970}
+.dialog-card button[disabled]{opacity:.5;cursor:not-allowed}
+[hidden]{display:none!important}
 </style></head>
 <body><div class="shell">
 <header><a class="round" href="/" aria-label="Back to Obey Tools">×</a><div class="headline"><strong>Overview</strong><small id="topday">Day 1</small></div><button class="round" id="menu" type="button" aria-label="Daily SOS options">···</button></header>
@@ -64,7 +79,20 @@ a{color:#007a57}button:focus-visible,a:focus-visible,textarea:focus-visible,inpu
 <button id="start" class="primary" type="button">Start Reading ↑</button>
 <div id="progress" class="muted" style="text-align:center;margin-top:13px"></div>
 <div class="notice">Preview: 14 curated readings. The 365-day harmony, in-app WEBU passage text, account syncing, and daily email/text delivery are still in development. SOS answers are saved only on this device.</div>
-</main></div>
+</main></div><div id="menu-backdrop" class="menu-backdrop" hidden></div>
+<div id="plan-menu" class="menu-pop" role="menu" aria-label="Daily SOS plan options" hidden>
+<button type="button" role="menuitem" data-action="share"><span class="menu-ico">↗</span>Share</button>
+<button type="button" role="menuitem" data-action="settings"><span class="menu-ico">⚙</span>Settings</button>
+<button type="button" role="menuitem" data-action="info"><span class="menu-ico">ⓘ</span>Plan Info</button>
+<button type="button" role="menuitem" data-action="catchup"><span class="menu-ico">»</span>Catch Me Up</button>
+<button type="button" role="menuitem" data-action="stop" class="danger"><span class="menu-ico">⊖</span><span id="stop-label">Stop This Plan</span></button>
+</div>
+<div id="dialog-overlay" class="dialog-overlay" hidden>
+<div class="dialog-card" role="dialog" aria-modal="true" aria-labelledby="dialog-title">
+<h2 id="dialog-title"></h2><div id="dialog-body"></div>
+<div class="dialog-actions"><button id="dialog-cancel" type="button" class="secondary">Close</button><button id="dialog-confirm" type="button" class="primary" hidden>Confirm</button></div>
+</div></div>
+
 <script>
 const readings=[
 ["The Word Became Flesh","John 1:1–18","","IDENTIFY","What does John reveal about who Jesus is and why he came?",1],
@@ -134,6 +162,82 @@ $('mark-read').addEventListener('click',()=>{const e=entry();e.read=true;state.e
 $('save').addEventListener('click',()=>save());
 document.querySelectorAll('[data-check]').forEach(b=>b.addEventListener('click',()=>{if(state.day===0)return;const e=entry(state.day-1);e.check=b.dataset.check;state.entries[state.day-1]=e;persist();document.querySelectorAll('[data-check]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)))}));
 $('share-btn').addEventListener('click',async()=>{save(true);const r=readings[state.day],e=entry(),msg='Daily SOS: '+r[0]+' ('+r[1]+')\nSay: '+(e.say||'')+'\nObey: '+(e.obey||'')+'\nShare: '+(e.share||'')+'\nhttps://obey.tools/daily-sos.html';try{if(navigator.share)await navigator.share({title:'Daily SOS',text:msg});else if(navigator.clipboard){await navigator.clipboard.writeText(msg);$('status').textContent='Copied to clipboard.'}else $('status').textContent='Sharing is unavailable here.'}catch(err){if(err.name!=='AbortError')$('status').textContent='Sharing failed.'}});
-$('menu').addEventListener('click',()=>{document.querySelector('.notice').scrollIntoView({behavior:'smooth',block:'nearest'})});
+
+const MENU_KEY='obeytools:daily-sos:preferences:v1';
+let prefs={startDate:null,paused:false,reminderTime:'07:00',timeZone:Intl.DateTimeFormat().resolvedOptions().timeZone||'local'};
+try{const p=JSON.parse(localStorage.getItem(MENU_KEY));if(p&&typeof p==='object')prefs={...prefs,...p}}catch{}
+const savePrefs=()=>{try{localStorage.setItem(MENU_KEY,JSON.stringify(prefs));return true}catch{return false}};
+if(!prefs.startDate){const initial=new Date();initial.setDate(initial.getDate()-state.day);prefs.startDate=[initial.getFullYear(),String(initial.getMonth()+1).padStart(2,'0'),String(initial.getDate()).padStart(2,'0')].join('-');savePrefs()}
+const menu=$('plan-menu'), backdrop=$('menu-backdrop'),overlay=$('dialog-overlay'),confirmBtn=$('dialog-confirm'),cancelBtn=$('dialog-cancel');
+function closeMenu(){menu.hidden=true;backdrop.hidden=true;$('menu').setAttribute('aria-expanded','false')}
+function openMenu(){menu.hidden=false;backdrop.hidden=false;$('menu').setAttribute('aria-expanded','true');menu.querySelector('button')?.focus()}
+function closeDialog(){overlay.hidden=true;confirmBtn.hidden=true;confirmBtn.onclick=null;cancelBtn.focus();closeMenu()}
+function dialog(title,body,confirmText=null,onConfirm=null){
+ $('dialog-title').textContent=title;$('dialog-body').replaceChildren();
+ if(typeof body==='string'){$('dialog-body').textContent=body}
+ else $('dialog-body').appendChild(body);
+ confirmBtn.hidden=!confirmText;
+ if(confirmText){confirmBtn.textContent=confirmText;confirmBtn.onclick=()=>{onConfirm?.();closeDialog()}}
+ overlay.hidden=false;cancelBtn.focus()
+}
+function node(tag,text,cls){const el=document.createElement(tag);if(text!=null)el.textContent=text;if(cls)el.className=cls;return el}
+function planShare(){const text="Follow Jesus' Way with Daily SOS: a Gospel harmony focused on how Jesus made disciples. https://obey.tools/daily-sos.html";
+ closeMenu();
+ if(navigator.share){navigator.share({title:'Daily SOS',text,url:'https://obey.tools/daily-sos.html'}).catch(()=>{})}
+ else if(navigator.clipboard){navigator.clipboard.writeText(text).then(()=>dialog('Share Daily SOS','Invitation copied to your clipboard.')).catch(()=>dialog('Share Daily SOS',text))}
+ else dialog('Share Daily SOS',text);
+}
+function infoDialog(){
+ const body=node('div');
+ body.append(node('p','Follow Jesus’ Way is designed as a 365-day journey through a harmony of the Gospels and Acts. Learn how Jesus identified, equipped, invested in, and entrusted his disciples to carry on his mission.'));
+ body.append(node('p','Each day has one primary Scripture reading plus one SOS exercise: Say what God is saying, Obey with a specific step, and Share with someone. Parallel Gospel accounts are optional.'));
+ body.append(node('p','Current status: 14 preview readings. The full 365-day chronology and scheduled delivery are still being developed.','small-notice'));
+ dialog('Plan Info',body)
+}
+function settingsDialog(){
+ const body=node('div');
+ body.append(node('p','Choose your preferred reminder time. This preference is saved on this device but does not schedule a message or notification yet.'));
+ const label=node('label','Preferred daily time');label.htmlFor='reminder-time';body.append(label);
+ const select=node('select');select.id='reminder-time';
+ for(const [v,t] of [['06:00','6:00 AM'],['07:00','7:00 AM'],['08:00','8:00 AM'],['12:00','12:00 PM'],['20:00','8:00 PM']]){const op=node('option',t);op.value=v;select.append(op)}
+ select.value=prefs.reminderTime;body.append(select);
+ body.append(node('p','Email and SMS subscriptions are not available yet. No reminders are sent from this setting.','small-notice'));
+ dialog('Settings',body,'Save preference',()=>{prefs.reminderTime=select.value;savePrefs()})
+}
+function dateUTC(s){const d=new Date(s+'T12:00:00');return Number.isNaN(d.getTime())?null:d}
+function catchupDialog(){
+ const start=dateUTC(prefs.startDate),today=new Date();today.setHours(12,0,0,0);
+ const elapsed=start?Math.max(0,Math.floor((today-start)/86400000)):0;
+ const target=Math.min(readings.length-1,elapsed);
+ const body=node('div');
+ body.append(node('p','Catch Me Up moves you to the reading for today based on your start date. Missed readings remain available and saved SOS answers will not be deleted.'));
+ body.append(node('p','Preview plan: Jump to Day '+(target+1)+' of '+readings.length+'.','small-notice'));
+ if(target===state.day){body.append(node('p','You are already on the current preview day.'));dialog('Catch Me Up',body)}
+ else dialog('Catch Me Up',body,'Go to Day '+(target+1),()=>move(target))
+}
+function stopDialog(){
+ if(prefs.paused){dialog('Resume Daily SOS','Resume your reading journey? Your saved answers are still here.','Resume plan',()=>{prefs.paused=false;savePrefs();updatePlanStatus()});return}
+ const body=node('div');
+ body.append(node('p','Stop your Daily SOS journey on this device? Your responses will remain saved. You can resume anytime from this menu.'));
+ body.append(node('p','This does not cancel emails or texts, because no delivery subscription is connected yet.','small-notice'));
+ dialog('Stop This Plan',body,'Stop plan',()=>{prefs.paused=true;savePrefs();updatePlanStatus()});
+}
+function updatePlanStatus(){
+ $('stop-label').textContent=prefs.paused?'Resume This Plan':'Stop This Plan';
+ $('start').disabled=!!prefs.paused;
+ $('start').textContent=prefs.paused?'Plan paused':$('reading-panel').hidden?'Start Reading ↑':'Continue to SOS ↑';
+}
+$('menu').setAttribute('aria-haspopup','menu');$('menu').setAttribute('aria-expanded','false');
+$('menu').addEventListener('click',()=>menu.hidden?openMenu():closeMenu());
+backdrop.addEventListener('click',closeMenu);
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(!overlay.hidden)closeDialog();else closeMenu()}});
+cancelBtn.addEventListener('click',closeDialog);
+overlay.addEventListener('click',e=>{if(e.target===overlay)closeDialog()});
+menu.querySelectorAll('[data-action]').forEach(b=>b.addEventListener('click',()=>{
+ const action=b.dataset.action;closeMenu();
+ ({share:planShare,settings:settingsDialog,info:infoDialog,catchup:catchupDialog,stop:stopDialog})[action]?.()
+}));
+updatePlanStatus();
+
 render();
 </script></body></html>
