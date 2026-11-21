@@ -47,10 +47,43 @@ a{color:#007a57}button:focus-visible,a:focus-visible,textarea:focus-visible,inpu
 .dialog-card .small-notice{padding:10px;background:#f3f3f5;border-radius:9px;font-size:13px;color:#696970}
 .dialog-card button[disabled]{opacity:.5;cursor:not-allowed}
 [hidden]{display:none!important}
+
+.desktop-nav,.desktop-aside{display:none}
+.desktop-side-card{background:#fff;border:1px solid #e3e3e5;border-radius:16px;padding:23px;margin-bottom:16px}
+.desktop-side-card h2{font-size:21px;margin:0 0 13px}.desktop-side-card p{font-size:14px;color:#616169;line-height:1.55}
+.desktop-phases{display:grid;grid-template-columns:1fr 1fr;gap:12px}.desktop-phase{display:flex;align-items:center;gap:8px;font-weight:700;font-size:13px;color:#006d42}
+.desktop-phase b{background:#e1f6e9;width:30px;height:30px;display:grid;place-items:center;border-radius:50%}
+.desktop-flow{display:flex;gap:12px;align-items:flex-start;margin:17px 0}
+.desktop-flow b{background:#00a468;color:white;width:27px;height:27px;flex:none;display:grid;place-items:center;border-radius:50%}
+.desktop-flow strong{display:block}.desktop-flow small{font-size:13px;color:#707077}
+.circle.draft{border-color:#00a468}.circle.draft:after{content:"";background:#00a468;width:8px;height:8px;border-radius:50%}
+#sos-draft-note{color:#00754a;font-weight:650}
+@media(min-width:1100px){
+body{padding:26px;background:#f2f3f4}
+.shell{max-width:1440px;display:grid;grid-template-columns:190px minmax(0,1fr) 320px;grid-template-rows:auto auto auto 1fr;column-gap:24px;min-height:calc(100vh - 52px);border:1px solid #e5e5e8;border-radius:20px;box-shadow:0 10px 35px #0000000c;overflow:hidden;padding-bottom:26px}
+.shell>header{grid-column:1/4;grid-row:1;border-bottom:1px solid #e7e7e9;min-height:80px;padding:16px 28px}
+.headline{margin:0 auto 0 24px;text-align:left}
+.desktop-nav{display:flex;grid-column:1;grid-row:2/5;flex-direction:column;gap:8px;padding:26px 12px;border-right:1px solid #e7e7e9}
+.desktop-nav a{padding:12px 13px;border-radius:10px;text-decoration:none;font-size:14px;font-weight:650;color:#333}
+.desktop-nav a[aria-current=page]{background:#e4f6ec;color:#00673f}
+.shell>.brand{grid-column:2;grid-row:2;margin:26px 0 18px;min-height:190px;background:linear-gradient(130deg,#00a468,#008c56);display:flex;flex-direction:column;align-items:center;justify-content:center}
+.brand h1{font-size:72px}.brand p{letter-spacing:1.8px}
+.shell>.days{grid-column:2;grid-row:3;padding:0 0 12px;gap:12px}.day{flex:1 0 108px}
+.shell>.content{grid-column:2;grid-row:4;padding:12px 0 26px;min-width:0}
+.daytitle{font-size:33px}
+.tasks{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.task{border:1px solid #e1e4e3!important;border-radius:14px;background:#f0f7f3;padding:18px 16px;min-height:110px}
+.task:hover{background:#e3f2e9}
+.desktop-aside{display:block;grid-column:3;grid-row:2/5;padding:26px 22px 20px 0}
+.panel{padding:23px}.menu-pop{top:93px;right:max(30px,calc((100vw - 1440px)/2 + 28px))}
+}
+@media(min-width:1100px) and (max-width:1250px){.shell{grid-template-columns:150px minmax(0,1fr) 270px;column-gap:16px}.desktop-side-card{padding:16px}.desktop-aside{padding-right:15px}.brand h1{font-size:58px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 </style></head>
 <body><div class="shell">
 <header><a class="round" href="/" aria-label="Back to Obey Tools">×</a><div class="headline"><strong>Overview</strong><small id="topday">Day 1</small></div><button class="round" id="menu" type="button" aria-label="Daily SOS options">···</button></header>
-<div class="brand"><span>OBEY.TOOLS</span><h1>DAILY SOS</h1><p>FOLLOWING JESUS' WAY</p></div>
+<nav class="desktop-nav" aria-label="Obey Tools navigation">
+<a href="/">⌂ &nbsp; Home</a><a href="/daily-sos.html" aria-current="page">▣ &nbsp; Daily SOS</a><a href="/commands-of-christ.html">✓ &nbsp; Commands of Christ</a><a href="/4-questions.html">◯ &nbsp; 4 Questions</a></nav><div class="brand"><span>OBEY.TOOLS</span><h1>DAILY SOS</h1><p>FOLLOWING JESUS' WAY</p></div>
 <nav id="days" class="days" aria-label="Reading days"></nav>
 <main class="content">
 <div class="row"><h2 class="daytitle" id="daytitle">Day 1</h2><span class="pill" id="phase">IDENTIFY</span></div>
@@ -58,7 +91,7 @@ a{color:#007a57}button:focus-visible,a:focus-visible,textarea:focus-visible,inpu
 <p class="summary" id="title"></p>
 <div class="tasks" aria-label="Today's two activities">
 <button class="task" id="open-reading" type="button"><span class="circle" id="read-check" aria-hidden="true"></span><span><strong id="passage"></strong><small>One Scripture passage · WEB Updated</small></span><span class="chevron" aria-hidden="true">›</span></button>
-<button class="task" id="open-sos" type="button"><span class="circle" id="sos-check" aria-hidden="true"></span><span><strong>SOS</strong><small>Say · Obey · Share</small></span><span class="chevron" aria-hidden="true">›</span></button>
+<button class="task" id="open-sos" type="button"><span class="circle" id="sos-check" aria-hidden="true"></span><span><strong>SOS</strong><small>Say · Obey · Share</small><small id="sos-draft-note" hidden>Draft saved</small></span><span class="chevron" aria-hidden="true">›</span></button>
 </div>
 <section class="panel" id="reading-panel" hidden tabindex="-1" aria-label="Scripture reading">
 <h2 id="reading-title"></h2><div class="sub">Today's primary reading</div>
@@ -79,7 +112,12 @@ a{color:#007a57}button:focus-visible,a:focus-visible,textarea:focus-visible,inpu
 <button id="start" class="primary" type="button">Start Reading ↑</button>
 <div id="progress" class="muted" style="text-align:center;margin-top:13px"></div>
 <div class="notice">Preview: 14 curated readings. The 365-day harmony, in-app WEBU passage text, account syncing, and daily email/text delivery are still in development. SOS answers are saved only on this device.</div>
-</main></div><div id="menu-backdrop" class="menu-backdrop" hidden></div>
+</main><aside class="desktop-aside" aria-label="About Daily SOS">
+<div class="desktop-side-card"><h2>Following Jesus' Way</h2>
+<p>A 365-day journey through a harmony of the Gospels and Acts, learning how Jesus made disciples who multiplied.</p>
+<div class="desktop-phases"><div class="desktop-phase"><b>1</b>Identify</div><div class="desktop-phase"><b>2</b>Equip</div><div class="desktop-phase"><b>3</b>Invest</div><div class="desktop-phase"><b>4</b>Entrust</div></div></div>
+<div class="desktop-side-card"><h2>The daily flow</h2><div class="desktop-flow"><b>1</b><div><strong>Read</strong><small>One primary passage. Parallel accounts optional.</small></div></div><div class="desktop-flow"><b>2</b><div><strong>SOS</strong><small>Say · Obey · Share. Save a draft anytime.</small></div></div></div>
+<div class="desktop-side-card"><h2>Grow at your pace</h2><p>Save one answer now and finish the rest later. Drafts stay on this device.</p><button type="button" class="secondary" id="desktop-plan-info">View plan info</button></div></aside></div><div id="menu-backdrop" class="menu-backdrop" hidden></div>
 <div id="plan-menu" class="menu-pop" role="menu" aria-label="Daily SOS plan options" hidden>
 <button type="button" role="menuitem" data-action="share"><span class="menu-ico">↗</span>Share</button>
 <button type="button" role="menuitem" data-action="settings"><span class="menu-ico">⚙</span>Settings</button>
@@ -116,7 +154,7 @@ let state={day:0,entries:{}};
 try{const value=JSON.parse(localStorage.getItem(KEY));if(value&&typeof value==='object'){state.day=Math.max(0,Math.min(readings.length-1,Number(value.day)||0));state.entries=value.entries&&typeof value.entries==='object'?value.entries:{}}}catch{}
 function entry(day=state.day){return state.entries[day]||{}}
 function persist(){try{localStorage.setItem(KEY,JSON.stringify(state));return true}catch{return false}}
-function changePanel(name){const isRead=name==='reading';$('reading-panel').hidden=!isRead;$('sos-panel').hidden=isRead;$('start').textContent=isRead?'Continue to SOS ↑':'Start Reading ↑';$(isRead?'reading-panel':'sos-panel').focus()}
+function changePanel(name){if(!$('sos-panel').hidden)save(true);const isRead=name==='reading';$('reading-panel').hidden=!isRead;$('sos-panel').hidden=isRead;$('start').textContent=isRead?'Continue to SOS ↑':'Start Reading ↑';$(isRead?'reading-panel':'sos-panel').focus()}
 const bookFiles={Matthew:'MAT',Mark:'MRK',Luke:'LUK',John:'JHN',Acts:'ACT'};
 function render(){
  const i=state.day,r=readings[i],e=entry(),previous=i>0?entry(i-1):null;
@@ -131,9 +169,9 @@ function render(){
  ['say','obey','share'].forEach(k=>$(k).value=e[k]||'');
  const sosComplete=!!(e.say&&e.obey&&e.share);
  for(const [id,done] of [['read-check',!!e.read],['sos-check',sosComplete]]){
- const el=$(id);el.classList.toggle('done',done);el.textContent=done?'✓':'';
+ const el=$(id);el.classList.toggle('done',done);el.classList.toggle('draft',id==='sos-check'&&!done&&!!(e.say||e.obey||e.share));el.textContent=done?'✓':'';
  }
- $('mark-read').textContent=e.read?'Reading completed ✓':'Mark Scripture as read';
+ $('sos-draft-note').hidden=sosComplete||!(e.say||e.obey||e.share);$('mark-read').textContent=e.read?'Reading completed ✓':'Mark Scripture as read';
  $('previous').hidden=!previous?.obey;
  if(previous?.obey){$('previous-obey').textContent=previous.obey;document.querySelectorAll('[data-check]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.check===previous.check)))}
  $('days').replaceChildren();
@@ -149,17 +187,24 @@ function render(){
 }
 function save(silent=false){
  const e=entry();['say','obey','share'].forEach(k=>e[k]=$(k).value.trim());state.entries[state.day]=e;
- const ok=persist();if(!silent)$('status').textContent=ok?(e.say&&e.obey&&e.share?'SOS complete and saved on this device.':'Draft saved. Fill all three prompts to complete SOS.'):'Unable to save on this device.';
- if(!silent)renderAfterSave();
+ const ok=persist();if(!silent)$('status').textContent=ok?(e.say&&e.obey&&e.share?'SOS complete. Saved on this device.':(e.say||e.obey||e.share)?'Draft saved. Finish the rest anytime.':'Empty draft saved.'):'Unable to save on this device.';
+ renderAfterSave();
  return ok;
 }
-function renderAfterSave(){const e=entry(),done=!!(e.say&&e.obey&&e.share);$('sos-check').classList.toggle('done',done);$('sos-check').textContent=done?'✓':'';$('progress').textContent=Object.values(state.entries).filter(x=>x.read&&x.say&&x.obey&&x.share).length+' of '+readings.length+' preview days completed'}
-function move(n){save(true);state.day=Math.max(0,Math.min(readings.length-1,n));persist();render();$('reading-panel').hidden=true;$('sos-panel').hidden=true;$('start').textContent='Start Reading ↑';window.scrollTo({top:0,behavior:'smooth'})}
+function renderAfterSave(){const e=entry(),done=!!(e.say&&e.obey&&e.share),partial=!done&&!!(e.say||e.obey||e.share);const check=$('sos-check');check.classList.toggle('done',done);check.classList.toggle('draft',partial);check.textContent=done?'✓':'';$('sos-draft-note').hidden=!partial;$('progress').textContent=Object.values(state.entries).filter(x=>x.read&&x.say&&x.obey&&x.share).length+' of '+readings.length+' preview days completed'}
+function move(n){clearTimeout(draftTimer);save(true);state.day=Math.max(0,Math.min(readings.length-1,n));persist();render();$('reading-panel').hidden=true;$('sos-panel').hidden=true;$('start').textContent='Start Reading ↑';window.scrollTo({top:0,behavior:'smooth'})}
 $('open-reading').addEventListener('click',()=>changePanel('reading'));
 $('open-sos').addEventListener('click',()=>changePanel('sos'));
 $('start').addEventListener('click',()=>changePanel($('reading-panel').hidden?'reading':'sos'));
 $('mark-read').addEventListener('click',()=>{const e=entry();e.read=true;state.entries[state.day]=e;if(persist()){render();changePanel('sos')}});
 $('save').addEventListener('click',()=>save());
+let draftTimer;
+for(const key of ['say','obey','share']){
+ $(key).addEventListener('input',()=>{clearTimeout(draftTimer);draftTimer=setTimeout(()=>save(true),750)});
+ $(key).addEventListener('blur',()=>{clearTimeout(draftTimer);save(true)});
+}
+window.addEventListener('pagehide',()=>{if(!$('sos-panel').hidden)save(true)});
+
 document.querySelectorAll('[data-check]').forEach(b=>b.addEventListener('click',()=>{if(state.day===0)return;const e=entry(state.day-1);e.check=b.dataset.check;state.entries[state.day-1]=e;persist();document.querySelectorAll('[data-check]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)))}));
 $('share-btn').addEventListener('click',async()=>{save(true);const r=readings[state.day],e=entry(),msg='Daily SOS: '+r[0]+' ('+r[1]+')\nSay: '+(e.say||'')+'\nObey: '+(e.obey||'')+'\nShare: '+(e.share||'')+'\nhttps://obey.tools/daily-sos.html';try{if(navigator.share)await navigator.share({title:'Daily SOS',text:msg});else if(navigator.clipboard){await navigator.clipboard.writeText(msg);$('status').textContent='Copied to clipboard.'}else $('status').textContent='Sharing is unavailable here.'}catch(err){if(err.name!=='AbortError')$('status').textContent='Sharing failed.'}});
 
@@ -238,6 +283,7 @@ menu.querySelectorAll('[data-action]').forEach(b=>b.addEventListener('click',()=
  ({share:planShare,settings:settingsDialog,info:infoDialog,catchup:catchupDialog,stop:stopDialog})[action]?.()
 }));
 updatePlanStatus();
+$('desktop-plan-info').addEventListener('click',infoDialog);
 
 render();
 </script></body></html>
