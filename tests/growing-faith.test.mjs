@@ -69,7 +69,8 @@ test('Follow Daily public name is consistent without changing SOS URLs or data k
  assert.match(sender,/from:"Follow Daily <daily@obey.tools>"/)
  assert.match(sender,/\| Follow Daily/)
  assert.match(sender,/https:\/\/obey.tools\/daily-sos.html/)
- assert.match(client,/Follow Daily email enabled/)
+ assert.match(client,/Confirm Daily Emails/)
+ assert.match(client,/No account needed/)
 })
 
 test('Questions index promotes nine playable topics without redirecting to archive',()=>{
