@@ -56,6 +56,10 @@ try{
     assert.equal(await page.locator('[data-question]:visible').count(),3,'Jesus category should have three topics')
    }
    if(label==='grow'){
+    assert.equal(await page.locator('.hero h1').count(),1,'one hero headline')
+    assert.equal(await page.locator('.cards .card').count(),2,'two clear paths')
+    assert.equal(await page.locator('.eyebrow').count(),0,'no repeated eyebrow labels')
+
     assert.equal(await page.locator('a[href="/questions/"]').count(),1)
     assert.equal(await page.locator('a[href="/daily-sos.html"]').count(),1)
    }

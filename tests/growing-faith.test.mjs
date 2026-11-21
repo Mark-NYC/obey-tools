@@ -25,8 +25,8 @@ test('Growing Faith stays available by direct URL without a homepage button',()=
  assert.doesNotMatch(index,/href="\/grow\/"/)
  assert.match(hub,/href="\/questions\/"/)
  assert.match(hub,/href="\/daily-sos\.html"/)
- assert.match(hub,/Know Jesus more deeply/)
- assert.match(hub,/abiding in Jesus/)
+ assert.match(hub,/Explore honest questions\. Follow Jesus daily\./)
+ assert.match(hub,/CHOOSE YOUR PATH/)
 })
 test('section navigation and original permalinks work together',()=>{
  assert.match(questions,/href="\/grow\/"/)
@@ -61,7 +61,7 @@ test('Follow Daily public name is consistent without changing SOS URLs or data k
  const client=read('daily-sos-email.js')
  const sender=read('supabase/functions/daily-sos-delivery/index.ts')
  assert.match(hub,/<h3>FOLLOW DAILY<\/h3>/)
- assert.match(hub,/SOS · Say, Obey, Share/)
+ assert.match(hub,/Follow Jesus daily\./)
  assert.match(sos,/<h1>FOLLOW DAILY<\/h1>/)
  assert.match(sos,/ABIDE IN JESUS · SAY, OBEY, SHARE/)
  assert.match(sos,/<h2>Follow Daily in your inbox<\/h2>/)
@@ -148,4 +148,16 @@ test('Longer videos are bounded to under eight minutes',()=>{
   assert.ok(match,'missing bounded excerpt '+slug)
   assert.ok(Number(match[2])-Number(match[1])<=480,'excerpt exceeds eight minutes '+slug)
  }
+})
+
+test('Growing Faith landing has only one hero headline and two concise choices',()=>{
+ assert.equal((hub.match(/class="eyebrow/g)||[]).length,0)
+ assert.equal((hub.match(/class="card-top"/g)||[]).length,2)
+ assert.equal((hub.match(/class="card-body"/g)||[]).length,2)
+ assert.ok(!hub.includes('class="features"'))
+ assert.ok(!hub.includes('class="section-bridge"'))
+ assert.ok(!hub.includes('class="purpose"'))
+ assert.ok(!hub.includes('.hero::after'),'Hero should not contain decorative rings')
+ assert.match(hub,/Explore the tough questions about God, Jesus, and the Bible\./)
+ assert.match(hub,/Read Scripture\. Listen to Jesus\. Put it into practice\./)
 })
