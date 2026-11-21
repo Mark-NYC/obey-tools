@@ -188,11 +188,11 @@ function render(){
 function save(silent=false){
  const e=entry();['say','obey','share'].forEach(k=>e[k]=$(k).value.trim());state.entries[state.day]=e;
  const ok=persist();if(!silent)$('status').textContent=ok?(e.say&&e.obey&&e.share?'SOS complete. Saved on this device.':(e.say||e.obey||e.share)?'Draft saved. Finish the rest anytime.':'Empty draft saved.'):'Unable to save on this device.';
- if(!silent)renderAfterSave();
+ renderAfterSave();
  return ok;
 }
 function renderAfterSave(){const e=entry(),done=!!(e.say&&e.obey&&e.share),partial=!done&&!!(e.say||e.obey||e.share);const check=$('sos-check');check.classList.toggle('done',done);check.classList.toggle('draft',partial);check.textContent=done?'✓':'';$('sos-draft-note').hidden=!partial;$('progress').textContent=Object.values(state.entries).filter(x=>x.read&&x.say&&x.obey&&x.share).length+' of '+readings.length+' preview days completed'}
-function move(n){save(true);state.day=Math.max(0,Math.min(readings.length-1,n));persist();render();$('reading-panel').hidden=true;$('sos-panel').hidden=true;$('start').textContent='Start Reading ↑';window.scrollTo({top:0,behavior:'smooth'})}
+function move(n){clearTimeout(draftTimer);save(true);state.day=Math.max(0,Math.min(readings.length-1,n));persist();render();$('reading-panel').hidden=true;$('sos-panel').hidden=true;$('start').textContent='Start Reading ↑';window.scrollTo({top:0,behavior:'smooth'})}
 $('open-reading').addEventListener('click',()=>changePanel('reading'));
 $('open-sos').addEventListener('click',()=>changePanel('sos'));
 $('start').addEventListener('click',()=>changePanel($('reading-panel').hidden?'reading':'sos'));
