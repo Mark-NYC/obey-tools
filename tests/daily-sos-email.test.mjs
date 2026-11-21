@@ -107,7 +107,7 @@ test('Confirmation and management pages are served by obey.tools, not Supabase H
  const confirm=read('follow-daily-confirm.html')
  const manage=read('follow-daily-manage.html')
  const actions=read('follow-daily-action.js')
- assert.match(confirm, /Confirm Daily Emails/)
+ assert.match(confirm, /Confirming your daily emails/)
  assert.match(confirm, /follow-daily-action\.js/)
  assert.match(manage, /follow-daily-action\.js/)
  assert.match(manage, /Unsubscribe/)
