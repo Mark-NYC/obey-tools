@@ -36,7 +36,7 @@ try{
    if(label==='questions'){
     assert.equal(await page.locator('[data-question]').count(),15,'Questions must have 15 video cards')
     assert.equal(await page.locator('[data-group]').count(),5,'Questions must have five categories')
-    await page.locator('#question-search').fill('resurrection')
+    await page.locator('#question-search').fill('rise from the dead')
     assert.equal(await page.locator('[data-question]:visible').count(),1,'search should filter 15 cards')
     await page.locator('#question-search').fill('')
     await page.locator('[data-filter="Jesus & the Gospel"]').click()
