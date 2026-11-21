@@ -45,3 +45,5 @@ button:focus-visible,a:focus-visible{outline:3px solid #00a468;outline-offset:3p
 
 /* Gentle handoff from questions to the daily discipleship practice. */
 .q-next-step{margin:10px 0 42px;border-top:3px solid #00a468;padding:23px 0 0}.q-next-step strong{font-size:19px}.q-next-step p{margin:7px 0 12px;color:#526258}.q-next-step a{font-weight:800;color:#006b42;text-decoration:none}.q-next-step a:hover{text-decoration:underline}
+
+.video-alternative{margin:9px 0 14px;font-size:13px;line-height:1.5;color:#667269}.video-alternative a{font-weight:750;color:#08784b;text-underline-offset:2px}

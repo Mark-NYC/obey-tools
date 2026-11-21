@@ -76,3 +76,14 @@ test('Acts follows the Gospels and covers every Acts chapter', () => {
 test('The WEBU bundle includes all five required books', () => {
   for (const book of ['Matthew', 'Mark', 'Luke', 'John', 'Acts']) assert.ok(bible[book])
 })
+
+test('365 unique Scripture-specific discovery questions and no mechanical part headings',()=>{
+ const questions=plan.map(day=>day[4])
+ assert.equal(new Set(questions).size,365)
+ assert.ok(plan.every(day=>!day[0].includes(' · Part ')))
+ assert.match(plan[6][4],/Elizabeth/)
+ assert.match(plan[29][4],/temple/)
+ assert.match(plan[289][4],/dishonesty/)
+ assert.match(plan[364][4],/Paul/)
+ assert.ok(questions.every(question=>question.length<=220))
+})

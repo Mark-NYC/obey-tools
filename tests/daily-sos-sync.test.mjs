@@ -105,3 +105,28 @@ test('Database migration restricts guest access and prevents stale revisions',()
  assert.match(sql,/excluded\.revision_ms > d\.revision_ms/)
  assert.match(sql,/field_name in \('read','say','obey','share','cursor'\)/)
 })
+
+test('Yesterday obedience check-in syncs as a distinct field',async()=>{
+ const f=fixture({user:person,initial:{day:6,entries:{5:{say:'Listen to Jesus',obey:'Make peace',check:'done'}}}})
+ await f.run()
+ assert.ok(f.changes.flatMap(x=>x.args.p_changes).some(x=>x.day===6&&x.field==='check'&&x.value==='done'))
+})
+test('Existing account imports only guest fields absent from its own saved snapshot',async()=>{
+ const f=fixture({user:person,initial:{day:2,entries:{2:{say:'Guest says this',obey:'Invite a friend'}}}})
+ f.saved.set('obeytools:daily-sos:bucket:v1:'+person.id,
+  JSON.stringify({state:{day:2,entries:{2:{say:'Account says this'}}},revisions:{}}))
+ await f.run()
+ assert.equal(f.getState().entries[2].say,'Account says this')
+ assert.equal(f.getState().entries[2].obey,'Invite a friend')
+ assert.ok(f.saved.get('obeytools:daily-sos:bucket:v1:guest').includes('Guest says this'))
+})
+test('Reading page protects unsaved drafts and offers direct day jumping',()=>{
+ const html=read('daily-sos.html')
+ assert.match(html,/if\(!\$\('sos-panel'\)\.hidden\)save\(true\);const e=entry\(\)/)
+ assert.match(html,/function move\(n\)\{clearTimeout\(draftTimer\);if\(!\$\('sos-panel'\)\.hidden\)save\(true\)/)
+ assert.match(html,/id="jump-day"/)
+ assert.match(html,/id="previous-day"/)
+ assert.match(html,/id="next-day"/)
+ assert.match(html,/Do not create empty fields/)
+ assert.doesNotMatch(html,/Preview plan: Jump to Day/)
+})
