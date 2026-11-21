@@ -40,3 +40,16 @@ To pause all delivery safely:
 ```sql
 update public.sos_email_runtime set enabled=false,updated_at=now() where singleton;
 ```
+
+## Optional cross-device reading progress
+
+Follow Daily now supports **signed-in account syncing without requiring login to read or receive email**.
+
+- Guests continue to save locally with the existing `obeytools:daily-sos:v2` browser key. No email subscriber is automatically given a user account.
+- The new `public.sos_daily_progress` table contains one row per user, day, and field (`read`, `say`, `obey`, `share`, or `cursor`). Each field has a client edit revision, allowing partially completed drafts to sync independently. The `sos_merge_progress` RPC atomically rejects older field revisions.
+- Access is private through row-level security. Anonymous users have no table or RPC permissions, and authenticated users can only read or write their own rows.
+- `daily-sos-sync.js` shares the existing `supabase.js` authentication session, imports local guest work on first sign-in, restores a user's cloud work on additional devices, saves per-user local snapshots, and restores a separate guest snapshot on sign-out.
+- If a cloud request fails, the local copy stays intact; pending edits are retried on the next sync/online event. Editing two different SOS fields on different devices merges them instead of replacing the whole day.
+- **Sign-in is optional.** The standalone Follow Daily email-only opt-in remains separate and still does not require a user account.
+
+Verification: `node --test tests/daily-sos-schedule.test.mjs tests/daily-sos-email.test.mjs tests/daily-sos-sync.test.mjs`. The sync tests exercise guest migration, cloud restoration, partial-field reconciliation and account isolation without accessing any real user data. A real two-device authenticated browser test is still recommended after deployment.
