@@ -53,30 +53,55 @@ function emailFor(day:number, job:Job){
  const verses=verseRange(reference);
  const actionUrl="https://obey.tools/daily-sos.html?day="+day;
  const unsubUrl=projectUrl+"/functions/v1/daily-sos-delivery/unsubscribe?token="+encodeURIComponent(job.unsubscribe_id);
- const scripture=verses.map(([v,text])=>'<sup style="font:700 11px Arial,sans-serif;color:#008250;margin-right:2px">'+v+'</sup>'+escapeHtml(text)).join(" ");
- const html='<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>'+
- '<body style="margin:0;background:#f3f4f5;font-family:Arial,Helvetica,sans-serif;color:#1c1c1e">'+
- '<table role="presentation" width="100%" cellspacing="0" cellpadding="0"><tr><td align="center" style="padding:26px 12px">'+
- '<table role="presentation" width="580" cellspacing="0" cellpadding="0" style="width:100%;max-width:580px;background:#fff">'+
- '<tr><td style="text-align:center;padding:26px;border-bottom:2px solid #00a468;font-size:24px;font-weight:900;color:#08301f">OBEY.TOOLS</td></tr>'+
- '<tr><td style="padding:26px 28px 10px"><div style="font-size:12px;letter-spacing:1px;color:#008250;font-weight:700">DAY '+day+' OF 365 · '+escapeHtml(phase)+'</div>'+
- '<div style="background:#00a468;color:#fff;text-align:center;padding:16px;margin:16px 0;font-size:32px;font-weight:900">FOLLOW DAILY</div>'+
- '<h1 style="font:700 31px/1.2 Georgia,serif;color:#08301f;margin:23px 0 5px">'+escapeHtml(title)+'</h1>'+
- '<p style="color:#747a75;font-size:14px;margin:6px 0 23px">'+escapeHtml(reference)+' · World English Bible Updated</p>'+
- '<div style="background:#fbf7f1;padding:23px;border-radius:6px;font:18px/1.8 Georgia,serif;color:#1f2e27">'+scripture+'</div>'+
- '<p style="font-size:11px;color:#747a75">World English Bible Updated (WEBU), public domain.</p>'+
- '<div style="background:#eff6f1;border-left:4px solid #00a468;padding:16px 18px;margin:24px 0"><strong style="color:#007b4e;font:700 12px Arial,sans-serif">TODAY’S DISCOVERY</strong>'+
- '<p style="font:18px/1.5 Georgia,serif;margin:8px 0 0">'+escapeHtml(question)+'</p></div>'+
- '<a href="'+actionUrl+'" style="display:block;background:#00a468;color:#fff;text-align:center;text-decoration:none;border-radius:5px;font-weight:800;padding:17px">OPEN TODAY’S SOS</a>'+
- '<p style="text-align:center;color:#6b756e;font-size:13px">Read · Say · Obey · Share</p></td></tr>'+
- '<tr><td style="text-align:center;border-top:1px solid #e8ece9;padding:22px;color:#67706a;font-size:12px">You chose to receive Follow Daily emails.<br>'+
- '<a href="https://obey.tools/daily-sos.html#email-reminders" style="color:#007b4e">Manage reminders</a> · <a href="'+unsubUrl+'" style="color:#007b4e">Unsubscribe</a></td></tr>'+
- '</table></td></tr></table></body></html>';
+ // Editorial reading layout: Scripture sits directly on the page, never in a
+ // separate colored panel. Short paragraphs make long passages easy to read.
+ const verseHtml=verses.map(([v,content])=>
+  '<sup style="font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1;color:#008850;font-weight:700;vertical-align:super;margin-right:3px">'+v+'</sup>'+
+  escapeHtml(content)
+ );
+ const paragraphs:string[]=[];
+ for(let i=0;i<verseHtml.length;i+=5){
+  paragraphs.push('<p style="font-family:Georgia,Times New Roman,serif;font-size:18px;line-height:1.85;margin:0 0 20px;color:#252b28">'+
+   verseHtml.slice(i,i+5).join(" ")+'</p>');
+ }
+ const html='<!doctype html><html lang="en"><head><meta charset="utf-8">'+
+ '<meta name="viewport" content="width=device-width,initial-scale=1">'+
+ '<meta name="color-scheme" content="light"><meta name="supported-color-schemes" content="light">'+
+ '<style>:root{color-scheme:light}body{margin:0;padding:0}'+
+ '@media screen and (max-width:600px){.reading-pad{padding-left:23px!important;padding-right:23px!important}.reading-title{font-size:30px!important}}'+
+ '</style></head>'+
+ '<body style="margin:0;padding:0;background:#ffffff;font-family:Arial,Helvetica,sans-serif;color:#252b28">'+
+ '<div style="display:none;font-size:1px;color:#fff;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden">'+
+ escapeHtml(reference)+' · A reading and a simple question for today.</div>'+
+ '<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#ffffff">'+
+ '<tr><td align="center" style="padding:0">'+
+ '<table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="width:100%;max-width:600px;background:#ffffff">'+
+ '<tr><td class="reading-pad" style="padding:34px 38px 20px;border-bottom:1px solid #d8e6dc">'+
+ '<span style="font:800 22px/1 Arial,Helvetica,sans-serif;letter-spacing:-1px;color:#08301f">OBEY<span style="color:#00a468">.</span>TOOLS</span>'+
+ '</td></tr>'+
+ '<tr><td class="reading-pad" style="padding:29px 38px 0">'+
+ '<p style="margin:0 0 13px;font:700 12px/1.5 Arial,Helvetica,sans-serif;letter-spacing:1.3px;color:#007c4a">FOLLOW DAILY &nbsp;·&nbsp; DAY '+day+' OF 365 &nbsp;·&nbsp; '+escapeHtml(phase)+'</p>'+
+ '<h1 class="reading-title" style="font:700 35px/1.2 Georgia,Times New Roman,serif;color:#08301f;letter-spacing:-.6px;margin:0 0 10px">'+escapeHtml(title)+'</h1>'+
+ '<p style="margin:0 0 28px;font:14px/1.5 Arial,Helvetica,sans-serif;color:#68746c">'+escapeHtml(reference)+' &nbsp;·&nbsp; WEB Updated</p>'+
+ paragraphs.join("")+
+ '<p style="margin:0 0 28px;font:11px/1.5 Arial,Helvetica,sans-serif;color:#748078">World English Bible Updated (WEBU), public domain.</p>'+
+ '<div style="border-left:3px solid #00a468;padding:2px 0 2px 17px;margin:16px 0 29px">'+
+ '<p style="font:700 12px/1.4 Arial,Helvetica,sans-serif;color:#007c4a;letter-spacing:1px;margin:0 0 8px">TODAY’S DISCOVERY</p>'+
+ '<p style="font:18px/1.55 Georgia,Times New Roman,serif;color:#243b2d;margin:0">'+escapeHtml(question)+'</p></div>'+
+ '<a href="'+actionUrl+'" style="display:block;text-align:center;text-decoration:none;background:#00a468;color:#ffffff;border-radius:4px;font:700 15px/1.4 Arial,Helvetica,sans-serif;padding:15px 18px">OPEN TODAY’S SOS</a>'+
+ '<p style="font:13px/1.6 Arial,Helvetica,sans-serif;text-align:center;color:#6d7971;margin:11px 0 34px">Read · Say · Obey · Share</p>'+
+ '</td></tr>'+
+ '<tr><td class="reading-pad" style="padding:21px 38px 30px;border-top:1px solid #e4eae6">'+
+ '<p style="font:12px/1.7 Arial,Helvetica,sans-serif;text-align:center;color:#748078;margin:0">You chose to receive Follow Daily emails.<br>'+
+ '<a href="https://obey.tools/daily-sos.html#email-reminders" style="color:#007b4e;text-decoration:underline">Manage reminders</a> &nbsp;·&nbsp; '+
+ '<a href="'+unsubUrl+'" style="color:#007b4e;text-decoration:underline">Unsubscribe</a></p>'+
+ '</td></tr></table></td></tr></table></body></html>';
  const plain='Follow Daily · Day '+day+' of 365 · '+phase+'\n'+title+'\n'+reference+' (WEB Updated)\n\n'+
  verses.map(([v,t])=>v+' '+t).join('\n')+'\n\nTODAY’S DISCOVERY\n'+question+
  '\n\nOPEN TODAY’S SOS\n'+actionUrl+'\n\nManage: https://obey.tools/daily-sos.html#email-reminders\nUnsubscribe: '+unsubUrl;
  return {subject:'Day '+day+': '+title+' | Follow Daily',html,text:plain,unsubUrl};
 }
+
 async function unsubscribe(req:Request,url:URL){
  const token=url.searchParams.get("token")||"";
  if(!/^[a-f0-9-]{36}$/i.test(token))return new Response("Invalid link",{status:400});
