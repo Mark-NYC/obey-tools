@@ -199,25 +199,20 @@ body{padding:0;background:#f8f8f8}
 <h2>Follow Daily in your inbox</h2>
 <p>Start with Day 1 whenever you join. Receive one full Bible passage and one discovery question each morning, at a time you choose.</p>
 <div id="email-not-ready">Email reminders are being prepared. They are not sending yet.</div>
-<div id="email-signed-out" hidden>
-<label for="email-input">Your email</label>
-<input type="email" id="email-input" autocomplete="email" placeholder="you@example.com">
-<button type="button" id="email-signin" class="primary">Continue with email</button>
-<div class="email-caption">We'll send a sign-in link to confirm you own this address. No daily emails until you opt in.</div>
-</div>
-<div id="email-signed-in" hidden>
-<div class="email-caption">Signed in as <strong id="email-address"></strong></div>
-<div id="email-state" style="margin-top:8px">Not subscribed</div>
-<div id="email-next"></div>
+<div id="email-public-signup" hidden>
+<form id="follow-daily-form">
+<label for="email-input">Email address</label>
+<input type="email" id="email-input" autocomplete="email" placeholder="you@example.com" required>
 <div class="email-grid">
 <div><label for="email-hour">Delivery time</label><select id="email-hour">
 <option value="6">6:00 AM</option><option value="7" selected>7:00 AM</option><option value="8">8:00 AM</option><option value="9">9:00 AM</option>
-<option value="10">10:00 AM</option><option value="12">12:00 PM</option><option value="18">6:00 PM</option><option value="20">8:00 PM</option><option value="21">9:00 PM</option></select></div>
+<option value="10">10:00 AM</option><option value="12">12:00 PM</option><option value="18">6:00 PM</option><option value="20">8:00 PM</option><option value="21">9:00 PM</option>
+</select></div>
 <div><label for="email-timezone">Time zone</label><select id="email-timezone" aria-label="Your time zone"></select></div>
 </div>
-<button id="email-start" class="primary" type="button">Start at Day 1</button>
-<div class="email-row"><button id="email-pause" class="secondary" type="button" hidden>Pause emails</button><button id="email-stop" class="secondary" type="button" hidden>Stop emails</button></div>
-<div class="email-caption">You can pause or unsubscribe anytime. Your saved SOS responses are not deleted.</div>
+<button type="submit" id="email-start" class="primary">Start Daily Emails</button>
+<p class="email-caption">We'll email a confirmation button. Tap it once to start Day 1 tomorrow. No account or password needed. Manage, pause, or unsubscribe from your emails anytime.</p>
+</form>
 </div>
 <div id="email-reminder-status" role="status" aria-live="polite"></div>
 </section>
@@ -431,11 +426,11 @@ function catchupDialog(){
  else dialog('Catch Me Up',body,'Go to Day '+(target+1),()=>move(target))
 }
 function stopDialog(){
- if(prefs.paused){dialog('Resume Follow Daily','Resume your reading journey? Your saved answers are still here.','Resume plan',()=>{prefs.paused=false;savePrefs();updatePlanStatus();window.dailySosPauseEmail?.(false)});return}
+ if(prefs.paused){dialog('Resume Follow Daily','Resume your reading journey? Your saved answers are still here. To resume paused emails, use Manage reminders in your inbox.','Resume plan',()=>{prefs.paused=false;savePrefs();updatePlanStatus();void 0});return}
  const body=node('div');
  body.append(node('p','Stop your Follow Daily journey on this device? Your responses will remain saved. You can resume anytime from this menu.'));
- body.append(node('p','If you have daily email reminders enabled, they will also be paused.','small-notice'));
- dialog('Stop This Plan',body,'Stop plan',()=>{prefs.paused=true;savePrefs();updatePlanStatus();window.dailySosPauseEmail?.(true)});
+ body.append(node('p','Stopping your reading plan on this device will not pause subscribed emails. Use Manage reminders in any email to pause delivery.','small-notice'));
+ dialog('Stop This Plan',body,'Stop plan',()=>{prefs.paused=true;savePrefs();updatePlanStatus();void 0});
 }
 function updatePlanStatus(){
  $('stop-label').textContent=prefs.paused?'Resume This Plan':'Stop This Plan';
