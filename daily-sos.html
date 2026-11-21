@@ -315,6 +315,17 @@ if(!existingV2){
 const linkedDay=Number(new URLSearchParams(location.search).get('day'));
 if(Number.isInteger(linkedDay)&&linkedDay>=1&&linkedDay<=readings.length){state.day=linkedDay-1;try{localStorage.setItem(KEY,JSON.stringify(state))}catch{}}
 function entry(day=state.day){return state.entries[day]||{}}
+// Return to the selected reading, advancing only when that reading is finished.
+function resumeDay(snapshot){
+ const entries=snapshot.entries||{};
+ let day=Math.max(0,Math.min(readings.length-1,Number(snapshot.day)||0));
+ const complete=e=>!!(e&&e.read&&String(e.say||'').trim()&&String(e.obey||'').trim()&&String(e.share||'').trim());
+ while(day<readings.length-1&&complete(entries[day]))day++;
+ return day;
+}
+const hasLinkedDay=Number.isInteger(linkedDay)&&linkedDay>=1&&linkedDay<=readings.length;
+if(!hasLinkedDay){state.day=resumeDay(state);try{localStorage.setItem(KEY,JSON.stringify(state))}catch{}}
+
 function persist(){try{localStorage.setItem(KEY,JSON.stringify(state));window.dispatchEvent(new Event('sos:progress-saved'));return true}catch{return false}}
 function changePanel(name){
  if(!$('sos-panel').hidden)save(true);
@@ -391,7 +402,7 @@ function render(){
   b.addEventListener('click',()=>move(n));$('days').appendChild(b)
  }
  const activeDay=$('days').children[i];
- if(activeDay){const track=$('days'),box=track.getBoundingClientRect(),active=activeDay.getBoundingClientRect();track.scrollLeft+=(active.left-box.left)-(track.clientWidth-activeDay.clientWidth)/2;}
+ if(activeDay){const track=$('days');const center=()=>{const box=track.getBoundingClientRect(),active=activeDay.getBoundingClientRect();track.scrollLeft+=(active.left-box.left)-(track.clientWidth-activeDay.clientWidth)/2;};center();requestAnimationFrame(center);}
  const finished=Object.values(state.entries).filter(x=>x.read&&x.say&&x.obey&&x.share).length;
  $('progress').textContent=finished+' of '+readings.length+' days completed';
  $('status').textContent='';
@@ -505,8 +516,8 @@ window.sosSyncAdapter={
  read(){return JSON.parse(JSON.stringify(state))},
  apply(snapshot){
   if(!snapshot||typeof snapshot!=='object')return;
-  state.day=Math.max(0,Math.min(readings.length-1,Number(snapshot.day)||0));
   state.entries=snapshot.entries&&typeof snapshot.entries==='object'?JSON.parse(JSON.stringify(snapshot.entries)):{};
+  state.day=hasLinkedDay?linkedDay-1:resumeDay(snapshot);
   try{localStorage.setItem(KEY,JSON.stringify(state))}catch{}
   render();
  },
