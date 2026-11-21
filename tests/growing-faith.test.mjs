@@ -21,8 +21,8 @@ const slugs=[
  'why-would-god-need-people-to-worship-him-isnt-that-egotistical-and-arrogant',
  'what-are-the-practical-implications-of-an-atheistic-worldview'
 ]
-test('Growing Faith is the homepage section, retaining both destination links',()=>{
- assert.match(index,/href="\/grow\/".*Growing Faith/)
+test('Growing Faith stays available by direct URL without a homepage button',()=>{
+ assert.doesNotMatch(index,/href="\/grow\/"/)
  assert.match(hub,/href="\/questions\/"/)
  assert.match(hub,/href="\/daily-sos\.html"/)
  assert.match(hub,/Know Jesus more deeply/)
