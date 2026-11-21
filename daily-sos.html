@@ -91,6 +91,23 @@ body{padding:26px;background:#f2f3f4}
 .scripture-source{font-size:12px;color:#73737c;margin-top:8px}
 #read-link{display:none}
 @media(min-width:1100px){.scripture-copy{font-size:19px;line-height:1.9;max-width:70ch}#reading-panel{padding:10px 10px 18px 4px}}
+
+/* Daily SOS email reminders */
+.email-card{margin:22px 0 16px;padding:22px;border:1px solid #d7e7dd;background:#f7fbf8;border-radius:14px;scroll-margin-top:28px}
+.email-card h2{font-size:23px;letter-spacing:-.5px;margin:0 0 5px}
+.email-card>p{margin:0 0 13px;font-size:14px;color:#616b66;line-height:1.5}
+.email-card label{display:block;font-size:13px;color:#444;font-weight:750;margin:12px 0 5px}
+.email-card input,.email-card select{width:100%;border:1px solid #c4d4ca;border-radius:9px;padding:12px;font:inherit;background:white}
+.email-card .email-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.email-card .primary{border-radius:10px;margin-top:14px}
+.email-card .email-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.email-card .email-row button{flex:1;min-width:90px}
+.email-card .email-caption{font-size:12px;color:#58665d;margin-top:12px}
+#email-reminder-status{font-size:13px;min-height:20px;color:#006b42;margin-top:12px;overflow-wrap:anywhere}
+#email-not-ready{background:#edf3ef;padding:12px;border-radius:8px;font-size:13px;color:#516159}
+#email-state{font-size:14px;font-weight:800;color:#006f47}
+#email-next{font-size:12px;color:#5b6961;margin-top:4px}
+@media(max-width:360px){.email-card .email-grid{grid-template-columns:1fr}}
 </style></head>
 <body><div class="shell">
 <header><a class="round" href="/" aria-label="Back to Obey Tools">×</a><div class="headline"><strong>Overview</strong><small id="topday">Day 1</small></div><button class="round" id="menu" type="button" aria-label="Daily SOS options">···</button></header>
@@ -124,7 +141,33 @@ body{padding:26px;background:#f2f3f4}
 </section>
 <button id="start" class="primary" type="button">Open SOS ↑</button>
 <div id="progress" class="muted" style="text-align:center;margin-top:13px"></div>
-<div class="notice">365 readings through the Gospel harmony and Acts, with WEB Updated Scripture on the page. Answers are saved on this device. Account syncing and scheduled email or SMS delivery are not yet available.</div>
+<section class="email-card" id="email-reminders" aria-label="Daily SOS email reminders">
+<h2>Daily SOS in your inbox</h2>
+<p>Start with Day 1 whenever you join. Receive one full Bible passage and one discovery question each morning, at a time you choose.</p>
+<div id="email-not-ready">Email reminders are being prepared. They are not sending yet.</div>
+<div id="email-signed-out" hidden>
+<label for="email-input">Your email</label>
+<input type="email" id="email-input" autocomplete="email" placeholder="you@example.com">
+<button type="button" id="email-signin" class="primary">Continue with email</button>
+<div class="email-caption">We'll send a sign-in link to confirm you own this address. No daily emails until you opt in.</div>
+</div>
+<div id="email-signed-in" hidden>
+<div class="email-caption">Signed in as <strong id="email-address"></strong></div>
+<div id="email-state" style="margin-top:8px">Not subscribed</div>
+<div id="email-next"></div>
+<div class="email-grid">
+<div><label for="email-hour">Delivery time</label><select id="email-hour">
+<option value="6">6:00 AM</option><option value="7" selected>7:00 AM</option><option value="8">8:00 AM</option><option value="9">9:00 AM</option>
+<option value="10">10:00 AM</option><option value="12">12:00 PM</option><option value="18">6:00 PM</option><option value="20">8:00 PM</option><option value="21">9:00 PM</option></select></div>
+<div><label for="email-timezone">Time zone</label><select id="email-timezone" aria-label="Your time zone"></select></div>
+</div>
+<button id="email-start" class="primary" type="button">Start at Day 1</button>
+<div class="email-row"><button id="email-pause" class="secondary" type="button" hidden>Pause emails</button><button id="email-stop" class="secondary" type="button" hidden>Stop emails</button></div>
+<div class="email-caption">You can pause or unsubscribe anytime. Your saved SOS responses are not deleted.</div>
+</div>
+<div id="email-reminder-status" role="status" aria-live="polite"></div>
+</section>
+<div class="notice">365 readings through the Gospel harmony and Acts, with WEB Updated Scripture on the page. Responses are saved on this device. Email reminders require separate opt-in and will only send after delivery is enabled.</div>
 </main><aside class="desktop-aside" aria-label="About Daily SOS">
 <div class="desktop-side-card"><h2>Following Jesus' Way</h2>
 <p>A 365-day journey through a harmony of the Gospels and Acts, learning how Jesus made disciples who multiplied.</p>
@@ -182,6 +225,9 @@ if(!existingV2){
   localStorage.setItem(KEY,JSON.stringify(state));
  }catch{}
 }
+// Email reminders link directly to the correct reading day.
+const linkedDay=Number(new URLSearchParams(location.search).get('day'));
+if(Number.isInteger(linkedDay)&&linkedDay>=1&&linkedDay<=readings.length){state.day=linkedDay-1;try{localStorage.setItem(KEY,JSON.stringify(state))}catch{}}
 function entry(day=state.day){return state.entries[day]||{}}
 function persist(){try{localStorage.setItem(KEY,JSON.stringify(state));return true}catch{return false}}
 function changePanel(name){
@@ -315,19 +361,10 @@ function infoDialog(){
  const body=node('div');
  body.append(node('p','Follow Jesus’ Way is designed as a 365-day journey through a harmony of the Gospels and Acts. Learn how Jesus identified, equipped, invested in, and entrusted his disciples to carry on his mission.'));
  body.append(node('p','Each day has one primary Scripture reading plus one SOS exercise: Say what God is saying, Obey with a specific step, and Share with someone. Parallel Gospel accounts are optional.'));
- body.append(node('p','The complete 365-day Gospel harmony and Acts journey is available. Historical ordering is approximate where the Gospels do not specify timing. Daily email and SMS delivery are not yet connected. The harmony follows a traditional approximate Gospel event sequence. Some placements differ between published harmonies. Scripture text is from the public-domain World English Bible Updated.','small-notice'));
+ body.append(node('p','The complete 365-day Gospel harmony and Acts journey is available. Historical ordering is approximate where the Gospels do not specify timing. Daily email reminders are available through the opt-in section when sender setup has been verified. The harmony follows a traditional approximate Gospel event sequence. Some placements differ between published harmonies. Scripture text is from the public-domain World English Bible Updated.','small-notice'));
  dialog('Plan Info',body)
 }
-function settingsDialog(){
- const body=node('div');
- body.append(node('p','Choose your preferred reminder time. This preference is saved on this device but does not schedule a message or notification yet.'));
- const label=node('label','Preferred daily time');label.htmlFor='reminder-time';body.append(label);
- const select=node('select');select.id='reminder-time';
- for(const [v,t] of [['06:00','6:00 AM'],['07:00','7:00 AM'],['08:00','8:00 AM'],['12:00','12:00 PM'],['20:00','8:00 PM']]){const op=node('option',t);op.value=v;select.append(op)}
- select.value=prefs.reminderTime;body.append(select);
- body.append(node('p','Email and SMS subscriptions are not available yet. No reminders are sent from this setting.','small-notice'));
- dialog('Settings',body,'Save preference',()=>{prefs.reminderTime=select.value;savePrefs()})
-}
+function settingsDialog(){closeMenu();$('email-reminders').scrollIntoView({behavior:'smooth',block:'start'})}
 function dateUTC(s){const d=new Date(s+'T12:00:00');return Number.isNaN(d.getTime())?null:d}
 function catchupDialog(){
  const start=dateUTC(prefs.startDate),today=new Date();today.setHours(12,0,0,0);
@@ -340,11 +377,11 @@ function catchupDialog(){
  else dialog('Catch Me Up',body,'Go to Day '+(target+1),()=>move(target))
 }
 function stopDialog(){
- if(prefs.paused){dialog('Resume Daily SOS','Resume your reading journey? Your saved answers are still here.','Resume plan',()=>{prefs.paused=false;savePrefs();updatePlanStatus()});return}
+ if(prefs.paused){dialog('Resume Daily SOS','Resume your reading journey? Your saved answers are still here.','Resume plan',()=>{prefs.paused=false;savePrefs();updatePlanStatus();window.dailySosPauseEmail?.(false)});return}
  const body=node('div');
  body.append(node('p','Stop your Daily SOS journey on this device? Your responses will remain saved. You can resume anytime from this menu.'));
- body.append(node('p','This does not cancel emails or texts, because no delivery subscription is connected yet.','small-notice'));
- dialog('Stop This Plan',body,'Stop plan',()=>{prefs.paused=true;savePrefs();updatePlanStatus()});
+ body.append(node('p','If you have daily email reminders enabled, they will also be paused.','small-notice'));
+ dialog('Stop This Plan',body,'Stop plan',()=>{prefs.paused=true;savePrefs();updatePlanStatus();window.dailySosPauseEmail?.(true)});
 }
 function updatePlanStatus(){
  $('stop-label').textContent=prefs.paused?'Resume This Plan':'Stop This Plan';
@@ -365,4 +402,4 @@ updatePlanStatus();
 $('desktop-plan-info').addEventListener('click',infoDialog);
 
 render();
-</script></body></html>
+</script><script type="module" src="/daily-sos-email.js"></script></body></html>

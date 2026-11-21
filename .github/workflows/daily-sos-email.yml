@@ -1,0 +1,33 @@
+name: Daily SOS email checks
+on:
+  pull_request:
+    paths:
+      - "daily-sos.html"
+      - "daily-sos-email.js"
+      - "daily-sos-readings.js"
+      - "daily-sos-scripture.js"
+      - "supabase/daily-sos-email/**"
+      - "supabase/functions/daily-sos-delivery/**"
+      - "tests/daily-sos-*.test.mjs"
+      - ".github/workflows/daily-sos-email.yml"
+  push:
+    branches: [main]
+    paths:
+      - "daily-sos.html"
+      - "daily-sos-email.js"
+      - "daily-sos-readings.js"
+      - "daily-sos-scripture.js"
+      - "supabase/daily-sos-email/**"
+      - "supabase/functions/daily-sos-delivery/**"
+      - "tests/daily-sos-*.test.mjs"
+      - ".github/workflows/daily-sos-email.yml"
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Validate 365 readings and daily emails
+        run: node --test tests/daily-sos-schedule.test.mjs tests/daily-sos-email.test.mjs
