@@ -1,0 +1,54 @@
+import test from 'node:test'
+import assert from 'node:assert/strict'
+import {readFileSync, existsSync} from 'node:fs'
+import {resolve,dirname} from 'node:path'
+import {fileURLToPath} from 'node:url'
+
+const root=resolve(dirname(fileURLToPath(import.meta.url)),'..')
+const read=path=>readFileSync(resolve(root,path),'utf8')
+const index=read('index.html')
+const hub=read('grow/index.html')
+const questions=read('questions/index.html')
+const sos=read('daily-sos.html')
+const slugs=[
+ 'what-key-arguments-are-there-for-and-against-gods-existence',
+ 'why-does-god-remain-so-hidden',
+ 'why-would-a-good-god-allow-evil-to-exist',
+ 'why-would-a-good-god-allow-suffering-to-exist',
+ 'how-can-a-loving-god-send-people-to-hell',
+ 'why-does-the-old-testament-god-seem-different-than-the-new-testament-god',
+ 'why-would-god-command-the-death-of-so-many-people-in-the-bible-e-g-the-canaanites',
+ 'why-would-god-need-people-to-worship-him-isnt-that-egotistical-and-arrogant',
+ 'what-are-the-practical-implications-of-an-atheistic-worldview'
+]
+test('Growing Faith is the homepage section, retaining both destination links',()=>{
+ assert.match(index,/href="\/grow\/".*Growing Faith/)
+ assert.match(hub,/href="\/questions\/"/)
+ assert.match(hub,/href="\/daily-sos\.html"/)
+ assert.match(hub,/Know Jesus more deeply/)
+ assert.match(hub,/abiding in Jesus/)
+})
+test('section navigation and original permalinks work together',()=>{
+ assert.match(questions,/href="\/grow\/"/)
+ assert.match(sos,/href="\/grow\/"/)
+ for(const slug of slugs){
+  const path=slug+'/index.html'
+  assert.ok(existsSync(resolve(root,path)), 'missing '+path)
+  const page=read(path)
+  assert.match(page,/href="\/grow\/"/)
+  assert.match(page,/href="\/questions\/"/)
+  assert.ok(questions.includes('href="/'+slug+'/"'), 'missing card link '+slug)
+  assert.ok(page.includes('https://web.archive.org/'), 'missing original archive link '+slug)
+ }
+})
+test('shared brand assets and responsive layouts',()=>{
+ assert.match(hub,/href="\/fonts\.css"/)
+ assert.match(hub,/href="\/buttons\.css"/)
+ assert.match(hub,/href="\/grow\/grow\.css"/)
+ assert.match(questions,/href="\/grow\/grow\.css"/)
+ assert.match(sos,/href="\/buttons\.css"/)
+ assert.match(hub,/var\(--ot-nav-green-deep/)
+ assert.match(hub,/@media\(max-width:760px\)/)
+ assert.match(hub,/@media\(max-width:450px\)/)
+ assert.match(questions,/data-filter=/)
+})
