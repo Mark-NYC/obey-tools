@@ -167,7 +167,7 @@ const MENU_KEY='obeytools:daily-sos:preferences:v1';
 let prefs={startDate:null,paused:false,reminderTime:'07:00',timeZone:Intl.DateTimeFormat().resolvedOptions().timeZone||'local'};
 try{const p=JSON.parse(localStorage.getItem(MENU_KEY));if(p&&typeof p==='object')prefs={...prefs,...p}}catch{}
 const savePrefs=()=>{try{localStorage.setItem(MENU_KEY,JSON.stringify(prefs));return true}catch{return false}};
-if(!prefs.startDate){prefs.startDate=new Date().toLocaleDateString('en-CA');savePrefs()}
+if(!prefs.startDate){const initial=new Date();initial.setDate(initial.getDate()-state.day);prefs.startDate=[initial.getFullYear(),String(initial.getMonth()+1).padStart(2,'0'),String(initial.getDate()).padStart(2,'0')].join('-');savePrefs()}
 const menu=$('plan-menu'), backdrop=$('menu-backdrop'),overlay=$('dialog-overlay'),confirmBtn=$('dialog-confirm'),cancelBtn=$('dialog-cancel');
 function closeMenu(){menu.hidden=true;backdrop.hidden=true;$('menu').setAttribute('aria-expanded','false')}
 function openMenu(){menu.hidden=false;backdrop.hidden=false;$('menu').setAttribute('aria-expanded','true');menu.querySelector('button')?.focus()}
