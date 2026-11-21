@@ -161,6 +161,19 @@ body{padding:0;background:#f8f8f8}
 .shell{grid-template-columns:210px 800px 310px}
 }
 
+
+.sos-sync{margin:18px 0;padding:19px 20px;background:#f7faf8;border:1px solid #dae8df;border-radius:12px}
+.sos-sync h2{font-size:19px;margin:0 0 5px;font-weight:800;color:#08301f}
+.sos-sync p{font-size:13px;line-height:1.5;color:#52645a;margin:0 0 11px}
+.sos-sync .sync-row{display:flex;gap:8px;flex-wrap:wrap}
+.sos-sync input{min-width:0;flex:1 1 145px;padding:12px;border:1px solid #c5d9cb;border-radius:8px;background:white;font:inherit}
+.sos-sync button{border:0;border-radius:8px;background:#008956;color:#fff;padding:12px 15px;font:700 13px Arial,sans-serif;cursor:pointer}
+.sos-sync button.secondary{background:transparent;border:1px solid #bfd3c4;color:#00683c}
+.sos-sync a{color:#00683c}
+.sos-sync #sos-sync-state{font-weight:650;color:#256c49;margin:9px 0}
+.sos-sync .sync-secondary{font-size:12px;margin-top:10px;color:#586b60}
+.sos-sync button:disabled{opacity:.6;cursor:wait}
+@media(max-width:520px){.sos-sync .sync-row{flex-direction:column}.sos-sync input,.sos-sync button{width:100%}}
 </style></head>
 <body><div class="shell">
 <header><a class="site-logo" href="/" aria-label="Obey Tools home">OBEY.TOOLS</a><a class="round" href="/grow/" aria-label="Back to Growing Faith">‹</a><div class="headline"><strong>Overview</strong><small id="topday">Day 1</small></div><button class="round" id="menu" type="button" aria-label="Follow Daily options">···</button></header>
@@ -195,6 +208,23 @@ body{padding:0;background:#f8f8f8}
 </section>
 <button id="start" class="primary" type="button">Open SOS ↑</button>
 <div id="progress" class="muted" style="text-align:center;margin-top:13px"></div>
+<section id="sos-sync" class="sos-sync" aria-label="Sync Follow Daily progress">
+<h2>Keep your progress</h2>
+<p>Your readings and SOS answers save on this device. Sign in with your Obey.Tools account to sync them across devices.</p>
+<div id="sos-sync-state" role="status" aria-live="polite">Saved on this device</div>
+<form id="sos-sync-login" hidden>
+<div class="sync-row">
+<input id="sos-sync-email" type="email" autocomplete="email" placeholder="Account email" aria-label="Account email" required>
+<input id="sos-sync-password" type="password" autocomplete="current-password" placeholder="Password" aria-label="Account password" required>
+<button id="sos-sync-login-button" type="submit">Sign in & sync</button>
+</div>
+<p class="sync-secondary">Already have an Obey.Tools account? Sign in here. <a href="/">Create an account on Obey.Tools</a>. Daily emails remain account-free.</p>
+</form>
+<div id="sos-sync-logged-in" class="sync-row" hidden>
+<button id="sos-sync-now" type="button" class="secondary">Sync now</button>
+<button id="sos-sync-signout" type="button" class="secondary">Sign out</button>
+</div>
+</section>
 <section class="email-card" id="email-reminders" aria-label="Follow Daily email reminders">
 <h2>Follow Daily in your inbox</h2>
 <p>Start with Day 1 whenever you join. Receive one full Bible passage and one discovery question each morning, at a time you choose.</p>
@@ -216,13 +246,13 @@ body{padding:0;background:#f8f8f8}
 </div>
 <div id="email-reminder-status" role="status" aria-live="polite"></div>
 </section>
-<div class="notice">365 readings through the Gospel harmony and Acts, with WEB Updated Scripture on the page. Responses are saved on this device. Email reminders require separate opt-in and will only send after delivery is enabled.</div>
+<div class="notice">365 readings through the Gospel harmony and Acts, with WEB Updated Scripture on the page. Guest responses stay on this device. Signed-in users can sync readings and SOS answers securely across devices. Daily email reminders remain optional and account-free.</div>
 </main><aside class="desktop-aside" aria-label="About Follow Daily">
 <div class="desktop-side-card"><h2>Following Jesus’ Way</h2>
 <p>A 365-day journey through a harmony of the Gospels and Acts, learning how Jesus made disciples who multiplied.</p>
 <div class="desktop-phases"><div class="desktop-phase"><b>1</b>Identify</div><div class="desktop-phase"><b>2</b>Equip</div><div class="desktop-phase"><b>3</b>Invest</div><div class="desktop-phase"><b>4</b>Entrust</div></div></div>
 <div class="desktop-side-card"><h2>The daily flow</h2><div class="desktop-flow"><b>1</b><div><strong>Read</strong><small>One primary passage. Parallel accounts optional.</small></div></div><div class="desktop-flow"><b>2</b><div><strong>SOS</strong><small>Say · Obey · Share. Save a draft anytime.</small></div></div></div>
-<div class="desktop-side-card"><h2>Grow at your pace</h2><p>Save one answer now and finish the rest later. Drafts stay on this device.</p><button type="button" class="secondary" id="desktop-plan-info">View plan info</button></div></aside></div><div id="menu-backdrop" class="menu-backdrop" hidden></div>
+<div class="desktop-side-card"><h2>Grow at your pace</h2><p>Save just one answer and finish the rest later. Sign in to keep drafts across devices.</p><button type="button" class="secondary" id="desktop-plan-info">View plan info</button></div></aside></div><div id="menu-backdrop" class="menu-backdrop" hidden></div>
 <div id="plan-menu" class="menu-pop" role="menu" aria-label="Follow Daily plan options" hidden>
 <button type="button" role="menuitem" data-action="share"><span class="menu-ico">↗</span>Share</button>
 <button type="button" role="menuitem" data-action="settings"><span class="menu-ico">⚙</span>Settings</button>
@@ -278,7 +308,7 @@ if(!existingV2){
 const linkedDay=Number(new URLSearchParams(location.search).get('day'));
 if(Number.isInteger(linkedDay)&&linkedDay>=1&&linkedDay<=readings.length){state.day=linkedDay-1;try{localStorage.setItem(KEY,JSON.stringify(state))}catch{}}
 function entry(day=state.day){return state.entries[day]||{}}
-function persist(){try{localStorage.setItem(KEY,JSON.stringify(state));return true}catch{return false}}
+function persist(){try{localStorage.setItem(KEY,JSON.stringify(state));window.dispatchEvent(new Event('sos:progress-saved'));return true}catch{return false}}
 function changePanel(name){
  if(!$('sos-panel').hidden)save(true);
  const isRead=name==='reading';
@@ -361,11 +391,11 @@ function render(){
 }
 function save(silent=false){
  const e=entry();['say','obey','share'].forEach(k=>e[k]=$(k).value.trim());state.entries[state.day]=e;
- const ok=persist();if(!silent)$('status').textContent=ok?(e.say&&e.obey&&e.share?'SOS complete. Saved on this device.':(e.say||e.obey||e.share)?'Draft saved. Finish the rest anytime.':'Empty draft saved.'):'Unable to save on this device.';
+ const ok=persist();if(!silent)$('status').textContent=ok?(e.say&&e.obey&&e.share?'SOS complete. Saved locally; cloud sync follows if signed in.':(e.say||e.obey||e.share)?'Draft saved. Finish the rest anytime.':'Empty draft saved.'):'Unable to save on this device.';
  renderAfterSave();
  return ok;
 }
-function renderAfterSave(){const e=entry(),done=!!(e.say&&e.obey&&e.share),partial=!done&&!!(e.say||e.obey||e.share);const check=$('sos-check');check.classList.toggle('done',done);check.classList.toggle('draft',partial);check.textContent=done?'✓':'';$('sos-draft-note').hidden=!partial;$('progress').textContent=Object.values(state.entries).filter(x=>x.read&&x.say&&x.obey&&x.share).length+' of '+readings.length+' preview days completed'}
+function renderAfterSave(){const e=entry(),done=!!(e.say&&e.obey&&e.share),partial=!done&&!!(e.say||e.obey||e.share);const check=$('sos-check');check.classList.toggle('done',done);check.classList.toggle('draft',partial);check.textContent=done?'✓':'';$('sos-draft-note').hidden=!partial;$('progress').textContent=Object.values(state.entries).filter(x=>x.read&&x.say&&x.obey&&x.share).length+' of '+readings.length+' days completed'}
 function move(n){clearTimeout(draftTimer);save(true);state.day=Math.max(0,Math.min(readings.length-1,n));persist();render();$('reading-panel').hidden=false;$('sos-panel').hidden=true;$('start').textContent='Open SOS ↑';window.scrollTo({top:0,behavior:'smooth'})}
 $('open-reading').addEventListener('click',()=>changePanel('reading'));
 $('open-sos').addEventListener('click',()=>changePanel('sos'));
@@ -451,4 +481,16 @@ updatePlanStatus();
 $('desktop-plan-info').addEventListener('click',infoDialog);
 
 render();
-</script><script type="module" src="/daily-sos-email.js"></script></body></html>
+
+window.sosSyncAdapter={
+ read(){return JSON.parse(JSON.stringify(state))},
+ apply(snapshot){
+  if(!snapshot||typeof snapshot!=='object')return;
+  state.day=Math.max(0,Math.min(readings.length-1,Number(snapshot.day)||0));
+  state.entries=snapshot.entries&&typeof snapshot.entries==='object'?JSON.parse(JSON.stringify(snapshot.entries)):{};
+  try{localStorage.setItem(KEY,JSON.stringify(state))}catch{}
+  render();
+ },
+ flush(){if(!$('sos-panel').hidden)save(true)}
+};
+</script><script type="module" src="/daily-sos-sync.js"></script><script type="module" src="/daily-sos-email.js"></script></body></html>
