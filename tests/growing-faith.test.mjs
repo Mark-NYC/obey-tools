@@ -165,3 +165,30 @@ test('Growing Faith landing has only one hero headline and two concise choices',
  assert.match(hub,/Explore the tough questions about God, Jesus, and the Bible\./)
  assert.match(hub,/A 365-day SOS study through the Gospels/)
 })
+
+test('All 15 short-video question pages have fallback links and no internal QA disclaimers',()=>{
+ const slugs=[...new Set([...[
+ 'what-key-arguments-are-there-for-and-against-gods-existence',
+ 'why-does-god-remain-so-hidden',
+ 'why-would-a-good-god-allow-evil-to-exist',
+ 'why-would-a-good-god-allow-suffering-to-exist',
+ 'how-can-a-loving-god-send-people-to-hell',
+ 'why-does-the-old-testament-god-seem-different-than-the-new-testament-god',
+ 'why-would-god-command-the-death-of-so-many-people-in-the-bible-e-g-the-canaanites',
+ 'why-would-god-need-people-to-worship-him-isnt-that-egotistical-and-arrogant',
+ 'what-are-the-practical-implications-of-an-atheistic-worldview',
+ 'did-jesus-really-rise-from-the-dead','how-do-we-know-the-bible-is-reliable',
+ 'is-jesus-really-god-or-just-a-good-teacher',
+ 'why-is-christianity-true-instead-of-another-religion',
+ 'does-science-contradict-christianity',
+ 'why-are-christians-so-hypocritical-and-judgmental']])]
+ assert.equal(slugs.length,15)
+ for(const slug of slugs){
+  const page=read(slug+'/index.html')
+  assert.match(page,/youtube-nocookie.com\\/embed\\//)
+  assert.match(page,/class="video-alternative"/)
+  assert.match(page,/Watch on YouTube/)
+  assert.doesNotMatch(page,/require final playback verification/)
+ }
+ assert.match(read('questions/video.css'),/\\.video-alternative/)
+})
