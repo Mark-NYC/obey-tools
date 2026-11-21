@@ -53,6 +53,14 @@ try{
    }
    if(width===375||width===1440)await page.screenshot({path:join(out,'growing-faith-'+label+'-'+width+'.png'),fullPage:true})
   }
+  if(width===375||width===1440){
+   const detail=await page.goto(base+'/why-does-god-remain-so-hidden/',{waitUntil:'domcontentloaded'})
+   assert.equal(detail.status(),200,'video question URL not served')
+   assert.equal(await page.locator('iframe[src*="youtube-nocookie.com/embed/"]').count(),1,'video embed missing')
+   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2),true,'video page horizontal overflow at '+width)
+   assert.equal(await page.locator('.q-questions li').count(),3,'question discussions missing')
+   await page.screenshot({path:join(out,'growing-faith-video-question-'+width+'.png'),fullPage:true})
+  }
   await context.close()
  }
  console.log('PASS Growing Faith responsive navigation and no-overflow audit (375, 768, 1440px)')
