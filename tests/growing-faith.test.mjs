@@ -52,3 +52,18 @@ test('shared brand assets and responsive layouts',()=>{
  assert.match(hub,/@media\(max-width:450px\)/)
  assert.match(questions,/data-filter=/)
 })
+
+test('Follow Daily public name is consistent without changing SOS URLs or data keys',()=>{
+ const client=read('daily-sos-email.js')
+ const sender=read('supabase/functions/daily-sos-delivery/index.ts')
+ assert.match(hub,/<h3>FOLLOW DAILY<\/h3>/)
+ assert.match(hub,/SOS · Say, Obey, Share/)
+ assert.match(sos,/<h1>FOLLOW DAILY<\/h1>/)
+ assert.match(sos,/ABIDE IN JESUS · SAY, OBEY, SHARE/)
+ assert.match(sos,/<h2>Follow Daily in your inbox<\/h2>/)
+ assert.match(sos,/obeytools:daily-sos:v2/)
+ assert.match(sender,/from:"Follow Daily <daily@obey.tools>"/)
+ assert.match(sender,/\| Follow Daily/)
+ assert.match(sender,/https:\/\/obey.tools\/daily-sos.html/)
+ assert.match(client,/Follow Daily email enabled/)
+})
