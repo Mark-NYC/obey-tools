@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#00A468">
+<link rel="icon" href="assets/images/favicons/favicon.ico">
+<link rel="stylesheet" href="/fonts.css">
+<link rel="stylesheet" href="/buttons.css">
+<title>Daily SOS · Following Jesus' Way | OBEY.TOOLS</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f2f2f7;color:#1c1c1e;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",sans-serif;font-size:16px;line-height:1.45}
+.wrap{max-width:480px;min-height:100vh;margin:0 auto;background:#fff;padding-bottom:38px}
+.top{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid #e5e5ea}.top a{color:#1c1c1e;text-decoration:none;font-size:14px;font-weight:700}.logo{font-family:"Bebas Neue",Impact,sans-serif;font-size:27px;letter-spacing:.8px}
+.hero{text-align:center;padding:24px 22px 22px;border-bottom:1px solid #e5e5ea}.hero h1{font-family:"Bebas Neue",Impact,sans-serif;font-size:56px;letter-spacing:1px;line-height:1;margin:0;color:var(--ot-nav-green-deep);-webkit-text-stroke:1.2px #111}.hero p{margin:7px 0 0;color:#666;font-size:14px}.accent{width:50px;height:5px;border-radius:5px;background:var(--ot-nav-green-deep);margin:15px auto 0}
+main{padding:18px 16px}.eyebrow{font-size:11px;font-weight:800;color:#666;letter-spacing:.08em;text-transform:uppercase}.notice{background:#e9f8f1;border:1px solid #bce9d3;color:#174b32;padding:12px 14px;border-radius:10px;font-size:13px;margin-bottom:15px}
+.card{border:1px solid #dedee2;border-radius:12px;background:white;padding:16px;margin-bottom:12px}.muted{color:#696970;font-size:13px}.row{display:flex;justify-content:space-between;gap:12px;align-items:center}.tag{background:var(--ot-nav-green-deep);color:#fff;border-radius:100px;font-weight:800;font-size:11px;padding:5px 11px;text-transform:uppercase;white-space:nowrap}
+h2{font-size:23px;letter-spacing:-.5px;line-height:1.16;margin:12px 0 9px}h3{font-size:16px;margin:0 0 3px}.reference{color:#007a57;font-weight:750}.parallels{font-size:12px;color:#777;margin-top:6px}.question{margin:7px 0 11px;font-size:14px;color:#444}
+textarea,input,select{font:inherit;width:100%;padding:12px;border:1px solid #c6c6c8;border-radius:9px;background:#fff;color:#1c1e1e}textarea{resize:vertical;min-height:85px}textarea:focus,input:focus,select:focus{outline:2px solid #00a468;outline-offset:1px}
+button{font:inherit;cursor:pointer}.btn-green{border:0;background:var(--ot-nav-green-deep);color:white;border-radius:12px;padding:14px 16px;font-weight:800}.btn-secondary{background:#efeff1;border:0;border-radius:12px;padding:12px 16px;font-weight:700;color:#1c1c1e}.btn-outline{background:white;border:1.5px solid #9e9ea4;border-radius:12px;padding:12px 16px;font-weight:700}.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.full{width:100%}.name{font-weight:800;margin-bottom:2px}.sequence{display:flex;gap:7px;flex-wrap:wrap;margin:13px 0}.stage{border:1px solid #d6d6d9;border-radius:100px;padding:6px 10px;font-size:11px;font-weight:800}.stage.active{background:#e5f6ee;border-color:#00a468;color:#00673f}
+.response-label{display:flex;align-items:baseline;gap:8px}.response-label strong{font-size:18px}.number{background:#e6f6ed;color:#006b42;border-radius:7px;padding:3px 7px;font-size:12px}
+.status{font-size:13px;min-height:20px;margin:10px 0;color:#007a57}a{color:#007a57}.nav-days{display:flex;gap:10px;align-items:center;justify-content:space-between}.nav-days button{font-size:13px}.obey-check{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.obey-check button{border:1px solid #bbb;background:#f8f8f8;border-radius:8px;padding:9px 12px;font-size:13px}.obey-check button[aria-pressed=true]{background:#d7f2e4;border-color:#00a468;font-weight:800}
+.footer-note{text-align:center;color:#8e8e93;font-size:12px;margin:22px 0}button:focus-visible,a:focus-visible{outline:3px solid #007aff;outline-offset:3px}
+@media(max-width:360px){.hero h1{font-size:48px}.actions{grid-template-columns:1fr}}
+</style>
+</head>
+<body><div class="wrap">
+<header class="top"><a href="/" aria-label="Obey Tools home">‹ Home</a><span class="logo">OBEY.TOOLS</span><a href="#journey">My journey</a></header>
+<div class="hero"><h1>DAILY SOS</h1><p>Following Jesus' Way</p><div class="accent"></div></div>
+<main>
+<div class="notice"><strong>Preview reading journey.</strong> These initial harmony readings are available now. The complete 365-day harmony and scheduled email/text delivery are not yet live.</div>
+<section class="card" aria-label="Today's reading">
+<div class="row"><span class="eyebrow" id="day-count">DAY 1 OF 14</span><span class="tag" id="phase">IDENTIFY</span></div>
+<h2 id="passage-title"></h2><div><span class="reference" id="passage-ref"></span><span class="muted"> · WEB Updated</span></div>
+<div class="parallels" id="parallels"></div>
+<div class="sequence" aria-label="Discipleship phases"><span class="stage" data-stage="IDENTIFY">IDENTIFY</span><span class="stage" data-stage="EQUIP">EQUIP</span><span class="stage" data-stage="INVEST">INVEST</span><span class="stage" data-stage="ENTRUST">ENTRUST</span></div>
+<p class="question" id="discovery"></p>
+<a id="read-link" href="https://ebible.org/engwebu/" target="_blank" rel="noopener">Read today's passage in WEB Updated ↗</a>
+</section>
+<section id="previous-card" class="card" hidden><div class="eyebrow">YESTERDAY'S OBEDIENCE</div><p class="question" id="previous-obey"></p><div class="obey-check"><button data-check="done" type="button">I did it</button><button data-check="pending" type="button">Not yet</button><button data-check="revised" type="button">Change my plan</button></div></section>
+<section class="card"><div class="response-label"><span class="number">1</span><strong>Say</strong></div><p class="question">What is God saying to you through the Scripture?</p><label for="say" class="eyebrow">My reflection</label><textarea id="say" placeholder="What stands out to you?"></textarea></section>
+<section class="card"><div class="response-label"><span class="number">2</span><strong>Obey</strong></div><p class="question">What is one specific way you will obey?</p><label for="obey" class="eyebrow">My next step</label><textarea id="obey" placeholder="Today I will..."></textarea></section>
+<section class="card"><div class="response-label"><span class="number">3</span><strong>Share</strong></div><p class="question">Who will you share what you're learning with?</p><label for="share" class="eyebrow">Person or group</label><input id="share" placeholder="Who comes to mind?"></section>
+<div class="actions"><button id="save" class="btn-green" type="button">Save today's SOS</button><button id="share-btn" class="btn-outline" type="button">Share</button></div>
+<div class="status" id="status" role="status" aria-live="polite"></div>
+<section id="journey" class="card"><div class="row"><div><h3>My journey</h3><div class="muted" id="progress"></div></div><span class="tag">GOSPEL HARMONY</span></div><div class="nav-days" style="margin-top:14px"><button id="prev" class="btn-secondary" type="button">← Previous</button><select id="day-select" aria-label="Choose reading day"></select><button id="next" class="btn-secondary" type="button">Next →</button></div></section>
+<p class="footer-note">Your responses are saved on this device only. They are not synced to your account. No messages are sent automatically.</p>
+</main></div>
+<script>
+const readings=[
+["The Word Became Flesh","John 1:1–18","","IDENTIFY","What does John reveal about who Jesus is and why he came?",1],
+["The Birth of Jesus","Luke 2:1–20","Matthew 1:18–25","IDENTIFY","How does God introduce the Savior to ordinary people?",2],
+["Jesus Grows in Wisdom","Luke 2:41–52","","IDENTIFY","What do you notice about Jesus' relationship with his Father?",2],
+["John Prepares the Way","Mark 1:1–8","Matthew 3:1–12; Luke 3:1–18","IDENTIFY","How did John prepare people to respond to God's Kingdom?",1],
+["Jesus Is Baptized","Mark 1:9–11","Matthew 3:13–17; Luke 3:21–22","IDENTIFY","What is affirmed about Jesus before his public ministry?",1],
+["Jesus Is Tested","Matthew 4:1–11","Mark 1:12–13; Luke 4:1–13","IDENTIFY","How did Jesus respond to temptation using Scripture?",4],
+["The First Disciples Meet Jesus","John 1:35–51","","IDENTIFY","What did these first followers do after encountering Jesus?",1],
+["Jesus Calls Fishermen","Luke 5:1–11","Matthew 4:18–22; Mark 1:16–20","IDENTIFY","What did Jesus ask them to leave and what did he invite them into?",3],
+["Jesus Calls Levi","Mark 2:13–17","Matthew 9:9–13; Luke 5:27–32","IDENTIFY","Whom does Jesus invite, and what does that reveal about his mission?",1],
+["Jesus Appoints the Twelve","Mark 3:13–19","Luke 6:12–16; Matthew 10:1–4","IDENTIFY","Why did Jesus appoint the Twelve, and what did he intend for them?",1],
+["Kingdom Life: The Beatitudes","Matthew 5:1–12","Luke 6:20–23","EQUIP","What kind of people does Jesus say are blessed?",4],
+["Jesus Teaches His Disciples to Pray","Matthew 6:5–15","Luke 11:1–4","EQUIP","How does Jesus teach his disciples to approach the Father?",4],
+["Jesus Sends the Twelve","Mark 6:7–13","Matthew 10:5–15; Luke 9:1–6","INVEST","What responsibility and authority did Jesus entrust to them?",1],
+["Jesus Commissions His Disciples","Matthew 28:16–20","Luke 24:44–49; John 20:19–23","ENTRUST","What did Jesus command them to do as they went?",4]
+];
+const KEY='obeytools:daily-sos:v1'; const $=id=>document.getElementById(id);
+let state={day:0,entries:{}};try{const x=JSON.parse(localStorage.getItem(KEY));if(x&&typeof x==='object')state={day:Math.min(Math.max(Number(x.day)||0,0),readings.length-1),entries:x.entries||{}}}catch{}
+function persist(){try{localStorage.setItem(KEY,JSON.stringify(state));return true}catch{return false}}
+function safe(value){return String(value||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function entry(i){return state.entries[i]||{}}
+function render(){const i=state.day,r=readings[i],e=entry(i);$('day-count').textContent='DAY '+(i+1)+' OF '+readings.length;$('phase').textContent=r[3];$('passage-title').textContent=r[0];$('passage-ref').textContent=r[1];$('parallels').textContent=r[2]?'Parallel accounts: '+r[2]:'Primary Gospel account';$('discovery').textContent=r[4];$('read-link').href='https://ebible.org/engwebu/'+({1:'MRK',2:'LUK',3:'LUK',4:'MAT'}[r[5]]||'JHN')+'.htm';
+document.querySelectorAll('.stage').forEach(el=>el.classList.toggle('active',el.dataset.stage===r[3]));['say','obey','share'].forEach(k=>$(k).value=e[k]||'');$('day-select').value=String(i);$('prev').disabled=i===0;$('next').disabled=i===readings.length-1;$('progress').textContent=Object.values(state.entries).filter(x=>x.say&&x.obey&&x.share).length+' of '+readings.length+' readings completed';
+const prior=i>0?entry(i-1):null;$('previous-card').hidden=!prior?.obey;if(prior?.obey){$('previous-obey').textContent=prior.obey;document.querySelectorAll('[data-check]').forEach(b=>b.setAttribute('aria-pressed',String(prior.check===b.dataset.check)))}$('status').textContent=''}
+function save(silent=false){const e=entry(state.day);['say','obey','share'].forEach(k=>e[k]=$(k).value.trim());state.entries[state.day]=e;let ok=persist();if(!silent)$('status').textContent=ok?'Saved on this device.':'Could not save. Check your browser storage settings.';return ok}
+function move(n){save(true);state.day=Math.max(0,Math.min(readings.length-1,n));persist();render();window.scrollTo({top:0,behavior:'smooth'})}
+readings.forEach((r,i)=>{const opt=document.createElement('option');opt.value=String(i);opt.textContent='Day '+(i+1);$('day-select').appendChild(opt)});
+$('save').addEventListener('click',()=>save());$('prev').addEventListener('click',()=>move(state.day-1));$('next').addEventListener('click',()=>move(state.day+1));$('day-select').addEventListener('change',e=>move(Number(e.target.value)));
+document.querySelectorAll('[data-check]').forEach(b=>b.addEventListener('click',()=>{const e=entry(state.day-1);e.check=b.dataset.check;state.entries[state.day-1]=e;persist();render()}));
+$('share-btn').addEventListener('click',async()=>{save(true);const r=readings[state.day];const e=entry(state.day);const msg='Daily SOS: '+r[0]+' ('+r[1]+')\nSay: '+(e.say||'')+'\nObey: '+(e.obey||'')+'\nShare: '+(e.share||'')+'\nhttps://obey.tools/daily-sos.html';try{if(navigator.share)await navigator.share({title:'Daily SOS',text:msg});else if(navigator.clipboard){await navigator.clipboard.writeText(msg);$('status').textContent='Copied to clipboard.'}else{$('status').textContent='Sharing is unavailable on this device.'}}catch(err){if(err.name!=='AbortError')$('status').textContent='Could not share right now.'}});
+render();
+</script></body></html>
