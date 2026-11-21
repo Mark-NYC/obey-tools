@@ -19,7 +19,7 @@ if(adapter&&$('sos-sync')){
  let owner=localStorage.getItem(OWNER_KEY)||'guest';
  let activeUser=null,authGeneration=0,syncInProgress=false,writeTimer=null,needsSync=false;
  let pendingWrites=new Map();
- let loginBusy=false;
+ let loginBusy=false, switchingOwner=false;
  const key=(day,field)=>day+':'+field;
  const normalizedEntries=s=>{
   const map=new Map();
@@ -39,16 +39,22 @@ if(adapter&&$('sos-sync')){
  }
  function switchOwner(nextOwner){
   if(owner===nextOwner)return;
+  switchingOwner=true;
+  adapter.flush();
+  const previous=getLocal();
+  saveBucket();
   if(writeTimer)clearTimeout(writeTimer);
   pendingWrites.clear();needsSync=false;
-  adapter.flush();
-  saveBucket();
-  const found=parse(localStorage.getItem(BUCKET_PREFIX+nextOwner),null);
+  const existing=parse(localStorage.getItem(BUCKET_PREFIX+nextOwner),null);
+  // Guest answers are brought into their first account, but data belonging
+  // to a different signed-in user is never imported into another account.
+  const found=existing||(owner==='guest'&&nextOwner!=='guest'?previous:null);
   revisions=found?.revisions&&typeof found.revisions==='object'?found.revisions:{};
   owner=nextOwner;
   try{localStorage.setItem(OWNER_KEY,owner);localStorage.setItem(META_KEY,JSON.stringify(revisions))}catch{}
   adapter.apply(found?.state||{day:0,entries:{}});
   last=adapter.read();
+  switchingOwner=false;
  }
  const saveRevisions=()=>{try{localStorage.setItem(META_KEY,JSON.stringify(revisions))}catch{}};
  const nextRevision=(k)=>Math.max(Date.now(),Number(revisions[k]||0)+1);
@@ -66,7 +72,7 @@ if(adapter&&$('sos-sync')){
   last=current;
   if(changes.length){
    saveRevisions();saveBucket();
-   if(activeUser){
+   if(activeUser&&!switchingOwner){
     for(const change of changes)pendingWrites.set(key(change.day,change.field),change);
     setStatus('Saved on this device · Syncing…');
     scheduleWrite();
@@ -199,8 +205,8 @@ if(adapter&&$('sos-sync')){
   const id=user?.id||null;
   if(activeUser?.id===id){showAuth();return}
   authGeneration++;
-  activeUser=user||null;
   switchOwner(id||'guest');
+  activeUser=user||null;
   showAuth();
   if(activeUser)await sync();
  }
