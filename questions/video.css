@@ -1,0 +1,44 @@
+/* Questions: original video-first editorial treatment, consistent with Growing Faith */
+:root{--q-ink:#19211d;--q-green:#00a468;--q-muted:#56645c}
+*{box-sizing:border-box}
+.question-page{background:#f8f8f8;color:var(--q-ink);font:16px/1.62 -apple-system,BlinkMacSystemFont,"SF Pro Display",sans-serif;margin:0}
+.question-page a{color:inherit}
+.q-wrap{max-width:1060px;padding:0 26px;margin:auto}
+.q-head{border-bottom:1px solid #e2e6e2;background:#fff}
+.q-head-inner{min-height:74px;display:flex;justify-content:space-between;align-items:center;gap:18px}
+.q-logo{font:31px/1 "Bebas Neue",Impact,sans-serif;letter-spacing:1px;text-decoration:none}
+.q-nav{display:flex;gap:22px;font-size:14px;font-weight:700}
+.q-nav a{text-decoration:none}.q-nav [aria-current]{color:#007b4c}
+.q-back{font-size:13px;color:#b2d0be;margin:0 0 24px}
+.q-back a{color:#a8e6c3;text-decoration:none}
+.q-hero{background:#10221a;color:#fff;padding:38px 0 48px}
+.q-kind{color:#86e3af;letter-spacing:.12em;font-weight:850;font-size:12px;text-transform:uppercase}
+.q-hero h1{font:clamp(48px,7.5vw,88px)/1.02 "Bebas Neue",Impact,sans-serif;max-width:950px;letter-spacing:.4px;margin:15px 0}
+.q-hero .q-intro{font-size:clamp(17px,2vw,21px);line-height:1.5;color:#cdded3;max-width:740px;margin:0 0 27px}
+.q-player{position:relative;width:100%;aspect-ratio:16/9;overflow:hidden;border-radius:12px;background:#030504}
+.q-player iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.q-credit{font-size:13px;color:#b1c7b7;margin:14px 0 0}
+.q-credit strong{color:#fff}
+.q-content{max-width:800px;margin:0 auto;padding:48px 20px 20px}
+.q-section{border-bottom:1px solid #dce2dd;padding:0 0 35px;margin-bottom:36px}
+.q-section h2{font:clamp(32px,4vw,45px)/1.08 "Bebas Neue",Impact,sans-serif;letter-spacing:.3px;margin:0 0 16px}
+.q-section p{color:#404d43;margin:0 0 14px;font-size:17px;line-height:1.75}
+.q-section p:last-child{margin-bottom:0}
+.q-pill{font-size:11px;font-weight:850;letter-spacing:.07em;color:#006d41;background:#e3f5e9;padding:6px 10px;border-radius:5px;text-transform:uppercase}
+.q-questions{list-style:none;counter-reset:counter;padding:0;margin:19px 0 0}
+.q-questions li{counter-increment:counter;display:flex;gap:16px;padding:16px 0;border-top:1px solid #dce3df;font-size:17px;line-height:1.45}
+.q-questions li:before{content:"0" counter(counter);color:#008756;font:26px/1 "Bebas Neue",Impact,sans-serif;min-width:34px}
+.q-scripture{display:flex;flex-wrap:wrap;gap:9px;margin-top:16px}
+.q-scripture span{display:inline-block;background:#ebf3ed;border:1px solid #d4e2d7;border-radius:7px;padding:8px 12px;color:#265e41;font-size:14px;font-weight:750}
+.q-source{font-size:13px!important;color:#657369!important}
+.q-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px}
+.q-action{display:inline-flex;text-decoration:none;border-radius:9px;background:#00a468;color:#fff!important;padding:13px 20px;font-weight:800;border:0;font:inherit;cursor:pointer;align-items:center;gap:10px}
+.q-action.secondary{background:#e8eee9;color:#155b38!important}
+.q-related{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}
+.q-related a{display:block;border:1px solid #d7dfd9;border-radius:10px;padding:19px;text-decoration:none;font-weight:800;font-size:15px;background:#fff;line-height:1.35}
+.q-related a:hover{border-color:#00a468}
+.q-footer{border-top:1px solid #dce2dd;padding:25px 0;color:#6a746c;font-size:13px}
+.q-footer a{color:#00784b}
+button:focus-visible,a:focus-visible{outline:3px solid #00a468;outline-offset:3px}
+@media(max-width:650px){.q-wrap{padding:0 17px}.q-head-inner{min-height:65px}.q-nav{gap:11px;font-size:12px}.q-logo{font-size:27px}.q-hero{padding:25px 0 32px}.q-hero h1{font-size:clamp(43px,10vw,62px)}.q-player{border-radius:7px}.q-content{padding:32px 18px 12px}.q-section{margin-bottom:28px;padding-bottom:28px}.q-section p{font-size:16px}.q-related{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
