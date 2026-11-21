@@ -3,6 +3,9 @@ on:
   pull_request:
     paths:
       - "daily-sos.html"
+      - "follow-daily/**"
+      - "questions/**"
+      - "tests/growing-faith.test.mjs"
       - "daily-sos-email.js"
       - "daily-sos-sync.js"
       - "daily-sos-readings.js"
@@ -15,6 +18,9 @@ on:
     branches: [main]
     paths:
       - "daily-sos.html"
+      - "follow-daily/**"
+      - "questions/**"
+      - "tests/growing-faith.test.mjs"
       - "daily-sos-email.js"
       - "daily-sos-sync.js"
       - "daily-sos-readings.js"
@@ -32,4 +38,4 @@ jobs:
         with:
           node-version: "22"
       - name: Validate 365 readings, email and cloud syncing
-        run: node --test tests/daily-sos-schedule.test.mjs tests/daily-sos-email.test.mjs tests/daily-sos-sync.test.mjs
+        run: node --test tests/daily-sos-schedule.test.mjs tests/daily-sos-email.test.mjs tests/daily-sos-sync.test.mjs tests/growing-faith.test.mjs
