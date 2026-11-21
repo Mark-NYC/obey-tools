@@ -87,7 +87,9 @@ Deno.serve(async (req)=>{
   if(url.pathname.endsWith("/health")&&req.method==="GET"){
    if(!secretKey)return json({ok:true,ready:false});
    const {data:state}=await db.from("sos_email_runtime").select("enabled").eq("singleton",true).maybeSingle();
-   return json({ok:true,ready:!!state?.enabled});
+   if(!state?.enabled)return json({ok:true,ready:false});
+   const {data:token}=await db.rpc("sos_resend_token");
+   return json({ok:true,ready:!!token});
   }
   if(req.method!=="POST"||!url.pathname.endsWith("/daily-sos-delivery"))return json({error:"Not found"},404);
   if(!secretKey)return json({error:"Server configuration unavailable"},503);
@@ -102,6 +104,12 @@ Deno.serve(async (req)=>{
   let sent=0,failed=0;
   for(const job of (due||[]) as Job[]){
    try{
+    const {data:subscription,error:subscriptionError}=await db.from("sos_email_subscriptions")
+      .select("status,next_day").eq("id",job.sub_id).single();
+    if(subscriptionError||subscription?.status!=="active"||subscription?.next_day!==job.day_no){
+      await db.rpc("sos_mark_failed",{p_id:job.delivery_id,p_error:"Subscription was paused, stopped, or advanced before dispatch"});
+      continue;
+    }
     const message=emailFor(job.day_no,job);
     const res=await fetch("https://api.resend.com/emails",{
      method:"POST",
