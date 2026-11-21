@@ -185,10 +185,10 @@ test('All 15 short-video question pages have fallback links and no internal QA d
  assert.equal(slugs.length,15)
  for(const slug of slugs){
   const page=read(slug+'/index.html')
-  assert.match(page,/youtube-nocookie.com\\/embed\\//)
+  assert.ok(page.includes('youtube-nocookie.com/embed/'))
   assert.match(page,/class="video-alternative"/)
   assert.match(page,/Watch on YouTube/)
   assert.doesNotMatch(page,/require final playback verification/)
  }
- assert.match(read('questions/video.css'),/\\.video-alternative/)
+ assert.ok(read('questions/video.css').includes('.video-alternative'))
 })
