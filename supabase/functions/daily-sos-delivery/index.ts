@@ -53,7 +53,7 @@ function emailFor(day:number, job:Job){
  const verses=verseRange(reference);
  const actionUrl="https://obey.tools/daily-sos.html?day="+day;
  const unsubUrl=projectUrl+"/functions/v1/daily-sos-delivery/unsubscribe?token="+encodeURIComponent(job.unsubscribe_id);
- const manageUrl=projectUrl+"/functions/v1/daily-sos-delivery/manage?token="+encodeURIComponent(job.unsubscribe_id);
+ const manageUrl="https://obey.tools/follow-daily-manage.html?token="+encodeURIComponent(job.unsubscribe_id);
  // Editorial reading layout: Scripture sits directly on the page, never in a
  // separate colored panel. Short paragraphs make long passages easy to read.
  const verseHtml=verses.map(([v,content])=>
@@ -106,8 +106,6 @@ function emailFor(day:number, job:Job){
 
 const signupFrom="Follow Daily <daily@obey.tools>";
 const emailCheck=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const htmlPage=(title:string,body:string)=>new Response('<!doctype html><html lang="en"><meta name="viewport" content="width=device-width,initial-scale=1"><meta charset="utf-8"><title>'+escapeHtml(title)+'</title><main style="font:16px/1.6 Arial,sans-serif;max-width:490px;padding:30px 22px;margin:36px auto;color:#183626"><p style="font-weight:800;color:#007a4c">OBEY.TOOLS · FOLLOW DAILY</p><h1>'+escapeHtml(title)+'</h1>'+body+'</main></html>',{headers:{"Content-Type":"text/html; charset=utf-8","Cache-Control":"no-store","Referrer-Policy":"no-referrer","X-Content-Type-Options":"nosniff"}});
-function button(label:string){return '<button type="submit" style="display:block;border:0;border-radius:5px;background:#00a468;color:white;padding:14px 23px;font-weight:750;cursor:pointer">'+escapeHtml(label)+'</button>'}
 function validToken(t:string){return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(t)}
 async function sendResend(to:string,subject:string,html:string,text:string,identity:string){
  const key=await resolvedResendToken();
@@ -147,77 +145,65 @@ async function subscribe(req:Request){
   requested_at:new Date().toISOString(),attempts:1
  },{onConflict:"email"}).select("confirmation_token").single();
  if(pendingError||!pending)return json({error:"Could not prepare confirmation"},503);
- const link=projectUrl+"/functions/v1/daily-sos-delivery/confirm?token="+encodeURIComponent(pending.confirmation_token);
+ const link="https://obey.tools/follow-daily-confirm.html?token="+encodeURIComponent(pending.confirmation_token);
  const copy='Confirm your Follow Daily emails by clicking below. Your first reading arrives tomorrow at your chosen time. If you did not request this, ignore the message.';
  const emailHtml='<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1"><div style="max-width:540px;margin:auto;padding:28px;color:#19372a;font-family:Arial,sans-serif"><strong>OBEY.TOOLS</strong><h1 style="font:700 29px Georgia,serif">One step to Follow Daily</h1><p>'+copy+'</p><p style="margin:28px 0"><a href="'+link+'" style="background:#00a468;color:#fff;padding:15px 22px;text-decoration:none;border-radius:4px">Confirm Daily Emails</a></p><p style="font-size:12px;color:#667268">This link expires in 24 hours. No account or password required.</p></div>';
  try{await sendResend(email,"Confirm your Follow Daily emails",emailHtml,copy+"\n\n"+link,"follow-daily-confirm-"+pending.confirmation_token)}
  catch(err){console.error("Follow Daily confirmation delivery failed",err instanceof Error?err.message:"error");return json({error:"Could not send confirmation right now"},503)}
  return json({ok:true,message:"Check your email to confirm."});
 }
+
+const appPage=(path:string,token:string,extra="") =>
+ new Response(null,{status:302,headers:{"Location":"https://obey.tools/"+path+".html?token="+encodeURIComponent(token)+extra,"Cache-Control":"no-store","Referrer-Policy":"no-referrer"}});
 async function confirm(req:Request,url:URL){
  const token=url.searchParams.get("token")||"";
- if(!validToken(token))return htmlPage("Invalid confirmation link","<p>Request a new confirmation email from Follow Daily.");
- if(req.method==="GET")return htmlPage("Confirm daily emails",
-  '<p>One click away from your first reading. No account or password needed.</p><form method="POST">'+button("Confirm Daily Emails")+'</form>');
+ if(!validToken(token))return json({error:"Invalid confirmation link"},400);
+ if(req.method==="GET")return appPage("follow-daily-confirm",token);
  if(req.method!=="POST")return json({error:"Method not allowed"},405);
  const {data:p,error}=await db.from("sos_email_pending").select("*").eq("confirmation_token",token).gt("expires_at",new Date().toISOString()).maybeSingle();
- if(error||!p)return htmlPage("Link expired","<p>That confirmation link is invalid or has expired. Please sign up again.</p>");
+ if(error||!p)return json({error:"This link has expired or has already been used. Please sign up again."},410);
  const {data:existing,error:existingError}=await db.from("sos_email_subscriptions").select("id,status,next_day").eq("email",p.email).maybeSingle();
- if(existingError)return htmlPage("Try again","<p>Could not confirm right now. Please try again.</p>");
+ if(existingError)return json({error:"Unable to confirm right now."},503);
  let saveError;
  if(existing){
-  // Proven control of this address. Preserve progress and linked user accounts.
   const r=await db.from("sos_email_subscriptions").update({timezone:p.timezone,send_hour:p.send_hour,status:existing.status==="completed"?"completed":"active"}).eq("id",existing.id);
   saveError=r.error;
  }else{
   const r=await db.from("sos_email_subscriptions").insert({email:p.email,timezone:p.timezone,send_hour:p.send_hour,status:"active",next_day:1});
   saveError=r.error;
  }
- if(saveError)return htmlPage("Try again","<p>We couldn't complete your signup. Please try the same confirmation link again.</p>");
+ if(saveError)return json({error:"Unable to complete signup. Please retry."},503);
  await db.from("sos_email_pending").delete().eq("confirmation_token",token);
- return htmlPage("You're subscribed!",'<p>Your Follow Daily journey is confirmed. '+(existing?.status==="completed"?"Your 365-day journey is already complete.":"Your next reading is scheduled for tomorrow morning at your chosen time.")+'</p><p><a href="https://obey.tools/daily-sos.html">Start reading now</a></p>');
+ return json({ok:true,completed:existing?.status==="completed",message:existing?.status==="completed"?"Your 365-day journey is already complete.":"Confirmed! Your first or next reading is scheduled for tomorrow."});
 }
 async function manage(req:Request,url:URL){
  const token=url.searchParams.get("token")||"";
- if(!validToken(token))return htmlPage("Invalid link","<p>Use the Manage reminders link in a recent Follow Daily email.</p>");
- const {data:sub,error}=await db.from("sos_email_subscriptions").select("id,status,send_hour,timezone,next_day").eq("unsubscribe_token",token).maybeSingle();
- if(error||!sub)return htmlPage("Link not found","<p>This management link is no longer available.</p>");
- if(req.method==="GET"){
-  const phase=sub.status==="active"?"Pause emails":"Resume emails";
-  const desired=sub.status==="active"?"paused":"active";
-  return htmlPage("Manage Follow Daily",
-   '<p>Status: <strong>'+escapeHtml(sub.status)+'</strong>. Your place is saved at Day '+sub.next_day+'.</p>'+
-   '<form method="POST"><input type="hidden" name="status" value="'+desired+'">'+button(phase)+'</form>'+
-   '<form method="POST" style="margin-top:16px"><input type="hidden" name="status" value="stopped">'+button("Unsubscribe")+'</form>'+
-   '<p><a href="https://obey.tools/daily-sos.html">Return to Follow Daily</a></p>');
- }
+ if(!validToken(token))return json({error:"Invalid management link"},400);
+ if(req.method==="GET" && url.searchParams.get("format")!=="json")return appPage("follow-daily-manage",token);
+ const {data:sub,error}=await db.from("sos_email_subscriptions").select("id,status,send_hour,timezone,next_day,next_send_at").eq("unsubscribe_token",token).maybeSingle();
+ if(error||!sub)return json({error:"This management link is no longer available."},404);
+ if(req.method==="GET")return json({ok:true,status:sub.status,nextDay:sub.next_day,sendHour:sub.send_hour,timezone:sub.timezone,nextSendAt:sub.next_send_at});
  if(req.method!=="POST")return json({error:"Method not allowed"},405);
- const form=await req.formData();
- const next=String(form.get("status")||"");
- if(!["active","paused","stopped"].includes(next))return htmlPage("Invalid choice","<p>Use the controls in your email link.</p>");
- if(sub.status==="completed"&&next==="active")return htmlPage("Journey completed","<p>You've already completed this 365-day journey.</p>");
+ let body:Record<string,unknown>;
+ try{body=await req.json()}catch{return json({error:"Invalid request"},400)}
+ const next=String(body.status||"");
+ if(!["active","paused","stopped"].includes(next))return json({error:"Invalid status"},400);
+ if(sub.status==="completed" && next==="active")return json({error:"This journey is already completed."},409);
  const {error:saveError}=await db.from("sos_email_subscriptions").update({status:next}).eq("id",sub.id);
- if(saveError)return htmlPage("Try again","<p>Could not save your preference.</p>");
- return htmlPage(next==="active"?"Emails resumed":next==="paused"?"Emails paused":"Unsubscribed",
-  '<p>Your preference was saved. Your Scripture responses are unchanged.</p><p><a href="https://obey.tools/daily-sos.html">Return to Follow Daily</a></p>');
+ if(saveError)return json({error:"Could not save preference."},503);
+ return json({ok:true,status:next,message:next==="active"?"Emails resumed.":"Email reminders updated."});
 }
 
 async function unsubscribe(req:Request,url:URL){
  const token=url.searchParams.get("token")||"";
- if(!/^[a-f0-9-]{36}$/i.test(token))return new Response("Invalid link",{status:400});
- if(req.method==="GET"){
-  const body='<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1"><title>Follow Daily emails</title>'+
-  '<main style="font:16px/1.5 Arial,sans-serif;max-width:460px;margin:50px auto;padding:25px"><h1>Stop Follow Daily emails?</h1>'+
-  '<p>Your saved Scripture reflections will stay intact.</p>'+
-  '<form method="post"><button style="border:0;border-radius:8px;padding:14px 22px;background:#00a468;color:white;font-weight:bold">Unsubscribe</button></form>'+
-  '<p><a href="https://obey.tools/daily-sos.html">Return to Follow Daily</a></p></main>';
-  return new Response(body,{headers:{"Content-Type":"text/html; charset=utf-8","Cache-Control":"no-store"}});
- }
+ if(!validToken(token))return json({error:"Invalid unsubscribe link"},400);
+ if(req.method==="GET")return appPage("follow-daily-manage",token,"&unsubscribe=1");
  if(req.method!=="POST")return json({error:"Method not allowed"},405);
  const {data,error}=await db.from("sos_email_subscriptions").update({status:"stopped"}).eq("unsubscribe_token",token).select("id");
  if(error){console.error("unsubscribe failed",error.code);return json({error:"Unable to unsubscribe"},500)}
- return new Response('<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1"><main style="font:17px Arial,sans-serif;padding:45px;max-width:460px;margin:auto"><h1>Unsubscribed</h1><p>Follow Daily emails have stopped. Your saved reflections are unchanged.</p><a href="https://obey.tools/daily-sos.html">Follow Daily</a></main>',{headers:{"Content-Type":"text/html; charset=utf-8","Cache-Control":"no-store"}});
+ return json({ok:true,unsubscribed:true});
 }
+
 Deno.serve(async (req)=>{
  try{
   if(req.method==="OPTIONS")return new Response(null,{status:204,headers:cors});
