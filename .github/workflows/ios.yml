@@ -50,6 +50,8 @@ jobs:
       - run: npm test
       - name: Growing Faith routes and design consistency
         run: node ../tests/growing-faith.test.mjs
+      - name: Growing Faith desktop and mobile browser audit
+        run: node tests/growing-faith-visual.mjs
       - name: Offline-first suite (airplane mode, sync safety, durable storage)
         run: node tests/offline-first.mjs
       - name: Navigation audit (every screen × 3 iPhone sizes)
