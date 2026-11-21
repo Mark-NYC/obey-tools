@@ -37,6 +37,20 @@ try{
     assert.equal(await page.locator('a[href="/questions/"]').count(),1)
     assert.equal(await page.locator('a[href="/daily-sos.html"]').count(),1)
    }
+   if(label==='sos'){
+    const layout=await page.locator('.shell').evaluate(el=>({
+      width:el.getBoundingClientRect().width,
+      radius:getComputedStyle(el).borderTopLeftRadius,
+      border:getComputedStyle(el).borderTopWidth,
+      left:el.getBoundingClientRect().left
+    }))
+    assert.ok(Math.abs(layout.width-width)<=2,'SOS should use full viewport width at '+width+'px: '+layout.width)
+    assert.equal(layout.radius,'0px','SOS should not have an outer phone/card frame')
+    assert.equal(layout.border,'0px','SOS outer shell border should be removed')
+    assert.ok(Math.abs(layout.left)<=2,'SOS should not float as centered phone frame')
+    assert.equal(await page.locator('#reading-panel').count(),1)
+    assert.equal(await page.locator('#sos-panel').count(),1)
+   }
    if(width===375||width===1440)await page.screenshot({path:join(out,'growing-faith-'+label+'-'+width+'.png'),fullPage:true})
   }
   await context.close()
