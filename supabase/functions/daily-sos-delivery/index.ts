@@ -11,7 +11,7 @@ const projectUrl = Deno.env.get("SUPABASE_URL") || "";
 const keys = JSON.parse(Deno.env.get("SUPABASE_SECRET_KEYS") || "{}");
 const secretKey = keys.default || Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
 const db = createClient(projectUrl, secretKey, {auth:{persistSession:false,autoRefreshToken:false}});
-const cors={"Access-Control-Allow-Origin":"https://obey.tools","Access-Control-Allow-Methods":"GET, POST, OPTIONS","Access-Control-Allow-Headers":"Content-Type, X-SOS-Cron-Secret"};
+const cors={"Access-Control-Allow-Origin":"*","Access-Control-Allow-Methods":"GET, POST, OPTIONS","Access-Control-Allow-Headers":"Content-Type, X-SOS-Cron-Secret"};
 function escapeHtml(s:string){return String(s).replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]||ch))}
 function json(data:unknown,status=200){return Response.json(data,{status,headers:{"Cache-Control":"no-store",...cors}})}
 function constantEqual(a:string,b:string) {
@@ -84,7 +84,11 @@ Deno.serve(async (req)=>{
   if(req.method==="OPTIONS")return new Response(null,{status:204,headers:cors});
   const url=new URL(req.url);
   if(url.pathname.endsWith("/unsubscribe"))return await unsubscribe(req,url);
-  if(url.pathname.endsWith("/health")&&req.method==="GET")return json({ok:true,service:"daily-sos-delivery"});
+  if(url.pathname.endsWith("/health")&&req.method==="GET"){
+   if(!secretKey)return json({ok:true,ready:false});
+   const {data:state}=await db.from("sos_email_runtime").select("enabled").eq("singleton",true).maybeSingle();
+   return json({ok:true,ready:!!state?.enabled});
+  }
   if(req.method!=="POST"||!url.pathname.endsWith("/daily-sos-delivery"))return json({error:"Not found"},404);
   if(!secretKey)return json({error:"Server configuration unavailable"},503);
   const {data:runtime,error:runtimeError}=await db.from("sos_email_runtime").select("enabled,cron_secret,max_per_run").eq("singleton",true).single();
