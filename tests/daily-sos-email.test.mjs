@@ -1,0 +1,76 @@
+import test from 'node:test'
+import assert from 'node:assert/strict'
+import fs from 'node:fs'
+import path from 'node:path'
+import vm from 'node:vm'
+import { fileURLToPath } from 'node:url'
+
+const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..')
+const read=file=>fs.readFileSync(path.join(root,file),'utf8')
+function load(file){
+ const ctx={window:{}}
+ vm.runInNewContext(read(file),ctx,{filename:file})
+ return ctx.window
+}
+const websiteReadings=load('daily-sos-readings.js').OBEY_SOS_READINGS
+const websiteBible=load('daily-sos-scripture.js').OBEY_WEBU
+const fnRead=read('supabase/functions/daily-sos-delivery/readings.ts')
+const fnBible=read('supabase/functions/daily-sos-delivery/scripture.ts')
+const fn=read('supabase/functions/daily-sos-delivery/index.ts')
+const sql=read('supabase/daily-sos-email/01_schema.sql')
+const homepage=read('daily-sos.html')
+const emailClient=read('daily-sos-email.js')
+
+const jsonFromTypeScript=(text,name,type)=>{
+ const prefix='export const '+name+' = '
+ assert.ok(text.startsWith(prefix), 'Missing '+name+' data export')
+ const suffix=' as '+type+';'
+ assert.ok(text.trim().endsWith(suffix), 'Missing '+name+' type assertion')
+ return JSON.parse(text.slice(prefix.length,text.lastIndexOf(suffix)))
+}
+
+test('Email sender shares all 365 days with website',()=>{
+ const emailReadings=jsonFromTypeScript(fnRead,'readings','[string,string,string,string,string][]')
+ assert.equal(emailReadings.length,365)
+ assert.equal(JSON.stringify(emailReadings),JSON.stringify(websiteReadings))
+})
+test('Email sender shares canonical WEB Updated verses with website',()=>{
+ const emailBible=jsonFromTypeScript(fnBible,'books','Record<string, Record<string, Array<[number,string]>>>')
+ assert.deepEqual(Object.keys(emailBible),Object.keys(websiteBible))
+ assert.equal(JSON.stringify(emailBible),JSON.stringify(websiteBible))
+ assert.equal(emailBible.John['1'].length,51)
+})
+test('Email service requires an authorized scheduler and durable opt-out',()=>{
+ assert.match(fn,/x-sos-cron-secret/)
+ assert.match(fn,/constantEqual/)
+ assert.match(fn,/unsubscribe_token/)
+ assert.match(fn,/\/unsubscribe/)
+ assert.match(fn,/Idempotency-Key/)
+ assert.match(fn,/List-Unsubscribe/)
+ assert.match(fn,/sos_claim_due/)
+ assert.match(fn,/sos_mark_sent/)
+ assert.match(fn,/sos_mark_failed/)
+ assert.match(sql,/default false/)
+ assert.match(sql,/enable row level security/)
+ assert.match(sql,/revoke all on public.sos_email_runtime/)
+ assert.match(sql,/revoke all on public.sos_email_deliveries/)
+})
+test('Frontend offers explicit enrollment and pause controls',()=>{
+ assert.match(homepage,/id="email-reminders"/)
+ assert.match(homepage,/id="email-start"/)
+ assert.match(homepage,/id="email-pause"/)
+ assert.match(homepage,/id="email-stop"/)
+ assert.match(homepage,/daily-sos-email\.js/)
+ assert.match(emailClient,/signInWithOtp/)
+ assert.match(emailClient,/status:'active'/)
+ assert.match(emailClient,/status:'stopped'|changeStatus\('stopped'\)/)
+ assert.match(emailClient,/next_send_at/)
+})
+test('Inline HTML reading still supports email day links',()=>{
+ assert.match(homepage,/get\('day'\)/)
+ assert.match(homepage,/linkedDay-1/)
+})
+test('Browser module parses without a build step',()=>{
+ const transformed=emailClient.replace(/^import\s+\{[^}]+\}\s+from\s+['"][^'"]+['"];\s*/m,'')
+ new Function('async function emailModule(){\n'+transformed+'\n}')
+})
