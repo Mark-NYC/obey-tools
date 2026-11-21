@@ -39,7 +39,7 @@ test('section navigation and original permalinks work together',()=>{
   assert.match(page,/href="\/questions\/"/)
   assert.ok(questions.includes('href="/'+slug+'/"'), 'missing card link '+slug)
   assert.ok(page.includes('youtube-nocookie.com/embed/'), 'missing curated video embed '+slug)
-  assert.match(page,/Curated public video/,'missing attribution '+slug)
+  assert.match(page,/Curated video/,'missing attribution '+slug)
   assert.match(page,/Three questions worth discussing/,'missing discussion '+slug)
   assert.match(page,/Read it for yourself/,'missing Scripture followup '+slug)
   assert.ok(!page.includes('https://web.archive.org/'),'public page should not link to archive '+slug)
@@ -80,23 +80,33 @@ test('Questions index promotes nine playable topics without redirecting to archi
  assert.ok(existsSync(resolve(root,'questions/video.css')))
 })
 
-test('Curated apologist video IDs and index thumbnails match each question',()=>{
+test('All nine college-facing videos fit in an eight-minute viewing window',()=>{
  const curated={
-  'what-key-arguments-are-there-for-and-against-gods-existence':'8aZn7XUFSmA',
-  'why-does-god-remain-so-hidden':'9esfQ8ewonk',
-  'why-would-a-good-god-allow-evil-to-exist':'m5z2f2dyxkQ',
-  'why-would-a-good-god-allow-suffering-to-exist':'sWMgD4N3kMw',
-  'how-can-a-loving-god-send-people-to-hell':'Db5YbVXhO1Y',
-  'why-does-the-old-testament-god-seem-different-than-the-new-testament-god':'DdN1BIyT7XY',
-  'why-would-god-command-the-death-of-so-many-people-in-the-bible-e-g-the-canaanites':'dJBLhstd_OU',
-  'why-would-god-need-people-to-worship-him-isnt-that-egotistical-and-arrogant':'90oHlT-v31c',
-  'what-are-the-practical-implications-of-an-atheistic-worldview':'XjHhtWL_3Og'
+  'what-key-arguments-are-there-for-and-against-gods-existence':{id:'_4ePHzADMVA',duration:'2:53'},
+  'why-does-god-remain-so-hidden':{id:'IBIsLTQ-GKQ',duration:'2:51'},
+  'why-would-a-good-god-allow-evil-to-exist':{id:'GrbhVO_yifE',duration:'2:55'},
+  'why-would-a-good-god-allow-suffering-to-exist':{id:'DBWw94ZyJio',duration:'Under 3 min'},
+  'how-can-a-loving-god-send-people-to-hell':{id:'7qUqgOZdUoQ',duration:'4:52'},
+  'why-does-the-old-testament-god-seem-different-than-the-new-testament-god':{id:'r8RZarGC8B4',duration:'7:30',start:4350,end:4800},
+  'why-would-god-command-the-death-of-so-many-people-in-the-bible-e-g-the-canaanites':{id:'r8RZarGC8B4',duration:'6:53',start:6084,end:6497},
+  'why-would-god-need-people-to-worship-him-isnt-that-egotistical-and-arrogant':{id:'3Q-h60j2OS4',duration:'Under 3 min'},
+  'what-are-the-practical-implications-of-an-atheistic-worldview':{id:'OxiAikEk2vU',duration:'5:01'}
  }
- for(const [slug,id] of Object.entries(curated)){
+ for(const [slug,v] of Object.entries(curated)){
   const page=read(slug+'/index.html')
-  assert.ok(page.includes('https://www.youtube-nocookie.com/embed/'+id),'embed mismatch for '+slug)
-  assert.ok(page.includes('https://i.ytimg.com/vi/'+id+'/hqdefault.jpg'),'OpenGraph image mismatch '+slug)
-  assert.ok(questions.includes('https://i.ytimg.com/vi/'+id+'/hqdefault.jpg'),'landing thumbnail mismatch '+slug)
+  const thumb='https://i.ytimg.com/vi/'+v.id+'/hqdefault.jpg'
+  assert.ok(page.includes('https://www.youtube-nocookie.com/embed/'+v.id),'embed mismatch '+slug)
+  assert.ok(page.includes(thumb),'OpenGraph image mismatch '+slug)
+  assert.ok(questions.includes(thumb),'landing thumbnail mismatch '+slug)
+  assert.ok(page.includes('· <strong>'+v.duration+'</strong>'),'runtime not visible on detail '+slug)
+  assert.ok(questions.includes('Watch · '),'missing index watch label')
+  if(v.start!==undefined){
+   assert.ok(page.includes('start='+v.start+'&amp;end='+v.end)||page.includes('start='+v.start+'&end='+v.end),'chapter boundaries mismatch '+slug)
+   assert.ok(v.end-v.start<=480,'clip longer than eight minutes '+slug)
+  }else{
+   assert.ok(!page.includes('start='),'unexpected unverified clipping '+slug)
+  }
  }
- assert.equal(new Set(Object.values(curated)).size,9)
+ assert.equal(Object.keys(curated).length,9)
+ assert.equal(new Set(Object.values(curated).map(v=>v.id)).size,8)
 })
