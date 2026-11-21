@@ -405,10 +405,21 @@ function render(){
  $('status').textContent='';
 }
 function save(silent=false){
- const e=entry();['say','obey','share'].forEach(k=>e[k]=$(k).value.trim());state.entries[state.day]=e;
- const ok=persist();if(!silent)$('status').textContent=ok?(e.say&&e.obey&&e.share?'SOS complete. Saved locally; cloud sync follows if signed in.':(e.say||e.obey||e.share)?'Draft saved. Finish the rest anytime.':'Empty draft saved.'):'Unable to save on this device.';
+ const existing=entry(),e={...existing};
+ let changed=false,hasAnswer=false;
+ for(const field of ['say','obey','share']){
+  const value=$(field).value.trim(),wasPresent=Object.prototype.hasOwnProperty.call(existing,field);
+  // Do not create empty fields just because someone opened SOS. This avoids
+  // overwriting another device's answered fields with untouched blanks.
+  if(value||wasPresent){
+   hasAnswer=hasAnswer||!!value;
+   if(existing[field]!==value){e[field]=value;changed=true}
+  }
+ }
+ if(changed){state.entries[state.day]=e;if(!persist()){if(!silent)$('status').textContent='Unable to save on this device.';return false}}
+ if(!silent)$('status').textContent=hasAnswer?(e.say&&e.obey&&e.share?'SOS complete. Saved locally; cloud sync follows if signed in.':'Draft saved. Finish the rest anytime.'):'No response yet. You can save just one SOS answer.';
  renderAfterSave();
- return ok;
+ return true;
 }
 function renderAfterSave(){const e=entry(),done=!!(e.say&&e.obey&&e.share),partial=!done&&!!(e.say||e.obey||e.share);const check=$('sos-check');check.classList.toggle('done',done);check.classList.toggle('draft',partial);check.textContent=done?'✓':'';$('sos-draft-note').hidden=!partial;$('progress').textContent=Object.values(state.entries).filter(x=>x.read&&x.say&&x.obey&&x.share).length+' of '+readings.length+' days completed'}
 function move(n){clearTimeout(draftTimer);if(!$('sos-panel').hidden)save(true);state.day=Math.max(0,Math.min(readings.length-1,n));persist();render();$('reading-panel').hidden=false;$('sos-panel').hidden=true;$('start').textContent='Open SOS ↑';window.scrollTo({top:0,behavior:'smooth'})}
