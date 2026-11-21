@@ -39,3 +39,10 @@ begin
 end $$;
 revoke all on function public.sos_signup_throttle(text,integer,interval) from public,anon,authenticated;
 grant execute on function public.sos_signup_throttle(text,integer,interval) to service_role;
+
+create or replace function public.sos_valid_timezone(p_timezone text)
+returns boolean language sql stable set search_path=pg_catalog as $$
+  select exists(select 1 from pg_timezone_names where name=p_timezone)
+$$;
+revoke all on function public.sos_valid_timezone(text) from public,anon,authenticated;
+grant execute on function public.sos_valid_timezone(text) to service_role;
