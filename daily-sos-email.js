@@ -74,7 +74,8 @@ $('email-start').addEventListener('click',async()=>{
   if(subscription)result=await supabase.from('sos_email_subscriptions').update({...values,status:'active'}).eq('user_id',me.id);
   else result=await supabase.from('sos_email_subscriptions').insert({...values,user_id:me.id,email:me.email.toLowerCase()});
   if(result.error)throw result.error;
-  await refresh();setMessage(subscription?.status==='active'?'Preferences saved.':'Daily SOS email enabled. Your first reading is scheduled for tomorrow.');
+  const wasActive=subscription?.status==='active';
+  await refresh();setMessage(wasActive?'Preferences saved.':'Daily SOS email enabled. Your next reading is scheduled for tomorrow.');
  }catch(e){setMessage(e?.message||'Could not save. Please try again.')}
  finally{busySet(false)}
 });
