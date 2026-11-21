@@ -11,6 +11,20 @@ const projectUrl = Deno.env.get("SUPABASE_URL") || "";
 const keys = JSON.parse(Deno.env.get("SUPABASE_SECRET_KEYS") || "{}");
 const secretKey = keys.default || Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
 const db = createClient(projectUrl, secretKey, {auth:{persistSession:false,autoRefreshToken:false}});
+// Accept a sender credential from Supabase Edge Function Secrets, where a
+// project owner may have installed it, before falling back to Database Vault.
+// Never send or log the credential except as the HTTPS Resend bearer token.
+function environmentResendToken():string {
+ return Deno.env.get("SOS_RESEND_API_KEY") ||
+        Deno.env.get("RESEND_API_KEY") ||
+        Deno.env.get("sos_resend_api_key") || "";
+}
+async function resolvedResendToken():Promise<string> {
+ const token=environmentResendToken();
+ if(token)return token;
+ const {data,error}=await db.rpc("sos_resend_token");
+ return error?"":String(data||"");
+}
 const cors={"Access-Control-Allow-Origin":"*","Access-Control-Allow-Methods":"GET, POST, OPTIONS","Access-Control-Allow-Headers":"Content-Type, X-SOS-Cron-Secret"};
 function escapeHtml(s:string){return String(s).replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]||ch))}
 function json(data:unknown,status=200){return Response.json(data,{status,headers:{"Cache-Control":"no-store",...cors}})}
@@ -88,8 +102,17 @@ Deno.serve(async (req)=>{
    if(!secretKey)return json({ok:true,ready:false});
    const {data:state}=await db.from("sos_email_runtime").select("enabled").eq("singleton",true).maybeSingle();
    if(!state?.enabled)return json({ok:true,ready:false});
-   const {data:token}=await db.rpc("sos_resend_token");
+   const token=await resolvedResendToken();
    return json({ok:true,ready:!!token});
+  }
+  if(url.pathname.endsWith("/diagnostic")&&req.method==="GET"){
+   // Diagnostic only for the authenticated scheduler. Never output key material.
+   const {data:runtime}=await db.from("sos_email_runtime")
+     .select("cron_secret,enabled").eq("singleton",true).maybeSingle();
+   if(!runtime||!constantEqual(req.headers.get("x-sos-cron-secret")||"",runtime.cron_secret))
+     return json({error:"Forbidden"},403);
+   return json({ok:true,enabled:runtime.enabled,edgeSecretPresent:!!environmentResendToken(),
+     senderConfigured:!!(await resolvedResendToken())});
   }
   if(req.method!=="POST"||!url.pathname.endsWith("/daily-sos-delivery"))return json({error:"Not found"},404);
   if(!secretKey)return json({error:"Server configuration unavailable"},503);
@@ -97,8 +120,8 @@ Deno.serve(async (req)=>{
   if(runtimeError||!runtime)return json({error:"Service unavailable"},503);
   if(!constantEqual(req.headers.get("x-sos-cron-secret")||"",runtime.cron_secret))return json({error:"Forbidden"},403);
   if(!runtime.enabled)return json({ok:true,enabled:false,sent:0});
-  const {data:resendToken,error:tokenError}=await db.rpc("sos_resend_token");
-  if(tokenError||!resendToken)return json({error:"Sender credentials not configured"},503);
+  const resendToken=await resolvedResendToken();
+  if(!resendToken)return json({error:"Sender credentials not configured"},503);
   const {data:due,error:claimError}=await db.rpc("sos_claim_due",{p_limit:runtime.max_per_run});
   if(claimError){console.error("claim failed",claimError.code);return json({error:"Queue unavailable"},503)}
   let sent=0,failed=0;
