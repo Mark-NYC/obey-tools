@@ -124,3 +124,18 @@ test('Confirmation and management pages are served by obey.tools, not Supabase H
  assert.doesNotMatch(actions, /supabase\.auth|signInWithOtp/)
  new Function(actions)
 })
+
+test('Follow Daily email link completes confirmation without a second tap',()=>{
+ const confirm=read('follow-daily-confirm.html')
+ const actions=read('follow-daily-action.js')
+ assert.match(confirm, /Confirming your daily emails/)
+ assert.match(confirm, /id="confirm" type="button" hidden disabled/)
+ assert.match(actions, /if\(isConfirm\)/)
+ assert.match(actions, /confirm\(\);\s*return;/)
+ assert.match(actions, /request\('\/confirm',\{method:'POST',body:'\{\}'\}\)/)
+ assert.match(actions, /'You’re subscribed!'/)
+ assert.match(actions, /'Try confirmation again'/)
+ assert.match(actions, /let inFlight=false/)
+ assert.doesNotMatch(actions, /window\.location\s*=|signInWithOtp/)
+ new Function(actions)
+})
