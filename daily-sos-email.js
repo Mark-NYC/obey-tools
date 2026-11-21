@@ -61,7 +61,7 @@ $('email-signin').addEventListener('click',async()=>{
  busySet(true);setMessage('Sending a sign-in link…');
  try{
  const {error}=await supabase.auth.signInWithOtp({email,options:{emailRedirectTo:location.origin+'/daily-sos.html#email-reminders',shouldCreateUser:true}});
- setMessage(error?error.message:'Check your inbox for a sign-in link. Return here to turn on Daily SOS emails.');
+ setMessage(error?error.message:'Check your inbox for a sign-in link. Return here to turn on Follow Daily emails.');
  }catch{setMessage('Could not send the sign-in link. Please retry.')}
  finally{busySet(false)}
 });
@@ -75,7 +75,7 @@ $('email-start').addEventListener('click',async()=>{
   else result=await supabase.from('sos_email_subscriptions').insert({...values,user_id:me.id,email:me.email.toLowerCase()});
   if(result.error)throw result.error;
   const wasActive=subscription?.status==='active';
-  await refresh();setMessage(wasActive?'Preferences saved.':'Daily SOS email enabled. Your next reading is scheduled for tomorrow.');
+  await refresh();setMessage(wasActive?'Preferences saved.':'Follow Daily email enabled. Your next reading is scheduled for tomorrow.');
  }catch(e){setMessage(e?.message||'Could not save. Please try again.')}
  finally{busySet(false)}
 });
