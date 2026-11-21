@@ -48,6 +48,8 @@ jobs:
       - name: Install Playwright Chromium (test only)
         run: npm i --no-save playwright@1.63.0 && npx playwright install --with-deps chromium
       - run: npm test
+      - name: Growing Faith routes and design consistency
+        run: node ../tests/growing-faith.test.mjs
       - name: Offline-first suite (airplane mode, sync safety, durable storage)
         run: node tests/offline-first.mjs
       - name: Navigation audit (every screen × 3 iPhone sizes)
