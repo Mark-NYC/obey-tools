@@ -79,3 +79,24 @@ test('Questions index promotes nine playable topics without redirecting to archi
  assert.ok(!questions.includes('https://web.archive.org/'))
  assert.ok(existsSync(resolve(root,'questions/video.css')))
 })
+
+test('Curated apologist video IDs and index thumbnails match each question',()=>{
+ const curated={
+  'what-key-arguments-are-there-for-and-against-gods-existence':'8aZn7XUFSmA',
+  'why-does-god-remain-so-hidden':'9esfQ8ewonk',
+  'why-would-a-good-god-allow-evil-to-exist':'m5z2f2dyxkQ',
+  'why-would-a-good-god-allow-suffering-to-exist':'sWMgD4N3kMw',
+  'how-can-a-loving-god-send-people-to-hell':'Db5YbVXhO1Y',
+  'why-does-the-old-testament-god-seem-different-than-the-new-testament-god':'DdN1BIyT7XY',
+  'why-would-god-command-the-death-of-so-many-people-in-the-bible-e-g-the-canaanites':'dJBLhstd_OU',
+  'why-would-god-need-people-to-worship-him-isnt-that-egotistical-and-arrogant':'90oHlT-v31c',
+  'what-are-the-practical-implications-of-an-atheistic-worldview':'XjHhtWL_3Og'
+ }
+ for(const [slug,id] of Object.entries(curated)){
+  const page=read(slug+'/index.html')
+  assert.ok(page.includes('https://www.youtube-nocookie.com/embed/'+id),'embed mismatch for '+slug)
+  assert.ok(page.includes('https://i.ytimg.com/vi/'+id+'/hqdefault.jpg'),'OpenGraph image mismatch '+slug)
+  assert.ok(questions.includes('https://i.ytimg.com/vi/'+id+'/hqdefault.jpg'),'landing thumbnail mismatch '+slug)
+ }
+ assert.equal(new Set(Object.values(curated)).size,9)
+})
