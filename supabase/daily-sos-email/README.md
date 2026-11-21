@@ -10,7 +10,7 @@ One reading per day, starting the morning after each subscriber explicitly joins
 - \`daily-sos-email.js\`: optional, verified-email enrollment, pause, resume, and settings UI.
 - \`supabase/daily-sos-email/01_schema.sql\`: subscribers, delivery ledger, RLS, dispatch lock and helpers, disabled-by-default config.
 - \`supabase/daily-sos-email/02_schedule.sql\`: a \`pg_cron\` job every 10 minutes, invoking the Edge Function with a secret stored in the restricted runtime table.
-- \`supabase/functions/daily-sos-delivery/index.ts\`: authenticated-cron dispatch, full Scripture email, safe unsubscribe endpoint. Requires a verified sender and sender credential stored in Supabase Vault. Sends nothing unless runtime is deliberately enabled.
+- \`supabase/functions/daily-sos-delivery/index.ts\`: authenticated-cron dispatch, full Scripture email, safe unsubscribe endpoint. Requires a verified sender and a sender credential stored as a Supabase Edge Function Secret (preferred) or in Supabase Vault. Sends nothing unless runtime is deliberately enabled.
 - Resend topic: **Daily SOS Reading Emails** (default opt-out). Subscription permission is owned by the Supabase table, not by a separate newsletter list.
 
 The user signs in via the Supabase passwordless email OTP flow (already supported in the existing Obey.Tools project). An email address is never added to daily emails merely because the user visits the page or signs into Obey.Tools. A subscriber chooses a sending hour and IANA time zone and opts in. First email is scheduled for the following local calendar day. Resuming from a pause retains the next reading number and schedules it for the following local day. A person may use the site without subscribing.
@@ -45,7 +45,7 @@ set enabled=false, updated_at=now()
 where singleton=true;
 \`\`\`
 
-After activation, the next cron run will queue due subscriber messages; the browser signup controls will report the service is ready. No manual backlog or 365 separate Resend broadcasts are needed.
+After activation, the next cron run will send due subscriber messages; the browser signup controls will report the service is ready. No one is enrolled automatically. No manual backlog or 365 separate Resend broadcasts are needed.
 
 ## Delivery safeguards
 
