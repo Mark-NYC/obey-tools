@@ -158,7 +158,7 @@ async function confirm(req:Request,url:URL){
  const token=url.searchParams.get("token")||"";
  if(!validToken(token))return htmlPage("Invalid confirmation link","<p>Request a new confirmation email from Follow Daily.");
  if(req.method==="GET")return htmlPage("Confirm daily emails",
-  '<p>You're one click away from your first reading. No account or password needed.</p><form method="POST">'+button("Confirm Daily Emails")+'</form>');
+  '<p>One click away from your first reading. No account or password needed.</p><form method="POST">'+button("Confirm Daily Emails")+'</form>');
  if(req.method!=="POST")return json({error:"Method not allowed"},405);
  const {data:p,error}=await db.from("sos_email_pending").select("*").eq("confirmation_token",token).gt("expires_at",new Date().toISOString()).maybeSingle();
  if(error||!p)return htmlPage("Link expired","<p>That confirmation link is invalid or has expired. Please sign up again.</p>");
