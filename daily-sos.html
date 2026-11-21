@@ -124,7 +124,7 @@ body{padding:26px;background:#f2f3f4}
 </section>
 <button id="start" class="primary" type="button">Open SOS ↑</button>
 <div id="progress" class="muted" style="text-align:center;margin-top:13px"></div>
-<div class="notice">Preview: 14 curated readings. The 365-day harmony, in-app WEBU passage text, account syncing, and daily email/text delivery are still in development. SOS answers are saved only on this device.</div>
+<div class="notice">365 readings through the Gospel harmony and Acts, with WEB Updated Scripture on the page. Answers are saved on this device. Account syncing and scheduled email or SMS delivery are not yet available.</div>
 </main><aside class="desktop-aside" aria-label="About Daily SOS">
 <div class="desktop-side-card"><h2>Following Jesus' Way</h2>
 <p>A 365-day journey through a harmony of the Gospels and Acts, learning how Jesus made disciples who multiplied.</p>
@@ -145,27 +145,43 @@ body{padding:26px;background:#f2f3f4}
 </div></div>
 
 <script src="/daily-sos-scripture.js"></script>
+<script src="/daily-sos-readings.js"></script>
 <script>
-const readings=[
-["The Word Became Flesh","John 1:1–18","","IDENTIFY","What does John reveal about who Jesus is and why he came?",1],
-["The Birth of Jesus","Luke 2:1–20","Matthew 1:18–25","IDENTIFY","How does God introduce the Savior to ordinary people?",2],
-["Jesus Grows in Wisdom","Luke 2:41–52","","IDENTIFY","What do you notice about Jesus' relationship with his Father?",2],
-["John Prepares the Way","Mark 1:1–8","Matthew 3:1–12; Luke 3:1–18","IDENTIFY","How did John prepare people to respond to God's Kingdom?",1],
-["Jesus Is Baptized","Mark 1:9–11","Matthew 3:13–17; Luke 3:21–22","IDENTIFY","What is affirmed about Jesus before his public ministry?",1],
-["Jesus Is Tested","Matthew 4:1–11","Mark 1:12–13; Luke 4:1–13","IDENTIFY","How did Jesus respond to temptation using Scripture?",4],
-["The First Disciples Meet Jesus","John 1:35–51","","IDENTIFY","What did these first followers do after encountering Jesus?",1],
-["Jesus Calls Fishermen","Luke 5:1–11","Matthew 4:18–22; Mark 1:16–20","IDENTIFY","What did Jesus ask them to leave and what did he invite them into?",3],
-["Jesus Calls Levi","Mark 2:13–17","Matthew 9:9–13; Luke 5:27–32","IDENTIFY","Whom does Jesus invite, and what does that reveal about his mission?",1],
-["Jesus Appoints the Twelve","Mark 3:13–19","Luke 6:12–16; Matthew 10:1–4","IDENTIFY","Why did Jesus appoint the Twelve, and what did he intend for them?",1],
-["Kingdom Life: The Beatitudes","Matthew 5:1–12","Luke 6:20–23","EQUIP","What kind of people does Jesus say are blessed?",4],
-["Jesus Teaches His Disciples to Pray","Matthew 6:5–15","Luke 11:1–4","EQUIP","How does Jesus teach his disciples to approach the Father?",4],
-["Jesus Sends the Twelve","Mark 6:7–13","Matthew 10:5–15; Luke 9:1–6","INVEST","What responsibility and authority did Jesus entrust to them?",1],
-["Jesus Commissions His Disciples","Matthew 28:16–20","Luke 24:44–49; John 20:19–23","ENTRUST","What did Jesus command them to do as they went?",4]
-];
+const readings=window.OBEY_SOS_READINGS;
+if(!Array.isArray(readings)||readings.length!==365)throw new Error('365-day Daily SOS schedule failed to load');
 
-const KEY='obeytools:daily-sos:v1', $=id=>document.getElementById(id);
+const KEY='obeytools:daily-sos:v2', $=id=>document.getElementById(id);
 let state={day:0,entries:{}};
-try{const value=JSON.parse(localStorage.getItem(KEY));if(value&&typeof value==='object'){state.day=Math.max(0,Math.min(readings.length-1,Number(value.day)||0));state.entries=value.entries&&typeof value.entries==='object'?value.entries:{}}}catch{}
+let existingV2=false;
+try{const value=JSON.parse(localStorage.getItem(KEY));if(value&&typeof value==='object'){existingV2=true;state.day=Math.max(0,Math.min(readings.length-1,Number(value.day)||0));state.entries=value.entries&&typeof value.entries==='object'?value.entries:{}}}catch{}
+// Previous preview responses stay stored under v1. Copy matching entries to their new
+// passage locations without overwriting the original or confusing day-number keys.
+if(!existingV2){
+ try{
+  const old=JSON.parse(localStorage.getItem('obeytools:daily-sos:v1'));
+  const refs=['John 1:1–18','Luke 2:1–20','Luke 2:41–52','Mark 1:1–8','Mark 1:9–11','Matthew 4:1–11','John 1:35–51','Luke 5:1–11','Mark 2:13–17','Mark 3:13–19','Matthew 5:1–12','Matthew 6:5–15','Mark 6:7–13','Matthew 28:16–20'];
+  const location=(ref)=>{
+   const past=parseReadingReference(ref);
+   if(!past)return -1;
+   return readings.findIndex(r=>{
+    const now=parseReadingReference(r[1]);
+    return now&&now.book===past.book&&(now.startChapter<past.startChapter||(now.startChapter===past.startChapter&&now.startVerse<=past.startVerse))&&(now.endChapter>past.startChapter||(now.endChapter===past.startChapter&&now.endVerse>=past.startVerse))
+   });
+  };
+  if(old?.entries&&typeof old.entries==='object'){
+   for(const [idx,entry] of Object.entries(old.entries)){
+    if(!entry||typeof entry!=='object')continue;
+    const pos=location(refs[Number(idx)]);
+    if(pos>=0&&!state.entries[pos])state.entries[pos]=entry;
+   }
+  }
+  const oldDay=Number(old?.day);
+  if(Number.isInteger(oldDay)&&refs[oldDay]){
+   const day=location(refs[oldDay]);if(day>=0)state.day=day;
+  }
+  localStorage.setItem(KEY,JSON.stringify(state));
+ }catch{}
+}
 function entry(day=state.day){return state.entries[day]||{}}
 function persist(){try{localStorage.setItem(KEY,JSON.stringify(state));return true}catch{return false}}
 function changePanel(name){
@@ -242,9 +258,10 @@ function render(){
   const done=entry(n);if(done.read&&done.say&&done.obey&&done.share){const tick=document.createElement('span');tick.className='tick';tick.textContent='✓';b.appendChild(tick)}
   b.addEventListener('click',()=>move(n));$('days').appendChild(b)
  }
- $('days').children[i]?.scrollIntoView({block:'nearest',inline:'center'});
+ const activeDay=$('days').children[i];
+ if(activeDay){const track=$('days'),box=track.getBoundingClientRect(),active=activeDay.getBoundingClientRect();track.scrollLeft+=(active.left-box.left)-(track.clientWidth-activeDay.clientWidth)/2;}
  const finished=Object.values(state.entries).filter(x=>x.read&&x.say&&x.obey&&x.share).length;
- $('progress').textContent=finished+' of '+readings.length+' preview days completed';
+ $('progress').textContent=finished+' of '+readings.length+' days completed';
  $('status').textContent='';
 }
 function save(silent=false){
@@ -298,7 +315,7 @@ function infoDialog(){
  const body=node('div');
  body.append(node('p','Follow Jesus’ Way is designed as a 365-day journey through a harmony of the Gospels and Acts. Learn how Jesus identified, equipped, invested in, and entrusted his disciples to carry on his mission.'));
  body.append(node('p','Each day has one primary Scripture reading plus one SOS exercise: Say what God is saying, Obey with a specific step, and Share with someone. Parallel Gospel accounts are optional.'));
- body.append(node('p','Current status: 14 preview readings. The full 365-day chronology and scheduled delivery are still being developed.','small-notice'));
+ body.append(node('p','The complete 365-day Gospel harmony and Acts journey is available. Historical ordering is approximate where the Gospels do not specify timing. Daily email and SMS delivery are not yet connected. The harmony follows a traditional approximate Gospel event sequence. Some placements differ between published harmonies. Scripture text is from the public-domain World English Bible Updated.','small-notice'));
  dialog('Plan Info',body)
 }
 function settingsDialog(){
