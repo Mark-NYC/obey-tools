@@ -1,0 +1,11 @@
+/* Growing Faith shared design system: inherits Obey.Tools fonts and buttons.css tokens. */
+:root{--grow-green:var(--ot-nav-green-deep,#00a468);--grow-ink:#1c1c1e;--grow-muted:#62636a;--grow-border:#e1e2e4;--grow-paper:#fff;--grow-bg:#f8f8f8}
+.grow-crumb{color:#65666b;font-size:13px;line-height:1.4}
+.grow-crumb a{color:#00754b;text-decoration:none;font-weight:700}
+.grow-crumb a:hover{text-decoration:underline}
+.grow-nav-link{color:#45454a;text-decoration:none;font-weight:700}
+.grow-nav-link[aria-current="page"]{color:#006b43}
+.grow-link{color:#00754b;font-weight:750;text-decoration:none}
+.grow-link:hover{text-decoration:underline}
+body:focus-within :focus-visible{outline:3px solid #007aff;outline-offset:3px}
+@media(max-width:500px){.topinner nav{gap:11px}.topinner nav a{font-size:12px}}
