@@ -61,7 +61,7 @@ test('Follow Daily public name is consistent without changing SOS URLs or data k
  const client=read('daily-sos-email.js')
  const sender=read('supabase/functions/daily-sos-delivery/index.ts')
  assert.match(hub,/<h3>FOLLOW DAILY<\/h3>/)
- assert.match(hub,/SOS · Say, Obey, Share/)
+ assert.match(hub,/Follow Jesus daily\./)
  assert.match(sos,/<h1>FOLLOW DAILY<\/h1>/)
  assert.match(sos,/ABIDE IN JESUS · SAY, OBEY, SHARE/)
  assert.match(sos,/<h2>Follow Daily in your inbox<\/h2>/)
