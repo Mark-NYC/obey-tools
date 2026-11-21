@@ -258,7 +258,8 @@ function render(){
   const done=entry(n);if(done.read&&done.say&&done.obey&&done.share){const tick=document.createElement('span');tick.className='tick';tick.textContent='✓';b.appendChild(tick)}
   b.addEventListener('click',()=>move(n));$('days').appendChild(b)
  }
- $('days').children[i]?.scrollIntoView({block:'nearest',inline:'center'});
+ const activeDay=$('days').children[i];
+ if(activeDay){const track=$('days'),box=track.getBoundingClientRect(),active=activeDay.getBoundingClientRect();track.scrollLeft+=(active.left-box.left)-(track.clientWidth-activeDay.clientWidth)/2;}
  const finished=Object.values(state.entries).filter(x=>x.read&&x.say&&x.obey&&x.share).length;
  $('progress').textContent=finished+' of '+readings.length+' days completed';
  $('status').textContent='';
