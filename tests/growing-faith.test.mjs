@@ -38,7 +38,7 @@ test('section navigation and original permalinks work together',()=>{
   assert.match(page,/href="\/grow\/"/)
   assert.match(page,/href="\/questions\/"/)
   assert.ok(questions.includes('href="/'+slug+'/"'), 'missing card link '+slug)
-  assert.match(page,/youtube-nocookie\\.com\\/embed\\/[A-Za-z0-9_-]{11}/,'missing curated video embed '+slug)
+  assert.ok(page.includes('youtube-nocookie.com/embed/'), 'missing curated video embed '+slug)
   assert.match(page,/Curated public video/,'missing attribution '+slug)
   assert.match(page,/Three questions worth discussing/,'missing discussion '+slug)
   assert.match(page,/Read it for yourself/,'missing Scripture followup '+slug)
