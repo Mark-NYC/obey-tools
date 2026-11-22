@@ -7,7 +7,7 @@
 - All 10 new Circle tables have RLS enabled. All 25 previously saved SOS progress rows remain with the same snapshot hash.
 - Isolated PostgreSQL 17 database contract tests passed (GitHub Actions run 45043799073), including cross-Circle privacy, hidden progress rules, forbidden steward elevation, and removed-member access checks.
 - This is not proof of multi-user browser E2E on production. Real signed-in test accounts and device-level acceptance testing are still recommended.
-- **Circle email notifications are not yet sending.** The Resend worker source is committed, but its Supabase function has not been deployed and the GitHub delivery schedule remains disabled pending secret configuration and delivery tests.
+- **Circle email notifications are not yet sending.** The Resend worker is deployed as `follow-circle-notifications`, but it requires `CIRCLE_NOTIFY_CRON_SECRET`, and the GitHub delivery schedule remains disabled pending secret configuration and an end-to-end delivery test.
 - Keep private SOS answers private by default. Never automatically publish someone's personal Say, Obey, Share responses.
 
 ## Previous release checklist (historical planning document)
