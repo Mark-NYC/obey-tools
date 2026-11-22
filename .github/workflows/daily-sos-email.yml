@@ -8,6 +8,7 @@ on:
       - "tests/growing-faith.test.mjs"
       - "daily-sos-email.js"
       - "daily-sos-sync.js"
+      - "daily-sos-journey.js"
       - "daily-sos-readings.js"
       - "daily-sos-scripture.js"
       - "supabase/daily-sos-email/**"
@@ -23,6 +24,7 @@ on:
       - "tests/growing-faith.test.mjs"
       - "daily-sos-email.js"
       - "daily-sos-sync.js"
+      - "daily-sos-journey.js"
       - "daily-sos-readings.js"
       - "daily-sos-scripture.js"
       - "supabase/daily-sos-email/**"
@@ -38,4 +40,4 @@ jobs:
         with:
           node-version: "22"
       - name: Validate 365 readings, email and cloud syncing
-        run: node --test tests/daily-sos-schedule.test.mjs tests/daily-sos-email.test.mjs tests/daily-sos-sync.test.mjs tests/growing-faith.test.mjs
+        run: node --test tests/daily-sos-schedule.test.mjs tests/daily-sos-email.test.mjs tests/daily-sos-sync.test.mjs tests/daily-sos-journey.test.mjs tests/growing-faith.test.mjs

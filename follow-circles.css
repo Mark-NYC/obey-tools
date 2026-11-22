@@ -38,7 +38,8 @@ h3{font-size:17px;margin:0 0 6px}
 .danger-text{color:#b42318!important}
 .linkbtn{text-decoration:none}
 .wide{width:100%;margin-top:12px}
-#new-circle{width:100%;margin-top:20px}
+#new-circle{width:100%;margin-top:8px}
+.invite-prompt{margin:24px 0 0;font-size:16px;font-weight:650;color:var(--ink)}
 
 /* Circle list */
 .circle-list{display:grid}
