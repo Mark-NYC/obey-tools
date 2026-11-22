@@ -127,13 +127,24 @@ create policy members_read on public.follow_circle_members for select to authent
  using(circles_private.is_member(circle_id,(select auth.uid())));
 create policy members_edit_self on public.follow_circle_members for update to authenticated
  using(user_id=(select auth.uid())) with check(user_id=(select auth.uid()));
+-- Validate reply ancestry with a narrow definer function to avoid recursive
+-- RLS evaluation when posts are inserted into the same protected table.
+create function circles_private.valid_parent(p_parent uuid,p_circle uuid)
+returns boolean language sql stable security definer set search_path=''
+as $
+select circles_private.is_member(p_circle,auth.uid()) and exists(
+ select 1 from public.follow_circle_posts p
+ where p.id=p_parent and p.circle_id=p_circle and p.parent_id is null
+)$;
+revoke all on function circles_private.valid_parent(uuid,uuid) from public;
+grant execute on function circles_private.valid_parent(uuid,uuid) to authenticated;
 create policy posts_read on public.follow_circle_posts for select to authenticated
  using(circles_private.is_member(circle_id,(select auth.uid()))
  and not exists(select 1 from public.follow_circle_blocks b
   where b.user_id=(select auth.uid()) and b.blocked_user_id=author_id));
 create policy posts_add on public.follow_circle_posts for insert to authenticated
  with check(author_id=(select auth.uid()) and circles_private.is_member(circle_id,(select auth.uid()))
- and (parent_id is null or exists(select 1 from public.follow_circle_posts p where p.id=parent_id and p.circle_id=follow_circle_posts.circle_id and p.parent_id is null)));
+ and (parent_id is null or circles_private.valid_parent(parent_id,circle_id)));
 create policy posts_edit on public.follow_circle_posts for update to authenticated
  using(author_id=(select auth.uid()) and circles_private.is_member(circle_id,(select auth.uid())))
  with check(author_id=(select auth.uid()) and circles_private.is_member(circle_id,(select auth.uid())));
