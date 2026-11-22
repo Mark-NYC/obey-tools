@@ -6,6 +6,7 @@ on:
       - 'daily-sos.html'
       - 'supabase/migrations/*follow_multiplying_circles.sql'
       - 'scripts/test-follow-circles.mjs'
+      - 'scripts/circles-*.sql'
       - '.github/workflows/follow-circles.yml'
   push:
     paths:
@@ -23,3 +24,32 @@ jobs:
           node-version: '22'
       - run: node --check follow-circles.js
       - run: node scripts/test-follow-circles.mjs
+  database-contracts:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: testpassword
+          POSTGRES_DB: circles_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d circles_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PGHOST: localhost
+      PGPORT: 5432
+      PGUSER: postgres
+      PGPASSWORD: testpassword
+      PGDATABASE: circles_test
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare isolated auth and SOS fixtures
+        run: psql -v ON_ERROR_STOP=1 -f scripts/circles-test-bootstrap.sql
+      - name: Apply migration on isolated PostgreSQL 17
+        run: psql -v ON_ERROR_STOP=1 -f supabase/migrations/20261122120000_follow_multiplying_circles.sql
+      - name: Exercise authenticated RLS and invitation contracts
+        run: psql -v ON_ERROR_STOP=1 -f scripts/circles-rls-tests.sql
