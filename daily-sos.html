@@ -267,7 +267,7 @@ body{padding:0;background:#f8f8f8}
 <button id="save" class="primary" type="button">Save today's SOS</button><button id="share-btn" class="secondary" type="button" style="width:100%;margin-top:10px">Share my SOS</button>
 <div id="status" class="status" role="status" aria-live="polite"></div>
 </section>
-<button id="start" class="primary" type="button">Open SOS ↑</button>
+<button id="start" class="primary" type="button">Open Insight ↑</button>
 <div id="progress" class="muted" style="text-align:center;margin-top:13px"></div>
 <section id="sos-sync" class="sos-sync" aria-label="Sync Follow Daily progress">
 <h2>Keep your progress</h2>
@@ -307,7 +307,7 @@ body{padding:0;background:#f8f8f8}
 </div>
 <div id="email-reminder-status" role="status" aria-live="polite"></div>
 </section>
-<div class="notice">365 readings through the Gospel harmony and Acts, with WEB Updated Scripture on the page. Guest responses stay on this device. Signed-in users can sync readings and SOS answers securely across devices. Daily email reminders remain optional and account-free.</div>
+<div class="notice">365 readings through the Gospel harmony and Acts, with WEB Updated Scripture on the page. The Insight step is being developed passage by passage; initial insights are available now. Guest responses stay on this device. Signed-in users can sync readings and SOS answers securely across devices. Daily email reminders remain optional and account-free.</div>
 </main><aside class="desktop-aside" aria-label="About Following Jesus’ Way">
 <div class="desktop-side-card"><h2>Following Jesus’ Way</h2>
 <p>A 365-day journey through a harmony of the Gospels and Acts, learning how Jesus made disciples who multiplied.</p>
@@ -559,7 +559,7 @@ function planShare(){const text="Following Jesus’ Way: a Gospel harmony focuse
 function infoDialog(){
  const body=node('div');
  body.append(node('p','Follow Jesus’ Way is designed as a 365-day journey through a harmony of the Gospels and Acts. Learn how Jesus identified, equipped, invested in, and entrusted his disciples to carry on his mission.'));
- body.append(node('p','Each day has three checkboxes: Read the passage, reflect on a disciple-making Insight, and complete SOS: Say what God is saying, Obey with a specific step, and Share with someone. Parallel Gospel accounts are optional.'));
+ body.append(node('p','Each day has three steps: Read Scripture, review an Insight about Jesus’ way, then Say, Obey, and Share. Parallel Gospel accounts are optional.'));
  body.append(node('p','The complete 365-day Gospel harmony and Acts journey is available. Historical ordering is approximate where the Gospels do not specify timing. Daily email reminders are available through the opt-in section when sender setup has been verified. The harmony follows a traditional approximate Gospel event sequence. Some placements differ between published harmonies. Scripture text is from the public-domain World English Bible Updated.','small-notice'));
  dialog('Plan Info',body)
 }
