@@ -285,7 +285,7 @@ body{padding:0;background:#f8f8f8}
 </section>
 <section class="panel" id="insight-panel" hidden tabindex="-1" aria-label="Daily disciple-making insight">
 <h2>Today’s Insight</h2><div class="sub" id="insight-reference"></div>
-<p class="insight-intro">What is this passage revealing? Pay attention to who Jesus is, how faith grows, and patterns disciples can follow. Not every passage does all three.</p>
+<p class="insight-intro">Follow the passage: what Jesus reveals about Himself, how faith is formed, and how His Kingdom advances. Only the themes actually present appear below.</p>
 <div id="insight-cards" class="insight-cards" aria-live="polite"></div>
 <div id="response-pattern" class="response-pattern" hidden aria-label="Hear Obey Share pattern observed in this passage"></div>
 <div class="insight-apply"><span class="insight-apply-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/><path d="M4 12h11"/></svg></span><div><h3 class="insight-label">Consider &amp; Respond</h3><p id="insight-action"></p></div></div>
@@ -340,7 +340,7 @@ body{padding:0;background:#f8f8f8}
 </div>
 <div id="email-reminder-status" role="status" aria-live="polite"></div>
 </section>
-<div class="notice">365 readings through the Gospel harmony and Acts, with WEB Updated Scripture on the page. The Insight step is being developed passage by passage; initial insights are available now. Guest responses stay on this device. Signed-in users can sync readings and SOS answers securely across devices. Daily email reminders remain optional and account-free.</div>
+<div class="notice">365 readings through the Gospel harmony and Acts, with WEB Updated Scripture on the page. Every day includes a passage-specific Insight centered on Revelation, Formation, or Multiplication. Guest responses stay on this device. Signed-in users can sync readings and SOS answers securely across devices. Daily email reminders remain optional and account-free.</div>
 </main><aside class="desktop-aside" aria-label="About Following Jesus’ Way">
 <div class="desktop-side-card"><h2>Following Jesus’ Way</h2>
 <p>A 365-day journey through a harmony of the Gospels and Acts, learning how Jesus made disciples who multiplied.</p>
@@ -363,6 +363,10 @@ body{padding:0;background:#f8f8f8}
 <script src="/daily-sos-scripture.js"></script>
 <script src="/daily-sos-readings.js"></script>
 <script src="/daily-sos-insights-first30.js"></script>
+<script src="/daily-sos-insights-days31-110.js"></script>
+<script src="/daily-sos-insights-days111-200.js"></script>
+<script src="/daily-sos-insights-days201-280.js"></script>
+<script src="/daily-sos-insights-days281-365.js"></script>
 <script>
 const readings=window.OBEY_SOS_READINGS;
 if(!Array.isArray(readings)||readings.length!==365)throw new Error('365-day Daily SOS schedule failed to load');
@@ -485,7 +489,13 @@ const insightLibrary={
 };
 // The first 30 days have passage-specific editorial copy; later readings remain
 // neutral observation prompts until individually authored and reviewed.
-Object.assign(insightLibrary,window.OBEY_SOS_FIRST30||{});
+Object.assign(insightLibrary,
+ window.OBEY_SOS_FIRST30||{},
+ window.OBEY_SOS_INSIGHTS_31_110||{},
+ window.OBEY_SOS_INSIGHTS_111_200||{},
+ window.OBEY_SOS_INSIGHTS_201_280||{},
+ window.OBEY_SOS_INSIGHTS_281_365||{}
+);
 const lensMeta={
  revelation:{label:'REVELATION',path:'<circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/><path d="M8 3h8"/>'},
  formation:{label:'FORMATION',path:'<path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"/><path d="m9 12 2 2 4-4"/>'},
@@ -493,11 +503,11 @@ const lensMeta={
  observe:{label:'OBSERVE',path:'<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>'}
 };
 function insightFor(r){
- const direct=insightLibrary[r[1]];
- if(direct)return direct;
- // Do not manufacture a theological conclusion from a title or the broad plan phase.
- // Unauthored entries remain neutral reading questions until reviewed.
- return {cards:[['observe','Look closely at the passage','Read the Scripture slowly. What does it reveal about God, Jesus, and the people involved? Notice any commands, promises, challenges to faith, or responses to the Kingdom. Do not assume everything Jesus does is an example we are meant to reproduce.']],action:r[4]||'What is one truth you can say, obey, or share from today’s passage?',pending:true};
+ const insight=insightLibrary[r[1]];
+ // Every schedule entry has a Scripture-specific devotional; do not silently
+ // substitute generic observation questions when content is missing.
+ if(!insight){console.error('Missing reviewed daily Insight:',r[1]);return {cards:[['revelation','Insight unavailable','This reading is temporarily missing its devotional. Read the passage directly and return to the study after the content is restored.']],action:'Read the passage and reflect on what it reveals.',pending:true}}
+ return insight;
 }
 // Exact Lucide outline icons used in the approved example: ear, footprints,
 // and message-circle. Display only observations supported by the passage.
