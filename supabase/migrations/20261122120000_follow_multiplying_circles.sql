@@ -244,7 +244,7 @@ end;$$;
 -- Progress is returned only for visible members of Circles the caller currently belongs to.
 -- No private SOS text is ever selected or returned.
 create function public.follow_circle_progress(p_circle uuid,p_limit integer default 20,p_offset integer default 0)
-returns table(user_id uuid,display_name text,current_day integer,completed_days integer)
+returns table(user_id uuid,display_name text,current_day integer,completed_days integer,current_day_done boolean)
 language plpgsql stable security definer set search_path=''
 as $$
 begin
@@ -260,6 +260,77 @@ begin
     and count(*) filter(where field_name='say' and length(trim(value))>0)>0
     and count(*) filter(where field_name='obey' and length(trim(value))>0)>0
     and count(*) filter(where field_name='share' and length(trim(value))>0)>0) d) as completed_days
+ ,
+  exists(select 1 from (select
+    count(*) filter(where field_name='read' and value='true')>0
+    and count(*) filter(where field_name='insight' and value='true')>0
+    and count(*) filter(where field_name='say' and length(trim(value))>0)>0
+    and count(*) filter(where field_name='obey' and length(trim(value))>0)>0
+    and count(*) filter(where field_name='share' and length(trim(value))>0)>0 as finished
+    from public.sos_daily_progress s
+    where s.user_id=m.user_id and s.day_no=greatest(1,least(365,coalesce(
+    (select max(value::int) from public.sos_daily_progress cur where cur.user_id=m.user_id and cur.field_name='cursor' and cur.value ~ '^[0-9]{1,3}
+end;$;
+-- All mention recipients must be existing Circle members.
+create function circles_private.validate_mentions() returns trigger language plpgsql
+security definer set search_path=''
+as $
+begin
+ if exists(select 1 from unnest(new.mentioned_user_ids) as id
+  where id=new.author_id or not exists(
+   select 1 from public.follow_circle_members m where m.circle_id=new.circle_id and m.user_id=id))
+ then raise exception 'Mentions must target other Circle members';end if;
+ return new;
+end;$;
+create trigger follow_circle_mentions_valid before insert or update of mentioned_user_ids,circle_id on public.follow_circle_posts
+ for each row execute function circles_private.validate_mentions();
+-- No private SOS content, post bodies or email addresses are written into this queue.
+create function circles_private.queue_post_emails() returns trigger language plpgsql
+security definer set search_path=''
+as $
+declare parent_author uuid;
+begin
+ if new.parent_id is not null then
+  select author_id into parent_author from public.follow_circle_posts where id=new.parent_id and circle_id=new.circle_id;
+  if parent_author is not null and parent_author<>new.author_id and exists(
+   select 1 from public.follow_circle_members m where m.circle_id=new.circle_id
+    and m.user_id=parent_author and m.email_replies=true)
+   and not exists(select 1 from public.follow_circle_blocks b where b.user_id=parent_author and b.blocked_user_id=new.author_id)
+  then
+   insert into public.follow_circle_email_outbox(user_id,circle_id,post_id,kind)
+   values(parent_author,new.circle_id,new.id,'reply') on conflict do nothing;
+  end if;
+ end if;
+ insert into public.follow_circle_email_outbox(user_id,circle_id,post_id,kind)
+ select m.user_id,new.circle_id,new.id,'mention' from public.follow_circle_members m
+ where m.circle_id=new.circle_id and m.email_mentions=true
+ and m.user_id=any(new.mentioned_user_ids) and m.user_id<>new.author_id
+ and not exists(select 1 from public.follow_circle_blocks b where b.user_id=m.user_id and b.blocked_user_id=new.author_id)
+ on conflict do nothing;
+ return new;
+end;$;
+create trigger follow_circle_queue_email after insert on public.follow_circle_posts
+ for each row execute function circles_private.queue_post_emails();
+
+-- Enforce a small post rate limit server-side, including direct REST calls.
+create function circles_private.limit_posts() returns trigger language plpgsql
+security definer set search_path=''
+as $
+begin
+ if (select count(*) from public.follow_circle_posts where author_id=new.author_id and created_at>now()-interval '1 minute')>=12
+ or (select count(*) from public.follow_circle_posts where author_id=new.author_id and created_at>now()-interval '1 day')>=250
+ then raise exception 'Too many messages; try again later';end if;
+ return new;
+end;$;
+create trigger follow_circle_limit_post_trigger before insert on public.follow_circle_posts
+ for each row execute function circles_private.limit_posts();
+
+-- Public access revoked for privileged functions, including preview unless anonymous preview explicitly permitted.
+revoke all on function public.follow_circle_create(text,text),public.follow_circle_join(text,text),public.follow_circle_invite_preview(text),public.follow_circle_new_invite(uuid),public.follow_circle_revoke_invites(uuid),public.follow_circle_leave(uuid),public.follow_circle_remove(uuid,uuid),public.follow_circle_transfer(uuid,uuid),public.follow_circle_progress(uuid,integer,integer) from public;
+grant execute on function public.follow_circle_create(text,text),public.follow_circle_join(text,text),public.follow_circle_new_invite(uuid),public.follow_circle_revoke_invites(uuid),public.follow_circle_leave(uuid),public.follow_circle_remove(uuid,uuid),public.follow_circle_transfer(uuid,uuid),public.follow_circle_progress(uuid,integer,integer) to authenticated;
+grant execute on function public.follow_circle_invite_preview(text) to anon,authenticated;
+),1)))) x
+  where x.finished) as current_day_done
  from public.follow_circle_members m where m.circle_id=p_circle and m.progress_visible=true
  order by m.joined_at,m.user_id limit least(greatest(p_limit,1),100) offset greatest(p_offset,0);
 end;$;
