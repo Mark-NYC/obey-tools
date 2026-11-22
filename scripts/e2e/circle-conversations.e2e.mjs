@@ -87,34 +87,57 @@ try {
   check(Number(await sql(`select count(*) from public.conversation_people where user_id='${USERS.alice.id}'`)) === 4, 'Conversation Box synced to the account first');
 
   await cb.click('.conversation-item:has-text("Maria") .move-btn');
-  await cb.waitForSelector('#share-sheet', {state: 'visible'});
-  check((await cb.textContent('#share-sheet-title')).includes('Maria moved to Meaningful'), 'Share sheet names the step on this device');
-  await shot(cb, 'mobile-share-sheet', false);
-  await cb.click('#share-send');
+  await cb.waitForSelector('#share-bar', {state: 'visible'});
+  check((await cb.textContent('#share-bar-title')).includes('Maria moved to Meaningful'), 'Bottom bar names the step on this device, no pop-up');
+  check((await cb.textContent('#share-bar-sub')).includes('Share with Tuesday Night Group?'), 'Bar names the Circle; one tap shares');
+  await shot(cb, 'mobile-share-bar', false);
+  await cb.click('#share-bar-btn');
   await cb.waitForTimeout(500);
   check(Number(await sql(`select count(*) from public.follow_circle_steps where to_stage='meaningful' and from_stage='casual'`)) === 1, 'Step shared to the Circle (stages only)');
 
   await cb.click('.conversation-item:has-text("Jonah") .move-btn');
   await cb.click(`#move-prompt .option[onclick="selectOption('trusted')"]`);
-  await cb.waitForSelector('#share-sheet', {state: 'visible'});
-  await cb.check('input[name="share-mode"][value="prayer"]');
-  check(await cb.inputValue('#share-initials') === 'J. K.', 'Prayer request prefilled with initials, not the name');
-  await cb.fill('#share-prayer-line', 'Asked to read John 3 together on Friday');
-  await shot(cb, 'mobile-share-prayer', false);
-  await cb.click('#share-send');
-  await cb.waitForTimeout(600);
-  check(await sql(`select prayer_initials||'|'||prayer_stage from public.follow_circle_posts where kind='prayer'`) === 'J. K.|discovery', 'Prayer request stored with initials and stage');
+  await cb.waitForSelector('#share-bar', {state: 'visible'});
+  await cb.click('#share-bar-btn');
+  await cb.waitForTimeout(500);
   check(await sql(`select response from public.follow_circle_steps where to_stage='discovery'`) === 'trusted', 'Discovery response shared');
+
+  // Ask the Circle to pray from the person sheet.
+  await cb.click('.conversation-item:has-text("Jonah") .conversation-name');
+  await cb.waitForSelector('#details-circle', {state: 'visible'});
+  check(await cb.inputValue('#pray-initials') === 'J. K.', 'Prayer request prefilled with initials, not the name');
+  check(!(await cb.isVisible('#focus-row')), 'No weekly focus for someone already in Discovery');
+  await cb.fill('#pray-line', 'Asked to read John 3 together on Friday');
+  await shot(cb, 'mobile-person-pray', false);
+  await cb.click('#pray-send');
+  await cb.waitForSelector('#pray-asked', {state: 'visible'});
+  check(await sql(`select prayer_initials||'|'||prayer_stage from public.follow_circle_posts where kind='prayer'`) === 'J. K.|discovery', 'Prayer request stored with initials and stage');
   check(!(await sql(`select string_agg(body,' ') from public.follow_circle_posts`)).includes('Jonah'), 'No name in any Circle post');
+  await cb.click('.details-actions .btn-secondary');
 
   // A backward move is private and asks nothing.
   await cb.click('.conversation-item:has-text("Lena") .conversation-name');
   await cb.click('#details-move-back');
   await cb.waitForTimeout(300);
-  check(!(await cb.isVisible('#share-sheet')), 'Moving someone back does not offer to share');
-  check(Number(await sql(`select count(*) from public.follow_circle_steps`)) === 2, 'Only forward steps were shared');
+  check(!(await cb.isVisible('#share-bar')), 'Moving someone back does not offer to share');
+
+  // Focus on James this week, then move him: flag, progress, commitment.
+  await cb.click('.conversation-item:has-text("James") .conversation-name');
+  await cb.check('#details-focus');
+  await cb.waitForTimeout(400);
+  await cb.click('.details-actions .btn-secondary');
+  check((await cb.textContent('#week-title')).includes('0 of 1 moved forward'), 'Week card shows this week’s focus');
+  check((await cb.textContent('.conversation-item:has-text("James") .flag')).includes('This week'), 'Focused person carries a flag');
+  check(await sql(`select goal from public.follow_circle_commitments where user_id='${USERS.alice.id}'`) === '1', 'Focus commits a number to the Circle');
+  await shot(cb, 'mobile-box-week', true);
+  await cb.click('.conversation-item:has-text("James") .move-btn');
+  await cb.waitForSelector('#share-bar', {state: 'visible'});
+  await cb.click('#share-bar-close');
+  check((await cb.textContent('#week-title')).includes('1 of 1 moved forward'), 'Moving a focused person completes the week');
+  check((await cb.textContent('.conversation-item:has-text("James") .flag')).includes('Moved this week'), 'Flag turns into a check');
+  check(Number(await sql(`select count(*) from public.follow_circle_steps`)) === 2, 'Only steps you chose to share were sent');
   const steps = await cb.evaluate(() => JSON.parse(localStorage.getItem('cb-steps')));
-  check(steps.length === 2 && steps.every((s) => !('name' in s)), 'Device step log keeps stages only', steps);
+  check(steps.length === 3 && steps.every((s) => !('name' in s)), 'Device step log keeps stages only', steps);
   await cb.waitForTimeout(800);
 
   // ── Alice opts in to include her counts ────────────────────────────────
@@ -124,7 +147,7 @@ try {
   await alice.click('#cb-optin-btn');
   await alice.waitForTimeout(600);
   const total = (p, s) => p.textContent(`#cb-quad [data-stage="${s}"] .cb-total`);
-  check(await total(alice, 'casual') === '2' && await total(alice, 'meaningful') === '1' && await total(alice, 'discovery') === '1', 'Group totals reflect the synced box',
+  check(await total(alice, 'casual') === '1' && await total(alice, 'meaningful') === '2' && await total(alice, 'discovery') === '1', 'Group totals reflect the synced box',
     [await total(alice, 'casual'), await total(alice, 'meaningful'), await total(alice, 'spiritual'), await total(alice, 'discovery')]);
 
   // ── Bob sees counts, steps and the prayer request, never names ─────────
@@ -140,8 +163,12 @@ try {
   await bob.check('#huddle-picks input[value="Ravi"]');
   await bob.click('#huddle-commit');
   await bob.waitForTimeout(700);
-  check((await bob.textContent('#huddle-group')).includes('1 member committed to 2 people'), 'Huddle commitment counted for the group');
+  check((await bob.textContent('#huddle-group')).includes('2 members committed to 3 people'), 'Huddle commitment counted for the group');
   check(await sql(`select goal from public.follow_circle_commitments where user_id='${USERS.bob.id}'`) === '2', 'Commitment stored as a number');
+  // The praying count comes back to Alice's row, on her device only.
+  await cb.reload();
+  await cb.waitForSelector('.conversation-item:has-text("Jonah") .name-praying', {timeout: 5000}).catch(() => {});
+  check((await cb.textContent('.conversation-item:has-text("Jonah")')).includes('1 praying'), 'Praying count shows on the person’s row');
   const bobText = await visibleText(bob);
   check(PRIVATE_NAMES.every((n) => !bobText.includes(n)), 'No names from Alice’s box appear for Bob');
   await shot(bob, 'mobile-circle-conversations');

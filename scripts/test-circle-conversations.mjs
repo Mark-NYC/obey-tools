@@ -22,11 +22,14 @@ assert(!/person_name/.test(migration.replace(/--[^\n]*/g, '')), 'migration must 
 assert(/prayer_initials ~ '/.test(migration), 'database must enforce initials for prayer requests');
 assert(/revoke all on public\.follow_circle_steps from anon,authenticated/.test(migration), 'steps must not be directly readable');
 assert(/from public,anon;/.test(migration), 'new functions must be revoked from anon');
-const share = cb.slice(cb.indexOf('function shareStep'), cb.indexOf('// ── Onboarding'));
+const share = cb.slice(cb.indexOf('async function shareStep'), cb.indexOf('// ── "4 praying"'));
+const prayer = cb.slice(cb.indexOf('async function sendPrayer'), cb.indexOf('// A rename keeps'));
 assert(share.includes("from('follow_circle_steps')") && !/name:\s*step\.name|person_name/.test(share), 'shared steps must not include the name');
 assert(/log\.push\(\{ from: from \|\| null, to, response: response \|\| null, at:/.test(cb), 'device step log keeps stages only');
-assert(cb.includes("const mode = SAFETY_MODE ? 'private' : 'step';"), 'safety mode defaults to private');
-assert(/INITIALS_RE\.test\(initials\)/.test(cb) && /prayer-initials/.test(circlesHtml), 'initials validated before sending');
+assert(cb.includes('if (!circles.length || SAFETY_MODE) return;'), 'safety mode never offers to share steps');
+assert(/insert\(\{\s*circle_id: circle\.id, author_id: user\.id, kind: 'prayer', prayer_initials: initials, prayer_stage: box, body: line/.test(prayer), 'prayer requests send initials, stage and line only');
+assert(!cb.includes('share-sheet'), 'step sharing uses the bottom bar, not a pop-up');
+assert(/INITIALS_RE\.test\(initials\)/.test(prayer) && /prayer-initials/.test(circlesHtml), 'initials validated before sending');
 
 // The church view reads counts only.
 assert(!/follow_circle_posts|follow_circle_members'\)\.select\('[^']*display_name|conversation_people/.test(churchJs.replace(/from\('follow_circle_members'\)\.select\('circle_id,role'\)/, '')), 'church view must not read posts or people');

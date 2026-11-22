@@ -132,7 +132,7 @@
         .add-person-input .btn { min-height: 48px; min-width: 76px; }
 
         /* ── Dialogs (shared look) ── */
-        .name-prompt, .edit-name-prompt, .box-selection-prompt, .move-prompt, .share-popup, .tutorial-popup, .remove-prompt, .reset-prompt, .share-sheet {
+        .name-prompt, .edit-name-prompt, .box-selection-prompt, .move-prompt, .share-popup, .tutorial-popup, .remove-prompt, .reset-prompt {
             position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1000; display: none; flex-direction: column; gap: 12px;
             width: calc(100% - 32px); max-width: 360px; background: #fff; padding: 20px; border-radius: 18px;
             box-shadow: 0 0 0 100vmax rgba(0,0,0,.38), 0 10px 30px rgba(0,0,0,.18); }
@@ -162,34 +162,70 @@
         .color-circle.yellow { background-color: #ffd700; }
         .color-circle.lightgreen { background-color: #90ee90; }
         .color-circle.darkgreen { background-color: #228b22; }
-        /* Share a step with a Circle */
-        .share-sheet { gap: 14px; max-height: 92vh; overflow-y: auto; }
-        .share-circles { display: flex; flex-wrap: wrap; gap: 8px; }
-        .share-circles[hidden] { display: none; }
-        .share-circle { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 14px 0 10px; border-radius: 999px; background: var(--ot-secondary); font-size: 14px; font-weight: 650; cursor: pointer; max-width: 100%; }
-        .share-circle span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .share-circle input { width: 18px; height: 18px; accent-color: var(--cb-green); flex-shrink: 0; }
-        .share-circles.single .share-circle { background: none; padding: 0; min-height: 0; }
-        .share-circles.single input { display: none; }
-        .share-circles.single .share-circle span { color: var(--cb-muted); font-weight: 600; }
-        .share-options { display: flex; flex-direction: column; gap: 8px; }
-        .share-opt { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; border: 1px solid var(--cb-line); border-radius: 14px; cursor: pointer; }
-        .share-opt:has(input:checked) { border-color: var(--cb-green); box-shadow: inset 0 0 0 1px var(--cb-green); background: #f6fbf8; }
-        .share-opt input { width: 20px; height: 20px; margin: 1px 0 0; accent-color: var(--cb-green); flex-shrink: 0; }
-        .share-opt b { display: block; font-size: 15px; }
-        .share-opt small { display: block; font-size: 13px; color: var(--cb-muted); margin-top: 1px; }
-        .share-prayer { display: flex; gap: 8px; margin: -2px 0 2px; }
-        .share-prayer input { min-height: 44px; padding: 0 12px; border: 1px solid #d1d1d6; border-radius: 10px; font-size: 16px; outline: none; min-width: 0; }
-        .share-prayer input:focus { border-color: var(--cb-ink); }
-        #share-initials { flex: 0 0 84px; font-weight: 650; }
-        #share-prayer-line { flex: 1; }
-        .share-safety { font-size: 13px; color: #7a5a00; background: #fff4d6; border-radius: 10px; padding: 8px 12px; }
-        .share-always { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--cb-muted); }
-        .share-always input { width: 18px; height: 18px; accent-color: var(--cb-green); }
-        .share-actions { display: flex; gap: 10px; }
-        .share-actions .btn { flex: 1; }
-        .share-actions .btn-primary { flex: 2; }
-        .share-actions .btn-secondary { background: var(--ot-secondary); box-shadow: none; }
+        /* Circles inside the box: week progress, flags, share bar, person-sheet section */
+        .week-card { display: flex; flex-direction: column; gap: 8px; margin: 14px 16px 0; padding: 14px 16px; background: #fff; border: 1px solid var(--cb-line); border-radius: 14px; text-decoration: none; color: var(--cb-ink); }
+        .week-card[hidden] { display: none; }
+        .week-title { font-size: 15px; font-weight: 700; }
+        .week-circle { display: flex; align-items: center; gap: 2px; font-size: 13px; font-weight: 600; color: var(--cb-muted); min-width: 0; }
+        .week-circle span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .week-bar { display: block; height: 6px; border-radius: 3px; background: var(--cb-green-tint); overflow: hidden; }
+        .week-bar span { display: block; height: 100%; background: var(--cb-green); border-radius: 3px; transition: width .3s ease; }
+        .week-card.is-done { background: var(--cb-green-tint); border-color: #c9ebd9; }
+        .week-card.is-done .week-title { color: var(--cb-green-ink); }
+        .week-card.is-done .week-bar { background: #fff; }
+        .flag { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; white-space: nowrap; flex-shrink: 0; }
+        .flag svg.ic { width: 11px; height: 11px; }
+        .flag.todo { background: var(--cb-green); color: #fff; }
+        .flag.todo svg.ic { fill: currentColor; stroke: none; }
+        .flag.done { background: var(--cb-green-tint); color: var(--cb-green-ink); }
+        .flag.done svg.ic { stroke-width: 3; }
+        .conversation-item.is-focus { background: #f6fbf8; }
+        .name-praying { display: inline-flex; align-items: center; gap: 5px; font-size: 13px; font-weight: 650; color: var(--cb-green-ink); }
+        .name-praying svg.ic { width: 14px; height: 14px; }
+        .share-bar { position: fixed; left: 12px; right: 12px; bottom: calc(84px + env(safe-area-inset-bottom)); z-index: 60; display: flex; align-items: center; gap: 8px; padding: 10px 6px 10px 16px; background: #1c1c1e; color: #fff; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,.22); overflow: hidden; max-width: 520px; margin: 0 auto; }
+        .share-bar[hidden] { display: none; }
+        .share-bar-text { flex: 1; min-width: 0; }
+        .share-bar-title { font-size: 15px; font-weight: 650; line-height: 1.3; overflow-wrap: anywhere; }
+        .share-bar-sub { font-size: 12px; line-height: 1.35; color: #b7b7bd; margin-top: 2px; overflow-wrap: anywhere; }
+        .share-bar-btn { min-height: 44px; padding: 0 18px; border: none; border-radius: 999px; background: var(--ot-accent); color: #08301f; font-size: 15px; font-weight: 700; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+        .share-bar-close { width: 40px; height: 40px; border: none; border-radius: 50%; background: transparent; color: #b7b7bd; display: grid; place-items: center; cursor: pointer; flex-shrink: 0; }
+        .share-bar-close svg.ic { width: 16px; height: 16px; }
+        .share-bar-timer { position: absolute; left: 0; bottom: 0; height: 3px; width: 100%; background: var(--cb-green); transform-origin: left; }
+        .share-bar.is-running .share-bar-timer { animation: barTimer 6s linear forwards; }
+        .share-bar:hover .share-bar-timer, .share-bar:focus-within .share-bar-timer { animation-play-state: paused; }
+        @keyframes barTimer { to { transform: scaleX(0); } }
+        .details-circle { display: flex; flex-direction: column; gap: 12px; border-top: 1px solid #f0f0f2; padding-top: 14px; }
+        .details-circle[hidden] { display: none; }
+        .details-circle-name { font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--cb-muted); }
+        .focus-row { display: flex; align-items: center; gap: 12px; min-height: 44px; cursor: pointer; }
+        .focus-row[hidden] { display: none; }
+        .focus-row > span { flex: 1; }
+        .focus-row b { display: block; font-size: 15px; }
+        .focus-row small { display: block; font-size: 13px; color: var(--cb-muted); }
+        .switch { appearance: none; -webkit-appearance: none; width: 50px; height: 30px; border-radius: 999px; background: #d1d1d6; position: relative; flex-shrink: 0; cursor: pointer; transition: background .15s; margin: 0; }
+        .switch::after { content: ''; position: absolute; left: 3px; top: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.2); transition: transform .15s; }
+        .switch:checked { background: var(--cb-green); }
+        .switch:checked::after { transform: translateX(20px); }
+        [dir="rtl"] .switch:checked::after { transform: translateX(-20px); }
+        [dir="rtl"] .switch::after { left: auto; right: 3px; }
+        .pray-card { display: flex; flex-direction: column; gap: 10px; padding: 14px; border: 1px solid #c9ebd9; background: #f6fbf8; border-radius: 14px; }
+        .pray-card > b { font-size: 15px; }
+        .pray-form { display: flex; flex-direction: column; gap: 10px; }
+        .pray-form[hidden], .pray-asked[hidden] { display: none; }
+        .pray-inputs { display: flex; gap: 8px; }
+        .pray-inputs input { min-height: 44px; padding: 0 12px; border: 1px solid #d1d1d6; border-radius: 10px; font-size: 16px; outline: none; min-width: 0; background: #fff; }
+        .pray-inputs input:focus { border-color: var(--cb-ink); }
+        #pray-initials { flex: 0 0 80px; font-weight: 650; }
+        #pray-line { flex: 1; }
+        .pray-hint { font-size: 12px; color: var(--cb-muted); }
+        .pray-send { background: var(--cb-green); color: #fff; min-height: 44px; }
+        .pray-send:active { background: var(--cb-green-ink); }
+        .pray-asked { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 14px; color: var(--cb-green-ink); font-weight: 650; }
+        @media (min-width: 768px) {
+            .week-card { margin: 14px 24px 0; max-width: 912px; }
+            .share-bar { bottom: 24px; }
+        }
+        @media (min-width: 960px) { .week-card { margin-left: auto; margin-right: auto; } }
         .cb-circles-link { display: inline-flex; align-items: center; text-decoration: none; color: var(--cb-green-ink); }
         .share-popup { text-align: center; }
         .share-popup h3 { font-size: 16px; font-weight: 600; line-height: 1.4; }
@@ -232,7 +268,7 @@
 
         /* ── Phones: one-handed sheets for the stage pickers ── */
         @media (max-width: 767px) {
-            .box-selection-prompt, .move-prompt, .share-sheet { top: auto; bottom: 0; left: 0; transform: none; width: 100%; max-width: none; border-radius: 20px 20px 0 0; padding: 18px 20px calc(14px + env(safe-area-inset-bottom)); }
+            .box-selection-prompt, .move-prompt { top: auto; bottom: 0; left: 0; transform: none; width: 100%; max-width: none; border-radius: 20px 20px 0 0; padding: 18px 20px calc(14px + env(safe-area-inset-bottom)); }
             .auth-section.auth-logged-out:not(.auth-expanded) #auth-form { display: none !important; }
             .auth-section.auth-logged-out:not(.auth-expanded) #auth-collapsed { display: flex !important; }
             .auth-section.auth-expanded #auth-collapsed { display: none !important; }
@@ -369,6 +405,9 @@
         <symbol id="i-map" viewBox="0 0 24 24"><path d="M3 11l19-9-9 19-2-8-8-2z"/></symbol>
         <symbol id="i-cw" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></symbol>
         <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></symbol>
+        <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 3v18h2v-7h11l-2-4 2-4H7V3z"/></symbol>
+        <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></symbol>
+        <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 21s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.5-7 10-7 10z"/></symbol>
         <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></symbol>
     </svg>
     <div class="sync-indicator" id="sync-indicator" data-i18n="sync.syncing">Syncing...</div>
@@ -379,6 +418,11 @@
         <h1 data-i18n="conversation_box.title">Conversation Box</h1>
         <p class="explainer" data-i18n="conversation_box.explainer">Track where each person is right now, then move them as conversations deepen.</p>
     </div>
+    <a class="week-card" id="week-card" href="/follow-circles.html" hidden>
+        <span class="week-title" id="week-title"></span>
+        <span class="week-bar" aria-hidden="true"><span id="week-fill"></span></span>
+        <span class="week-circle"><span id="week-circle"></span><svg class="ic flip" aria-hidden="true" style="width:14px;height:14px"><use href="#i-chev"/></svg></span>
+    </a>
     <div class="container">
         <!-- Auth section: account-overlay.js turns this into the person-icon sign-in sheet -->
         <div class="auth-section" id="auth-section">
@@ -443,6 +487,12 @@
                 </div>
             </div>
         </div>
+        <div class="share-bar" id="share-bar" role="status" aria-live="polite" hidden>
+            <div class="share-bar-text"><div class="share-bar-title" id="share-bar-title"></div><div class="share-bar-sub" id="share-bar-sub"></div></div>
+            <button type="button" class="share-bar-btn" id="share-bar-btn"></button>
+            <button type="button" class="share-bar-close" id="share-bar-close" aria-label="Dismiss" data-i18n-aria-label="conversation_box.dismiss"><svg class="ic"><use href="#i-close"/></svg></button>
+            <span class="share-bar-timer" aria-hidden="true"></span>
+        </div>
         <div class="add-person-section">
             <div class="add-person-input">
                 <input type="text" id="new-person-name" placeholder="Add name..." onkeypress="handleEnterKey(event)" data-i18n-placeholder="conversation_box.placeholder_name" aria-label="Add name" data-i18n-aria-label="conversation_box.placeholder_name" autocomplete="off" enterkeyhint="done">
@@ -485,31 +535,6 @@
                 <button type="button" class="option" onclick="selectOption('open')"><span class="color-circle yellow"></span><span class="option-label" data-i18n="conversation_box.move_open">Open to learning</span><svg class="ic chev flip"><use href="#i-chev"/></svg></button>
                 <button type="button" class="option" onclick="selectOption('trusted')"><span class="color-circle lightgreen"></span><span class="option-label" data-i18n="conversation_box.move_trusted">Trusted Christ</span><svg class="ic chev flip"><use href="#i-chev"/></svg></button>
                 <button type="button" class="option" onclick="selectOption('existing')"><span class="color-circle darkgreen"></span><span class="option-label" data-i18n="conversation_box.move_existing">Existing believer</span><svg class="ic chev flip"><use href="#i-chev"/></svg></button>
-            </div>
-        </div>
-        <div class="share-sheet" id="share-sheet" role="dialog" aria-modal="true" aria-labelledby="share-sheet-title">
-            <div class="dialog-head">
-                <div>
-                    <div class="dialog-title" id="share-sheet-title"></div>
-                    <div class="dialog-sub" data-i18n="conversation_box.share_step_sub">Share this step with your Circle?</div>
-                </div>
-                <button class="prompt-close" onclick="closeShareSheet()" aria-label="Close" data-i18n-aria-label="conversation_box.close" data-i18n-title="conversation_box.close" title="Close"><svg class="ic"><use href="#i-close"/></svg></button>
-            </div>
-            <div class="share-circles" id="share-circles"></div>
-            <div class="share-options" role="radiogroup" aria-labelledby="share-sheet-title">
-                <label class="share-opt"><input type="radio" name="share-mode" value="step" onchange="syncShareMode()"><span><b data-i18n="conversation_box.share_mode_step">Just the step</b><small data-i18n="conversation_box.share_mode_step_hint">Your Circle sees the stage, never the name.</small></span></label>
-                <label class="share-opt"><input type="radio" name="share-mode" value="prayer" onchange="syncShareMode()"><span><b data-i18n="conversation_box.share_mode_prayer">Ask them to pray</b><small data-i18n="conversation_box.share_mode_prayer_hint">Shared as initials, with one line.</small></span></label>
-                <div class="share-prayer" id="share-prayer" hidden>
-                    <input type="text" id="share-initials" maxlength="12" autocomplete="off" aria-label="Initials" data-i18n-aria-label="conversation_box.share_initials_label">
-                    <input type="text" id="share-prayer-line" maxlength="280" autocomplete="off" placeholder="What should we pray for?" data-i18n-placeholder="conversation_box.share_prayer_placeholder" aria-label="What should we pray for?" data-i18n-aria-label="conversation_box.share_prayer_placeholder">
-                </div>
-                <label class="share-opt"><input type="radio" name="share-mode" value="private" onchange="syncShareMode()"><span><b data-i18n="conversation_box.share_mode_private">Keep it private</b><small data-i18n="conversation_box.share_mode_private_hint">Only you see this step.</small></span></label>
-            </div>
-            <p class="share-safety" id="share-safety" hidden data-i18n="conversation_box.share_safety_hint">Where following Jesus is dangerous, keep steps private unless your Circle is safe.</p>
-            <label class="share-always" id="share-always-row"><input type="checkbox" id="share-always"><span data-i18n="conversation_box.share_always">Always do this for steps. Don't ask.</span></label>
-            <div class="share-actions">
-                <button type="button" class="btn btn-secondary" onclick="closeShareSheet()" data-i18n="conversation_box.share_not_now">Not now</button>
-                <button type="button" class="btn btn-primary" id="share-send" onclick="sendShare()" data-i18n="conversation_box.share_send">Share</button>
             </div>
         </div>
         <div class="remove-prompt" id="remove-prompt" role="alertdialog" aria-modal="true">
@@ -566,6 +591,22 @@
             <div class="details-field">
                 <label for="details-follow-up-date" data-i18n="site_text.s_b8da11963e47">Follow-up date</label>
                 <input type="date" id="details-follow-up-date">
+            </div>
+            <div class="details-circle" id="details-circle" hidden>
+                <div class="details-circle-name" id="details-circle-name"></div>
+                <label class="focus-row" id="focus-row"><span><b id="focus-title"></b><small data-i18n="conversation_box.focus_hint">Counts toward your huddle goal. The group sees a number.</small></span><input type="checkbox" class="switch" role="switch" id="details-focus"></label>
+                <div class="pray-card">
+                    <b data-i18n="conversation_box.pray_title">Ask the group to pray</b>
+                    <div class="pray-asked" id="pray-asked" hidden><span id="pray-asked-text"></span><button type="button" class="text-btn" id="pray-again" data-i18n="conversation_box.pray_again">Ask again</button></div>
+                    <div class="pray-form" id="pray-form">
+                        <div class="pray-inputs">
+                            <input type="text" id="pray-initials" maxlength="12" autocomplete="off" aria-label="Initials" data-i18n-aria-label="conversation_box.share_initials_label">
+                            <input type="text" id="pray-line" maxlength="280" autocomplete="off" placeholder="What should we pray for?" data-i18n-placeholder="conversation_box.share_prayer_placeholder" aria-label="What should we pray for?" data-i18n-aria-label="conversation_box.share_prayer_placeholder">
+                        </div>
+                        <div class="pray-hint" id="pray-hint"></div>
+                        <button type="button" class="btn pray-send" id="pray-send"></button>
+                    </div>
+                </div>
             </div>
             <div class="details-actions">
                 <button class="btn btn-secondary" onclick="closePersonDetails()" data-i18n="mawl.cancel">Cancel</button>
@@ -1517,6 +1558,7 @@ function saveConversations() {
             document.getElementById('details-next-step').value = (person && person.next_step) || '';
             document.getElementById('details-note').value = (person && person.person_note) || '';
             document.getElementById('details-follow-up-date').value = (person && person.follow_up_date) || '';
+            renderDetailsCircle(name, box);
             document.getElementById('person-details-overlay').classList.add('visible');
             _detailsReturnFocus = document.activeElement;
         }
@@ -1556,6 +1598,7 @@ function saveConversations() {
                         showNotification(window.t('conversation_box.name_exists')); return;
                     }
                     person.name = newName;
+                    renameLocalLinks(name, newName);
                 }
                 person.next_step = document.getElementById('details-next-step').value.trim() || null;
                 person.person_note = document.getElementById('details-note').value.trim() || null;
@@ -1638,6 +1681,22 @@ function saveConversations() {
             text.textContent = name;
             line.appendChild(text);
             nameBtn.appendChild(line);
+            const pick = circlesOn() ? weekPicks().get(name) : null;
+            if (pick) {
+                const flag = document.createElement('span');
+                flag.className = 'flag ' + (pick.moved ? 'done' : 'todo');
+                flag.innerHTML = icon(pick.moved ? 'i-check' : 'i-flag') + '<span></span>';
+                flag.lastChild.textContent = window.t(pick.moved ? 'conversation_box.week_moved' : 'conversation_box.week_flag');
+                line.appendChild(flag);
+                if (!pick.moved) item.classList.add('is-focus');
+            }
+            if (_praying.get(name)) {
+                const praying = document.createElement('span');
+                praying.className = 'name-praying';
+                praying.innerHTML = icon('i-heart') + '<span></span>';
+                praying.lastChild.textContent = window.t('conversation_box.praying_count', { count: _praying.get(name) });
+                nameBtn.appendChild(praying);
+            }
             if (person.next_step) {
                 const sub = document.createElement('span');
                 sub.className = 'name-sub';
@@ -1696,20 +1755,56 @@ function saveConversations() {
         // ── Steps and Circles ─────────────────────────────────────────────────
         // Every new person and every forward move is logged on this device
         // (stages and time only, never the name) for the weekly huddle. If you
-        // belong to a Circle, you can share the step there: the Circle sees the
-        // stage, never the name. Prayer requests use initials only.
+        // belong to a Circle:
+        //  * a quiet bottom bar offers to share the step (stage only, never the name);
+        //  * people you focus on this week carry a flag, and the header shows progress;
+        //  * the person sheet can ask the Circle to pray, by initials only.
+        // Names stay on this device: picks and prayer links are joined to people here.
         const STEP_LOG_KEY = 'cb-steps';
         const SHARE_PREF_KEY = 'cb-share-pref';
+        const PICKS_KEY = 'cb-huddle-picks';      // { [circleId]: { week, names[], moved[] } } shared with the Circles page
+        const PRAYERS_KEY = 'cb-prayers';         // [{ name, circle, post, at }] this device only
+        const INITIALS_RE = /^[^\s\d.]{1,2}\.?( [^\s\d.]{1,2}\.?){0,2}$/u;
         let _myCircles = null;          // [{ id, name }] once loaded for this account
         let _myCirclesFor = null;
-        let _pendingShare = null;
+        let _praying = new Map();       // name → people praying (from Circle reactions)
+        let _barStep = null, _barTimer = null;
 
         function readJSON(key, fallback) { try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; } }
+        function writeJSON(key, value) { try { localStorage.setItem(key, JSON.stringify(value)); } catch {} }
+        function isoDay(d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+        function weekKey() { const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return isoDay(d); }
+        const circlesOn = () => !!(getCurrentUser() && _myCircles && _myCircles.length);
+
+        // This week's focus: { name → { circle, moved } } across your Circles.
+        function weekPicks() {
+            const out = new Map(), week = weekKey(), all = readJSON(PICKS_KEY, {});
+            Object.entries(all).forEach(([circle, p]) => {
+                if (!p || p.week !== week || !(_myCircles || []).some(c => c.id === circle)) return;
+                (p.names || []).forEach(n => out.set(n, { circle, moved: (p.moved || []).includes(n) }));
+            });
+            return out;
+        }
+        // The Circle your week is planned with: where you already picked, else your last share, else the first.
+        function focusCircle() {
+            const circles = _myCircles || [], all = readJSON(PICKS_KEY, {}), week = weekKey();
+            const picked = circles.find(c => all[c.id] && all[c.id].week === week && (all[c.id].names || []).length);
+            const pref = readJSON(SHARE_PREF_KEY, null);
+            return picked || circles.find(c => pref && (pref.circles || []).includes(c.id)) || circles[0] || null;
+        }
 
         function recordStep(name, from, to, response) {
             const log = readJSON(STEP_LOG_KEY, []);
             log.push({ from: from || null, to, response: response || null, at: new Date().toISOString() });
-            try { localStorage.setItem(STEP_LOG_KEY, JSON.stringify(log.slice(-400))); } catch {}
+            writeJSON(STEP_LOG_KEY, log.slice(-400));
+            if (from) {
+                const all = readJSON(PICKS_KEY, {}), week = weekKey();
+                Object.values(all).forEach(p => {
+                    if (p && p.week === week && (p.names || []).includes(name) && !(p.moved || []).includes(name)) p.moved = [...(p.moved || []), name];
+                });
+                writeJSON(PICKS_KEY, all);
+                renderWeek(); updateDisplay();
+            }
             offerShare({ name, from: from || null, to, response: response || null });
         }
 
@@ -1720,12 +1815,15 @@ function saveConversations() {
             try {
                 // share_conversations only exists once Circle sharing is live.
                 const m = await window.supabase.from('follow_circle_members').select('circle_id,share_conversations').eq('user_id', user.id);
-                if (m.error || !(m.data || []).length) { _myCircles = []; _myCirclesFor = user.id; return _myCircles; }
-                const c = await window.supabase.from('follow_circles').select('id,name').in('id', m.data.map(x => x.circle_id));
-                _myCircles = c.error ? [] : (c.data || []).map(x => ({ id: x.id, name: x.name }));
-                _myCirclesFor = user.id;
+                if (m.error || !(m.data || []).length) { _myCircles = []; _myCirclesFor = user.id; }
+                else {
+                    const c = await window.supabase.from('follow_circles').select('id,name').in('id', m.data.map(x => x.circle_id));
+                    _myCircles = c.error ? [] : (c.data || []).map(x => ({ id: x.id, name: x.name }));
+                    _myCirclesFor = user.id;
+                }
             } catch { _myCircles = []; }
-            renderCirclesLink();
+            renderCirclesLink(); renderWeek(); updateDisplay();
+            loadPraying();
             return _myCircles;
         }
 
@@ -1735,101 +1833,77 @@ function saveConversations() {
             const circles = _myCircles || [];
             link.hidden = sep.hidden = !circles.length;
             if (!circles.length) return;
-            link.href = circles.length === 1
-                ? '/follow-circles.html?circle=' + encodeURIComponent(circles[0].id) + '&tab=conversations'
-                : '/follow-circles.html';
+            link.href = circleHref(circles.length === 1 ? circles[0] : null);
+        }
+        const circleHref = c => c ? '/follow-circles.html?circle=' + encodeURIComponent(c.id) + '&tab=conversations' : '/follow-circles.html';
+
+        function renderWeek() {
+            const card = document.getElementById('week-card');
+            if (typeof window.t !== 'function') return;
+            const picks = weekPicks();
+            if (!circlesOn() || !picks.size) { card.hidden = true; return; }
+            const done = [...picks.values()].filter(p => p.moved).length;
+            const circle = (_myCircles || []).find(c => c.id === [...picks.values()][0].circle);
+            card.hidden = false;
+            card.href = circleHref(circle);
+            card.classList.toggle('is-done', done === picks.size);
+            document.getElementById('week-title').textContent = window.t('conversation_box.week_progress', { done, total: picks.size });
+            document.getElementById('week-circle').textContent = circle ? circle.name : '';
+            document.getElementById('week-fill').style.width = Math.round(done / picks.size * 100) + '%';
         }
 
         function cbInitials(name) {
             const raw = window.obeyGeo && window.obeyGeo.initials ? window.obeyGeo.initials(name) : String(name || '').trim().split(/\s+/).map(w => Array.from(w)[0].toUpperCase() + '.').join(' ');
             return raw.split(' ').filter(Boolean).slice(0, 3).join(' ');
         }
-        const INITIALS_RE = /^[^\s\d.]{1,2}\.?( [^\s\d.]{1,2}\.?){0,2}$/u;
 
+        // ── After a step: a quiet bar, never a pop-up ──
         async function offerShare(step) {
             const circles = await loadMyCircles();
-            if (!circles.length) return;
+            if (!circles.length || SAFETY_MODE) return;
             const pref = readJSON(SHARE_PREF_KEY, null);
-            if (pref && pref.always) {
-                if (pref.mode === 'step') {
-                    const ids = (pref.circles || []).filter(id => circles.some(c => c.id === id));
-                    if (ids.length) shareStep(step, ids, null);
-                }
-                return;
-            }
-            _pendingShare = step;
-            const title = window.t(step.from ? 'conversation_box.share_step_title_moved' : 'conversation_box.share_step_title_added', { name: step.name, stage: stageLabel(step.to) });
-            document.getElementById('share-sheet-title').textContent = title;
-            const list = document.getElementById('share-circles');
-            list.innerHTML = '';
-            const chosen = (pref && pref.circles) || [];
-            circles.forEach((c, i) => {
-                const label = document.createElement('label');
-                label.className = 'share-circle';
-                const cb = document.createElement('input');
-                cb.type = 'checkbox'; cb.value = c.id;
-                cb.checked = chosen.length ? chosen.includes(c.id) : i === 0;
-                const span = document.createElement('span'); span.textContent = c.name;
-                label.append(cb, span); list.appendChild(label);
-            });
-            list.classList.toggle('single', circles.length === 1);
-            document.getElementById('share-initials').value = cbInitials(step.name);
-            document.getElementById('share-prayer-line').value = '';
-            const mode = SAFETY_MODE ? 'private' : 'step';
-            document.querySelectorAll('input[name="share-mode"]').forEach(r => { r.checked = r.value === mode; });
-            document.getElementById('share-safety').hidden = !SAFETY_MODE;
-            document.getElementById('share-always').checked = false;
-            syncShareMode();
-            openDialog('share-sheet', '#share-send');
+            const ids = shareTargets(pref, circles);
+            if (pref && pref.always && pref.mode === 'step') { shareStep(step, ids); return; }
+            showShareBar(step, ids);
+        }
+        function shareTargets(pref, circles) {
+            const ids = ((pref && pref.circles) || []).filter(id => circles.some(c => c.id === id));
+            return ids.length ? ids : [focusCircle().id];
+        }
+        function showShareBar(step, ids) {
+            _barStep = { step, ids };
+            const bar = document.getElementById('share-bar');
+            document.getElementById('share-bar-title').textContent = window.t(step.from ? 'conversation_box.share_step_title_moved' : 'conversation_box.share_step_title_added', { name: step.name, stage: stageLabel(step.to) });
+            const names = (_myCircles || []).filter(c => ids.includes(c.id));
+            document.getElementById('share-bar-sub').textContent = names.length === 1
+                ? window.t('conversation_box.bar_sub_one', { circle: names[0].name })
+                : window.t('conversation_box.bar_sub_many', { count: names.length });
+            document.getElementById('share-bar-btn').textContent = window.t('conversation_box.bar_share');
+            bar.hidden = false;
+            bar.classList.remove('is-running'); void bar.offsetWidth; bar.classList.add('is-running');
+            restartBarTimer();
+        }
+        function restartBarTimer() { clearTimeout(_barTimer); _barTimer = setTimeout(hideShareBar, 6000); }
+        function hideShareBar() {
+            clearTimeout(_barTimer);
+            document.getElementById('share-bar').hidden = true;
+            _barStep = null;
+        }
+        function shareFromBar() {
+            if (!_barStep) return;
+            const { step, ids } = _barStep;
+            hideShareBar();
+            writeJSON(SHARE_PREF_KEY, { always: false, mode: 'step', circles: ids });
+            shareStep(step, ids);
         }
 
-        function syncShareMode() {
-            const mode = document.querySelector('input[name="share-mode"]:checked')?.value;
-            document.getElementById('share-prayer').hidden = mode !== 'prayer';
-            document.getElementById('share-always-row').hidden = mode === 'prayer';
-            document.getElementById('share-circles').hidden = mode === 'private';
-        }
-
-        function closeShareSheet() {
-            document.getElementById('share-sheet').style.display = 'none';
-            _pendingShare = null;
-        }
-
-        async function sendShare() {
-            const step = _pendingShare;
-            if (!step) return closeShareSheet();
-            const mode = document.querySelector('input[name="share-mode"]:checked')?.value || 'private';
-            const ids = [...document.querySelectorAll('#share-circles input:checked')].map(x => x.value);
-            if (mode !== 'private' && !ids.length) return showNotification(window.t('conversation_box.share_choose_circle'));
-            let prayer = null;
-            if (mode === 'prayer') {
-                const initials = document.getElementById('share-initials').value.trim().replace(/\s+/g, ' ');
-                const line = document.getElementById('share-prayer-line').value.trim();
-                if (!INITIALS_RE.test(initials)) return showNotification(window.t('conversation_box.share_initials_invalid'));
-                if (!line) { document.getElementById('share-prayer-line').focus(); return; }
-                prayer = { initials, line: line.slice(0, 280) };
-            }
-            if (document.getElementById('share-always').checked && mode !== 'prayer') {
-                try { localStorage.setItem(SHARE_PREF_KEY, JSON.stringify({ always: true, mode, circles: ids })); } catch {}
-            } else if (mode !== 'private') {
-                try { localStorage.setItem(SHARE_PREF_KEY, JSON.stringify({ always: false, mode: 'step', circles: ids })); } catch {}
-            }
-            closeShareSheet();
-            if (mode !== 'private') shareStep(step, ids, prayer);
-        }
-
-        async function shareStep(step, ids, prayer) {
+        async function shareStep(step, ids) {
             const user = getCurrentUser();
-            if (!user || !window.supabase) return;
+            if (!user || !window.supabase || !ids.length) return;
             const rows = ids.map(circle_id => ({ circle_id, user_id: user.id, from_stage: step.from, to_stage: step.to, response: step.to === 'discovery' ? step.response : null }));
             try {
                 const r = await window.supabase.from('follow_circle_steps').insert(rows);
                 if (r.error) throw r.error;
-                if (prayer) {
-                    const p = await window.supabase.from('follow_circle_posts').insert(ids.map(circle_id => ({
-                        circle_id, author_id: user.id, kind: 'prayer', prayer_initials: prayer.initials, prayer_stage: step.to, body: prayer.line })));
-                    if (p.error) throw p.error;
-                }
                 const names = (_myCircles || []).filter(c => ids.includes(c.id));
                 showNotification(names.length === 1
                     ? window.t('conversation_box.share_sent', { circle: names[0].name })
@@ -1838,6 +1912,102 @@ function saveConversations() {
                 console.warn('[circle share]', err && err.message);
                 showNotification(window.t('conversation_box.share_failed'));
             }
+        }
+
+        // ── "4 praying": counts come back to the person's row on this device ──
+        function recentPrayers() {
+            const since = Date.now() - 30 * 864e5;
+            return readJSON(PRAYERS_KEY, []).filter(p => p && p.post && new Date(p.at) > since && (_myCircles || []).some(c => c.id === p.circle));
+        }
+        async function loadPraying() {
+            const mine = recentPrayers();
+            if (!circlesOn() || !mine.length) { if (_praying.size) { _praying = new Map(); updateDisplay(); } return; }
+            const r = await window.supabase.from('follow_circle_reactions').select('post_id,user_id').in('post_id', mine.map(p => p.post));
+            if (r.error) return;
+            const me = getCurrentUser() && getCurrentUser().id;
+            const next = new Map();
+            mine.forEach(p => {
+                const n = (r.data || []).filter(x => x.post_id === p.post && x.user_id !== me).length;
+                if (n) next.set(p.name, (next.get(p.name) || 0) + n);
+            });
+            _praying = next;
+            updateDisplay();
+        }
+
+        // ── Person sheet: focus this week, ask the Circle to pray ──
+        function renderDetailsCircle(name, box) {
+            const section = document.getElementById('details-circle');
+            const circle = circlesOn() ? focusCircle() : null;
+            section.hidden = !circle;
+            if (!circle) return;
+            document.getElementById('details-circle-name').textContent = circle.name;
+            const focusRow = document.getElementById('focus-row');
+            focusRow.hidden = box === 'discovery';
+            document.getElementById('focus-title').textContent = window.t('conversation_box.focus_title', { name: name.split(/\s+/)[0] });
+            document.getElementById('details-focus').checked = weekPicks().has(name);
+            const asked = recentPrayers().filter(p => p.name === name).sort((a, b) => b.at.localeCompare(a.at))[0];
+            const askedEl = document.getElementById('pray-asked');
+            askedEl.hidden = !asked;
+            document.getElementById('pray-form').hidden = !!asked;
+            if (asked) {
+                document.getElementById('pray-asked-text').textContent = window.t('conversation_box.pray_asked', {
+                    when: new Date(asked.at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }), count: _praying.get(name) || 0 });
+            }
+            const initials = cbInitials(name);
+            document.getElementById('pray-initials').value = initials;
+            document.getElementById('pray-line').value = document.getElementById('details-next-step').value.trim().slice(0, 280);
+            document.getElementById('pray-hint').textContent = window.t('conversation_box.pray_hint', { initials });
+            document.getElementById('pray-send').textContent = window.t('conversation_box.pray_send', { circle: circle.name });
+        }
+
+        async function toggleFocus() {
+            if (!_detailsPerson) return;
+            const { name } = _detailsPerson;
+            const circle = focusCircle(), week = weekKey();
+            const box = document.getElementById('details-focus');
+            const all = readJSON(PICKS_KEY, {});
+            const entry = all[circle.id] && all[circle.id].week === week ? all[circle.id] : { week, names: [], moved: [] };
+            entry.names = box.checked ? [...new Set([...(entry.names || []), name])] : (entry.names || []).filter(n => n !== name);
+            entry.moved = (entry.moved || []).filter(n => entry.names.includes(n));
+            all[circle.id] = entry;
+            writeJSON(PICKS_KEY, all);
+            renderWeek(); updateDisplay();
+            const r = await window.supabase.rpc('follow_circle_commit', { p_circle: circle.id, p_week: week, p_goal: entry.names.length });
+            if (r.error) showNotification(window.t('conversation_box.share_failed'));
+        }
+
+        async function sendPrayer() {
+            if (!_detailsPerson) return;
+            const { name, box } = _detailsPerson;
+            const circle = focusCircle(), user = getCurrentUser();
+            const initials = document.getElementById('pray-initials').value.trim().replace(/\s+/g, ' ');
+            const line = document.getElementById('pray-line').value.trim();
+            if (!INITIALS_RE.test(initials)) return showNotification(window.t('conversation_box.share_initials_invalid'));
+            if (!line) { document.getElementById('pray-line').focus(); return; }
+            const btn = document.getElementById('pray-send');
+            btn.disabled = true;
+            try {
+                const r = await window.supabase.from('follow_circle_posts').insert({
+                    circle_id: circle.id, author_id: user.id, kind: 'prayer', prayer_initials: initials, prayer_stage: box, body: line.slice(0, 280) }).select('id').single();
+                if (r.error) throw r.error;
+                const list = readJSON(PRAYERS_KEY, []);
+                list.push({ name, circle: circle.id, post: r.data.id, at: new Date().toISOString() });
+                writeJSON(PRAYERS_KEY, list.slice(-100));
+                showNotification(window.t('conversation_box.share_sent', { circle: circle.name }));
+                renderDetailsCircle(name, box);
+            } catch (err) {
+                console.warn('[circle prayer]', err && err.message);
+                showNotification(window.t('conversation_box.share_failed'));
+            } finally { btn.disabled = false; }
+        }
+
+        // A rename keeps this week's focus and prayer links with the person.
+        function renameLocalLinks(oldName, newName) {
+            const all = readJSON(PICKS_KEY, {});
+            Object.values(all).forEach(p => { if (!p) return; p.names = (p.names || []).map(n => n === oldName ? newName : n); p.moved = (p.moved || []).map(n => n === oldName ? newName : n); });
+            writeJSON(PICKS_KEY, all);
+            writeJSON(PRAYERS_KEY, readJSON(PRAYERS_KEY, []).map(p => p.name === oldName ? { ...p, name: newName } : p));
+            if (_praying.has(oldName)) { _praying.set(newName, _praying.get(oldName)); _praying.delete(oldName); }
         }
 
         // ── Onboarding ────────────────────────────────────────────────────────
@@ -2017,14 +2187,23 @@ function saveConversations() {
             });
             document.getElementById('details-move-back').addEventListener('click', detailsMoveBack);
             document.getElementById('details-remove').addEventListener('click', detailsRemove);
+            document.getElementById('share-bar-btn').addEventListener('click', shareFromBar);
+            document.getElementById('share-bar-close').addEventListener('click', hideShareBar);
+            const bar = document.getElementById('share-bar');
+            bar.addEventListener('pointerenter', () => clearTimeout(_barTimer));
+            bar.addEventListener('focusin', () => clearTimeout(_barTimer));
+            bar.addEventListener('pointerleave', () => { if (!bar.hidden && !bar.contains(document.activeElement)) restartBarTimer(); });
+            document.getElementById('details-focus').addEventListener('change', toggleFocus);
+            document.getElementById('pray-send').addEventListener('click', sendPrayer);
+            document.getElementById('pray-again').addEventListener('click', () => { document.getElementById('pray-asked').hidden = true; document.getElementById('pray-form').hidden = false; document.getElementById('pray-line').focus(); });
+            window.addEventListener('focus', () => { if (circlesOn()) loadPraying(); });
         });
 
         // Escape closes whichever dialog is open, the same way its Close / No does.
         document.addEventListener('keydown', (e) => {
             if (e.key !== 'Escape') return;
             const open = id => { const el = document.getElementById(id); return el && (el.style.display === 'flex' || el.classList.contains('visible')); };
-            if (open('share-sheet')) closeShareSheet();
-            else if (open('person-details-overlay')) closePersonDetails();
+            if (open('person-details-overlay')) closePersonDetails();
             else if (open('move-prompt')) closeMovePrompt();
             else if (open('box-selection-prompt')) closeBoxSelection();
             else if (open('remove-prompt')) confirmRemove(false);
@@ -2033,6 +2212,7 @@ function saveConversations() {
             else if (open('tutorial-popup')) closeTutorial();
             else if (open('edit-name-prompt')) document.getElementById('edit-name-prompt').style.display = 'none';
             else if (open('onboarding-overlay')) closeOnboarding();
+            else if (!document.getElementById('share-bar').hidden) hideShareBar();
         });
         
         document.getElementById('user-name-input').addEventListener('keypress', (e) => { 
@@ -2050,6 +2230,7 @@ function saveConversations() {
         // (e.g. "conversation_box.no_conversations") in dynamically-built text.
         // Re-render once i18n signals it's ready so real translations appear.
         window.addEventListener('i18n:ready', updateDisplay);
+        window.addEventListener('i18n:ready', () => renderWeek());
         const stripSymbols = s => String(s).replace(/^[^\p{L}\p{N}{]+/u, '');
         function renderOnboardingHints() {
             if (typeof window.t !== 'function') return;
