@@ -151,7 +151,8 @@ do $$
 declare r record;
 begin
  select * into r from public.follow_church_overview(current_setting('test.church')::uuid);
- if r.circle_name<>'Conversation Circle' or r.steward_name<>'Alice' or r.members<>3 or r.sharing_members<>1 then raise exception 'FAIL: overview membership %',r;end if;
+ if r.circle_name<>'Conversation Circle' or r.members<>3 or r.sharing_members<>1 then raise exception 'FAIL: overview membership %',r;end if;
+ if to_jsonb(r) ? 'steward_name' then raise exception 'FAIL: Church overview returned a person name';end if;
  if r.casual<>2 or r.meaningful<>0 or r.spiritual<>1 or r.discovery<>1 then raise exception 'FAIL: overview totals %',r;end if;
  if r.steps_30d<>4 or r.discovery_30d<>2 or r.trusted_30d<>1 or r.goals_week<>2 or r.last_huddle is null then raise exception 'FAIL: overview activity %',r;end if;
  if to_jsonb(r)::text like '%SECRET%' then raise exception 'FAIL: overview leaked a name';end if;
