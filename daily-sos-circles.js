@@ -31,8 +31,9 @@ function setContext(){
  const primary=circles.find(c=>c.is_primary);
  $('following-context').textContent=primary
   ?(primary.finished?'Your primary Circle has finished its study.':primary.circle_name+' · Day '+primary.day_no+' shared reading')
-  :(user?'Read independently or start a Circle with friends.':'Your personal SOS answers stay private.');
+  :(user?(circles.length?'You are reading independently. Circle conversations remain available.':'Read independently or start a Circle with friends.'):'Your personal SOS answers stay private.');
  $('following-manage').hidden=!user;
+ $('following-finished-actions').hidden=!primary?.finished;
  $('following-share-toggle').hidden=!user||!circles.length;
  updateShareEmphasis();
 }
@@ -184,6 +185,19 @@ async function reloadAccount(){
  }
 }
 if(root){
+ $('following-independent').addEventListener('click',async()=>{
+  if(!user)return;
+  const b=$('following-independent');b.disabled=true;
+  try{
+   const {error}=await supabase.rpc('follow_circle_set_independent');
+   if(error)throw error;
+   initialScheduleApplied=true;
+   await reloadAccount();
+   const target=bridge()?.soloDay?.();
+   if(target)bridge()?.goToDay?.(target);
+   message('Your daily reading now follows your own progress. You still belong to your Circles.');
+  }catch(e){message(e.message,true)}finally{b.disabled=false}
+ });
  $('following-expand').addEventListener('click',()=>{expanded=true;$('following-expanded-controls').hidden=false;fetchPosts(true)});
  $('following-collapse').addEventListener('click',()=>{expanded=false;$('following-expanded-controls').hidden=true;filter='';$('following-filter').value='';fetchPosts(true)});
  $('following-filter').addEventListener('change',()=>{filter=$('following-filter').value;fetchPosts(true)});
