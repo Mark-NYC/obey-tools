@@ -53,6 +53,26 @@ begin
  if (select day_no from public.follow_circle_schedule() where is_primary)<>28
  then raise exception 'FAIL: late join day';end if;
 end;$$;
+-- The user can choose independent study without leaving existing Circles.
+select public.follow_circle_set_independent();
+do $
+begin
+ if exists(select 1 from public.follow_circle_schedule() where is_primary)
+ then raise exception 'FAIL: independent preference did not clear primary';end if;
+ if (select count(*) from public.follow_circle_schedule())<>1
+ then raise exception 'FAIL: independent preference removed Circle membership';end if;
+end;$;
+-- Joining another Circle must respect the explicit independent choice.
+set request.jwt.claim.sub='11111111-1111-4111-8111-111111111111';
+select public.follow_circle_new_invite(current_setting('test.second_circle')::uuid) as additional_token \gset
+set request.jwt.claim.sub='33333333-3333-4333-8333-333333333333';
+select public.follow_circle_join(:'additional_token','Charlie');
+do $
+begin
+ if exists(select 1 from public.follow_circle_schedule() where is_primary)
+ then raise exception 'FAIL: joining while independent changed primary';end if;
+end;$;
+select public.follow_circle_set_primary(current_setting('test.new_circle')::uuid);
 -- Date advances in the Circle timezone, independent of individual progress.
 reset role;
 update public.follow_circles set start_on=(now() at time zone 'America/New_York')::date-7
