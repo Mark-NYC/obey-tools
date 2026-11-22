@@ -67,8 +67,8 @@ async function setTab(tab){
  document.querySelectorAll('[data-tab]').forEach(b=>b.setAttribute('aria-current',b.dataset.tab===tab?'page':'false'));
  for(const name of ['feed','members','about'])$('tab-'+name).hidden=name!==tab;
  if(tab==='feed')await loadFeed(true);
- if(tab==='members')await loadMembers(true);
- if(tab==='about')renderAbout();
+ if(tab==='members'){await loadMembers(true);if(selected.role==='steward')await loadReports();}
+ if(tab==='about'){renderAbout();$('steward-controls').hidden=selected.role!=='steward';if(selected.role==='steward')await renderTransferMembers();}
 }
 function renderTargets(){
  const root=$('post-target-list');root.replaceChildren();
@@ -77,6 +77,26 @@ function renderTargets(){
   const cb=document.createElement('input');cb.type='checkbox';cb.value=m.circle_id;cb.checked=m.circle_id===selected.circle_id;
   label.append(cb,document.createTextNode(' '+m.circle.name));root.append(label)
  }
+}
+async function renderTransferMembers(){
+ const root=$('steward-transfer');root.replaceChildren(el('option','Choose a member'));
+ root.firstChild.value='';
+ const {data,error}=await supabase.from('follow_circle_members').select('user_id,display_name').eq('circle_id',selected.circle_id).neq('user_id',user.id).order('display_name').limit(1000);
+ if(error)return status(error.message,true);
+ for(const m of data||[]){const opt=el('option',m.display_name);opt.value=m.user_id;root.append(opt)}
+}
+async function loadReports(){
+ $('moderation-reports').hidden=false;
+ const root=$('reports-list');root.replaceChildren();
+ const {data,error}=await supabase.from('follow_circle_reports').select('id,reason,post_id,created_at').eq('circle_id',selected.circle_id).order('created_at',{ascending:false}).limit(30);
+ if(error)return status(error.message,true);
+ if(!(data||[]).length){root.append(el('p','No reports','muted'));return}
+ for(const report of data){const box=el('div',undefined,'reply');box.append(el('p',report.reason),el('small',new Date(report.created_at).toLocaleString()));
+ if(report.post_id)box.append(button('Remove reported post',async()=>{
+  if(!confirm('Remove the reported post?'))return;
+  const r=await supabase.from('follow_circle_posts').delete().eq('circle_id',selected.circle_id).eq('id',report.post_id);
+  if(r.error)status(r.error.message,true);else{status('Post removed');loadReports()}
+ }));root.append(box)}
 }
 function renderAbout(){
  const root=$('invite-actions');root.replaceChildren();
@@ -117,6 +137,7 @@ function renderPost(post,name,replies,names){
  actions.append(button('Encourage ♥',()=>reactTo(post)));
  if(post.author_id===user.id||selected.role==='steward')actions.append(button('Delete',()=>deletePost(post),'mini'));
  actions.append(button('Report',()=>reportPost(post)));
+ if(post.author_id!==user.id)actions.append(button('Block author',()=>blockMember(post)));
  article.append(actions);return article
 }
 async function replyTo(id){
@@ -135,6 +156,11 @@ async function reportPost(post){
  const r=await supabase.from('follow_circle_reports').insert({circle_id:selected.circle_id,post_id:post.id,reporter_id:user.id,reason:reason.trim()});
  status(r.error?r.error.message:'Report submitted.',!!r.error)
 }
+async function blockMember(post){
+ if(!confirm('Hide this person’s posts from your feed?'))return;
+ const r=await supabase.from('follow_circle_blocks').upsert({user_id:user.id,blocked_user_id:post.author_id},{onConflict:'user_id,blocked_user_id'});
+ if(r.error)status(r.error.message,true);else{status('Member blocked');loadFeed(true)}
+}
 async function deletePost(post){
  if(!confirm('Delete this post and its replies?'))return;
  const r=await supabase.from('follow_circle_posts').delete().eq('id',post.id).eq('circle_id',selected.circle_id);
@@ -145,7 +171,7 @@ async function loadMembers(reset){
  const r=await supabase.from('follow_circle_members').select('user_id,display_name,role,joined_at,progress_visible',{count:'exact'}).eq('circle_id',selected.circle_id).order('joined_at',{ascending:true}).range(memberOffset,memberOffset+PAGE-1);
  if(r.error)return status(r.error.message,true);
  const people=r.data||[];let progress=new Map();
- try{const data=await invoke('follow_circle_progress',{p_circle:selected.circle_id});progress=new Map((data||[]).map(p=>[p.user_id,p]))}catch(e){status('Progress unavailable: '+e.message,true)}
+ try{const data=await invoke('follow_circle_progress',{p_circle:selected.circle_id,p_limit:PAGE,p_offset:memberOffset});progress=new Map((data||[]).map(p=>[p.user_id,p]))}catch(e){status('Progress unavailable: '+e.message,true)}
  for(const p of people){
   const box=el('div',undefined,'member'),details=el('div');
   details.append(el('strong',p.display_name),el('small',p.role==='steward'?' · Steward':' · Member'));
@@ -163,6 +189,16 @@ async function removeMember(p){
  catch(e){status(e.message,true)}
 }
 $('retry-auth').addEventListener('click',loadAuth);
+$('sign-in-form').addEventListener('submit',async e=>{
+ e.preventDefault();const btn=e.submitter;btn.disabled=true;
+ const {error}=await supabase.auth.signInWithPassword({email:val('auth-email'),password:val('auth-password')});
+ if(error)status(error.message,true);else await loadAuth();btn.disabled=false;
+});
+$('magic-sign-in').addEventListener('click',async()=>{
+ const email=val('auth-email');if(!email)return status('Enter your email first.',true);
+ const {error}=await supabase.auth.signInWithOtp({email,options:{emailRedirectTo:location.href}});
+ status(error?error.message:'Check your email for the sign-in link.',!!error)
+});
 $('new-circle').addEventListener('click',()=>{$('create-display').value=displayName();$('create-dialog').hidden=false});
 $('cancel-create').addEventListener('click',()=>{$('create-dialog').hidden=true});
 $('create-form').addEventListener('submit',async e=>{
@@ -198,6 +234,13 @@ $('post-form').addEventListener('submit',async e=>{
 $('member-settings').addEventListener('submit',async e=>{
  e.preventDefault();const r=await supabase.from('follow_circle_members').update({display_name:val('display-name'),progress_visible:$('show-progress').checked,email_replies:$('email-replies').checked,email_mentions:$('email-mentions').checked,email_digest:$('email-digest').checked}).eq('circle_id',selected.circle_id).eq('user_id',user.id);
  if(r.error)return status(r.error.message,true);await loadCircles();selected=memberships.find(x=>x.circle_id===selected.circle_id);status('Settings saved')
+});
+$('transfer-circle').addEventListener('click',async()=>{
+ const target=val('steward-transfer');if(!target)return status('Select a member.',true);
+ if(!confirm('Transfer stewardship? You will become a regular member.'))return;
+ try{await invoke('follow_circle_transfer',{p_circle:selected.circle_id,p_user:target});
+ await loadCircles();await showCircle(selected.circle_id);status('Stewardship transferred')}
+ catch(e){status(e.message,true)}
 });
 $('leave-circle').addEventListener('click',async()=>{
  if(!confirm('Leave this Circle? Your private reading progress will stay intact.'))return;
