@@ -1,0 +1,19 @@
+name: Follow Circles Published Site Smoke
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'follow-circles.*'
+      - 'daily-sos.html'
+      - 'scripts/circles-live-smoke.mjs'
+      - '.github/workflows/follow-circles-live.yml'
+jobs:
+  public-pages:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node scripts/circles-live-smoke.mjs
