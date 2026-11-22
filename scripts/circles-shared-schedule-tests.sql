@@ -64,5 +64,29 @@ begin
  if (select day_no from public.follow_circle_schedule() where is_primary)<>35
  then raise exception 'FAIL: shared schedule did not advance seven days';end if;
 end;$$;
+-- Day 365 is the last reading; the Circle remains accessible after it ends.
+reset role;
+update public.follow_circles set start_day=365,
+ start_on=(now() at time zone 'America/New_York')::date-2
+where id=current_setting('test.new_circle')::uuid;
+set role authenticated;
+set request.jwt.claim.sub='33333333-3333-4333-8333-333333333333';
+do $
+begin
+ if not exists(select 1 from public.follow_circle_schedule()
+   where circle_id=current_setting('test.new_circle')::uuid and day_no=365 and finished)
+ then raise exception 'FAIL: study completion at Day 365';end if;
+end;$;
+-- Anonymous visitors cannot call membership-based schedule APIs.
+reset role;
+set role anon;
+do $
+begin
+ begin
+  perform public.follow_circle_schedule();
+  raise exception 'FAIL: anonymous schedule access';
+ exception when insufficient_privilege then null;
+ end;
+end;$;
 reset role;
 select 'SHARED CIRCLE SCHEDULE CONTRACTS PASSED' as result;
