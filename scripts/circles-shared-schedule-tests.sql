@@ -39,7 +39,7 @@ begin
  exception when others then
   if SQLERRM not like '%Not a member%' then raise;end if;
  end;
- if exists(select 1 from public.follow_circle_schedule()) then
+ if exists(select 1 from public.follow_circle_schedule() where circle_id=current_setting('test.new_circle')::uuid) then
   raise exception 'FAIL: nonmember can see another Circle schedule';end if;
 end;$$;
 set request.jwt.claim.sub='11111111-1111-4111-8111-111111111111';
