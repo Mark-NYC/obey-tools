@@ -313,7 +313,7 @@ as $$select c.id,c.name,(select count(*)::integer from public.follow_circles f w
 
 -- Per-Circle counts for church admins. No names, posts or progress.
 create function public.follow_church_overview(p_church uuid)
-returns table(circle_id uuid,circle_name text,steward_name text,members integer,sharing_members integer,
+returns table(circle_id uuid,circle_name text,members integer,sharing_members integer,
  casual integer,meaningful integer,spiritual integer,discovery integer,
  steps_30d integer,discovery_30d integer,trusted_30d integer,goals_week integer,
  last_huddle timestamptz,last_step timestamptz)
@@ -323,7 +323,6 @@ begin
  if not circles_private.is_church_admin(p_church,auth.uid()) then raise exception 'Not permitted';end if;
  return query
  select f.id,f.name,
-  (select m.display_name from public.follow_circle_members m where m.circle_id=f.id and m.role='steward' limit 1),
   (select count(*)::integer from public.follow_circle_members m where m.circle_id=f.id),
   (select count(*)::integer from public.follow_circle_members m where m.circle_id=f.id and m.share_conversations),
   t.casual,t.meaningful,t.spiritual,t.discovery,
