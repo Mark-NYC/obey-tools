@@ -65,7 +65,7 @@ async function loadReplies(post,container){
  if(items.length===200)container.append(element('p','Additional replies are available in the Circle.','following-muted'));
  if(!items.length)container.append(element('p','Be the first to reply.','following-muted'));
 }
-function postCard(post,names){
+function postCard(post,names,replyCount=0){
  const card=element('article',undefined,'following-post');
  const meta=element('div',undefined,'following-post-meta');
  meta.append(element('strong',labelOf(names,post)),element('span',circleLabel(post.circle_id)));
@@ -83,6 +83,7 @@ function postCard(post,names){
   if(opened)input.focus();
  });
  controls.append(replyToggle);
+ if(replyCount)controls.append(element('span',replyCount+' repl'+(replyCount===1?'y':'ies'),'following-muted'));
  controls.append(button('Encourage',async()=>{
   if(!user)return;
   const {error}=await supabase.from('follow_circle_reactions')
@@ -125,7 +126,15 @@ async function fetchPosts(reset=true){
   if(serial!==requestId||requestedDay!==day())return;
   const posts=data||[],names=await getNames(posts);
   if(serial!==requestId||requestedDay!==day())return;
-  for(const p of posts)$('following-posts').append(postCard(p,names));
+  const replyCounts=new Map();
+  if(posts.length){
+   const replyResult=await supabase.from('follow_circle_posts')
+    .select('parent_id').in('parent_id',posts.map(p=>p.id)).limit(1000);
+   if(replyResult.error)throw replyResult.error;
+   for(const row of replyResult.data||[])replyCounts.set(row.parent_id,(replyCounts.get(row.parent_id)||0)+1);
+  }
+  if(serial!==requestId||requestedDay!==day())return;
+  for(const p of posts)$('following-posts').append(postCard(p,names,replyCounts.get(p.id)||0));
   offset+=posts.length;
   $('following-expand').hidden=expanded||offset>=(count||0);
   $('following-more').hidden=!expanded||offset>=(count||0);
@@ -161,10 +170,12 @@ async function reloadAccount(){
   const {data:{user:next},error:authError}=await supabase.auth.getUser();
   if(authError)throw authError;
   user=next||null;circles=[];
+  if(!user)bridge()?.setSchedule?.(null);
   if(user){
    const {data,error}=await supabase.rpc('follow_circle_schedule');
    if(error)throw error;
    circles=data||[];
+   bridge()?.setSchedule?.(circles.find(c=>c.is_primary)||null);
    if(!initialScheduleApplied)applyPrimarySchedule();
   }
   setContext();updateTargetOptions();await fetchPosts(true);
