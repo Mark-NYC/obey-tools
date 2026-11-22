@@ -132,3 +132,11 @@ test('Reading page preserves drafts, horizontal day navigation, and resume posit
  assert.doesNotMatch(html,/class="day-jump"/)
  assert.doesNotMatch(html,/Preview plan: Jump to Day/)
 })
+
+test('Daily SOS inline JavaScript parses without syntax errors',()=>{
+ const html=read('daily-sos.html')
+ const scripts=[...html.matchAll(/<script(?:\\s[^>]*)?>([\\s\\S]*?)<\\/script>/g)]
+  .map(match=>match[1]).filter(code=>code.trim())
+ assert.ok(scripts.length>0)
+ for(const code of scripts)assert.doesNotThrow(()=>new Function(code))
+})
