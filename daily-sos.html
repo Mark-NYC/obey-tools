@@ -79,7 +79,7 @@ body{padding:26px;background:#f2f3f4}
 .shell>.days{grid-column:2;grid-row:3;padding:0 0 12px;gap:12px}.day{flex:1 0 108px}
 .shell>.content{grid-column:2;grid-row:4;padding:12px 0 26px;min-width:0}
 .daytitle{font-size:33px}
-.tasks{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.tasks{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
 .task{border:1px solid #e1e4e3!important;border-radius:14px;background:#f0f7f3;padding:18px 16px;min-height:110px}
 .task:hover{background:#e3f2e9}
 .desktop-aside{display:block;grid-column:3;grid-row:2/5;padding:26px 22px 20px 0}
@@ -183,6 +183,7 @@ body{padding:0;background:#f8f8f8}
 .sos-sync button:disabled{opacity:.6;cursor:wait}
 @media(max-width:520px){.sos-sync .sync-row{flex-direction:column}.sos-sync input,.sos-sync button{width:100%}}
 
+.insight-body{font-size:16px!important;line-height:1.75;white-space:pre-line}.insight-label{font-size:15px;margin:18px 0 5px}.tasks .task{min-width:0}.tasks .task small{overflow-wrap:anywhere}@media(min-width:1100px) and (max-width:1320px){.tasks{grid-template-columns:1fr}}@media(max-width:1099px){.tasks{display:block}}
 /* Bible Recap-style day rail: visible neighboring cards, centered selected day. */
 .days{
  --day-card-width:112px;
@@ -237,8 +238,9 @@ body{padding:0;background:#f8f8f8}
 <div class="row"><h2 class="daytitle" id="daytitle">Day 1</h2><span class="pill" id="phase">IDENTIFY</span></div>
 <p class="section-note" id="phase-detail"></p>
 <p class="summary" id="title"></p>
-<div class="tasks" aria-label="Today's two activities">
-<button class="task" id="open-reading" type="button"><span class="circle" id="read-check" aria-hidden="true"></span><span><strong id="passage"></strong><small>One Scripture passage · WEB Updated</small></span><span class="chevron" aria-hidden="true">›</span></button>
+<div class="tasks" aria-label="Today's three activities">
+<button class="task" id="open-reading" type="button"><span class="circle" id="read-check" aria-hidden="true"></span><span><strong>READ</strong><small id="passage"></small></span><span class="chevron" aria-hidden="true">›</span></button>
+<button class="task" id="open-insight" type="button"><span class="circle" id="insight-check" aria-hidden="true"></span><span><strong>INSIGHT</strong><small>See how Jesus made disciples</small></span><span class="chevron" aria-hidden="true">›</span></button>
 <button class="task" id="open-sos" type="button"><span class="circle" id="sos-check" aria-hidden="true"></span><span><strong>SOS</strong><small>Say · Obey · Share</small><small id="sos-draft-note" hidden>Draft saved</small></span><span class="chevron" aria-hidden="true">›</span></button>
 </div>
 <section class="panel" id="reading-panel" tabindex="-1" aria-label="Scripture reading">
@@ -249,6 +251,13 @@ body{padding:0;background:#f8f8f8}
 <details class="optional" id="parallel-box" hidden><summary>Optional parallel Gospel accounts</summary><p id="parallel-text"></p></details>
 <button id="mark-read" class="primary" type="button">Mark Scripture as read</button>
 </section>
+<section class="panel" id="insight-panel" hidden tabindex="-1" aria-label="Daily disciple-making insight">
+<h2>Today’s Insight</h2><div class="sub" id="insight-reference"></div>
+<div id="insight-pattern" class="pill" style="display:inline-block;margin:0 0 12px"></div>
+<p id="insight-body" class="insight-body"></p>
+<h3 class="insight-label">Follow His Example</h3><p id="insight-action"></p>
+<button id="mark-insight" class="primary" type="button">Mark Insight as read</button>
+</section>
 <section class="panel" id="sos-panel" hidden tabindex="-1" aria-label="Say Obey Share">
 <h2>Today's SOS</h2><div class="sub" id="discovery"></div>
 <div id="previous" hidden><strong>Yesterday's obedience</strong><p id="previous-obey"></p><div class="outline-row"><button data-check="done" type="button">I did it</button><button data-check="pending" type="button">Not yet</button><button data-check="revised" type="button">Change my plan</button></div><hr style="border:0;border-top:1px solid #eee;margin:20px 0"></div>
@@ -258,7 +267,7 @@ body{padding:0;background:#f8f8f8}
 <button id="save" class="primary" type="button">Save today's SOS</button><button id="share-btn" class="secondary" type="button" style="width:100%;margin-top:10px">Share my SOS</button>
 <div id="status" class="status" role="status" aria-live="polite"></div>
 </section>
-<button id="start" class="primary" type="button">Open SOS ↑</button>
+<button id="start" class="primary" type="button">Open Insight ↑</button>
 <div id="progress" class="muted" style="text-align:center;margin-top:13px"></div>
 <section id="sos-sync" class="sos-sync" aria-label="Sync Follow Daily progress">
 <h2>Keep your progress</h2>
@@ -298,12 +307,12 @@ body{padding:0;background:#f8f8f8}
 </div>
 <div id="email-reminder-status" role="status" aria-live="polite"></div>
 </section>
-<div class="notice">365 readings through the Gospel harmony and Acts, with WEB Updated Scripture on the page. Guest responses stay on this device. Signed-in users can sync readings and SOS answers securely across devices. Daily email reminders remain optional and account-free.</div>
+<div class="notice">365 readings through the Gospel harmony and Acts, with WEB Updated Scripture on the page. The Insight step is being developed passage by passage; initial insights are available now. Guest responses stay on this device. Signed-in users can sync readings and SOS answers securely across devices. Daily email reminders remain optional and account-free.</div>
 </main><aside class="desktop-aside" aria-label="About Following Jesus’ Way">
 <div class="desktop-side-card"><h2>Following Jesus’ Way</h2>
 <p>A 365-day journey through a harmony of the Gospels and Acts, learning how Jesus made disciples who multiplied.</p>
 <div class="desktop-phases"><div class="desktop-phase"><b>1</b>Identify</div><div class="desktop-phase"><b>2</b>Equip</div><div class="desktop-phase"><b>3</b>Invest</div><div class="desktop-phase"><b>4</b>Entrust</div></div></div>
-<div class="desktop-side-card"><h2>The daily flow</h2><div class="desktop-flow"><b>1</b><div><strong>Read</strong><small>One primary passage. Parallel accounts optional.</small></div></div><div class="desktop-flow"><b>2</b><div><strong>SOS</strong><small>Say · Obey · Share. Save a draft anytime.</small></div></div></div>
+<div class="desktop-side-card"><h2>The daily flow</h2><div class="desktop-flow"><b>1</b><div><strong>Read</strong><small>One primary passage. Parallel accounts optional.</small></div></div><div class="desktop-flow"><b>2</b><div><strong>Insight</strong><small>See how Jesus made disciples.</small></div></div><div class="desktop-flow"><b>3</b><div><strong>SOS</strong><small>Say · Obey · Share. Save a draft anytime.</small></div></div></div>
 <div class="desktop-side-card"><h2>Grow at your pace</h2><p>Save just one answer and finish the rest later. Sign in to keep drafts across devices.</p><button type="button" class="secondary" id="desktop-plan-info">View plan info</button></div></aside></div><div id="menu-backdrop" class="menu-backdrop" hidden></div>
 <div id="plan-menu" class="menu-pop" role="menu" aria-label="Following Jesus’ Way options" hidden>
 <button type="button" role="menuitem" data-action="share"><span class="menu-ico" aria-hidden="true"><svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V3"/><path d="m7 8 5-5 5 5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg></span>Share</button>
@@ -364,7 +373,7 @@ function entry(day=state.day){return state.entries[day]||{}}
 function resumeDay(snapshot){
  const entries=snapshot.entries||{};
  let day=Math.max(0,Math.min(readings.length-1,Number(snapshot.day)||0));
- const complete=e=>!!(e&&e.read&&String(e.say||'').trim()&&String(e.obey||'').trim()&&String(e.share||'').trim());
+ const complete=e=>!!(e&&e.read&&e.insight&&String(e.say||'').trim()&&String(e.obey||'').trim()&&String(e.share||'').trim());
  while(day<readings.length-1&&complete(entries[day]))day++;
  return day;
 }
@@ -374,12 +383,10 @@ if(!hasLinkedDay){state.day=resumeDay(state);try{localStorage.setItem(KEY,JSON.s
 function persist(){try{localStorage.setItem(KEY,JSON.stringify(state));window.dispatchEvent(new Event('sos:progress-saved'));return true}catch{return false}}
 function changePanel(name){
  if(!$('sos-panel').hidden)save(true);
- const isRead=name==='reading';
- $('reading-panel').hidden=false;
- $('sos-panel').hidden=isRead;
- $('start').textContent=isRead?'Open SOS ↑':'Return to Scripture ↑';
- (isRead?$('reading-panel'):$('sos-panel')).scrollIntoView({behavior:'smooth',block:'start'});
- (isRead?$('reading-panel'):$('sos-panel')).focus({preventScroll:true});
+ const panelIds={reading:'reading-panel',insight:'insight-panel',sos:'sos-panel'};
+ for(const [key,id] of Object.entries(panelIds))$(id).hidden=key!==name;
+ $('start').textContent=name==='reading'?'Open Insight ↑':name==='insight'?'Open SOS ↑':'Return to Scripture ↑';
+ const panel=$(panelIds[name]);panel.scrollIntoView({behavior:'smooth',block:'start'});panel.focus({preventScroll:true});
 }
 const bookFiles={Matthew:'MAT',Mark:'MRK',Luke:'LUK',John:'JHN',Acts:'ACT'};
 
@@ -421,12 +428,32 @@ function showScripture(ref){
  if(count===0){const err=document.createElement('p');err.className='scripture-error';err.textContent='This passage could not be loaded.';target.append(err)}
 }
 
+const curatedInsights={
+ 'John 1:1–18':["Before Jesus calls anyone to follow Him, John tells us who Jesus is: the eternal Word who became flesh and lived among us. Disciple making begins with Jesus, not a method. He comes to reveal the Father and brings grace and truth. The invitation to follow Him is grounded in His identity, not in our ability to produce results.","Start with Jesus Himself. Tell someone what this passage reveals about who He is."],
+ 'Luke 1:1–4':["Luke carefully investigates the events surrounding Jesus and writes an orderly account so Theophilus can know the certainty of what he has been taught. Before we imitate Jesus' methods, we need to know what He actually said and did. Careful attention to eyewitness testimony protects us from making disciples in our own image.","Read attentively, and check your assumptions against the text before teaching someone else."],
+ 'Matthew 1:1–17':["Matthew traces Jesus' family line through generations of God's promises and imperfect people. The Kingdom story is larger than one leader or one generation. God remains faithful across a long history. When we invest in people, we join work that began before us and may continue long after us.","Think beyond today's results. Who could you encourage to pass on what they are learning?"],
+ 'Luke 1:5–14':["Zechariah and Elizabeth had lived faithfully through years of disappointment. When the angel announces John's birth, the promise arrives on God's timing, not theirs. Before Jesus' public ministry begins, God is already preparing people for it. We cannot see every part of His preparation.","Pray for someone whose future role in God's mission may not yet be visible."],
+ 'Luke 1:15–25':["John's coming work is described before his birth: he will turn many people back to the Lord and prepare them. The initiative belongs to God. Zechariah struggles to believe the announcement, yet God's purpose continues. Disciple making calls for faith in God's work rather than confidence in our control.","Ask God to prepare receptive hearts, including your own, before you make plans."],
+ 'Luke 1:26–38':["Mary hears a calling she could not have planned or accomplished in her own strength. She asks a real question, listens to the answer, and responds with willing obedience. This passage is first about God's unique work in bringing Jesus into the world. Mary's response also shows the kind of trust that following Jesus demands.","Respond to one clear instruction from God even if you cannot see every next step."],
+ 'Luke 1:39–45':["Elizabeth recognizes God's work in Mary and speaks words that strengthen her faith. God uses personal encouragement as His promises unfold. Before there are crowds or organized teams, two women share what God is doing and affirm His faithfulness.","Encourage someone you know who is taking a costly step of faith."],
+ 'Mark 1:16–20':["Jesus meets Simon, Andrew, James, and John while they are working. His invitation is both relational and missional: follow Him and learn to fish for people. They respond by leaving their nets. Jesus identifies responsive people and begins equipping them through a shared life of following Him.","Invite a receptive person to join you in reaching others, not just listen to you talk about it."],
+ 'Mark 3:13–19':["Jesus calls those He wants and appoints twelve to be with Him and to be sent out to preach, with authority over demons. Being with Jesus and being sent by Him belong together. He identifies people for close relationship and prepares them for real responsibility.","Make time to be with someone you are discipling, then invite them into meaningful ministry."],
+ 'Mark 6:7–13':["After spending time with the Twelve and showing them how He ministered, Jesus sends them out two by two. He gives them authority and clear instructions, while asking them to travel with little provision. Their learning now includes practicing the mission themselves.","Give a growing disciple a real opportunity to serve, and trust them to act rather than doing everything yourself."],
+ 'Luke 9:1–6':["Jesus gathers the Twelve, gives them power and authority, and sends them to proclaim the Kingdom and heal. They go from village to village carrying out what He entrusted to them. Jesus' training did not end with observation. His disciples had to step into the work themselves.","Who is ready for a specific responsibility you can hand over this week?"]
+};
+function insightFor(r){
+ const direct=curatedInsights[r[1]];
+ if(direct)return {body:direct[0],action:direct[1]};
+ const label={IDENTIFY:'Identify',EQUIP:'Equip',INVEST:'Invest',ENTRUST:'Entrust'}[r[3]]||'Follow';
+ const context=r[4]||'What does this reveal about Jesus and His mission?';
+ return {body:'Today’s reading: '+r[0]+'. '+context+' As you read, notice what the passage actually shows about faith, obedience, and the mission of Jesus. The '+label.toLowerCase()+' pattern is a lens for observation, not a claim that every detail describes a leadership-development technique.',action:'Choose one response grounded in this passage and put it into practice today.'};
+}
 function render(){
  const i=state.day,r=readings[i],e=entry(),previous=i>0?entry(i-1):null;
  $('topday').textContent='Day '+(i+1);$('daytitle').textContent='Day '+(i+1);$('phase').textContent=r[3];
  $('phase-detail').textContent=({IDENTIFY:'Jesus calls and identifies disciples.',EQUIP:'Jesus teaches and forms his disciples.',INVEST:'Jesus gives his disciples real responsibility.',ENTRUST:'Jesus entrusts his mission to his disciples.'})[r[3]];
  $('title').textContent=r[0];$('passage').textContent=r[1];$('reading-title').textContent=r[0];
- $('discovery').textContent=r[4];
+ $('discovery').textContent=r[4];const insight=insightFor(r);$('insight-reference').textContent=r[1];$('insight-pattern').textContent=r[3];$('insight-body').textContent=insight.body;$('insight-action').textContent=insight.action;
  const book=r[1].split(' ')[0];
  $('read-link').href='https://ebible.org/engwebu/'+(bookFiles[book]||'MAT')+'.htm';
  $('read-link').textContent='Read '+r[1]+' in WEB Updated ↗';
@@ -434,10 +461,10 @@ function render(){
  $('parallel-box').hidden=!r[2];$('parallel-text').textContent=r[2]||'';
  ['say','obey','share'].forEach(k=>$(k).value=e[k]||'');
  const sosComplete=!!(e.say&&e.obey&&e.share);
- for(const [id,done] of [['read-check',!!e.read],['sos-check',sosComplete]]){
+ for(const [id,done] of [['read-check',!!e.read],['insight-check',!!e.insight],['sos-check',sosComplete]]){
  const el=$(id);el.classList.toggle('done',done);el.classList.toggle('draft',id==='sos-check'&&!done&&!!(e.say||e.obey||e.share));el.textContent=done?'✓':'';
  }
- $('sos-draft-note').hidden=sosComplete||!(e.say||e.obey||e.share);$('mark-read').textContent=e.read?'Reading completed ✓':'Mark Scripture as read';
+ $('sos-draft-note').hidden=sosComplete||!(e.say||e.obey||e.share);$('mark-read').textContent=e.read?'Reading completed ✓':'Mark Scripture as read';$('mark-insight').textContent=e.insight?'Insight completed ✓':'Mark Insight as read';
  $('previous').hidden=!previous?.obey;
  if(previous?.obey){$('previous-obey').textContent=previous.obey;document.querySelectorAll('[data-check]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.check===previous.check)))}
  $('days').replaceChildren();
@@ -451,7 +478,7 @@ function render(){
   const number=document.createElement('b');number.textContent=n+1;
   const sub=document.createElement('small');sub.textContent=sublabel;
   b.append(number,sub);
-  const done=entry(n);if(done.read&&done.say&&done.obey&&done.share){const tick=document.createElement('span');tick.className='tick';tick.textContent='✓';b.appendChild(tick)}
+  const done=entry(n);if(done.read&&done.insight&&done.say&&done.obey&&done.share){const tick=document.createElement('span');tick.className='tick';tick.textContent='✓';b.appendChild(tick)}
   b.addEventListener('click',()=>move(n));$('days').appendChild(b)
  }
  const activeDay=$('days').children[i];
@@ -464,7 +491,7 @@ function render(){
   };
   center();requestAnimationFrame(center);
  }
- const finished=Object.values(state.entries).filter(x=>x.read&&x.say&&x.obey&&x.share).length;
+ const finished=Object.values(state.entries).filter(x=>x.read&&x.insight&&x.say&&x.obey&&x.share).length;
  $('progress').textContent=finished+' of '+readings.length+' days completed';
  $('status').textContent='';
 }
@@ -485,12 +512,14 @@ function save(silent=false){
  renderAfterSave();
  return true;
 }
-function renderAfterSave(){const e=entry(),done=!!(e.say&&e.obey&&e.share),partial=!done&&!!(e.say||e.obey||e.share);const check=$('sos-check');check.classList.toggle('done',done);check.classList.toggle('draft',partial);check.textContent=done?'✓':'';$('sos-draft-note').hidden=!partial;$('progress').textContent=Object.values(state.entries).filter(x=>x.read&&x.say&&x.obey&&x.share).length+' of '+readings.length+' days completed'}
-function move(n){clearTimeout(draftTimer);if(!$('sos-panel').hidden)save(true);state.day=Math.max(0,Math.min(readings.length-1,n));persist();render();$('reading-panel').hidden=false;$('sos-panel').hidden=true;$('start').textContent='Open SOS ↑';window.scrollTo({top:0,behavior:'smooth'})}
+function renderAfterSave(){const e=entry(),done=!!(e.say&&e.obey&&e.share),partial=!done&&!!(e.say||e.obey||e.share);const check=$('sos-check');check.classList.toggle('done',done);check.classList.toggle('draft',partial);check.textContent=done?'✓':'';$('sos-draft-note').hidden=!partial;$('progress').textContent=Object.values(state.entries).filter(x=>x.read&&x.insight&&x.say&&x.obey&&x.share).length+' of '+readings.length+' days completed'}
+function move(n){clearTimeout(draftTimer);if(!$('sos-panel').hidden)save(true);state.day=Math.max(0,Math.min(readings.length-1,n));persist();render();$('reading-panel').hidden=false;$('insight-panel').hidden=true;$('sos-panel').hidden=true;$('start').textContent='Open Insight ↑';window.scrollTo({top:0,behavior:'smooth'})}
 
 $('open-reading').addEventListener('click',()=>changePanel('reading'));
+$('open-insight').addEventListener('click',()=>changePanel('insight'));
+$('mark-insight').addEventListener('click',()=>{const e=entry();e.insight=true;state.entries[state.day]=e;if(persist()){render();changePanel('insight')}});
 $('open-sos').addEventListener('click',()=>changePanel('sos'));
-$('start').addEventListener('click',()=>changePanel($('sos-panel').hidden?'sos':'reading'));
+$('start').addEventListener('click',()=>changePanel(!$('sos-panel').hidden?'reading':!$('insight-panel').hidden?'sos':'insight'));
 $('mark-read').addEventListener('click',()=>{if(!$('sos-panel').hidden)save(true);const e=entry();e.read=true;state.entries[state.day]=e;if(persist()){render();changePanel('sos')}});
 $('save').addEventListener('click',()=>save());
 let draftTimer;
@@ -530,7 +559,7 @@ function planShare(){const text="Following Jesus’ Way: a Gospel harmony focuse
 function infoDialog(){
  const body=node('div');
  body.append(node('p','Follow Jesus’ Way is designed as a 365-day journey through a harmony of the Gospels and Acts. Learn how Jesus identified, equipped, invested in, and entrusted his disciples to carry on his mission.'));
- body.append(node('p','Each day has one primary Scripture reading plus one SOS exercise: Say what God is saying, Obey with a specific step, and Share with someone. Parallel Gospel accounts are optional.'));
+ body.append(node('p','Each day has three steps: Read Scripture, review an Insight about Jesus’ way, then Say, Obey, and Share. Parallel Gospel accounts are optional.'));
  body.append(node('p','The complete 365-day Gospel harmony and Acts journey is available. Historical ordering is approximate where the Gospels do not specify timing. Daily email reminders are available through the opt-in section when sender setup has been verified. The harmony follows a traditional approximate Gospel event sequence. Some placements differ between published harmonies. Scripture text is from the public-domain World English Bible Updated.','small-notice'));
  dialog('Plan Info',body)
 }
@@ -556,7 +585,7 @@ function stopDialog(){
 function updatePlanStatus(){
  $('stop-label').textContent=prefs.paused?'Resume This Plan':'Stop This Plan';
  $('start').disabled=!!prefs.paused;
- $('start').textContent=prefs.paused?'Plan paused':$('sos-panel').hidden?'Open SOS ↑':'Return to Scripture ↑';
+ $('start').textContent=prefs.paused?'Plan paused':!$('sos-panel').hidden?'Return to Scripture ↑':!$('insight-panel').hidden?'Open SOS ↑':'Open Insight ↑';
 }
 $('menu').setAttribute('aria-haspopup','menu');$('menu').setAttribute('aria-expanded','false');
 $('menu').addEventListener('click',()=>menu.hidden?openMenu():closeMenu());
