@@ -1,8 +1,16 @@
-# FOLLOW DAILY: Multiplying Circles Release Gate
+# FOLLOW DAILY: Multiplying Circles Release Status
 
-## Status
+## Live core feature, November 22, 2026
 
-Feature branch only. **DO NOT merge, apply the SQL to production, deploy the worker, or turn on email cron until integration tests pass.** This feature contains private user-generated content.
+- Circle page and its JavaScript are reachable on https://obey.tools/follow-circles.html. Published-site smoke: GitHub Actions run 45044372077, passed.
+- The Circle migration and a separate anonymous RPC permission lockdown are applied to the Obey Tools production Supabase project.
+- All 10 new Circle tables have RLS enabled. All 25 previously saved SOS progress rows remain with the same snapshot hash.
+- Isolated PostgreSQL 17 database contract tests passed (GitHub Actions run 45043799073), including cross-Circle privacy, hidden progress rules, forbidden steward elevation, and removed-member access checks.
+- This is not proof of multi-user browser E2E on production. Real signed-in test accounts and device-level acceptance testing are still recommended.
+- **Circle email notifications are not yet sending.** The Resend worker source is committed, but its Supabase function has not been deployed and the GitHub delivery schedule remains disabled pending secret configuration and delivery tests.
+- Keep private SOS answers private by default. Never automatically publish someone's personal Say, Obey, Share responses.
+
+## Previous release checklist (historical planning document)
 
 ## Features committed
 
