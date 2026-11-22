@@ -83,6 +83,12 @@ create table public.follow_circle_digest_deliveries(
  sent_at timestamptz,
  primary key(user_id,circle_id,week_start)
 );
+create table public.follow_circle_removed_members(
+ circle_id uuid not null references public.follow_circles(id) on delete cascade,
+ user_id uuid not null references auth.users(id) on delete cascade,
+ removed_at timestamptz not null default now(),
+ primary key(circle_id,user_id)
+);
 create table public.follow_circle_blocks(
  user_id uuid not null references auth.users(id) on delete cascade,
  blocked_user_id uuid not null references auth.users(id) on delete cascade,
@@ -112,6 +118,7 @@ alter table public.follow_circle_posts enable row level security;
 alter table public.follow_circle_reactions enable row level security;
 alter table public.follow_circle_reports enable row level security;
 alter table public.follow_circle_blocks enable row level security;
+alter table public.follow_circle_removed_members enable row level security;
 alter table public.follow_circle_email_outbox enable row level security;
 alter table public.follow_circle_digest_deliveries enable row level security;
 create policy circles_read on public.follow_circles for select to authenticated
@@ -147,7 +154,7 @@ create policy reports_steward_read on public.follow_circle_reports for select to
 create policy blocks_all on public.follow_circle_blocks for all to authenticated
  using(user_id=(select auth.uid())) with check(user_id=(select auth.uid()));
 -- Never expose invitation token hashes in the Data API.
-revoke all on public.follow_circle_invites,public.follow_circle_email_outbox,public.follow_circle_digest_deliveries from anon, authenticated;
+revoke all on public.follow_circle_invites,public.follow_circle_removed_members,public.follow_circle_email_outbox,public.follow_circle_digest_deliveries from anon, authenticated;
 revoke all on public.follow_circles,public.follow_circle_members,public.follow_circle_posts,public.follow_circle_reactions,public.follow_circle_reports,public.follow_circle_blocks from anon;
 grant select on public.follow_circles,public.follow_circle_members,public.follow_circle_posts,public.follow_circle_reactions,public.follow_circle_reports to authenticated;
 grant insert on public.follow_circle_posts,public.follow_circle_reactions,public.follow_circle_reports,public.follow_circle_blocks to authenticated;
@@ -179,6 +186,7 @@ begin
  select i.circle_id into v_id from public.follow_circle_invites i join public.follow_circles c on c.id=i.circle_id
  where i.token_hash=md5(p_token) and i.revoked_at is null and c.closed_at is null;
  if v_id is null then raise exception 'Invalid or expired invitation';end if;
+ if exists(select 1 from public.follow_circle_removed_members where circle_id=v_id and user_id=v_user) then raise exception 'Membership invitation not available';end if;
  insert into public.follow_circle_members(circle_id,user_id,display_name)
  values(v_id,v_user,btrim(p_display_name)) on conflict(circle_id,user_id) do nothing;
  return v_id;
@@ -226,6 +234,7 @@ as $$
 begin
  if not circles_private.is_steward(p_circle,auth.uid()) then raise exception 'Not permitted';end if;
  if p_user=auth.uid() then raise exception 'Use Leave Circle';end if;
+ insert into public.follow_circle_removed_members(circle_id,user_id) values(p_circle,p_user) on conflict do nothing;
  delete from public.follow_circle_members where circle_id=p_circle and user_id=p_user and role<>'steward';
 end;$$;
 create function public.follow_circle_transfer(p_circle uuid,p_user uuid)
@@ -268,8 +277,9 @@ begin
     where s.user_id=m.user_id and s.day_no=greatest(1,least(365,coalesce(
     (select max(value::int) from public.sos_daily_progress cur where cur.user_id=m.user_id and cur.field_name='cursor' and cur.value ~ '^[0-9]{1,3}$'),1)))) x
   where x.finished) as current_day_done
- from public.follow_circle_members m where m.circle_id=p_circle and m.progress_visible=true
- order by m.joined_at,m.user_id limit least(greatest(p_limit,1),100) offset greatest(p_offset,0);
+ from (select * from public.follow_circle_members where circle_id=p_circle
+ order by joined_at,user_id limit least(greatest(p_limit,1),100) offset greatest(p_offset,0)) m
+ where m.progress_visible=true order by m.joined_at,m.user_id;
 end;$$;
 -- Mentions must target actual Circle members.
 create function circles_private.validate_mentions() returns trigger language plpgsql
