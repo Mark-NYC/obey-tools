@@ -194,7 +194,7 @@ async function loadMembers(reset){
   const box=el('div',undefined,'member'),details=el('div');
   details.append(el('strong',p.display_name),el('small',p.role==='steward'?' · Steward':' · Member'));
   const stats=progress.get(p.user_id);
-  details.append(el('div',stats?'Day '+stats.current_day+' · '+stats.completed_days+' completed':'Progress private','muted'));
+  details.append(el('div',stats?'Day '+stats.current_day+' · '+(stats.current_day_done?'Completed today':'In progress')+' · '+stats.completed_days+' total completed':'Progress private','muted'));
   box.append(details);
   if(selected.role==='steward'&&p.user_id!==user.id)box.append(button('Remove',()=>removeMember(p)));
   $('members-list').append(box)
