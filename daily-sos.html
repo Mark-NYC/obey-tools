@@ -351,6 +351,7 @@ body{padding:0;background:#f8f8f8}
 
 <script src="/daily-sos-scripture.js"></script>
 <script src="/daily-sos-readings.js"></script>
+<script src="/daily-sos-insights-first30.js"></script>
 <script>
 const readings=window.OBEY_SOS_READINGS;
 if(!Array.isArray(readings)||readings.length!==365)throw new Error('365-day Daily SOS schedule failed to load');
@@ -471,6 +472,9 @@ const insightLibrary={
  'Matthew 23:1–39':{cards:[['revelation','Prophetic judgment','Jesus exposes hypocrisy and pronounces woes upon the scribes and Pharisees. These are weighty prophetic words directed at Israel’s leaders, not a script for disciples to pronounce the same judgments on others.']],action:'Examine your own heart for the gap between public religion and private obedience.'},
  'Mark 15:33–39':{cards:[['revelation','The crucified Son of God','As Jesus dies, darkness covers the land and the temple curtain is torn. The centurion confesses Jesus as God’s Son. His death is central to His unique saving mission, not a reproducible leadership step.']],action:'Give thanks for what Jesus alone accomplished through His death.'}
 };
+// The first 30 days have passage-specific editorial copy; later readings remain
+// neutral observation prompts until individually authored and reviewed.
+Object.assign(insightLibrary,window.OBEY_SOS_FIRST30||{});
 const lensMeta={
  revelation:{label:'REVELATION',path:'<circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/><path d="M8 3h8"/>'},
  formation:{label:'FORMATION',path:'<path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"/><path d="m9 12 2 2 4-4"/>'},
