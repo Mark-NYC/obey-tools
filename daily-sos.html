@@ -706,7 +706,17 @@ function render(){
   if(i===n)b.setAttribute('aria-current','step');
   const start=prefs.startDate?new Date(prefs.startDate+'T12:00:00'):null;
   let sublabel='Day '+(n+1);
-  if(start&&!Number.isNaN(start.getTime())){start.setDate(start.getDate()+n);sublabel=start.toLocaleDateString('en-US',{month:'short',day:'numeric'});}
+  const shared=window.sosPrimarySchedule;
+  if(shared){
+   if(n+1<shared.start_day)sublabel='Earlier reading';
+   else{
+    const date=new Date(shared.start_on+'T12:00:00Z');
+    if(!Number.isNaN(date.getTime())){
+     date.setUTCDate(date.getUTCDate()+(n+1-shared.start_day));
+     sublabel=date.toLocaleDateString('en-US',{month:'short',day:'numeric',timeZone:'UTC'});
+    }
+   }
+  }else if(start&&!Number.isNaN(start.getTime())){start.setDate(start.getDate()+n);sublabel=start.toLocaleDateString('en-US',{month:'short',day:'numeric'});}
   b.setAttribute('aria-label','Day '+(n+1)+', '+sublabel);
   const number=document.createElement('b');number.textContent=n+1;
   const sub=document.createElement('small');sub.textContent=sublabel;
@@ -836,6 +846,13 @@ updatePlanStatus();
 $('desktop-plan-info').addEventListener('click',infoDialog);
 
 window.sosCircleBridge={
+ setSchedule:(schedule)=>{
+  const next=schedule?{start_day:schedule.start_day,start_on:schedule.start_on,time_zone:schedule.time_zone}:null;
+  if(JSON.stringify(window.sosPrimarySchedule||null)===JSON.stringify(next))return;
+  if(!$('sos-panel').hidden)save(true);
+  window.sosPrimarySchedule=next;
+  render();
+ },
  day:()=>state.day+1,
  goToDay:(requested)=>{
   const index=Number(requested)-1;
