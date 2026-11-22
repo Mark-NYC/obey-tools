@@ -6,7 +6,7 @@ grant usage on schema circles_private to authenticated;
 create table public.follow_circles(
  id uuid primary key default gen_random_uuid(),
  name text not null check(char_length(btrim(name)) between 2 and 80),
- owner_id uuid not null references auth.users(id) on delete cascade,
+ owner_id uuid not null references auth.users(id) on delete restrict, -- transfer stewardship before account deletion
  created_at timestamptz not null default now(),
  closed_at timestamptz
 );
