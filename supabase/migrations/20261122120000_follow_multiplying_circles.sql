@@ -316,6 +316,7 @@ create function circles_private.limit_posts() returns trigger language plpgsql
 security definer set search_path=''
 as $$
 begin
+ new.created_at:=now();new.updated_at:=now();
  if (select count(*) from public.follow_circle_posts where author_id=new.author_id and created_at>now()-interval '1 minute')>=12
  or (select count(*) from public.follow_circle_posts where author_id=new.author_id and created_at>now()-interval '1 day')>=250
  then raise exception 'Too many messages; try again later';end if;
