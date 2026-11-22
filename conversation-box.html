@@ -92,7 +92,8 @@
         .conversation-name:active { background: #f4f4f6; }
         .name-line { display: flex; align-items: center; gap: 8px; max-width: 100%; font-size: 17px; font-weight: 550; color: var(--cb-ink); }
         .name-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .name-chevron { width: 12px; height: 12px; flex-shrink: 0; color: #9a9aa1; pointer-events: none; }
+        .name-chevron { display: inline-flex; align-items: center; justify-content: center; align-self: center; width: 12px; height: 12px; flex-shrink: 0; line-height: 0; color: #9a9aa1; pointer-events: none; }
+        .name-chevron svg { display: block; width: 12px; height: 12px; }
         .name-sub { font-size: 13px; color: var(--cb-muted); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .color-circle { width: 12px; height: 12px; border-radius: 50%; display: inline-block; flex-shrink: 0; box-shadow: inset 0 0 0 1px rgba(0,0,0,.12); }
         .details-dot { width: 6px; height: 6px; border-radius: 50%; background: #aeaeb2; display: inline-block; flex-shrink: 0; }
