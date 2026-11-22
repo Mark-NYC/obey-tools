@@ -4,12 +4,13 @@ set role authenticated;
 set request.jwt.claim.sub='11111111-1111-4111-8111-111111111111';
 select (public.follow_circle_create('Friends Circle','Alice')->>'circle_id')::uuid as circle_a \gset
 select (public.follow_circle_create('Other Circle','Alice')->>'circle_id')::uuid as circle_b \gset
+select set_config('test.circle_a', :'circle_a',false),set_config('test.circle_b', :'circle_b',false);
 -- Generate a valid secret link for independent join.
-select public.follow_circle_new_invite(:'circle_a'::uuid) as invite_token \gset
+select public.follow_circle_new_invite(current_setting('test.circle_a')::uuid) as invite_token \gset
 -- Alice can write in each Circle.
 insert into public.follow_circle_posts(circle_id,author_id,body,reading_day) values
- (:'circle_a'::uuid,auth.uid(),'Circle A reflection',5),
- (:'circle_b'::uuid,auth.uid(),'Circle B reflection',5);
+ (current_setting('test.circle_a')::uuid,auth.uid(),'Circle A reflection',5),
+ (current_setting('test.circle_b')::uuid,auth.uid(),'Circle B reflection',5);
 set request.jwt.claim.sub='22222222-2222-4222-8222-222222222222';
 -- Bob cannot view either Circle before joining.
 do $$
@@ -28,11 +29,12 @@ begin
  if not exists(select 1 from public.follow_circle_members where user_id=auth.uid()) then raise exception 'FAIL: missing membership';end if;
 end;$$;
 -- Only aggregated daily progress is available, not private answers.
-select current_day,current_day_done,completed_days from public.follow_circle_progress(:'circle_a'::uuid,20,0)
+select current_day,current_day_done,completed_days from public.follow_circle_progress(current_setting('test.circle_a')::uuid,20,0)
  where user_id='11111111-1111-4111-8111-111111111111' \gset
+select set_config('test.current_day', :'current_day',false),set_config('test.current_day_done', :'current_day_done',false),set_config('test.completed_days', :'completed_days',false);
 do $$
 begin
- if :'current_day'::int<>5 or :'current_day_done'::boolean<>true or :'completed_days'::int<>1 then
+ if current_setting('test.current_day')::int<>5 or current_setting('test.current_day_done')::boolean<>true or current_setting('test.completed_days')::int<>1 then
   raise exception 'FAIL: daily completion summary incorrect';
  end if;
 end;$$;
@@ -41,7 +43,7 @@ do $$
 begin
  begin
   update public.follow_circle_members set role='steward'
-  where circle_id=:'circle_a'::uuid and user_id=auth.uid();
+  where circle_id=current_setting('test.circle_a')::uuid and user_id=auth.uid();
   raise exception 'FAIL: self-promotion succeeded';
  exception when insufficient_privilege then null;end;
 end;$$;
@@ -57,7 +59,7 @@ end;$$;
 do $$
 begin
  begin
-  perform count(*) from public.follow_circle_progress(:'circle_b'::uuid);
+  perform count(*) from public.follow_circle_progress(current_setting('test.circle_b')::uuid);
   raise exception 'FAIL: unauthorized progress returned';
  exception when others then
   if SQLERRM not like '%Not permitted%' then raise;end if;
@@ -65,9 +67,10 @@ begin
 end;$$;
 -- Member creates own second Circle and can share privately there.
 select (public.follow_circle_create('Bob Group','Bob')->>'circle_id')::uuid as circle_c \gset
+select set_config('test.circle_c', :'circle_c',false);
 insert into public.follow_circle_posts(circle_id,author_id,body,reading_day) values
-(:'circle_a'::uuid,auth.uid(),'Shared by explicit action',5),
-(:'circle_c'::uuid,auth.uid(),'Shared by explicit action',5);
+(current_setting('test.circle_a')::uuid,auth.uid(),'Shared by explicit action',5),
+(current_setting('test.circle_c')::uuid,auth.uid(),'Shared by explicit action',5);
 set request.jwt.claim.sub='33333333-3333-4333-8333-333333333333';
 -- Charlie is unauthorized everywhere.
 do $$
@@ -75,7 +78,7 @@ begin
  if exists(select 1 from public.follow_circle_posts) then raise exception 'FAIL: Charlie saw posts';end if;
  begin
   insert into public.follow_circle_posts(circle_id,author_id,body) values
-   (:'circle_a'::uuid,auth.uid(),'Unauthorized');
+   (current_setting('test.circle_a')::uuid,auth.uid(),'Unauthorized');
   raise exception 'FAIL: Charlie posted without membership';
  exception when insufficient_privilege or check_violation then null;
  when others then
@@ -84,11 +87,11 @@ begin
 end;$$;
 set request.jwt.claim.sub='11111111-1111-4111-8111-111111111111';
 -- Steward removes Bob, who cannot bypass removal by reusing old link.
-select public.follow_circle_remove(:'circle_a'::uuid,'22222222-2222-4222-8222-222222222222');
+select public.follow_circle_remove(current_setting('test.circle_a')::uuid,'22222222-2222-4222-8222-222222222222');
 set request.jwt.claim.sub='22222222-2222-4222-8222-222222222222';
 do $$
 begin
- if exists(select 1 from public.follow_circle_posts where circle_id=:'circle_a'::uuid) then raise exception 'FAIL: removed member can read';end if;
+ if exists(select 1 from public.follow_circle_posts where circle_id=current_setting('test.circle_a')::uuid) then raise exception 'FAIL: removed member can read';end if;
  begin
   perform public.follow_circle_join(:'invite_token','Bob');
   raise exception 'FAIL: removed member rejoined';
