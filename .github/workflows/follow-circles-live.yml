@@ -3,6 +3,7 @@ on:
   pull_request:
     paths:
       - 'follow-circles.*'
+      - 'daily-sos-circles.*'
       - 'daily-sos.html'
       - 'scripts/circles-live-smoke.mjs'
       - '.github/workflows/follow-circles-live.yml'
@@ -11,6 +12,7 @@ on:
     branches: [main]
     paths:
       - 'follow-circles.*'
+      - 'daily-sos-circles.*'
       - 'daily-sos.html'
       - 'scripts/circles-live-smoke.mjs'
       - '.github/workflows/follow-circles-live.yml'
