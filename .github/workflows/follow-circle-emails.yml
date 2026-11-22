@@ -1,0 +1,29 @@
+name: Follow Daily Circle Emails
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+jobs:
+  deliver:
+    # Disabled until RLS and email delivery pass integration testing.
+    if: vars.CIRCLE_NOTIFICATIONS_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send opt-in reply and mention notifications
+        env:
+          CRON_SECRET: ${{ secrets.CIRCLE_NOTIFY_CRON_SECRET }}
+        shell: bash
+        run: |
+          test -n "$CRON_SECRET" || { echo "Missing notification secret"; exit 1; }
+          curl --fail --silent --show-error --retry 2 -X POST \
+            "https://mjiswwujcsmayuytoaul.supabase.co/functions/v1/follow-circle-notifications?mode=immediate" \
+            -H "x-circle-cron-secret: $CRON_SECRET"
+      - name: Send weekly digest Monday morning in New York
+        env:
+          CRON_SECRET: ${{ secrets.CIRCLE_NOTIFY_CRON_SECRET }}
+        shell: bash
+        run: |
+          if [[ "$(TZ=America/New_York date +'%u %H')" != "1 07" ]]; then exit 0; fi
+          curl --fail --silent --show-error --retry 2 -X POST \
+            "https://mjiswwujcsmayuytoaul.supabase.co/functions/v1/follow-circle-notifications?mode=weekly" \
+            -H "x-circle-cron-secret: $CRON_SECRET"
