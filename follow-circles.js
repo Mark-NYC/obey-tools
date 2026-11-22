@@ -2,7 +2,8 @@ import {supabase} from './supabase.js';
 const $=id=>document.getElementById(id);
 const params=new URLSearchParams(location.search);
 let user=null,memberships=[],selected=null,activeTab='feed',offset=0,memberOffset=0;
-const PAGE=20;
+const PAGE=20,mentions=new Map();
+let searchTimer=null;
 const val=id=>$(id).value.trim();
 function status(message,error=false){$('notice').textContent=message;$('notice').classList.toggle('error',error)}
 function el(tag,txt,cls){const e=document.createElement(tag);if(txt!==undefined)e.textContent=txt;if(cls)e.className=cls;return e}
@@ -54,7 +55,7 @@ function showInvitation(token){
 }
 async function showCircle(id){
  const m=memberships.find(x=>x.circle_id===id);if(!m)return status('Not a member of that Circle',true);
- selected=m;$('overview').hidden=true;$('invite-preview').hidden=true;$('circle-view').hidden=false;
+ selected=m;mentions.clear();renderMentions();$('overview').hidden=true;$('invite-preview').hidden=true;$('circle-view').hidden=false;
  $('circle-name').textContent=m.circle.name;$('circle-subtitle').textContent='Follow at your own pace · Private Circle';
  $('display-name').value=m.display_name;$('show-progress').checked=m.progress_visible;
  $('email-replies').checked=m.email_replies;$('email-mentions').checked=m.email_mentions;$('email-digest').checked=m.email_digest;
@@ -69,6 +70,23 @@ async function setTab(tab){
  if(tab==='feed')await loadFeed(true);
  if(tab==='members'){await loadMembers(true);if(selected.role==='steward')await loadReports();}
  if(tab==='about'){renderAbout();$('steward-controls').hidden=selected.role!=='steward';if(selected.role==='steward')await renderTransferMembers();}
+}
+function renderMentions(){
+ const root=$('mention-selected');root.replaceChildren();
+ for(const [id,name] of mentions){root.append(button('× '+name,()=>{mentions.delete(id);renderMentions()}))}
+}
+async function findMentions(){
+ const root=$('mention-options');root.replaceChildren();const term=val('mention-search');
+ if(term.length<2||!selected)return;
+ const {data,error}=await supabase.from('follow_circle_members').select('user_id,display_name')
+  .eq('circle_id',selected.circle_id).ilike('display_name','%'+term+'%').limit(10);
+ if(error)return status(error.message,true);
+ for(const m of data||[]){if(m.user_id===user.id||mentions.has(m.user_id))continue;
+  root.append(button('+ '+m.display_name,()=>{
+   if(mentions.size>=10)return status('Maximum 10 mentions per post.',true);
+   mentions.set(m.user_id,m.display_name);renderMentions();root.replaceChildren();$('mention-search').value='';
+  }));
+ }
 }
 function renderTargets(){
  const root=$('post-target-list');root.replaceChildren();
@@ -220,15 +238,17 @@ $('feed-filter').addEventListener('change',()=>{$('passage-filter').hidden=val('
 $('passage-go').addEventListener('click',()=>loadFeed(true));
 $('more-posts').addEventListener('click',()=>loadFeed(false));
 $('more-members').addEventListener('click',()=>loadMembers(false));
+$('mention-search').addEventListener('input',()=>{clearTimeout(searchTimer);searchTimer=setTimeout(findMentions,250)});
 $('post-form').addEventListener('submit',async e=>{
  e.preventDefault();const b=e.submitter;const targets=[...$('post-target-list').querySelectorAll('input:checked')].map(x=>x.value);
  if(!targets.length)return status('Select at least one Circle.',true);
+ if(mentions.size&&targets.length!==1)return status('Choose one Circle when mentioning members.',true);
  const day=val('post-day')?Number(val('post-day')):null,body=val('post-body');b.disabled=true;
  try{
-  const records=targets.map(circle_id=>({circle_id,author_id:user.id,body,reading_day:day}));
+  const records=targets.map(circle_id=>({circle_id,author_id:user.id,body,reading_day:day,mentioned_user_ids:[...mentions.keys()]}));
   const r=await supabase.from('follow_circle_posts').insert(records);
   if(r.error)throw r.error;
-  $('post-body').value='';status('Shared with '+targets.length+' Circle'+(targets.length===1?'':'s'));await loadFeed(true);
+  $('post-body').value='';mentions.clear();renderMentions();$('mention-options').replaceChildren();status('Shared with '+targets.length+' Circle'+(targets.length===1?'':'s'));await loadFeed(true);
  }catch(err){status(err.message,true)}finally{b.disabled=false}
 });
 $('member-settings').addEventListener('submit',async e=>{
