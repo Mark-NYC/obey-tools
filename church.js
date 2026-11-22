@@ -100,7 +100,7 @@ function renderTable(rows){
  $('no-circles').hidden=!!rows.length;$('circles-table').parentElement.hidden=!rows.length;
  for(const c of rows){
   const tr=el('tr');
-  const name=el('td',undefined,'circle-cell');name.append(el('strong',c.circle_name),el('small',(c.steward_name?'Steward: '+c.steward_name+' · ':'')+c.sharing_members+' of '+c.members+' sharing'));
+  const name=el('td',undefined,'circle-cell');name.append(el('strong',c.circle_name),el('small',c.sharing_members+' of '+c.members+' sharing'));
   tr.append(name);
   for(const s of STAGES)tr.append(el('td',String(c[s]||0),'num'+(s==='discovery'?' end':'')));
   tr.append(el('td',String(c.steps_30d),'num'));
@@ -122,7 +122,7 @@ function renderNudges(rows,totals){
  if(!rows.length)add('Send the Circle link to each group’s steward. Their counts appear here once they link.');
  for(const c of rows){
   if(!c.last_huddle)add(el('strong',c.circle_name),' hasn’t held a weekly huddle yet.');
-  else if(Date.now()-new Date(c.last_huddle)>14*864e5)add(el('strong',c.circle_name),' hasn’t huddled in '+ago(c.last_huddle).replace(' ago','')+'. Check in with '+(c.steward_name||'its steward')+'.');
+  else if(Date.now()-new Date(c.last_huddle)>14*864e5)add(el('strong',c.circle_name),' hasn’t huddled in '+ago(c.last_huddle).replace(' ago','')+'. Check in with '+'the Circle steward'+'.');
   if(c.members>1&&c.sharing_members<c.members/2)add(el('strong',c.circle_name),': only '+c.sharing_members+' of '+c.members+' include their numbers. Encourage the rest to turn it on in Settings.');
  }
  if(totals.spiritual>=3&&totals.spiritual>=3*Math.max(totals.discovery,1)){
