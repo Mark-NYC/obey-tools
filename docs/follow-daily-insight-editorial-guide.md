@@ -12,7 +12,7 @@ The goal is to see **Jesus as Scripture reveals Him**, not to squeeze every even
 2. **Formation** (amber, shield/check icon): How Jesus shaped faith, understanding, endurance, obedience, and character, including through hardship, suffering, correction, rejection, and unbelief. Distinguish examples from explicit commands.
 3. **Multiplication** (green, people icon): Reproducible Kingdom patterns. Use **Identify**, **Equip**, **Invest**, and **Entrust** only when the passage supports those descriptions.
 
-A passage can have one or more lenses. Some passages call for no such label, in which case use a neutral observation guide until a specific Insight is authored. The legacy reading plan's phase value must NOT automatically determine a lens.
+A passage can have one or more lenses. Every day must have a substantive, passage-specific devotional in a supported category. Never silently replace missing devotional content with a generic Observe card. The legacy reading plan's phase value must NOT automatically determine a lens. Hear · Obey · Share is a separate, selective response observation and never replaces the theological Insight.
 
 ## Recommended card anatomy
 
@@ -27,11 +27,11 @@ Write in everyday language suitable for a college student. Favor textual specifi
 
 ## Content and release requirements
 
-The first curated entries are in `daily-sos.html`. All remaining readings currently show a **neutral reflection guide**, not a finished devotional. They must be authored and reviewed individually against the full Scripture.
+All 365 readings now have individually authored draft cards in `daily-sos-insights-first30.js` and the four `daily-sos-insights-days*.js` files. This is a complete **draft coverage pass**, not a claim that 365 interpretations have completed theological or in-browser review. Every card still needs editorial verification against its full passage before the plan is considered fully reviewed. Keep the response observation panel distinct from Insight.
 
 **Do not release the three-step change until:**
-- The curated Insight corpus covers all 365 readings with theological editorial review.
-- The Supabase `sos_merge_progress` field whitelist permits `insight` and the sync adapter persists this field as independent progress. Keep existing user rows and field revisions intact.
+- The authored 365-reading Insight corpus receives theological editorial review.
+- Keep the deployed Supabase `insight` field whitelist and independent sync adapter working without altering existing user rows or field revisions.
 - Browser checks confirm Read → Insight → SOS, direct day links, scrolling day rail centering, offline storage, draft saving, and signed-in cross-device progress.
 - Mobile and desktop layouts and keyboard access have been checked.
 
