@@ -6,7 +6,7 @@ grant usage on schema circles_private to authenticated;
 create table public.follow_circles(
  id uuid primary key default gen_random_uuid(),
  name text not null check(char_length(btrim(name)) between 2 and 80),
- owner_id uuid not null references auth.users(id) on delete restrict, -- transfer stewardship before account deletion
+ owner_id uuid not null references auth.users(id) on delete restrict,
  created_at timestamptz not null default now(),
  closed_at timestamptz
 );
@@ -60,7 +60,6 @@ create table public.follow_circle_reports(
  reason text not null check(char_length(btrim(reason)) between 4 and 500),
  created_at timestamptz not null default now()
 );
--- Delivery-only queue. Never exposed to end users or the Data API.
 create table public.follow_circle_email_outbox(
  id uuid primary key default gen_random_uuid(),
  user_id uuid not null references auth.users(id) on delete cascade,
@@ -96,12 +95,12 @@ create function circles_private.is_member(p_circle uuid,p_user uuid)
 returns boolean language sql stable security definer set search_path=''
 as $$select exists(select 1 from public.follow_circle_members m
  join public.follow_circles c on c.id=m.circle_id
- where m.circle_id=p_circle and m.user_id=p_user and p_user=auth.uid() and c.closed_at is null)$;
+ where m.circle_id=p_circle and m.user_id=p_user and p_user=auth.uid() and c.closed_at is null)$$;
 create function circles_private.is_steward(p_circle uuid,p_user uuid)
 returns boolean language sql stable security definer set search_path=''
 as $$select exists(select 1 from public.follow_circle_members m
  join public.follow_circles c on c.id=m.circle_id
- where m.circle_id=p_circle and m.user_id=p_user and p_user=auth.uid() and m.role='steward' and c.closed_at is null)$;
+ where m.circle_id=p_circle and m.user_id=p_user and p_user=auth.uid() and m.role='steward' and c.closed_at is null)$$;
 revoke all on function circles_private.is_member(uuid,uuid) from public;
 revoke all on function circles_private.is_steward(uuid,uuid) from public;
 grant execute on function circles_private.is_member(uuid,uuid) to authenticated;
@@ -188,16 +187,14 @@ end;$$;
 create function public.follow_circle_invite_preview(p_token text)
 returns jsonb language sql stable security definer set search_path=''
 as $$select jsonb_build_object('circle_name',c.name,'circle_id',c.id) from public.follow_circle_invites i join public.follow_circles c on c.id=i.circle_id
- where length(p_token)=64 and i.token_hash=md5(p_token) and i.revoked_at is null and c.closed_at is null limit 1$;
+ where length(p_token)=64 and i.token_hash=md5(p_token) and i.revoked_at is null and c.closed_at is null limit 1$$;
 create function public.follow_circle_new_invite(p_circle uuid)
 returns text language plpgsql security definer set search_path=''
 as $$
 declare v_token text;
 begin
  if auth.uid() is null or not circles_private.is_member(p_circle,auth.uid()) then raise exception 'Not permitted';end if;
- if (select count(*) from public.follow_circle_invites
-     where created_by=auth.uid() and created_at>now()-interval '1 day')>=20
- then raise exception 'Too many invitations today';end if;
+ if (select count(*) from public.follow_circle_invites where created_by=auth.uid() and created_at>now()-interval '1 day')>=20 then raise exception 'Too many invitations today';end if;
  v_token:=replace(gen_random_uuid()::text,'-','')||replace(gen_random_uuid()::text,'-','');
  insert into public.follow_circle_invites(circle_id,token_hash,created_by) values(p_circle,md5(v_token),auth.uid());
  return v_token;
@@ -269,88 +266,28 @@ begin
     and count(*) filter(where field_name='share' and length(trim(value))>0)>0 as finished
     from public.sos_daily_progress s
     where s.user_id=m.user_id and s.day_no=greatest(1,least(365,coalesce(
-    (select max(value::int) from public.sos_daily_progress cur where cur.user_id=m.user_id and cur.field_name='cursor' and cur.value ~ '^[0-9]{1,3}
-end;$;
--- All mention recipients must be existing Circle members.
-create function circles_private.validate_mentions() returns trigger language plpgsql
-security definer set search_path=''
-as $
-begin
- if exists(select 1 from unnest(new.mentioned_user_ids) as id
-  where id=new.author_id or not exists(
-   select 1 from public.follow_circle_members m where m.circle_id=new.circle_id and m.user_id=id))
- then raise exception 'Mentions must target other Circle members';end if;
- return new;
-end;$;
-create trigger follow_circle_mentions_valid before insert or update of mentioned_user_ids,circle_id on public.follow_circle_posts
- for each row execute function circles_private.validate_mentions();
--- No private SOS content, post bodies or email addresses are written into this queue.
-create function circles_private.queue_post_emails() returns trigger language plpgsql
-security definer set search_path=''
-as $
-declare parent_author uuid;
-begin
- if new.parent_id is not null then
-  select author_id into parent_author from public.follow_circle_posts where id=new.parent_id and circle_id=new.circle_id;
-  if parent_author is not null and parent_author<>new.author_id and exists(
-   select 1 from public.follow_circle_members m where m.circle_id=new.circle_id
-    and m.user_id=parent_author and m.email_replies=true)
-   and not exists(select 1 from public.follow_circle_blocks b where b.user_id=parent_author and b.blocked_user_id=new.author_id)
-  then
-   insert into public.follow_circle_email_outbox(user_id,circle_id,post_id,kind)
-   values(parent_author,new.circle_id,new.id,'reply') on conflict do nothing;
-  end if;
- end if;
- insert into public.follow_circle_email_outbox(user_id,circle_id,post_id,kind)
- select m.user_id,new.circle_id,new.id,'mention' from public.follow_circle_members m
- where m.circle_id=new.circle_id and m.email_mentions=true
- and m.user_id=any(new.mentioned_user_ids) and m.user_id<>new.author_id
- and not exists(select 1 from public.follow_circle_blocks b where b.user_id=m.user_id and b.blocked_user_id=new.author_id)
- on conflict do nothing;
- return new;
-end;$;
-create trigger follow_circle_queue_email after insert on public.follow_circle_posts
- for each row execute function circles_private.queue_post_emails();
-
--- Enforce a small post rate limit server-side, including direct REST calls.
-create function circles_private.limit_posts() returns trigger language plpgsql
-security definer set search_path=''
-as $
-begin
- if (select count(*) from public.follow_circle_posts where author_id=new.author_id and created_at>now()-interval '1 minute')>=12
- or (select count(*) from public.follow_circle_posts where author_id=new.author_id and created_at>now()-interval '1 day')>=250
- then raise exception 'Too many messages; try again later';end if;
- return new;
-end;$;
-create trigger follow_circle_limit_post_trigger before insert on public.follow_circle_posts
- for each row execute function circles_private.limit_posts();
-
--- Public access revoked for privileged functions, including preview unless anonymous preview explicitly permitted.
-revoke all on function public.follow_circle_create(text,text),public.follow_circle_join(text,text),public.follow_circle_invite_preview(text),public.follow_circle_new_invite(uuid),public.follow_circle_revoke_invites(uuid),public.follow_circle_leave(uuid),public.follow_circle_remove(uuid,uuid),public.follow_circle_transfer(uuid,uuid),public.follow_circle_progress(uuid,integer,integer) from public;
-grant execute on function public.follow_circle_create(text,text),public.follow_circle_join(text,text),public.follow_circle_new_invite(uuid),public.follow_circle_revoke_invites(uuid),public.follow_circle_leave(uuid),public.follow_circle_remove(uuid,uuid),public.follow_circle_transfer(uuid,uuid),public.follow_circle_progress(uuid,integer,integer) to authenticated;
-grant execute on function public.follow_circle_invite_preview(text) to anon,authenticated;
-),1)))) x
+    (select max(value::int) from public.sos_daily_progress cur where cur.user_id=m.user_id and cur.field_name='cursor' and cur.value ~ '^[0-9]{1,3}$'),1)))) x
   where x.finished) as current_day_done
  from public.follow_circle_members m where m.circle_id=p_circle and m.progress_visible=true
  order by m.joined_at,m.user_id limit least(greatest(p_limit,1),100) offset greatest(p_offset,0);
-end;$;
--- All mention recipients must be existing Circle members.
+end;$$;
+-- Mentions must target actual Circle members.
 create function circles_private.validate_mentions() returns trigger language plpgsql
 security definer set search_path=''
-as $
+as $$
 begin
- if exists(select 1 from unnest(new.mentioned_user_ids) as id
-  where id=new.author_id or not exists(
-   select 1 from public.follow_circle_members m where m.circle_id=new.circle_id and m.user_id=id))
+ if exists(select 1 from unnest(new.mentioned_user_ids) as mentioned_id
+  where mentioned_id=new.author_id or not exists(
+   select 1 from public.follow_circle_members m where m.circle_id=new.circle_id and m.user_id=mentioned_id))
  then raise exception 'Mentions must target other Circle members';end if;
  return new;
-end;$;
+end;$$;
 create trigger follow_circle_mentions_valid before insert or update of mentioned_user_ids,circle_id on public.follow_circle_posts
  for each row execute function circles_private.validate_mentions();
--- No private SOS content, post bodies or email addresses are written into this queue.
+-- Queue event IDs only; no post body, email address or private journal.
 create function circles_private.queue_post_emails() returns trigger language plpgsql
 security definer set search_path=''
-as $
+as $$
 declare parent_author uuid;
 begin
  if new.parent_id is not null then
@@ -371,20 +308,19 @@ begin
  and not exists(select 1 from public.follow_circle_blocks b where b.user_id=m.user_id and b.blocked_user_id=new.author_id)
  on conflict do nothing;
  return new;
-end;$;
+end;$$;
 create trigger follow_circle_queue_email after insert on public.follow_circle_posts
  for each row execute function circles_private.queue_post_emails();
-
--- Enforce a small post rate limit server-side, including direct REST calls.
+-- Throttle direct database API traffic as well as the browser UI.
 create function circles_private.limit_posts() returns trigger language plpgsql
 security definer set search_path=''
-as $
+as $$
 begin
  if (select count(*) from public.follow_circle_posts where author_id=new.author_id and created_at>now()-interval '1 minute')>=12
  or (select count(*) from public.follow_circle_posts where author_id=new.author_id and created_at>now()-interval '1 day')>=250
  then raise exception 'Too many messages; try again later';end if;
  return new;
-end;$;
+end;$$;
 create trigger follow_circle_limit_post_trigger before insert on public.follow_circle_posts
  for each row execute function circles_private.limit_posts();
 
