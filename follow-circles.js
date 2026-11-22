@@ -12,7 +12,7 @@ async function loadAuth(){
  $('loading').hidden=false;
  try{const result=await supabase.auth.getUser();user=result.data?.user||null;
  $('loading').hidden=true;$('auth-needed').hidden=!!user;$('app').hidden=!user;
- if(!user)return;
+ if(!user){if(params.get('invite')){const preview=await invoke('follow_circle_invite_preview',{p_token:params.get('invite')});if(preview){$('auth-needed').querySelector('h2').textContent='Join '+preview.circle_name;$('auth-needed').querySelector('p').textContent='Sign in with OBEY.TOOLS to join this Circle. Return to your invitation link afterward.'}}return;}
  await loadCircles();
  if(params.get('invite'))await previewInvitation(params.get('invite'));
  if(params.get('circle')&&memberships.some(m=>m.circle_id===params.get('circle')))await showCircle(params.get('circle'));
@@ -204,7 +204,7 @@ $('leave-circle').addEventListener('click',async()=>{
  try{await invoke('follow_circle_leave',{p_circle:selected.circle_id});await loadCircles();showOverview();status('You left the Circle')}
  catch(e){status(e.message,true)}
 });
-for(let day=1;day<=365;day++){$('post-day').append(el('option','Day '+day)).lastChild.value=String(day)}
+for(let day=1;day<=365;day++){const option=el('option','Day '+day);option.value=String(day);$('post-day').append(option)}
 const preselected=Number(params.get('day'));if(Number.isInteger(preselected)&&preselected>=1&&preselected<=365)$('post-day').value=String(preselected);
-supabase.auth.onAuthStateChange((_event,session)=>{if(user?.id!==session?.user?.id){user=session?.user||null;loadAuth()}});
+supabase.auth.onAuthStateChange((_event,session)=>{if(user?.id!==session?.user?.id){queueMicrotask(()=>loadAuth())}});
 loadAuth();
