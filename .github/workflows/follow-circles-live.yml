@@ -1,5 +1,11 @@
 name: Follow Circles Published Site Smoke
 on:
+  pull_request:
+    paths:
+      - 'follow-circles.*'
+      - 'daily-sos.html'
+      - 'scripts/circles-live-smoke.mjs'
+      - '.github/workflows/follow-circles-live.yml'
   workflow_dispatch:
   push:
     branches: [main]
