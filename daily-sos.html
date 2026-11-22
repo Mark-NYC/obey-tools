@@ -207,6 +207,16 @@ body{padding:0;background:#f8f8f8}
 .insight-apply p{font-size:15px!important;line-height:1.6;margin:0}
 @media(min-width:1100px){.insight-cards{grid-template-columns:repeat(auto-fit,minmax(235px,1fr))}.insight-card{min-width:0}}
 @media(prefers-reduced-motion:no-preference){.insight-card{transition:background .18s ease,transform .18s ease}.insight-card:hover{transform:translateY(-1px)}}
+.response-pattern{border:1px solid #e5ddd0;background:#fffaf1;border-radius:14px;margin:12px 0 18px;padding:16px}
+.response-pattern-header{display:flex;align-items:center;gap:9px;font-size:12px;font-weight:850;letter-spacing:.06em;color:#80561e;text-transform:uppercase;margin-bottom:13px}
+.response-pattern-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.response-pattern-step{text-align:center;min-width:0}
+.response-pattern-step svg{display:block;width:24px;height:24px;margin:0 auto 7px;color:#2d4c3b}
+.response-pattern-step strong{display:block;font-size:12px;letter-spacing:.05em}
+.response-pattern-step small{display:block;font-size:12px;line-height:1.35;color:#5d605b;margin-top:5px}
+.response-pattern-step.is-absent{opacity:.34}
+.response-pattern-caption{font-size:12px;color:#6a675d;margin:12px 0 0}
+@media(max-width:390px){.response-pattern{padding:12px}.response-pattern-steps{gap:5px}.response-pattern-step small{font-size:11px}}
 /* Bible Recap-style day rail: visible neighboring cards, centered selected day. */
 .days{
  --day-card-width:112px;
@@ -277,6 +287,7 @@ body{padding:0;background:#f8f8f8}
 <h2>Today’s Insight</h2><div class="sub" id="insight-reference"></div>
 <p class="insight-intro">What is this passage revealing? Pay attention to who Jesus is, how faith grows, and patterns disciples can follow. Not every passage does all three.</p>
 <div id="insight-cards" class="insight-cards" aria-live="polite"></div>
+<div id="response-pattern" class="response-pattern" hidden aria-label="Hear Obey Share pattern observed in this passage"></div>
 <div class="insight-apply"><span class="insight-apply-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/><path d="M4 12h11"/></svg></span><div><h3 class="insight-label">Consider &amp; Respond</h3><p id="insight-action"></p></div></div>
 <button id="mark-insight" class="primary" type="button">Mark Insight as read</button>
 </section>
@@ -488,6 +499,43 @@ function insightFor(r){
  // Unauthored entries remain neutral reading questions until reviewed.
  return {cards:[['observe','Look closely at the passage','Read the Scripture slowly. What does it reveal about God, Jesus, and the people involved? Notice any commands, promises, challenges to faith, or responses to the Kingdom. Do not assume everything Jesus does is an example we are meant to reproduce.']],action:r[4]||'What is one truth you can say, obey, or share from today’s passage?',pending:true};
 }
+// Exact Lucide outline icons used in the approved example: ear, footprints,
+// and message-circle. Display only observations supported by the passage.
+const responseIcons={
+ hear:'<path d="M6 8a6 6 0 0 1 12 0c0 4-3 5-4 8-.6 1.8-1.9 3-4 3a4 4 0 0 1-4-4"/><path d="M9 8a3 3 0 0 1 6 0c0 2-1 3-2 4"/><path d="M10 14c.5-.4 1.5-.9 2-2"/>',
+ obey:'<path d="M4 16v-2.5a3.5 3.5 0 0 1 5.1-3.1L12 12v5a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3z"/><path d="M12 7V5a3 3 0 0 1 3-3h2a3 3 0 0 1 3 3v2.5a3.5 3.5 0 0 1-5.1 3.1L12 9z"/>',
+ share:'<path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8A8.5 8.5 0 0 1 8.7 3.9a8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8z"/>'
+};
+const responseObservations={
+ 'Luke 1:26–38':{hear:'Mary hears Gabriel’s message',obey:'She offers herself as God’s servant'},
+ 'Luke 1:39–45':{hear:'Elizabeth recognizes God’s work',share:'She blesses and encourages Mary'},
+ 'Luke 1:57–66':{hear:'The name God gave is remembered',obey:'They name the child John'},
+ 'Luke 2:8–20':{hear:'The angels announce good news',obey:'The shepherds go to Bethlehem',share:'They tell others what they heard'},
+ 'Luke 2:36–38':{hear:'Anna recognizes Jesus',share:'She speaks about Him to others'},
+ 'Luke 3:1–18':{hear:'The crowds hear John’s call',obey:'They are called to bear fruit in repentance'},
+ 'John 1:35–51':{hear:'They hear testimony about Jesus',obey:'They follow and come to see',share:'Andrew and Philip invite others'}
+};
+function renderResponsePattern(r){
+ const root=$('response-pattern'),data=responseObservations[r[1]];
+ root.replaceChildren();root.hidden=!data;
+ if(!data)return;
+ const heading=document.createElement('div');heading.className='response-pattern-header';
+ heading.textContent='Notice the response';root.append(heading);
+ const steps=document.createElement('div');steps.className='response-pattern-steps';
+ for(const [key,label] of [['hear','HEAR'],['obey','OBEY'],['share','SHARE']]){
+  const step=document.createElement('div');step.className='response-pattern-step';
+  if(!data[key])step.classList.add('is-absent');
+  const ico=document.createElement('span');ico.setAttribute('aria-hidden','true');
+  ico.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+responseIcons[key]+'</svg>';
+  const title=document.createElement('strong');title.textContent=label;
+  const detail=document.createElement('small');detail.textContent=data[key]||'Not emphasized here';
+  step.append(ico,title,detail);steps.append(step);
+ }
+ root.append(steps);
+ const note=document.createElement('p');note.className='response-pattern-caption';
+ note.textContent='These observations prepare us to practice Say · Obey · Share. Not every passage shows all three.';
+ root.append(note);
+}
 function renderInsight(r){
  const data=insightFor(r),container=$('insight-cards');
  container.replaceChildren();
@@ -505,6 +553,7 @@ function renderInsight(r){
   if(pattern){const span=document.createElement('span');span.className='insight-pattern';span.textContent=pattern;card.append(span)}
   container.append(card);
  }
+ renderResponsePattern(r);
  $('insight-action').textContent=data.action;
  $('insight-reference').textContent=r[1]+(data.pending?' · Reflection guide':'');
 }
