@@ -540,7 +540,7 @@ function catchupDialog(){
  const body=node('div');
  body.append(node('p','Catch Me Up moves you to the reading for today based on your start date. Missed readings remain available and saved SOS answers will not be deleted.'));
  body.append(node('p','Jump to Day '+(target+1)+' of '+readings.length+'.','small-notice'));
- if(target===state.day){body.append(node('p','You are already on today's scheduled reading.'));dialog('Catch Me Up',body)}
+ if(target===state.day){body.append(node('p',"You are already on today\'s scheduled reading."));dialog('Catch Me Up',body)}
  else dialog('Catch Me Up',body,'Go to Day '+(target+1),()=>move(target))
 }
 function stopDialog(){
