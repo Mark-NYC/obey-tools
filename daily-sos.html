@@ -184,6 +184,29 @@ body{padding:0;background:#f8f8f8}
 @media(max-width:520px){.sos-sync .sync-row{flex-direction:column}.sos-sync input,.sos-sync button{width:100%}}
 
 .insight-body{font-size:16px!important;line-height:1.75;white-space:pre-line}.insight-label{font-size:15px;margin:18px 0 5px}.tasks .task{min-width:0}.tasks .task small{overflow-wrap:anywhere}@media(min-width:1100px) and (max-width:1320px){.tasks{grid-template-columns:1fr}}@media(max-width:1099px){.tasks{display:block}}
+/* Insight cards: scripture-first lenses, not compulsory leadership labels. */
+#insight-panel{border:0;background:transparent;padding:10px 0 18px;margin:9px 0 18px}
+#insight-panel h2{font-size:27px;letter-spacing:-.7px;margin-bottom:4px}
+.insight-intro{font-size:14px!important;line-height:1.55;color:#686d6a;margin:10px 0 17px}
+.insight-cards{display:grid;gap:12px}
+.insight-card{border-radius:14px;border:1px solid var(--lens-border);background:var(--lens-bg);padding:18px 19px 19px;color:#17241e}
+.insight-card[data-lens="revelation"]{--lens-bg:#eef2fc;--lens-border:#d5def6;--lens-ink:#354fa2;--lens-soft:#dce5fc}
+.insight-card[data-lens="formation"]{--lens-bg:#fff5e6;--lens-border:#f4dfbd;--lens-ink:#89520e;--lens-soft:#ffe7c0}
+.insight-card[data-lens="multiplication"]{--lens-bg:#e8f6ef;--lens-border:#c9e8d5;--lens-ink:#176b47;--lens-soft:#d0ebdc}
+.insight-card[data-lens="observe"]{--lens-bg:#f2f4f5;--lens-border:#dce0e2;--lens-ink:#45515a;--lens-soft:#e4e9eb}
+.insight-card-header{display:flex;align-items:center;gap:10px;margin-bottom:11px}
+.insight-card-icon{background:var(--lens-soft);color:var(--lens-ink);width:35px;height:35px;border-radius:10px;flex:none;display:grid;place-items:center}
+.insight-card-icon svg,.insight-apply-icon svg{height:20px;width:20px}
+.insight-card-category{font-size:11px;letter-spacing:.09em;font-weight:850;text-transform:uppercase;color:var(--lens-ink)}
+.insight-card-title{font-size:18px;font-weight:800;letter-spacing:-.3px;line-height:1.28;margin:3px 0 0}
+.insight-card p{font-size:15px!important;line-height:1.65;margin:0;color:#29342e}
+.insight-pattern{display:inline-block;margin:12px 0 0;padding:5px 10px;border:1px solid var(--lens-border);background:#ffffffa8;color:var(--lens-ink);font-size:11px;font-weight:800;border-radius:99px}
+.insight-apply{display:flex;gap:12px;align-items:flex-start;border-top:1px solid #dfe4e1;margin:22px 0 12px;padding:18px 0 0}
+.insight-apply-icon{color:#00774a;flex:none;margin-top:1px}
+.insight-apply h3{font-size:16px;margin:0 0 6px}
+.insight-apply p{font-size:15px!important;line-height:1.6;margin:0}
+@media(min-width:1100px){.insight-cards{grid-template-columns:repeat(auto-fit,minmax(235px,1fr))}.insight-card{min-width:0}}
+@media(prefers-reduced-motion:no-preference){.insight-card{transition:background .18s ease,transform .18s ease}.insight-card:hover{transform:translateY(-1px)}}
 /* Bible Recap-style day rail: visible neighboring cards, centered selected day. */
 .days{
  --day-card-width:112px;
@@ -235,8 +258,7 @@ body{padding:0;background:#f8f8f8}
 <a href="/follow-daily/"><svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> Follow Daily</a><a href="/daily-sos.html" aria-current="page"><svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> Following Jesus’ Way</a><a href="/commands-of-christ.html"><svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4L19 6"/></svg> Commands of Christ</a><a href="/4-questions.html"><svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg> 4 Questions</a></nav><div class="brand"><span>OBEY.TOOLS</span><h1>FOLLOWING JESUS’ WAY</h1><p>ABIDE IN JESUS · SAY, OBEY, SHARE</p></div>
 <nav id="days" class="days" aria-label="Swipe left or right to choose a reading day"></nav>
 <main class="content">
-<div class="row"><h2 class="daytitle" id="daytitle">Day 1</h2><span class="pill" id="phase">IDENTIFY</span></div>
-<p class="section-note" id="phase-detail"></p>
+<div class="row"><h2 class="daytitle" id="daytitle">Day 1</h2></div>
 <p class="summary" id="title"></p>
 <div class="tasks" aria-label="Today's three activities">
 <button class="task" id="open-reading" type="button"><span class="circle" id="read-check" aria-hidden="true"></span><span><strong>READ</strong><small id="passage"></small></span><span class="chevron" aria-hidden="true">›</span></button>
@@ -253,9 +275,9 @@ body{padding:0;background:#f8f8f8}
 </section>
 <section class="panel" id="insight-panel" hidden tabindex="-1" aria-label="Daily disciple-making insight">
 <h2>Today’s Insight</h2><div class="sub" id="insight-reference"></div>
-<div id="insight-pattern" class="pill" style="display:inline-block;margin:0 0 12px"></div>
-<p id="insight-body" class="insight-body"></p>
-<h3 class="insight-label">Follow His Example</h3><p id="insight-action"></p>
+<p class="insight-intro">What is this passage revealing? Pay attention to who Jesus is, how faith grows, and patterns disciples can follow. Not every passage does all three.</p>
+<div id="insight-cards" class="insight-cards" aria-live="polite"></div>
+<div class="insight-apply"><span class="insight-apply-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/><path d="M4 12h11"/></svg></span><div><h3 class="insight-label">Consider &amp; Respond</h3><p id="insight-action"></p></div></div>
 <button id="mark-insight" class="primary" type="button">Mark Insight as read</button>
 </section>
 <section class="panel" id="sos-panel" hidden tabindex="-1" aria-label="Say Obey Share">
@@ -329,6 +351,7 @@ body{padding:0;background:#f8f8f8}
 
 <script src="/daily-sos-scripture.js"></script>
 <script src="/daily-sos-readings.js"></script>
+<script src="/daily-sos-insights-first30.js"></script>
 <script>
 const readings=window.OBEY_SOS_READINGS;
 if(!Array.isArray(readings)||readings.length!==365)throw new Error('365-day Daily SOS schedule failed to load');
@@ -428,32 +451,68 @@ function showScripture(ref){
  if(count===0){const err=document.createElement('p');err.className='scripture-error';err.textContent='This passage could not be loaded.';target.append(err)}
 }
 
-const curatedInsights={
- 'John 1:1–18':["Before Jesus calls anyone to follow Him, John tells us who Jesus is: the eternal Word who became flesh and lived among us. Disciple making begins with Jesus, not a method. He comes to reveal the Father and brings grace and truth. The invitation to follow Him is grounded in His identity, not in our ability to produce results.","Start with Jesus Himself. Tell someone what this passage reveals about who He is."],
- 'Luke 1:1–4':["Luke carefully investigates the events surrounding Jesus and writes an orderly account so Theophilus can know the certainty of what he has been taught. Before we imitate Jesus' methods, we need to know what He actually said and did. Careful attention to eyewitness testimony protects us from making disciples in our own image.","Read attentively, and check your assumptions against the text before teaching someone else."],
- 'Matthew 1:1–17':["Matthew traces Jesus' family line through generations of God's promises and imperfect people. The Kingdom story is larger than one leader or one generation. God remains faithful across a long history. When we invest in people, we join work that began before us and may continue long after us.","Think beyond today's results. Who could you encourage to pass on what they are learning?"],
- 'Luke 1:5–14':["Zechariah and Elizabeth had lived faithfully through years of disappointment. When the angel announces John's birth, the promise arrives on God's timing, not theirs. Before Jesus' public ministry begins, God is already preparing people for it. We cannot see every part of His preparation.","Pray for someone whose future role in God's mission may not yet be visible."],
- 'Luke 1:15–25':["John's coming work is described before his birth: he will turn many people back to the Lord and prepare them. The initiative belongs to God. Zechariah struggles to believe the announcement, yet God's purpose continues. Disciple making calls for faith in God's work rather than confidence in our control.","Ask God to prepare receptive hearts, including your own, before you make plans."],
- 'Luke 1:26–38':["Mary hears a calling she could not have planned or accomplished in her own strength. She asks a real question, listens to the answer, and responds with willing obedience. This passage is first about God's unique work in bringing Jesus into the world. Mary's response also shows the kind of trust that following Jesus demands.","Respond to one clear instruction from God even if you cannot see every next step."],
- 'Luke 1:39–45':["Elizabeth recognizes God's work in Mary and speaks words that strengthen her faith. God uses personal encouragement as His promises unfold. Before there are crowds or organized teams, two women share what God is doing and affirm His faithfulness.","Encourage someone you know who is taking a costly step of faith."],
- 'Mark 1:16–20':["Jesus meets Simon, Andrew, James, and John while they are working. His invitation is both relational and missional: follow Him and learn to fish for people. They respond by leaving their nets. Jesus identifies responsive people and begins equipping them through a shared life of following Him.","Invite a receptive person to join you in reaching others, not just listen to you talk about it."],
- 'Mark 3:13–19':["Jesus calls those He wants and appoints twelve to be with Him and to be sent out to preach, with authority over demons. Being with Jesus and being sent by Him belong together. He identifies people for close relationship and prepares them for real responsibility.","Make time to be with someone you are discipling, then invite them into meaningful ministry."],
- 'Mark 6:7–13':["After spending time with the Twelve and showing them how He ministered, Jesus sends them out two by two. He gives them authority and clear instructions, while asking them to travel with little provision. Their learning now includes practicing the mission themselves.","Give a growing disciple a real opportunity to serve, and trust them to act rather than doing everything yourself."],
- 'Luke 9:1–6':["Jesus gathers the Twelve, gives them power and authority, and sends them to proclaim the Kingdom and heal. They go from village to village carrying out what He entrusted to them. Jesus' training did not end with observation. His disciples had to step into the work themselves.","Who is ready for a specific responsibility you can hand over this week?"]
+// Editorial lens data is intentionally selective. We do not assign a multiplication
+// tag just because the legacy schedule groups a passage under IDENTIFY/EQUIP/etc.
+// Every published interpretative card needs to be checked against the Scripture.
+const insightLibrary={
+ 'John 1:1–18':{cards:[['revelation','The Word became flesh','John begins with Jesus’ identity, not a ministry strategy. The Word was with God and was God. He became flesh and revealed the Father, full of grace and truth. His incarnation is unique; it is not a process we reproduce.']],action:'What does this passage lead you to believe and worship about Jesus?'},
+ 'Luke 1:1–4':{cards:[['observe','A trustworthy account','Luke explains that he investigated reports handed down by eyewitnesses so that Theophilus could know the certainty of what he had been taught. We learn about Jesus by attending carefully to the testimony, not projecting our favorite techniques onto the story.']],action:'Read today’s passage carefully. What does it actually say, and what are you assuming?'},
+ 'Matthew 1:1–17':{cards:[['revelation','The promised King','Matthew traces the line of Jesus through Abraham and David. This genealogy locates Jesus in God’s long story of promise and fulfillment. His place as the Messiah is unique; the main point is God’s faithfulness, not a recruitment method.']],action:'Praise God for His faithfulness across generations. Who could you tell about the promised Messiah?'},
+ 'Luke 1:5–14':{cards:[['revelation','God keeps His promises','In the days of Herod, God speaks into Zechariah and Elizabeth’s long disappointment. The announcement of John’s coming birth begins a particular part of salvation history. This is first a story of God’s initiative, not a general formula for obtaining miracles.']],action:'Where do you need to trust God rather than demand your preferred timing?'},
+ 'Luke 1:15–25':{cards:[['revelation','Preparing the way','John is appointed to turn many back to the Lord and prepare a people for Him. His calling is part of God’s unique preparation for the arrival of the Messiah. Zechariah’s unbelief contrasts with the certainty of God’s word.'],['formation','Faith amid uncertainty','Zechariah struggles to believe the angel’s announcement. The passage lets us see both human doubt and God’s determination to fulfill His promise.']],action:'What promise of God can you trust even while you wrestle with uncertainty?'},
+ 'Luke 1:26–38':{cards:[['revelation','The Son of the Most High','Gabriel announces the miraculous conception and the eternal reign of Jesus. This is God’s unique work in bringing His Son into the world, not an event meant to be replicated.'],['formation','A willing response','Mary asks how this will happen, hears the angel’s answer, and responds as the Lord’s servant. Her obedience gives us an example of trust without pretending that our calling is the same as hers.']],action:'What specific act of obedience does God’s word call you to today?'},
+ 'Luke 1:39–45':{cards:[['revelation','God’s promise recognized','Elizabeth blesses Mary and the child she carries. Her words point beyond Mary to the Lord’s coming and the fulfillment of what God has spoken.'],['formation','Encouragement strengthens faith','Elizabeth speaks blessing to Mary, recognizing her trust in God’s promise. Faithful encouragement matters when someone is walking into an uncertain future.']],action:'Who could you encourage today with a specific truth from Scripture?'},
+ 'Mark 1:16–20':{cards:[['multiplication','Jesus calls responsive people','Jesus approaches fishermen at work and calls them to follow Him. Simon, Andrew, James, and John respond by leaving their nets. Their willingness to act matters in Jesus’ choice of followers.','Identify'],['multiplication','A mission from the start','His call includes a purpose: He will make them fishers of people. He does not only invite them to learn ideas. He calls them to accompany Him and grow into participation in His mission.','Equip']],action:'Who is responding to Jesus around you? Could you invite that person to join you in reaching others?'},
+ 'Mark 3:13–19':{cards:[['multiplication','Called to be with Him','Jesus appoints the Twelve so they might be with Him and be sent out to preach. Proximity and mission belong together.','Identify · Invest'],['multiplication','Prepared to be sent','Jesus also gives them authority concerning demons. His purpose includes real ministry beyond listening to His teaching.','Entrust']],action:'Who could spend time with you in real ministry rather than only receive instruction?'},
+ 'Mark 4:35–41':{cards:[['revelation','Even the wind obeys Him','Jesus commands the storm and it becomes calm. The disciples ask who He is, because even the wind and sea obey Him. His authority points to His identity, not a technique for controlling storms.'],['formation','Faith exposed by fear','In danger, the disciples are afraid, and Jesus asks why they have so little faith. The hardship becomes a moment in which their trust and understanding are challenged.']],action:'What fear is exposing an area where you need to trust Jesus more deeply?'},
+ 'Mark 6:7–13':{cards:[['multiplication','Sent two by two','Jesus sends the Twelve out in pairs and gives them authority. They go out to proclaim repentance and minister to people. The disciples now practice work they have seen Jesus do.','Entrust'],['formation','Dependent on God','Their instructions require them to travel with little and depend on hospitality. Obedience includes vulnerability and trust, not just competence.']],action:'What real ministry responsibility could you entrust to someone you are helping follow Jesus?'},
+ 'Luke 9:1–6':{cards:[['multiplication','Responsibility handed over','Jesus gives the Twelve power and authority and sends them to proclaim the Kingdom and heal. They travel from village to village carrying out the mission He has entrusted to them.','Entrust']],action:'Who is ready to take responsibility for a specific piece of Kingdom work?'},
+ 'Luke 4:16–30':{cards:[['revelation','The Messiah announces His mission','In Nazareth, Jesus reads Isaiah and says the Scripture is fulfilled in their hearing. He identifies Himself with God’s promised deliverance, then confronts the expectations and unbelief around Him.'],['formation','Faithfulness amid rejection','The crowd turns against Jesus. His rejection reveals how people can resist God’s work when it challenges their assumptions.']],action:'Where might your expectations keep you from receiving what Jesus actually says?'},
+ 'Matthew 12:22–37':{cards:[['revelation','The Kingdom confronts evil','Jesus’ deliverance of a man provokes accusations from the Pharisees. He responds by explaining the significance of His authority and the arrival of God’s Kingdom. His confrontation also exposes serious unbelief.']],action:'Take Jesus’ warning about the heart and its fruit seriously. What does your speech reveal?'},
+ 'Matthew 23:1–39':{cards:[['revelation','Prophetic judgment','Jesus exposes hypocrisy and pronounces woes upon the scribes and Pharisees. These are weighty prophetic words directed at Israel’s leaders, not a script for disciples to pronounce the same judgments on others.']],action:'Examine your own heart for the gap between public religion and private obedience.'},
+ 'Mark 15:33–39':{cards:[['revelation','The crucified Son of God','As Jesus dies, darkness covers the land and the temple curtain is torn. The centurion confesses Jesus as God’s Son. His death is central to His unique saving mission, not a reproducible leadership step.']],action:'Give thanks for what Jesus alone accomplished through His death.'}
+};
+// The first 30 days have passage-specific editorial copy; later readings remain
+// neutral observation prompts until individually authored and reviewed.
+Object.assign(insightLibrary,window.OBEY_SOS_FIRST30||{});
+const lensMeta={
+ revelation:{label:'REVELATION',path:'<circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/><path d="M8 3h8"/>'},
+ formation:{label:'FORMATION',path:'<path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"/><path d="m9 12 2 2 4-4"/>'},
+ multiplication:{label:'MULTIPLICATION',path:'<circle cx="7" cy="8" r="3"/><circle cx="17" cy="8" r="3"/><path d="M1 20v-2a6 6 0 0 1 12 0v2"/><path d="M13 14a6 6 0 0 1 10 4v2"/>'},
+ observe:{label:'OBSERVE',path:'<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>'}
 };
 function insightFor(r){
- const direct=curatedInsights[r[1]];
- if(direct)return {body:direct[0],action:direct[1]};
- const label={IDENTIFY:'Identify',EQUIP:'Equip',INVEST:'Invest',ENTRUST:'Entrust'}[r[3]]||'Follow';
- const context=r[4]||'What does this reveal about Jesus and His mission?';
- return {body:'Today’s reading: '+r[0]+'. '+context+' As you read, notice what the passage actually shows about faith, obedience, and the mission of Jesus. The '+label.toLowerCase()+' pattern is a lens for observation, not a claim that every detail describes a leadership-development technique.',action:'Choose one response grounded in this passage and put it into practice today.'};
+ const direct=insightLibrary[r[1]];
+ if(direct)return direct;
+ // Do not manufacture a theological conclusion from a title or the broad plan phase.
+ // Unauthored entries remain neutral reading questions until reviewed.
+ return {cards:[['observe','Look closely at the passage','Read the Scripture slowly. What does it reveal about God, Jesus, and the people involved? Notice any commands, promises, challenges to faith, or responses to the Kingdom. Do not assume everything Jesus does is an example we are meant to reproduce.']],action:r[4]||'What is one truth you can say, obey, or share from today’s passage?',pending:true};
+}
+function renderInsight(r){
+ const data=insightFor(r),container=$('insight-cards');
+ container.replaceChildren();
+ for(const [type,title,body,pattern] of data.cards){
+  const meta=lensMeta[type]||lensMeta.observe;
+  const card=document.createElement('article');card.className='insight-card';card.dataset.lens=type;
+  const header=document.createElement('div');header.className='insight-card-header';
+  const icon=document.createElement('span');icon.className='insight-card-icon';icon.setAttribute('aria-hidden','true');
+  icon.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+meta.path+'</svg>';
+  const heads=document.createElement('div'),label=document.createElement('div'),heading=document.createElement('h3');
+  label.className='insight-card-category';label.textContent=meta.label;
+  heading.className='insight-card-title';heading.textContent=title;heads.append(label,heading);
+  header.append(icon,heads);
+  const p=document.createElement('p');p.textContent=body;card.append(header,p);
+  if(pattern){const span=document.createElement('span');span.className='insight-pattern';span.textContent=pattern;card.append(span)}
+  container.append(card);
+ }
+ $('insight-action').textContent=data.action;
+ $('insight-reference').textContent=r[1]+(data.pending?' · Reflection guide':'');
 }
 function render(){
  const i=state.day,r=readings[i],e=entry(),previous=i>0?entry(i-1):null;
- $('topday').textContent='Day '+(i+1);$('daytitle').textContent='Day '+(i+1);$('phase').textContent=r[3];
- $('phase-detail').textContent=({IDENTIFY:'Jesus calls and identifies disciples.',EQUIP:'Jesus teaches and forms his disciples.',INVEST:'Jesus gives his disciples real responsibility.',ENTRUST:'Jesus entrusts his mission to his disciples.'})[r[3]];
+ $('topday').textContent='Day '+(i+1);$('daytitle').textContent='Day '+(i+1);
  $('title').textContent=r[0];$('passage').textContent=r[1];$('reading-title').textContent=r[0];
- $('discovery').textContent=r[4];const insight=insightFor(r);$('insight-reference').textContent=r[1];$('insight-pattern').textContent=r[3];$('insight-body').textContent=insight.body;$('insight-action').textContent=insight.action;
+ $('discovery').textContent=r[4];renderInsight(r);
  const book=r[1].split(' ')[0];
  $('read-link').href='https://ebible.org/engwebu/'+(bookFiles[book]||'MAT')+'.htm';
  $('read-link').textContent='Read '+r[1]+' in WEB Updated ↗';
@@ -517,10 +576,10 @@ function move(n){clearTimeout(draftTimer);if(!$('sos-panel').hidden)save(true);s
 
 $('open-reading').addEventListener('click',()=>changePanel('reading'));
 $('open-insight').addEventListener('click',()=>changePanel('insight'));
-$('mark-insight').addEventListener('click',()=>{const e=entry();e.insight=true;state.entries[state.day]=e;if(persist()){render();changePanel('insight')}});
+$('mark-insight').addEventListener('click',()=>{const e=entry();e.insight=true;state.entries[state.day]=e;if(persist()){render();changePanel('sos')}});
 $('open-sos').addEventListener('click',()=>changePanel('sos'));
 $('start').addEventListener('click',()=>changePanel(!$('sos-panel').hidden?'reading':!$('insight-panel').hidden?'sos':'insight'));
-$('mark-read').addEventListener('click',()=>{if(!$('sos-panel').hidden)save(true);const e=entry();e.read=true;state.entries[state.day]=e;if(persist()){render();changePanel('sos')}});
+$('mark-read').addEventListener('click',()=>{if(!$('sos-panel').hidden)save(true);const e=entry();e.read=true;state.entries[state.day]=e;if(persist()){render();changePanel('insight')}});
 $('save').addEventListener('click',()=>save());
 let draftTimer;
 for(const key of ['say','obey','share']){
