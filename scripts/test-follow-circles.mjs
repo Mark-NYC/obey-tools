@@ -2,7 +2,7 @@
 // Static safeguards. These do not replace database RLS tests or browser E2E.
 import {readFileSync} from 'node:fs';
 import {strict as assert} from 'node:assert';
-import {Script, SourceTextModule} from 'node:vm';
+import {Script} from 'node:vm';
 const html=readFileSync('follow-circles.html','utf8');
 const js=readFileSync('follow-circles.js','utf8');
 const css=readFileSync('follow-circles.css','utf8');
@@ -17,7 +17,7 @@ assert(js.includes("follow_circle_new_invite"),'missing member invitations');
 assert(js.includes("renderTargets"),'missing explicit multi-circle selection');
 assert(js.includes("follow_circle_progress"),'missing approved progress read');
 assert(js.includes("status("),'missing error/status feedback');
-assert(!js.includes("sos_daily_progress").valueOf(),'client must not read private SOS rows for group progress');
+assert(!js.includes("sos_daily_progress"),'client must not read private SOS rows for group progress');
 assert(!html.includes('SOS journal preview'),'no private journal previews');
 assert(sos.includes('/follow-circles.html?day='),'SOS optional Circle entry point missing');
 assert((migration.match(/enable row level security/g)||[]).length>=7,'all tables must have RLS');
