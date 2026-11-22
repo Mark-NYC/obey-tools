@@ -13,8 +13,8 @@ header{display:flex;justify-content:space-between;align-items:center;padding:20p
 .headline{text-align:center}.headline strong{display:block;font-size:23px;letter-spacing:-.6px}.headline small{display:block;font-size:14px;color:#8e8e93}
 .brand{margin:15px 18px 24px;padding:28px 18px 30px;border-radius:16px;background:var(--ot-nav-green-deep);color:white;text-align:center}
 .brand span{font:30px/1 "Bebas Neue",Impact,sans-serif;letter-spacing:1px}.brand h1{font:56px/.95 "Bebas Neue",Impact,sans-serif;letter-spacing:2px;margin:10px 0 8px}.brand p{margin:0;font-size:13px;font-weight:600}
-.days{display:flex;gap:8px;min-width:0;max-width:100%;overflow-x:auto;overflow-y:hidden;padding:2px 18px 12px;scrollbar-width:thin;scrollbar-color:#b8cbbf transparent;scroll-snap-type:x proximity;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;touch-action:pan-x pan-y}.days::-webkit-scrollbar{height:5px}.days::-webkit-scrollbar-thumb{background:#b8cbbf;border-radius:6px}
-.day{position:relative;flex:0 0 88px;scroll-snap-align:center;min-height:79px;padding:11px 8px 9px;border:2px solid transparent;border-radius:10px;background:#f2f2f4;color:#1c1c1e}
+.days{display:flex;gap:8px;min-width:0;max-width:100%;overflow-x:auto;overflow-y:hidden;padding:2px 18px 12px;scrollbar-width:thin;scrollbar-color:#b8cbbf transparent;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;touch-action:pan-x pan-y}.days::-webkit-scrollbar{height:5px}.days::-webkit-scrollbar-thumb{background:#b8cbbf;border-radius:6px}
+.day{position:relative;flex:0 0 88px;min-height:79px;padding:11px 8px 9px;border:2px solid transparent;border-radius:10px;background:#f2f2f4;color:#1c1c1e}
 .day b{display:block;font-size:23px}.day small{font-size:11px;color:#777}.day[aria-current=true]{background:#fff;border-color:#1c1c1e}.day .tick{position:absolute;top:5px;right:7px;color:#00875f;font-size:12px}
 .content{padding:17px 20px}.row{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .daytitle{margin:0;font-size:29px;letter-spacing:-1px}.pill{font-size:11px;font-weight:800;letter-spacing:.03em;border-radius:99px;padding:5px 10px;background:#e2f5ec;color:#00754a}
@@ -175,13 +175,6 @@ body{padding:0;background:#f8f8f8}
 .sos-sync button:disabled{opacity:.6;cursor:wait}
 @media(max-width:520px){.sos-sync .sync-row{flex-direction:column}.sos-sync input,.sos-sync button{width:100%}}
 
-.day-jump{display:flex;align-items:center;justify-content:space-between;gap:8px;max-width:760px;width:calc(100% - 36px);margin:0 auto 5px;padding:2px 0 7px}
-.day-jump label{font-size:12px;font-weight:700;color:#59635e;white-space:nowrap}
-.day-jump select{flex:1;min-width:80px;max-width:230px;padding:8px;border:1px solid #d0ddd4;border-radius:8px;background:#fff;color:#183528;font-size:13px}
-.day-jump button{width:auto!important;min-width:73px;border:1px solid #d0ddd4;border-radius:8px;padding:9px;background:#fff;color:#16472f;font-size:12px;font-weight:700}
-.day-jump button:disabled{opacity:.45;cursor:default}
-@media(max-width:450px){.day-jump label{display:none}.day-jump button{min-width:64px;padding:9px 6px}}
-@media(min-width:1100px){.day-jump{grid-column:2;grid-row:4;max-width:none;width:100%;margin:0 0 5px;align-self:start}.shell>.content{grid-row:5}.desktop-nav,.desktop-aside{grid-row:2/6}}
 /* Keep the original horizontally scrolling 365-day navigation visible on all screens. */
 .days{position:relative}
 .days .day{cursor:pointer}
@@ -195,11 +188,6 @@ body{padding:0;background:#f8f8f8}
 <a href="/">⌂ &nbsp; Home</a>
 <a href="/follow-daily/">◈ &nbsp; Follow Daily</a><a href="/daily-sos.html" aria-current="page">▣ &nbsp; Following Jesus’ Way</a><a href="/commands-of-christ.html">✓ &nbsp; Commands of Christ</a><a href="/4-questions.html">◯ &nbsp; 4 Questions</a></nav><div class="brand"><span>OBEY.TOOLS</span><h1>FOLLOWING JESUS’ WAY</h1><p>ABIDE IN JESUS · SAY, OBEY, SHARE</p></div>
 <nav id="days" class="days" aria-label="Reading days"></nav>
-<div class="day-jump" aria-label="Find a reading">
-<button type="button" id="previous-day" aria-label="Previous day">‹ Previous</button>
-<label for="jump-day">Go to day</label><select id="jump-day" aria-label="Jump to a reading day"></select>
-<button type="button" id="next-day" aria-label="Next day">Next ›</button>
-</div>
 <main class="content">
 <div class="row"><h2 class="daytitle" id="daytitle">Day 1</h2><span class="pill" id="phase">IDENTIFY</span></div>
 <p class="section-note" id="phase-detail"></p>
@@ -407,8 +395,6 @@ function render(){
  $('sos-draft-note').hidden=sosComplete||!(e.say||e.obey||e.share);$('mark-read').textContent=e.read?'Reading completed ✓':'Mark Scripture as read';
  $('previous').hidden=!previous?.obey;
  if(previous?.obey){$('previous-obey').textContent=previous.obey;document.querySelectorAll('[data-check]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.check===previous.check)))}
- $('jump-day').value=String(i);
- $('previous-day').disabled=i===0;$('next-day').disabled=i===readings.length-1;
  $('days').replaceChildren();
  for(let n=0;n<readings.length;n++){
   const b=document.createElement('button');b.type='button';b.className='day';b.setAttribute('aria-current',String(i===n));b.setAttribute('aria-label','Day '+(n+1));b.innerHTML='<b>'+(n+1)+'</b><small>Day '+(n+1)+'</small>';
@@ -416,7 +402,11 @@ function render(){
   b.addEventListener('click',()=>move(n));$('days').appendChild(b)
  }
  const activeDay=$('days').children[i];
- if(activeDay){const track=$('days');const center=()=>{const box=track.getBoundingClientRect(),active=activeDay.getBoundingClientRect();track.scrollLeft+=(active.left-box.left)-(track.clientWidth-activeDay.clientWidth)/2;};center();requestAnimationFrame(center);}
+ if(activeDay){
+  const track=$('days');
+  const center=()=>{const position=activeDay.offsetLeft-track.offsetLeft-(track.clientWidth-activeDay.offsetWidth)/2;track.scrollLeft=Math.max(0,position)};
+  center();requestAnimationFrame(center);
+ }
  const finished=Object.values(state.entries).filter(x=>x.read&&x.say&&x.obey&&x.share).length;
  $('progress').textContent=finished+' of '+readings.length+' days completed';
  $('status').textContent='';
@@ -440,12 +430,6 @@ function save(silent=false){
 }
 function renderAfterSave(){const e=entry(),done=!!(e.say&&e.obey&&e.share),partial=!done&&!!(e.say||e.obey||e.share);const check=$('sos-check');check.classList.toggle('done',done);check.classList.toggle('draft',partial);check.textContent=done?'✓':'';$('sos-draft-note').hidden=!partial;$('progress').textContent=Object.values(state.entries).filter(x=>x.read&&x.say&&x.obey&&x.share).length+' of '+readings.length+' days completed'}
 function move(n){clearTimeout(draftTimer);if(!$('sos-panel').hidden)save(true);state.day=Math.max(0,Math.min(readings.length-1,n));persist();render();$('reading-panel').hidden=false;$('sos-panel').hidden=true;$('start').textContent='Open SOS ↑';window.scrollTo({top:0,behavior:'smooth'})}
-for(let day=0;day<readings.length;day++){
- const option=document.createElement('option');option.value=String(day);option.textContent='Day '+(day+1)+' · '+readings[day][1];$('jump-day').append(option)
-}
-$('jump-day').addEventListener('change',e=>move(Number(e.target.value)));
-$('previous-day').addEventListener('click',()=>move(state.day-1));
-$('next-day').addEventListener('click',()=>move(state.day+1));
 
 $('open-reading').addEventListener('click',()=>changePanel('reading'));
 $('open-sos').addEventListener('click',()=>changePanel('sos'));
