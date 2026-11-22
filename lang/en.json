@@ -758,7 +758,11 @@
     "ob_start_tracking": "Start tracking",
     "ob_empty_hint_casual": "Start by adding one person you connected with this week.",
     "first_in_country": "🌍 You're the first on the map in {place}!",
-    "first_in_city": "📍 You're the first on the map in {place}!"
+    "first_in_city": "📍 You're the first on the map in {place}!",
+    "choose_box_title": "Where is the conversation right now?",
+    "move_to": "Move to {stage}",
+    "move_back_to": "Back to {stage}",
+    "remove_btn": "Remove"
   },
   "how_were_doing": {
     "title": "How We're Doing",

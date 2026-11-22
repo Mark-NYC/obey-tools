@@ -758,7 +758,11 @@
     "ob_start_tracking": "پیش رفت لکھنا شروع کریں",
     "ob_empty_hint_casual": "اس ہفتے جس ایک شخص سے بات ہوئی اسے شامل کریں۔",
     "first_in_country": "🌍 {place} میں نقشے پر آپ پہلے ہیں!",
-    "first_in_city": "📍 {place} میں نقشے پر آپ پہلے ہیں!"
+    "first_in_city": "📍 {place} میں نقشے پر آپ پہلے ہیں!",
+    "choose_box_title": "گفتگو اس وقت کس مرحلے پر ہے؟",
+    "move_to": "{stage} میں منتقل کریں",
+    "move_back_to": "واپس {stage} میں",
+    "remove_btn": "ہٹائیں"
   },
   "how_were_doing": {
     "title": "ہماری پیش رفت",

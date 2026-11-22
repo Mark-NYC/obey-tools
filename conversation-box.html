@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <!-- Google tag (gtag.js) -->
@@ -37,247 +38,320 @@
       initAccountOverlay();
     </script>
     <style>
+        /* Conversation Box — calm, single-purpose layout.
+           Stages read in order 1 → 4. On phones they stack; from 768px they
+           form the clockwise quadrant (1 Casual, 2 Meaningful, 3 Spiritual,
+           4 Discovery). Brand tokens come from /buttons.css. */
+        :root { --cb-ink: #1c1c1e; --cb-muted: #6e6e73; --cb-faint: #8e8e93; --cb-line: #e5e5ea; --cb-bg: #f7f7f8; --cb-green: #00a468; --cb-green-ink: #00653f; --cb-green-tint: #e8f6ef; --cb-gold: #fcb900; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif; background: #f2f2f7; min-height: 100vh; color: #000; line-height: 1.4; }
-        .container { max-width: 430px; margin: 0 auto; background: #fff; min-height: 100vh; }
-        .btn { flex: 1; padding: 11px 16px; border: none; border-radius: var(--ot-radius); font-weight: 700; font-size: 15px; cursor: pointer; transition: all 0.2s ease; }
-        .btn-primary { background: var(--ot-accent); color: var(--ot-accent-ink); }
-        .btn-primary:active { background: var(--ot-accent-press); transform: scale(0.98); }
-        .btn-secondary { background: var(--ot-secondary); color: var(--ot-secondary-ink); }
-        .btn-secondary:active { background: var(--ot-secondary-press); transform: scale(0.98); }
-        .btn-share { background: var(--ot-secondary); color: var(--ot-secondary-ink); }
-        .btn-share:active { background: var(--ot-secondary-press); transform: scale(0.98); }
-        /* Post-grid actions: Reset, Share, View Map */
-        .post-grid-actions { padding: 8px 16px 20px; background: #f2f2f7; display: flex; flex-direction: column; align-items: center; gap: 10px; }
-        .action-row { width: 100%; max-width: 420px; display: flex; gap: 10px; }
-        .action-row .btn { flex: 1; }
-        .view-map-row { width: 100%; max-width: 420px; }
-        .btn-view-map { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; padding: 11px 16px; border: 1px solid #c6c6c8; border-radius: var(--ot-radius); background: var(--ot-secondary); color: var(--ot-secondary-ink); font-weight: 700; font-size: 15px; text-decoration: none; cursor: pointer; transition: all 0.2s ease; min-height: 44px; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif; }
-        .btn-view-map:active { background: #e5e5ea; transform: scale(0.98); }
-        .btn-how-it-works { border: none; background: transparent; color: #8e8e93; font-size: 13px; font-weight: 500; cursor: pointer; padding: 6px 0; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif; }
-        .btn-how-it-works:active { color: #3a3a3c; }
-        .conversation-grid { padding: 20px 16px; display: flex; flex-direction: column; gap: 16px; }
-        .conversation-box { background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .box-header { padding: 16px; border-bottom: 0.5px solid #c6c6c8; background: #fff; position: relative; }
-        .box-title { font-size: 20px; font-weight: 900; text-align: center; letter-spacing: -0.5px; color: #8e8e93; text-transform: uppercase; }
-        .conversation-list { min-height: 120px; }
-        .conversation-item { display: flex; justify-content: space-between; align-items: center; padding: 16px; border-bottom: 0.5px solid #c6c6c8; background: #fff; transition: background-color 0.2s ease; }
+        html { -webkit-text-size-adjust: 100%; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif; background: var(--cb-bg); min-height: 100vh; color: var(--cb-ink); line-height: 1.4; }
+        button, input, textarea { font-family: inherit; }
+        button { color: inherit; }
+        :focus-visible { outline: 3px solid var(--ot-focus, #007aff); outline-offset: 2px; }
+        [hidden] { display: none !important; }
+        .tc { display: inline-block; text-transform: lowercase; }
+        .tc::first-letter { text-transform: uppercase; }
+        svg.ic { width: 18px; height: 18px; flex-shrink: 0; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+        /* ── Page header ── */
+        .cb-top { max-width: 960px; margin: 0 auto; padding: max(16px, env(safe-area-inset-top)) 72px 0 16px; min-height: 58px; display: flex; align-items: center; }
+        .cb-home { display: inline-flex; align-items: center; gap: 4px; min-height: 42px; padding: 0 16px 0 12px; border-radius: 999px; background: #000; color: #fff; font-weight: 700; font-size: 15px; text-decoration: none; }
+        .cb-home svg.ic { width: 16px; height: 16px; }
+        .cb-head { max-width: 960px; margin: 0 auto; padding: 18px 16px 4px; }
+        .cb-head h1 { font: 40px/1 'Bebas Neue', Impact, sans-serif; letter-spacing: .5px; font-weight: 400; }
+        .explainer { margin-top: 6px; color: var(--cb-muted); font-size: 15px; line-height: 1.45; max-width: 520px; }
+
+        /* ── Stage overview (phones): sequence + counts + jump links ── */
+        .stage-strip.is-hidden { display: none; }
+        .stage-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; padding: 14px 16px 2px; list-style: none; }
+        .stage-strip button { width: 100%; min-height: 56px; border: 1px solid var(--cb-line); border-radius: 12px; background: #fff; padding: 7px 4px 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; cursor: pointer; position: relative; }
+        .stage-strip button:active { background: #f2f2f4; }
+        .strip-count { font-size: 19px; font-weight: 750; line-height: 1.1; font-variant-numeric: tabular-nums; }
+        .strip-label { font-size: 11px; font-weight: 600; color: var(--cb-muted); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0 2px; }
+        .stage-strip li + li button::before { content: ''; position: absolute; inset-inline-start: -6px; top: 50%; width: 6px; height: 1px; background: #c7c7cc; }
+        .stage-strip .has-people .strip-count { color: var(--cb-green-ink); }
+        .stage-strip .is-empty .strip-count { color: #aeaeb2; }
+
+        /* ── Board ── */
+        .container { max-width: 960px; margin: 0 auto; display: flex; flex-direction: column; }
+        .content-wrapper { padding-bottom: calc(96px + env(safe-area-inset-bottom)); }
+        .conversation-grid { padding: 14px 16px 8px; display: flex; flex-direction: column; gap: 0; }
+        .conversation-box { background: #fff; border: 1px solid var(--cb-line); border-radius: 14px; overflow: hidden; scroll-margin-top: 12px; }
+        .box-header { display: flex; align-items: center; gap: 10px; padding: 12px 16px; position: relative; }
+        .stage-num { width: 24px; height: 24px; border-radius: 50%; background: var(--cb-ink); color: #fff; font-size: 12px; font-weight: 750; display: grid; place-items: center; flex-shrink: 0; }
+        .conversation-box.is-empty .stage-num { background: #d1d1d6; }
+        .box-title { font-size: 17px; font-weight: 700; letter-spacing: -.01em; flex: 1; min-width: 0; }
+        .box-count { font-size: 13px; font-weight: 650; color: var(--cb-muted); font-variant-numeric: tabular-nums; }
+        .share-indicator { display: none; width: 8px; height: 8px; border-radius: 50%; background: var(--cb-gold); flex-shrink: 0; }
+        .conversation-list { border-top: 1px solid var(--cb-line); }
+        .conversation-box.is-empty .conversation-list { border-top: none; }
+        .conversation-item { display: flex; align-items: center; gap: 10px; padding: 4px 8px 4px 0; border-bottom: 1px solid #f0f0f2; }
         .conversation-item:last-child { border-bottom: none; }
-        .conversation-item:active { background: #f2f2f7; }
-        .conversation-name { font-size: 17px; font-weight: 500; color: #000; display: flex; align-items: center; gap: 8px; cursor: pointer; }
-        .color-circle { width: 20px; height: 20px; border-radius: 50%; display: inline-block; }
-        .conversation-actions { display: flex; gap: 12px; }
-        .action-btn { width: 28px; height: 28px; border: none; border-radius: 14px; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; }
-        .action-btn:active { transform: scale(0.9); }
-        .move-btn { background: #6e6e73; color: white; }
-        .back-btn { background: #8e8e93; color: white; }
-        .delete-btn { background: #ff3b30; color: white; }
-        .down-btn { background: #6e6e73; color: white; }
-        .empty-state { padding: 32px 16px; text-align: center; color: #8e8e93; font-size: 15px; }
-        .add-person-section { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 430px; background: #fff; border-top: 0.5px solid #c6c6c8; padding: 16px; padding-bottom: calc(16px + env(safe-area-inset-bottom)); }
-        .add-person-input { display: flex; gap: 8px; }
-        .add-person-input input { flex: 1; padding: 11px 16px; border: 1px solid #c6c6c8; border-radius: 8px; font-size: 17px; background: #f2f2f7; outline: none; }
-        .add-person-input input:focus { border-color: #3a3a3c; background: #fff; }
-        .share-indicator { position: absolute; top: 16px; right: 16px; width: 8px; height: 8px; background: #ff3b30; border-radius: 4px; }
-        .content-wrapper { padding-bottom: 120px; }
-        .name-prompt, .edit-name-prompt, .box-selection-prompt, .share-popup, .tutorial-popup, .reset-prompt { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); z-index: 1000; display: none; flex-direction: column; gap: 12px; width: 90%; max-width: 300px; }
-        .tutorial-popup { max-width: 400px; text-align: left; }
-        .tutorial-popup h3 { font-size: 18px; font-weight: 600; margin-bottom: 16px; text-align: center; }
-        .tutorial-popup ol { margin-left: 20px; margin-bottom: 16px; }
-        .tutorial-popup li { margin-bottom: 8px; line-height: 1.4; }
-        .name-prompt input, .edit-name-prompt input { padding: 10px; border: 1px solid #c6c6c8; border-radius: 8px; font-size: 16px; outline: none; }
-        .name-prompt input:focus, .edit-name-prompt input:focus { border-color: #3a3a3c; }
-        .name-prompt button, .edit-name-prompt button, .reset-prompt button { padding: 10px; border: none; border-radius: 8px; background: #3a3a3c; color: white; font-weight: 600; cursor: pointer; }
-        .name-prompt button:active, .edit-name-prompt button:active, .reset-prompt button:active { background: #2c2c2e; }
-        .box-selection-prompt .option { display: flex; align-items: center; justify-content: center; padding: 16px; border-bottom: 1px solid #f2f2f7; cursor: pointer; background: #fff; transition: background 0.2s; font-size: 16px; font-weight: 500; text-transform: capitalize; }
-        .box-selection-prompt .option:last-child { border-bottom: none; }
-        .box-selection-prompt .option:active { background: #f2f2f7; }
-        .move-prompt { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff; padding: 0; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); z-index: 1000; display: none; flex-direction: column; width: 90%; max-width: 300px; overflow: hidden; }
-        .move-prompt-header { display: flex; justify-content: flex-end; align-items: center; padding: 4px 6px; border-bottom: 1px solid #f2f2f7; }
-        .box-selection-prompt .prompt-close-row { display: flex; justify-content: flex-end; margin: -12px -8px -6px; }
-        .prompt-close { width: 32px; height: 32px; border: none; background: transparent; color: #8e8e93; font-size: 24px; line-height: 1; cursor: pointer; padding: 0; display: flex; align-items: center; justify-content: center; }
-        .prompt-close:active { color: #3a3a3c; }
-        .option { display: flex; align-items: center; justify-content: space-between; padding: 16px; border-bottom: 1px solid #f2f2f7; cursor: pointer; background: #fff; transition: background 0.2s; }
-        .option:last-child { border-bottom: none; }
-        .option:active { background: #f2f2f7; }
-        .option .color-circle { width: 20px; height: 20px; border-radius: 50%; }
-        .option span:nth-child(2) { flex: 1; margin-left: 12px; font-size: 16px; }
-        .option .plus { font-size: 24px; color: #8e8e93; }
+        .conversation-name { flex: 1; min-width: 0; min-height: 52px; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 1px; padding: 6px 4px 6px 16px; border: none; background: none; text-align: start; cursor: pointer; border-radius: 10px; }
+        .conversation-name:active { background: #f4f4f6; }
+        .name-line { display: flex; align-items: center; gap: 8px; max-width: 100%; font-size: 17px; font-weight: 550; color: var(--cb-ink); }
+        .name-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .name-sub { font-size: 13px; color: var(--cb-muted); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .color-circle { width: 12px; height: 12px; border-radius: 50%; display: inline-block; flex-shrink: 0; box-shadow: inset 0 0 0 1px rgba(0,0,0,.12); }
+        .details-dot { width: 6px; height: 6px; border-radius: 50%; background: #aeaeb2; display: inline-block; flex-shrink: 0; }
+        .conversation-actions { display: flex; flex-shrink: 0; }
+        .action-btn { min-height: 40px; display: inline-flex; align-items: center; gap: 4px; padding: 0 10px 0 12px; border: none; border-radius: 999px; background: var(--cb-green-tint); color: var(--cb-green-ink); font-size: 13px; font-weight: 700; cursor: pointer; max-width: 132px; }
+        .action-btn span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .action-btn svg.ic { width: 16px; height: 16px; }
+        [dir="rtl"] .flip { transform: scaleX(-1); }
+        /* Direction of travel. Phones: the stages stack, so people move down.
+           From 768px: clockwise around the quadrant (→ ↓ ←), ending in Discovery. */
+        .move-btn svg.ic, .flow-arrow svg.ic { transform: rotate(90deg); }
+        .flow-arrow { display: flex; justify-content: center; align-items: center; height: 30px; color: #aeaeb2; }
+        .flow-arrow svg.ic { width: 20px; height: 20px; }
+        .action-btn:active { background: #d4eee1; transform: scale(.97); }
+        .empty-state { padding: 0 16px 14px 50px; color: var(--cb-faint); font-size: 14px; }
+        .empty-state.first-run { color: var(--cb-ink); font-size: 15px; padding-top: 2px; }
+
+        /* ── Secondary actions ── */
+        .post-grid-actions { padding: 10px 16px 24px; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+        .action-row { width: 100%; max-width: 420px; display: flex; gap: 10px; }
+        .btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 46px; padding: 0 16px; border: none; border-radius: var(--ot-radius, 12px); font-weight: 700; font-size: 15px; cursor: pointer; text-decoration: none; transition: background .12s ease, transform .12s ease; }
+        .action-row .btn { flex: 1; }
+        .btn-primary { background: var(--ot-primary); color: var(--ot-primary-ink); }
+        .btn-primary:active { background: var(--ot-primary-press); transform: scale(.98); }
+        .btn-secondary, .btn-share, .btn-view-map { background: #fff; color: var(--cb-ink); box-shadow: inset 0 0 0 1px var(--cb-line); }
+        .btn-secondary:active, .btn-share:active, .btn-view-map:active { background: #f2f2f4; transform: scale(.98); }
+        .util-row { display: flex; align-items: center; justify-content: center; gap: 4px; }
+        .text-btn { min-height: 44px; padding: 0 12px; border: none; background: none; color: var(--cb-muted); font-size: 14px; font-weight: 600; cursor: pointer; border-radius: 8px; }
+        .text-btn:active { background: #ececef; }
+        .text-btn.danger { color: #c93a22; }
+        .util-sep { width: 3px; height: 3px; border-radius: 50%; background: #c7c7cc; }
+
+        /* ── Add a person (phones: thumb bar at the bottom) ── */
+        .add-person-section { position: fixed; bottom: 0; left: 0; right: 0; z-index: 50; background: rgba(255,255,255,.96); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); border-top: 1px solid var(--cb-line); padding: 10px 16px calc(10px + env(safe-area-inset-bottom)); }
+        .add-person-input { display: flex; gap: 8px; max-width: 928px; margin: 0 auto; }
+        .add-person-input input { flex: 1; min-width: 0; min-height: 48px; padding: 0 16px; border: 1px solid #d1d1d6; border-radius: 12px; font-size: 17px; background: #fff; color: var(--cb-ink); outline: none; }
+        .add-person-input input:focus { border-color: var(--cb-ink); box-shadow: 0 0 0 3px rgba(0,0,0,.06); }
+        .add-person-input .btn { min-height: 48px; min-width: 76px; }
+
+        /* ── Dialogs (shared look) ── */
+        .name-prompt, .edit-name-prompt, .box-selection-prompt, .move-prompt, .share-popup, .tutorial-popup, .remove-prompt, .reset-prompt {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1000; display: none; flex-direction: column; gap: 12px;
+            width: calc(100% - 32px); max-width: 360px; background: #fff; padding: 20px; border-radius: 18px;
+            box-shadow: 0 0 0 100vmax rgba(0,0,0,.38), 0 10px 30px rgba(0,0,0,.18); }
+        .dialog-title { font-size: 17px; font-weight: 700; line-height: 1.3; }
+        .dialog-sub { font-size: 14px; color: var(--cb-muted); margin-top: 4px; overflow-wrap: anywhere; }
+        .name-prompt input, .edit-name-prompt input { min-height: 46px; padding: 0 14px; border: 1px solid #d1d1d6; border-radius: 12px; font-size: 17px; outline: none; }
+        .name-prompt input:focus, .edit-name-prompt input:focus { border-color: var(--cb-ink); }
+        .name-prompt > button, .edit-name-prompt > button { min-height: 46px; border: none; border-radius: 12px; background: var(--ot-primary); color: #fff; font-size: 15px; font-weight: 700; cursor: pointer; }
+        .remove-prompt, .reset-prompt { flex-direction: row; flex-wrap: wrap; text-align: center; }
+        .remove-prompt h3, .reset-prompt h3 { flex-basis: 100%; font-size: 17px; font-weight: 700; margin: 4px 0 6px; }
+        .remove-prompt button, .reset-prompt button { flex: 1; min-height: 46px; border: none; border-radius: 12px; font-size: 15px; font-weight: 700; cursor: pointer; }
+        .yes-btn { background: var(--ot-danger); color: #fff; order: 2; }
+        .no-btn { background: var(--ot-secondary); color: var(--ot-secondary-ink); order: 1; }
+        .dialog-head { display: flex; align-items: flex-start; gap: 12px; }
+        .dialog-head > div { flex: 1; min-width: 0; }
+        .prompt-close { width: 36px; height: 36px; margin: -6px -8px 0 0; border: none; background: var(--ot-secondary); border-radius: 50%; color: var(--cb-ink); cursor: pointer; display: grid; place-items: center; flex-shrink: 0; }
+        .prompt-close svg.ic { width: 16px; height: 16px; }
+        .box-selection-prompt, .move-prompt { gap: 14px; padding-bottom: 14px; }
+        .option-list { display: flex; flex-direction: column; margin: 0 -8px; }
+        .option { display: flex; align-items: center; gap: 12px; min-height: 54px; padding: 0 12px; border: none; background: none; border-radius: 12px; cursor: pointer; font-size: 17px; font-weight: 600; text-align: start; width: 100%; }
+        .option:active, .option:hover { background: #f4f4f6; }
+        .option .stage-num { background: var(--cb-ink); }
+        .option .option-label { flex: 1; }
+        .option .chev { color: #c7c7cc; }
+        .option .color-circle { width: 16px; height: 16px; }
         .color-circle.red { background-color: #ff0000; }
         .color-circle.yellow { background-color: #ffd700; }
         .color-circle.lightgreen { background-color: #90ee90; }
         .color-circle.darkgreen { background-color: #228b22; }
-        .remove-prompt, .reset-prompt { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); z-index: 1000; display: none; flex-direction: column; gap: 12px; width: 90%; max-width: 300px; text-align: center; }
-        .remove-prompt button, .reset-prompt button { padding: 10px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; width: 100px; margin: 0 auto; }
-        .yes-btn { background: #ff3b30; color: white; }
-        .no-btn { background: #8e8e93; color: white; }
         .share-popup { text-align: center; }
-        .share-popup h3 { font-size: 18px; font-weight: 600; margin-bottom: 12px; }
-        .share-popup .app-icons { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; }
-        .share-popup .app-icon { width: 48px; height: 48px; border-radius: 12px; cursor: pointer; transition: transform 0.2s ease; position: relative; overflow: hidden; background-color: #f0f0f0; }
-        .share-popup .app-icon:active { transform: scale(0.95); }
-        .share-popup .app-icon::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; background-repeat: no-repeat; }
+        .share-popup h3 { font-size: 16px; font-weight: 600; line-height: 1.4; }
+        .share-popup .app-icons { display: flex; justify-content: center; gap: 18px; flex-wrap: wrap; margin: 4px 0; }
+        .share-popup .app-icon { width: 52px; height: 52px; border-radius: 13px; cursor: pointer; position: relative; overflow: hidden; background-color: #f0f0f0; margin: 0 auto; }
+        .share-popup .app-icon:active { transform: scale(.95); }
+        .share-popup .app-icon::before { content: ''; position: absolute; inset: 0; background-size: cover; background-position: center; }
         .share-popup .app-icon.messages::before { background-image: url('/assets/images/icons/Messages.webp'); }
         .share-popup .app-icon.whatsapp::before { background-image: url('/assets/images/icons/Whatsapp.webp'); }
         .share-popup .app-icon.signal::before { background-image: url('/assets/images/icons/Signal.webp'); }
-        .share-popup .app-label { font-size: 14px; margin-top: 8px; color: #3a3a3c; }
-        .share-popup .close-btn { padding: 10px; border: none; border-radius: 8px; background: #8e8e93; color: white; font-weight: 600; cursor: pointer; margin-top: 12px; }
-        .share-popup .close-btn:active { background: #6b6b70; }
-        @media (min-width: 768px) {
-            body { background: linear-gradient(180deg, #f7f7fa 0%, #efeff4 100%); }
-            .container { max-width: 900px; border-radius: 20px; margin: 0 auto 28px; box-shadow: 0 12px 34px rgba(0,0,0,0.08); overflow: hidden; display: flex; flex-direction: column; }
-            .auth-section { padding: 16px 28px 18px; background: #fff; border-bottom: 0.5px solid #e5e5ea; }
-            .conversation-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; padding: 26px 28px; background: #f7f7fa; }
-            .conversation-box { border-radius: 16px; box-shadow: 0 4px 14px rgba(0,0,0,0.06); }
-            .conversation-box.casual { order: 1; }
-            .conversation-box.meaningful { order: 2; }
-            .conversation-box.discovery { order: 3; }
-            .conversation-box.spiritual { order: 4; }
-            .box-header { padding: 18px 20px; }
-            .box-title { font-size: 18px; }
-            .content-wrapper { padding-bottom: 0; order: 1; }
-            .post-grid-actions { padding: 0 28px 28px; background: #f7f7fa; align-items: center; }
-            .action-row { max-width: 360px; }
-            .view-map-row { max-width: 360px; }
-            .add-person-section { position: static; transform: none; width: auto; max-width: none; border-top: 0.5px solid #e5e5ea; border-radius: 0; order: 2; padding: 20px 28px; }
-        }
-        .notification { position: fixed; top: 60px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.86); color: #fff; padding: 11px 15px; border-radius: 12px; font-size: 15px; font-weight: 650; z-index: 1000; opacity: 0; animation: notificationSlide 3s ease; }
-        @keyframes notificationSlide { 0% { opacity: 0; transform: translateX(-50%) translateY(-20px); } 10% { opacity: 1; transform: translateX(-50%) translateY(0); } 90% { opacity: 1; transform: translateX(-50%) translateY(0); } 100% { opacity: 0; transform: translateX(-50%) translateY(-20px); } }
-        .haptic-feedback { animation: haptic 0.1s ease; }
-        @keyframes haptic { 0% { transform: scale(1); } 50% { transform: scale(0.98); } 100% { transform: scale(1); } }
-        .sync-indicator { position: fixed; top: 10px; left: 10px; background: rgba(52, 199, 89, 0.9); color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; z-index: 9999; display: none; }
-        .sync-indicator.syncing { background: rgba(255, 149, 0, 0.9); display: block; }
-        .sync-indicator.synced { background: rgba(52, 199, 89, 0.9); display: block; }
-        /* Auth section */
-        .auth-section { padding: 12px 16px; background: #f2f2f7; border-bottom: 0.5px solid #c6c6c8; visibility: hidden; }
-        .auth-section input { width: 100%; padding: 10px 14px; border: 1px solid #c6c6c8; border-radius: 8px; font-size: 15px; background: #fff; outline: none; margin-bottom: 8px; font-family: inherit; }
-        .auth-section input:focus { border-color: #3a3a3c; }
-        .auth-buttons { display: flex; gap: 8px; margin-bottom: 0; }
-        .auth-buttons button { flex: 1; padding: 10px; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; }
-        .auth-btn-primary { background: #6e6e73; color: #fff; }
-        .auth-btn-secondary { background: #e5e5ea; color: #3a3a3c; }
+        .share-popup .app-label { font-size: 13px; margin-top: 6px; color: var(--cb-muted); }
+        .share-popup .close-btn { min-height: 46px; border: none; border-radius: 12px; background: var(--ot-secondary); color: var(--ot-secondary-ink); font-size: 15px; font-weight: 700; cursor: pointer; }
+        .tutorial-popup { max-width: 400px; }
+        .tutorial-popup h3 { font-size: 18px; font-weight: 700; }
+        .tutorial-popup ol { padding-inline-start: 20px; display: flex; flex-direction: column; gap: 8px; color: #3a3a3c; }
+        .tutorial-popup .btn { width: 100%; }
+
+        .notification { position: fixed; top: 70px; left: 50%; transform: translateX(-50%); width: max-content; max-width: calc(100% - 32px); background: rgba(28,28,30,.92); color: #fff; padding: 11px 15px; border-radius: 12px; font-size: 15px; font-weight: 600; z-index: 2100; opacity: 0; animation: notificationSlide 3s ease; text-align: center; }
+        @keyframes notificationSlide { 0% { opacity: 0; transform: translateX(-50%) translateY(-12px); } 10%, 90% { opacity: 1; transform: translateX(-50%) translateY(0); } 100% { opacity: 0; transform: translateX(-50%) translateY(-12px); } }
+        .haptic-feedback { animation: haptic .1s ease; }
+        @keyframes haptic { 50% { transform: scale(.98); } }
+        .sync-indicator { position: fixed; top: 10px; left: 10px; background: rgba(0,164,104,.92); color: #fff; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; z-index: 9999; display: none; }
+        .sync-indicator.syncing { background: rgba(28,28,30,.85); display: block; }
+        .sync-indicator.synced { display: block; }
+
+        /* Auth section: account-overlay.js turns it into the person-icon sheet. */
+        .auth-section { visibility: hidden; }
+        .auth-section input { width: 100%; padding: 10px 14px; border: 1px solid #d1d1d6; border-radius: 10px; font-size: 16px; background: #fff; outline: none; margin-bottom: 8px; }
+        .auth-buttons { display: flex; gap: 8px; }
+        .auth-buttons button { flex: 1; padding: 10px; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; }
+        .auth-btn-primary { background: var(--ot-primary); color: #fff; }
+        .auth-btn-secondary { background: var(--ot-secondary); color: var(--ot-secondary-ink); }
         .auth-status { display: flex; align-items: center; justify-content: space-between; }
-        .auth-status-text { font-size: 13px; color: #8e8e93; }
-        .auth-logout-btn { padding: 6px 14px; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; background: #e5e5ea; color: #3a3a3c; font-family: inherit; }
-        .auth-forgot-btn { display:block; width:100%; margin-top:6px; padding:6px; background:none; border:none; color:#8e8e93; font-size:13px; cursor:pointer; text-align:center; font-family:inherit; }
-        /* Collapsed auth banner — mobile only, logged-out state */
+        .auth-status-text { font-size: 13px; color: var(--cb-faint); }
+        .auth-logout-btn { padding: 6px 14px; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; background: var(--ot-secondary); color: var(--ot-secondary-ink); }
+        .auth-forgot-btn { display: block; width: 100%; margin-top: 6px; padding: 6px; background: none; border: none; color: var(--cb-faint); font-size: 13px; cursor: pointer; text-align: center; }
         #auth-collapsed { display: none; align-items: center; gap: 8px; }
-        .auth-collapsed-text { font-size: 13px; color: #8e8e93; flex: 1; }
-        .auth-collapsed-btn { padding: 6px 14px; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; background: #3a3a3c; color: #fff; font-family: inherit; flex-shrink: 0; }
+        .auth-collapsed-text { font-size: 13px; color: var(--cb-faint); flex: 1; }
+        .auth-collapsed-btn { padding: 6px 14px; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; background: var(--ot-primary); color: #fff; flex-shrink: 0; }
+
+        /* ── Phones: one-handed sheets for the stage pickers ── */
         @media (max-width: 767px) {
-            .auth-section input { font-size: 16px; }
-            .action-btn { width: 36px; height: 36px; border-radius: 18px; font-size: 16px; }
-            .btn { min-height: 44px; }
-            .conversation-grid { gap: 12px; }
-            .box-header { padding: 10px 16px; }
-            .conversation-item { padding: 10px 16px; }
-            .empty-state { padding: 16px; }
-            /* Phase B: visual hierarchy — secondary buttons smaller and lighter */
-            .back-btn { width: 32px; height: 32px; border-radius: 16px; font-size: 14px; opacity: 0.65; }
-            .delete-btn { width: 32px; height: 32px; border-radius: 16px; font-size: 14px; opacity: 0.55; }
-            .conversation-actions { gap: 12px; }
-            .conversation-name { flex: 1; min-width: 0; }
-            /* Phase C: collapsible sections on mobile */
-            .conversation-box.collapsed .conversation-list { display: none; }
-            .box-header { cursor: pointer; display: flex; align-items: center; justify-content: space-between; }
-            .box-title { font-size: 15px; font-weight: 600; text-transform: none; letter-spacing: 0; color: #3a3a3c; text-align: left; display: flex; align-items: center; flex-wrap: wrap; }
-            .box-label { font-weight: 600; }
-            .box-count { font-size: 12px; font-weight: 600; color: #8e8e93; background: #f2f2f7; padding: 2px 8px; border-radius: 10px; margin-left: 8px; }
-            .box-header::after { content: '▾'; font-size: 22px; color: #3a3a3c; flex-shrink: 0; margin-left: 8px; position: static; transform: none; top: auto; right: auto; }
-            .conversation-box.collapsed .box-header { background: #ebebeb; }
-            .conversation-box.collapsed .box-header::after { content: '▸'; color: #c6c6c8; }
-            .conversation-box.collapsed .box-count { background: #e5e5ea; }
-            .share-indicator { display: none; }
-            .auth-section { padding: 8px 16px; }
-            /* Stronger add-person bar on mobile */
-            .add-person-section { border-top: 2px solid #3a3a3c; box-shadow: 0 -4px 20px rgba(0,0,0,0.09); }
-            .add-person-input input { background: #fff; }
-            /* Logged-out mobile: show collapsed banner, hide form until expanded */
+            .box-selection-prompt, .move-prompt { top: auto; bottom: 0; left: 0; transform: none; width: 100%; max-width: none; border-radius: 20px 20px 0 0; padding: 18px 20px calc(14px + env(safe-area-inset-bottom)); }
             .auth-section.auth-logged-out:not(.auth-expanded) #auth-form { display: none !important; }
             .auth-section.auth-logged-out:not(.auth-expanded) #auth-collapsed { display: flex !important; }
             .auth-section.auth-expanded #auth-collapsed { display: none !important; }
-            /* Logged-in mobile: hide everything except status row */
-            .auth-section.auth-logged-in #auth-collapsed { display: none !important; }
-            .auth-section.auth-logged-in #auth-form { display: none !important; }
+            .auth-section.auth-logged-in #auth-collapsed, .auth-section.auth-logged-in #auth-form { display: none !important; }
             .auth-section.auth-logged-in #auth-status { display: flex !important; }
         }
+        @media (max-width: 359px) { .strip-label { font-size: 10px; } .action-btn { padding: 0 9px 0 10px; max-width: 112px; } }
+
+        /* ── Tablet and desktop: the clockwise quadrant ── */
+        @media (min-width: 768px) {
+            .cb-top { padding-left: 24px; padding-right: 80px; }
+            .cb-head { padding: 22px 24px 6px; }
+            .cb-head h1 { font-size: 52px; }
+            .explainer { font-size: 16px; }
+            .stage-strip { display: none !important; }
+            .share-indicator { display: block; }
+            .container { padding: 0 24px 40px; }
+            .content-wrapper { padding-bottom: 0; order: 1; }
+            .add-person-section { position: static; order: 0; background: none; -webkit-backdrop-filter: none; backdrop-filter: none; border: none; padding: 14px 0 4px; }
+            .add-person-input { max-width: 520px; margin: 0; }
+            .add-person-input .btn { min-width: 96px; }
+            /* Clockwise quadrant with a connector in each gap:
+               1 Casual → 2 Meaningful ↓ 3 Spiritual ← 4 Discovery */
+            #board { display: grid; grid-template-columns: minmax(0, 1fr) 40px minmax(0, 1fr); grid-template-rows: auto 40px auto; gap: 0; padding: 14px 0 8px; }
+            #board .conversation-box { min-height: 220px; }
+            #board .casual { grid-area: 1 / 1; }
+            #board .fa-1 { grid-area: 1 / 2; }
+            #board .meaningful { grid-area: 1 / 3; }
+            #board .fa-2 { grid-area: 2 / 3; }
+            #board .spiritual { grid-area: 3 / 3; }
+            #board .fa-3 { grid-area: 3 / 2; }
+            #board .discovery { grid-area: 3 / 1; }
+            .flow-arrow { height: auto; color: #8e8e93; }
+            .flow-arrow svg.ic { width: 22px; height: 22px; }
+            .fa-1 svg.ic, .casual .move-btn svg.ic { transform: none; }
+            .fa-2 svg.ic, .meaningful .move-btn svg.ic { transform: rotate(90deg); }
+            .fa-3 svg.ic, .spiritual .move-btn svg.ic { transform: rotate(180deg); }
+            [dir="rtl"] .fa-1 svg.ic, [dir="rtl"] .casual .move-btn svg.ic { transform: rotate(180deg); }
+            [dir="rtl"] .fa-3 svg.ic, [dir="rtl"] .spiritual .move-btn svg.ic { transform: none; }
+            .box-header { padding: 16px 18px 12px; }
+            .conversation-name:hover { background: #f7f7f8; }
+            .action-btn:hover { background: #d9f0e4; }
+            .btn-share:hover, .btn-view-map:hover, .text-btn:hover { background: #f2f2f4; }
+            .post-grid-actions { padding: 12px 0 0; }
+            .action-row { max-width: 400px; }
+        }
+        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition: none !important; scroll-behavior: auto !important; } }
+
         /* ── Onboarding ── */
-        .onboarding-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; display: none; align-items: center; justify-content: center; }
+        .onboarding-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 2000; display: none; align-items: center; justify-content: center; }
         .onboarding-overlay.visible { display: flex; }
-        .onboarding-card { background: #fff; border-radius: 16px; padding: 28px 24px 22px; width: 88%; max-width: 320px; display: flex; flex-direction: column; gap: 18px; }
+        .onboarding-card { background: #fff; border-radius: 20px; padding: 24px 22px 18px; width: calc(100% - 32px); max-width: 340px; display: flex; flex-direction: column; gap: 18px; }
         .onboarding-step { display: none; }
         .onboarding-step.active { display: block; }
-        .onboarding-step h3 { font-size: 17px; font-weight: 700; color: #000; margin-bottom: 8px; line-height: 1.3; }
+        .onboarding-step h3 { font-size: 18px; font-weight: 700; margin-bottom: 6px; line-height: 1.3; }
         .onboarding-step p { font-size: 15px; color: #3a3a3c; line-height: 1.5; }
         .onboarding-dots { display: flex; gap: 6px; justify-content: center; }
-        .onboarding-dot { width: 8px; height: 8px; border-radius: 4px; background: #c6c6c8; transition: background 0.2s; }
-        .onboarding-dot.active { background: #3a3a3c; }
+        .onboarding-dot { width: 7px; height: 7px; border-radius: 4px; background: #d1d1d6; transition: width .2s, background .2s; }
+        .onboarding-dot.active { background: var(--cb-ink); width: 18px; }
         .onboarding-actions { display: flex; gap: 8px; align-items: center; }
-        .onboarding-skip { padding: 10px 12px; border: none; background: transparent; color: #8e8e93; font-size: 15px; font-weight: 500; cursor: pointer; font-family: inherit; }
-        .onboarding-next { flex: 1; padding: 11px; border: none; border-radius: 8px; background: #3a3a3c; color: #fff; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; }
-        .onboarding-next:active { background: #2c2c2e; }
-        /* ── Onboarding visuals ── */
-        .ob-quad { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: 12px; }
-        .ob-quad-box { border: 1px solid #e5e5ea; border-radius: 7px; padding: 7px 8px 7px; min-height: 46px; }
-        .ob-quad-label { font-size: 9px; font-weight: 700; color: #8e8e93; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 5px; line-height: 1; }
-        .ob-chip-row { display: flex; align-items: center; gap: 3px; background: #f2f2f7; border-radius: 4px; padding: 3px 3px 3px 6px; margin-bottom: 3px; }
-        .ob-chip-name { flex: 1; font-size: 11px; font-weight: 500; color: #3a3a3c; }
+        .onboarding-skip { min-height: 46px; padding: 0 12px; border: none; background: transparent; color: var(--cb-muted); font-size: 15px; font-weight: 600; cursor: pointer; }
+        .onboarding-next { flex: 1; min-height: 46px; border: none; border-radius: 12px; background: var(--ot-primary); color: #fff; font-size: 15px; font-weight: 700; cursor: pointer; }
+        .onboarding-next:active { background: var(--ot-primary-press); }
+        .ob-quad { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 14px; }
+        .ob-quad-box { border: 1px solid var(--cb-line); border-radius: 10px; padding: 8px; min-height: 50px; }
+        .ob-quad-label { font-size: 10px; font-weight: 700; color: var(--cb-muted); text-transform: uppercase; letter-spacing: .4px; margin-bottom: 5px; line-height: 1; }
+        .ob-chip-row { display: flex; align-items: center; gap: 3px; background: #f2f2f4; border-radius: 6px; padding: 4px 4px 4px 7px; margin-bottom: 3px; }
+        .ob-chip-name { flex: 1; font-size: 11px; font-weight: 600; color: #3a3a3c; }
         .ob-mini-btn { width: 15px; height: 15px; border-radius: 50%; border: none; font-size: 9px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; cursor: default; line-height: 1; }
-        .ob-mini-move { background: var(--ot-accent); color: #fff; }
-        .ob-mini-del { background: #ff3b30; color: #fff; }
-        .ob-quad-discovery .ob-chip-row { background: #d4f5d4; }
-        .ob-quad-discovery .ob-chip-name { color: #1e6b1e; }
-        .ob-cw-hint { font-size: 10px; color: #8e8e93; text-align: center; margin-bottom: 5px; }
-        .ob-quad-safe .ob-chip-row { background: #e8f0fe; }
-        .ob-quad-safe .ob-chip-name { color: #1a4fa0; font-weight: 700; }
-        /* Step 2 animation — chips hidden until animated in */
-        .ob-anim-chip { opacity: 0; background: var(--ot-accent); }
+        .ob-mini-move { background: var(--cb-green-tint); color: var(--cb-green-ink); }
+        .ob-mini-del { display: none; }
+        .ob-quad-discovery .ob-chip-row { background: var(--cb-green-tint); }
+        .ob-quad-discovery .ob-chip-name { color: var(--cb-green-ink); }
+        .ob-cw-hint { display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 11px; font-weight: 600; color: var(--cb-muted); text-align: center; margin-bottom: 7px; }
+        .ob-cw-hint svg.ic { width: 13px; height: 13px; }
+        .ob-quad-safe .ob-chip-name { font-weight: 700; }
+        .ob-anim-chip { opacity: 0; background: var(--cb-green); }
         .ob-anim-chip .ob-chip-name { color: #fff; }
         @keyframes ob-chip-on { 0%, 18% { opacity: 1; } 23%, 100% { opacity: 0; } }
-        @keyframes ob-box-on { 0%, 20% { border-color: #3a3a3c; background: #f5f5f5; } 25%, 100% { border-color: #e5e5ea; background: #fff; } }
+        @keyframes ob-box-on { 0%, 20% { border-color: var(--cb-ink); } 25%, 100% { border-color: var(--cb-line); } }
         /* Clockwise: 1=Casual TL, 2=Meaningful TR, 3=Spiritual BR, 4=Discovery BL */
-        .ob-fc-1 { animation: ob-chip-on 6s 0s   infinite; }
+        .ob-fc-1 { animation: ob-chip-on 6s 0s infinite; }
         .ob-fc-2 { animation: ob-chip-on 6s 1.5s infinite; }
-        .ob-fc-3 { animation: ob-chip-on 6s 3s   infinite; }
+        .ob-fc-3 { animation: ob-chip-on 6s 3s infinite; }
         .ob-fc-4 { animation: ob-chip-on 6s 4.5s infinite; }
-        .ob-fb-1 { animation: ob-box-on  6s 0s   infinite; }
-        .ob-fb-2 { animation: ob-box-on  6s 1.5s infinite; }
-        .ob-fb-3 { animation: ob-box-on  6s 3s   infinite; }
-        .ob-fb-4 { animation: ob-box-on  6s 4.5s infinite; }
-        /* ── Person Details Modal ── */
+        .ob-fb-1 { animation: ob-box-on 6s 0s infinite; }
+        .ob-fb-2 { animation: ob-box-on 6s 1.5s infinite; }
+        .ob-fb-3 { animation: ob-box-on 6s 3s infinite; }
+        .ob-fb-4 { animation: ob-box-on 6s 4.5s infinite; }
+
+        /* ── Person details sheet ── */
         #person-details-overlay { align-items: flex-end; }
-        @media (min-width: 768px) { #person-details-overlay { align-items: center; } }
-        .person-details-sheet { background: #fff; width: 100%; max-width: 480px; border-radius: 16px 16px 0 0; padding: 16px 20px 36px; display: flex; flex-direction: column; gap: 16px; max-height: 88vh; overflow-y: auto; -webkit-overflow-scrolling: touch; }
-        @supports (height: 1dvh) { .person-details-sheet { max-height: 88dvh; } }
-        @media (min-width: 768px) { .person-details-sheet { border-radius: 16px; max-height: 70vh; padding: 24px; } }
-        .details-drag-handle { width: 36px; height: 4px; background: #c6c6c8; border-radius: 2px; margin: 0 auto -4px; flex-shrink: 0; }
-        @media (min-width: 768px) { .details-drag-handle { display: none; } }
-        .details-name-hint { font-size: 11px; color: #c6c6c8; margin-top: 2px; }
-        .details-person-name { font-size: 20px; font-weight: 700; color: #000; line-height: 1.2; width: 100%; border: none; border-bottom: 1.5px solid transparent; background: transparent; padding: 0 0 2px; outline: none; font-family: inherit; transition: border-bottom-color 0.15s; }
-        .details-person-name:focus { border-bottom-color: var(--ot-accent); }
-        .details-quadrant { font-size: 12px; font-weight: 600; color: #8e8e93; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 3px; }
-        .details-field { display: flex; flex-direction: column; gap: 5px; }
-        .details-field label { font-size: 12px; font-weight: 600; color: #3a3a3c; text-transform: uppercase; letter-spacing: 0.4px; }
-        .details-field input, .details-field textarea { width: 100%; padding: 10px 12px; border: 1px solid #c6c6c8; border-radius: 8px; font-size: 16px; font-family: inherit; color: #000; background: #f2f2f7; box-sizing: border-box; outline: none; -webkit-appearance: none; }
-        .details-field input:focus, .details-field textarea:focus { border-color: var(--ot-accent); background: #fff; }
-        .details-field textarea { resize: none; min-height: 70px; }
-        .details-actions { display: flex; gap: 10px; padding-top: 2px; }
-        .details-actions .btn { flex: 1; min-height: 44px; }
-        .details-dot { width: 6px; height: 6px; border-radius: 50%; background: #8e8e93; display: inline-block; flex-shrink: 0; align-self: center; margin-left: 5px; }
-        /* ── Explainer ── */
-        .explainer { padding: 14px 16px 4px; color: #8e8e93; font-size: 13px; text-align: center; line-height: 1.4; }
+        .person-details-sheet { background: #fff; width: 100%; max-width: 480px; border-radius: 20px 20px 0 0; padding: 14px 20px calc(20px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 16px; max-height: 90vh; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+        @supports (height: 1dvh) { .person-details-sheet { max-height: 90dvh; } }
+        @media (min-width: 768px) { #person-details-overlay { align-items: center; } .person-details-sheet { border-radius: 20px; max-height: 80vh; padding: 24px; } .details-drag-handle { display: none; } }
+        .details-drag-handle { width: 36px; height: 4px; background: #d1d1d6; border-radius: 2px; margin: 0 auto -4px; flex-shrink: 0; }
+        .details-person-name { font-size: 22px; font-weight: 700; color: var(--cb-ink); line-height: 1.2; width: 100%; border: none; border-bottom: 1.5px solid transparent; background: transparent; padding: 0 0 3px; outline: none; }
+        .details-person-name:focus { border-bottom-color: var(--cb-green); }
+        .details-name-hint { font-size: 12px; color: var(--cb-faint); margin-top: 2px; }
+        .details-quadrant { display: inline-flex; align-items: center; gap: 8px; margin-top: 10px; font-size: 14px; font-weight: 650; color: var(--cb-ink); }
+        .details-quadrant .stage-num { width: 22px; height: 22px; font-size: 11px; }
+        .details-field { display: flex; flex-direction: column; gap: 6px; }
+        .details-field label { font-size: 13px; font-weight: 650; color: #3a3a3c; }
+        .details-field input, .details-field textarea { width: 100%; min-height: 46px; padding: 11px 13px; border: 1px solid #d1d1d6; border-radius: 12px; font-size: 16px; color: var(--cb-ink); background: #fff; outline: none; -webkit-appearance: none; }
+        .details-field input:focus, .details-field textarea:focus { border-color: var(--cb-ink); }
+        .details-field textarea { resize: none; min-height: 84px; }
+        .details-actions { display: flex; gap: 10px; }
+        .details-actions .btn { flex: 1; min-height: 48px; }
+        .details-actions .btn-secondary { background: var(--ot-secondary); box-shadow: none; }
+        .details-more { display: flex; justify-content: space-between; align-items: center; gap: 8px; border-top: 1px solid #f0f0f2; padding-top: 6px; margin-top: -4px; }
+        .details-more .text-btn { display: inline-flex; align-items: center; gap: 6px; padding: 0 8px; }
+        #details-move-back svg.ic { transform: rotate(-90deg); }
+        @media (min-width: 768px) {
+            #details-move-back[data-from="meaningful"] svg.ic { transform: rotate(180deg); }
+            #details-move-back[data-from="discovery"] svg.ic { transform: none; }
+            [dir="rtl"] #details-move-back[data-from="meaningful"] svg.ic { transform: none; }
+            [dir="rtl"] #details-move-back[data-from="discovery"] svg.ic { transform: rotate(180deg); }
+        }
+        .details-more .text-btn:only-child { margin-inline-start: auto; }
     </style>
     <script type="module" src="/i18n.js"></script>
     <script src="/pwa.js" defer></script>
+    <link rel="stylesheet" href="/fonts.css">
     <link rel="stylesheet" href="/buttons.css">
 </head>
 <body>
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+        <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+        <symbol id="i-back" viewBox="0 0 24 24"><path d="M19 12H5M11 18l-6-6 6-6"/></symbol>
+        <symbol id="i-chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></symbol>
+        <symbol id="i-home" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></symbol>
+        <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+        <symbol id="i-share" viewBox="0 0 24 24"><path d="M12 3v12M7 8l5-5 5 5M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></symbol>
+        <symbol id="i-map" viewBox="0 0 24 24"><path d="M3 11l19-9-9 19-2-8-8-2z"/></symbol>
+        <symbol id="i-cw" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></symbol>
+        <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></symbol>
+        <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></symbol>
+    </svg>
     <div class="sync-indicator" id="sync-indicator" data-i18n="sync.syncing">Syncing...</div>
-    <div style="text-align:center; padding:20px 0 8px;">
-        <a href="/" style="display:inline-block; background:#000; color:#fff; font-weight:700; font-size:17px; padding:12px 28px; border-radius:50px; text-decoration:none;" data-i18n="nav.home">Home</a>
+    <header class="cb-top">
+        <a class="cb-home" href="/"><svg class="ic flip"><use href="#i-home"/></svg><span data-i18n="nav.home">Home</span></a>
+    </header>
+    <div class="cb-head">
+        <h1 data-i18n="conversation_box.title">Conversation Box</h1>
+        <p class="explainer" data-i18n="conversation_box.explainer">Track where each person is right now, then move them as conversations deepen.</p>
     </div>
     <div class="container">
-        <!-- Auth section: shown at top, collapses to status row when signed in -->
+        <!-- Auth section: account-overlay.js turns this into the person-icon sign-in sheet -->
         <div class="auth-section" id="auth-section">
             <div id="auth-collapsed">
                 <span class="auth-collapsed-text" data-i18n="conversation_box.auth_save_hint">Sign in to save across devices</span>
@@ -290,7 +364,7 @@
                     <button class="auth-btn-primary" data-i18n="auth.log_in" onclick="authLogIn()">Log In</button>
                     <button class="auth-btn-secondary" data-i18n="auth.sign_up" onclick="authSignUp()">Sign Up</button>
                 </div>
-            <button type="button" class="auth-forgot-btn" data-i18n="auth.forgot_password" onclick="authForgotPassword()" style="display:block;width:100%;margin-top:6px;padding:6px;background:none;border:none;color:#8e8e93;font-size:13px;cursor:pointer;text-align:center;font-family:inherit;">Forgot password?</button>
+                <button type="button" class="auth-forgot-btn" data-i18n="auth.forgot_password" onclick="authForgotPassword()">Forgot password?</button>
             </div>
             <div class="auth-status" id="auth-status" style="display:none">
                 <span class="auth-status-text" id="auth-status-text" data-i18n="auth.not_signed_in">Not signed in</span>
@@ -298,108 +372,106 @@
             </div>
         </div>
         <div class="content-wrapper">
-            <p class="explainer" data-i18n="conversation_box.explainer">Track where each person is right now, then move them as conversations deepen.</p>
-            <div class="conversation-grid">
-                <div class="conversation-box casual">
-                    <div class="box-header"><div class="box-title" data-i18n="conversation_box.box_casual">Casual</div></div>
+            <!-- Phones: the four stages in order, with counts. Tap to jump. -->
+            <ul class="stage-strip" aria-label="Conversation Box" data-i18n-aria-label="conversation_box.title">
+                <li><button type="button" data-stage="casual"><span class="strip-count" id="strip-casual">0</span><span class="strip-label" data-i18n="conversation_box.box_casual">Casual</span></button></li>
+                <li><button type="button" data-stage="meaningful"><span class="strip-count" id="strip-meaningful">0</span><span class="strip-label" data-i18n="conversation_box.box_meaningful">Meaningful</span></button></li>
+                <li><button type="button" data-stage="spiritual"><span class="strip-count" id="strip-spiritual">0</span><span class="strip-label" data-i18n="conversation_box.box_spiritual">Spiritual</span></button></li>
+                <li><button type="button" data-stage="discovery"><span class="strip-count" id="strip-discovery">0</span><span class="strip-label" data-i18n="conversation_box.box_discovery">Discovery</span></button></li>
+            </ul>
+            <div class="conversation-grid" id="board">
+                <section class="conversation-box casual" id="stage-casual" aria-labelledby="title-casual">
+                    <div class="box-header"><span class="stage-num" aria-hidden="true">1</span><h2 class="box-title" id="title-casual" data-i18n="conversation_box.box_casual">Casual</h2><span class="box-count"></span></div>
                     <div class="conversation-list" id="casual-list"></div>
-                </div>
-                <div class="conversation-box meaningful">
-                    <div class="box-header"><div class="box-title" data-i18n="conversation_box.box_meaningful">Meaningful</div></div>
+                </section>
+                <div class="flow-arrow fa-1" aria-hidden="true"><svg class="ic"><use href="#i-arrow"/></svg></div>
+                <section class="conversation-box meaningful" id="stage-meaningful" aria-labelledby="title-meaningful">
+                    <div class="box-header"><span class="stage-num" aria-hidden="true">2</span><h2 class="box-title" id="title-meaningful" data-i18n="conversation_box.box_meaningful">Meaningful</h2><span class="box-count"></span></div>
                     <div class="conversation-list" id="meaningful-list"></div>
-                </div>
-                <div class="conversation-box spiritual">
-                    <div class="box-header">
-                        <div class="box-title" data-i18n="conversation_box.box_spiritual">Spiritual</div>
-                        <div class="share-indicator" title="Share Upstream" data-i18n-title="site_text.s_8a8003cbe0a1"></div>
-                    </div>
+                </section>
+                <div class="flow-arrow fa-2" aria-hidden="true"><svg class="ic"><use href="#i-arrow"/></svg></div>
+                <section class="conversation-box spiritual" id="stage-spiritual" aria-labelledby="title-spiritual">
+                    <div class="box-header"><span class="stage-num" aria-hidden="true">3</span><h2 class="box-title" id="title-spiritual" data-i18n="conversation_box.box_spiritual">Spiritual</h2><span class="box-count"></span><span class="share-indicator" title="Share Upstream" data-i18n-title="site_text.s_8a8003cbe0a1"></span></div>
                     <div class="conversation-list" id="spiritual-list"></div>
-                </div>
-                <div class="conversation-box discovery">
-                    <div class="box-header"><div class="box-title" data-i18n="conversation_box.box_discovery">Discovery</div></div>
+                </section>
+                <div class="flow-arrow fa-3" aria-hidden="true"><svg class="ic"><use href="#i-arrow"/></svg></div>
+                <section class="conversation-box discovery" id="stage-discovery" aria-labelledby="title-discovery">
+                    <div class="box-header"><span class="stage-num" aria-hidden="true">4</span><h2 class="box-title" id="title-discovery" data-i18n="conversation_box.box_discovery">Discovery</h2><span class="box-count"></span></div>
                     <div class="conversation-list" id="discovery-list"></div>
-                </div>
+                </section>
             </div>
             <div class="post-grid-actions">
                 <div class="action-row">
-                    <button class="btn btn-secondary" onclick="showResetPrompt()" data-i18n="common.reset">RESET</button>
-                    <button class="btn btn-share" onclick="captureSnapshot()" data-i18n="conversation_box.share_btn">Share</button>
+                    <button class="btn btn-share" onclick="captureSnapshot()"><svg class="ic"><use href="#i-share"/></svg><span class="tc" data-i18n="conversation_box.share_btn">Share</span></button>
+                    <a href="view-progress" class="btn btn-view-map"><svg class="ic"><use href="#i-map"/></svg><span data-i18n="site_text.s_7e06a4c7c4de">View Map</span></a>
                 </div>
-                <div class="view-map-row">
-                    <a href="view-progress" class="btn-view-map">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>
-                        <span data-i18n="site_text.s_7e06a4c7c4de">View Map</span>
-                    </a>
-                </div>
-                <div class="view-map-row" style="text-align:center;">
-                    <button class="btn-how-it-works" onclick="showOnboarding()" data-i18n="conversation_box.how_it_works">How it works</button>
+                <div class="util-row">
+                    <button class="text-btn btn-how-it-works" onclick="showOnboarding()" data-i18n="conversation_box.how_it_works">How it works</button>
+                    <span class="util-sep" aria-hidden="true"></span>
+                    <button class="text-btn danger btn-reset" onclick="showResetPrompt()"><span class="tc" data-i18n="common.reset">RESET</span></button>
                 </div>
             </div>
         </div>
         <div class="add-person-section">
             <div class="add-person-input">
-                <input type="text" id="new-person-name" placeholder="Add name..." onkeypress="handleEnterKey(event)" data-i18n-placeholder="conversation_box.placeholder_name">
+                <input type="text" id="new-person-name" placeholder="Add name..." onkeypress="handleEnterKey(event)" data-i18n-placeholder="conversation_box.placeholder_name" aria-label="Add name" data-i18n-aria-label="conversation_box.placeholder_name" autocomplete="off" enterkeyhint="done">
                 <button class="btn btn-primary" onclick="initiateAddPerson()" data-i18n="conversation_box.add_btn">Add</button>
             </div>
         </div>
-        <div class="name-prompt" id="name-prompt">
+        <div class="name-prompt" id="name-prompt" role="dialog" aria-modal="true">
             <input type="text" id="user-name-input" placeholder="Enter your name" data-i18n-placeholder="conversation_box.enter_your_name_placeholder">
             <button onclick="saveUserName()" data-i18n="conversation_box.submit">Submit</button>
         </div>
-        <div class="edit-name-prompt" id="edit-name-prompt">
+        <div class="edit-name-prompt" id="edit-name-prompt" role="dialog" aria-modal="true">
             <input type="text" id="edit-name-input" placeholder="Edit name" data-i18n-placeholder="conversation_box.edit_name_placeholder">
             <button onclick="saveEditedName()" data-i18n="conversation_box.save">Save</button>
         </div>
-        <div class="box-selection-prompt" id="box-selection-prompt">
-            <div class="prompt-close-row">
-                <button class="prompt-close" onclick="closeBoxSelection()" aria-label="Close" data-i18n-aria-label="conversation_box.close" data-i18n-title="conversation_box.close" title="Close">&times;</button>
+        <div class="box-selection-prompt" id="box-selection-prompt" role="dialog" aria-modal="true" aria-labelledby="box-selection-title">
+            <div class="dialog-head">
+                <div>
+                    <div class="dialog-title" id="box-selection-title" data-i18n="conversation_box.choose_box_title">Where is the conversation right now?</div>
+                    <div class="dialog-sub" id="box-selection-name"></div>
+                </div>
+                <button class="prompt-close" onclick="closeBoxSelection()" aria-label="Close" data-i18n-aria-label="conversation_box.close" data-i18n-title="conversation_box.close" title="Close"><svg class="ic"><use href="#i-close"/></svg></button>
             </div>
-            <div class="option" onclick="selectBox('casual')" data-i18n="conversation_box.box_casual">Casual</div>
-            <div class="option" onclick="selectBox('meaningful')" data-i18n="conversation_box.box_meaningful">Meaningful</div>
-            <div class="option" onclick="selectBox('spiritual')" data-i18n="conversation_box.box_spiritual">Spiritual</div>
-            <div class="option" onclick="selectBox('discovery')" data-i18n="conversation_box.box_discovery">Discovery</div>
-        </div>
-        <div class="move-prompt" id="move-prompt">
-            <div class="move-prompt-header">
-                <button class="prompt-close" onclick="closeMovePrompt()" aria-label="Close" data-i18n-aria-label="conversation_box.close" data-i18n-title="conversation_box.close" title="Close">&times;</button>
-            </div>
-            <div class="option" onclick="selectOption('rejected')">
-                <span class="color-circle red"></span>
-                <span data-i18n="conversation_box.move_rejected">Rejected Christ</span>
-                <span class="plus">+</span>
-            </div>
-            <div class="option" onclick="selectOption('open')">
-                <span class="color-circle yellow"></span>
-                <span data-i18n="conversation_box.move_open">Open to learning</span>
-                <span class="plus">+</span>
-            </div>
-            <div class="option" onclick="selectOption('trusted')">
-                <span class="color-circle lightgreen"></span>
-                <span data-i18n="conversation_box.move_trusted">Trusted Christ</span>
-                <span class="plus">+</span>
-            </div>
-            <div class="option" onclick="selectOption('existing')">
-                <span class="color-circle darkgreen"></span>
-                <span data-i18n="conversation_box.move_existing">Existing believer</span>
-                <span class="plus">+</span>
+            <div class="option-list">
+                <button type="button" class="option" onclick="selectBox('casual')"><span class="stage-num" aria-hidden="true">1</span><span class="option-label" data-i18n="conversation_box.box_casual">Casual</span><svg class="ic chev flip"><use href="#i-chev"/></svg></button>
+                <button type="button" class="option" onclick="selectBox('meaningful')"><span class="stage-num" aria-hidden="true">2</span><span class="option-label" data-i18n="conversation_box.box_meaningful">Meaningful</span><svg class="ic chev flip"><use href="#i-chev"/></svg></button>
+                <button type="button" class="option" onclick="selectBox('spiritual')"><span class="stage-num" aria-hidden="true">3</span><span class="option-label" data-i18n="conversation_box.box_spiritual">Spiritual</span><svg class="ic chev flip"><use href="#i-chev"/></svg></button>
+                <button type="button" class="option" onclick="selectBox('discovery')"><span class="stage-num" aria-hidden="true">4</span><span class="option-label" data-i18n="conversation_box.box_discovery">Discovery</span><svg class="ic chev flip"><use href="#i-chev"/></svg></button>
             </div>
         </div>
-        <div class="remove-prompt" id="remove-prompt">
+        <div class="move-prompt" id="move-prompt" role="dialog" aria-modal="true" aria-labelledby="move-prompt-title">
+            <div class="dialog-head">
+                <div>
+                    <div class="dialog-title" id="move-prompt-title" data-i18n="conversation_box.move_title">Move to Discovery</div>
+                    <div class="dialog-sub" id="move-prompt-name"></div>
+                </div>
+                <button class="prompt-close" onclick="closeMovePrompt()" aria-label="Close" data-i18n-aria-label="conversation_box.close" data-i18n-title="conversation_box.close" title="Close"><svg class="ic"><use href="#i-close"/></svg></button>
+            </div>
+            <div class="option-list">
+                <button type="button" class="option" onclick="selectOption('rejected')"><span class="color-circle red"></span><span class="option-label" data-i18n="conversation_box.move_rejected">Rejected Christ</span><svg class="ic chev flip"><use href="#i-chev"/></svg></button>
+                <button type="button" class="option" onclick="selectOption('open')"><span class="color-circle yellow"></span><span class="option-label" data-i18n="conversation_box.move_open">Open to learning</span><svg class="ic chev flip"><use href="#i-chev"/></svg></button>
+                <button type="button" class="option" onclick="selectOption('trusted')"><span class="color-circle lightgreen"></span><span class="option-label" data-i18n="conversation_box.move_trusted">Trusted Christ</span><svg class="ic chev flip"><use href="#i-chev"/></svg></button>
+                <button type="button" class="option" onclick="selectOption('existing')"><span class="color-circle darkgreen"></span><span class="option-label" data-i18n="conversation_box.move_existing">Existing believer</span><svg class="ic chev flip"><use href="#i-chev"/></svg></button>
+            </div>
+        </div>
+        <div class="remove-prompt" id="remove-prompt" role="alertdialog" aria-modal="true">
             <h3 data-i18n="conversation_box.remove_confirm">Remove?</h3>
             <button class="yes-btn" onclick="confirmRemove(true)" data-i18n="conversation_box.yes">Yes</button>
             <button class="no-btn" onclick="confirmRemove(false)" data-i18n="conversation_box.no">No</button>
         </div>
-        <div class="reset-prompt" id="reset-prompt">
+        <div class="reset-prompt" id="reset-prompt" role="alertdialog" aria-modal="true">
             <h3 data-i18n="conversation_box.reset_all_btn">Reset all conversations?</h3>
             <button class="yes-btn" onclick="confirmReset(true)" data-i18n="conversation_box.yes">Yes</button>
             <button class="no-btn" onclick="confirmReset(false)" data-i18n="conversation_box.no">No</button>
         </div>
-        <div class="reset-prompt" id="start-warning-prompt">
+        <div class="reset-prompt" id="start-warning-prompt" role="alertdialog" aria-modal="true">
             <h3 data-i18n="conversation_box.reset_progress_confirm">Do you want to reset your progress?</h3>
             <button class="yes-btn" onclick="confirmStartReset(true)" data-i18n="conversation_box.yes">Yes</button>
             <button class="no-btn" onclick="confirmStartReset(false)" data-i18n="conversation_box.no">No</button>
         </div>
-        <div class="share-popup" id="share-popup">
+        <div class="share-popup" id="share-popup" role="dialog" aria-modal="true">
             <h3 data-i18n="conversation_box.share_downloaded">Your Conversation Box has been downloaded. Share your progress now on any messaging app.</h3>
             <div class="app-icons">
                 <div><div class="app-icon messages" onclick="guideShare('Messages')"></div><div class="app-label" data-i18n="conversation_box.share_app_messages">Messages</div></div>
@@ -408,7 +480,7 @@
             </div>
             <button class="close-btn" onclick="closeSharePopup()" data-i18n="conversation_box.close">Close</button>
         </div>
-        <div class="tutorial-popup" id="tutorial-popup">
+        <div class="tutorial-popup" id="tutorial-popup" role="dialog" aria-modal="true">
             <h3 id="tutorial-heading"></h3>
             <ol>
                 <li data-i18n="conversation_box.tutorial_step1"><b>Add names</b> at the bottom of the screen and pick the progress box you have reached with each person.</li>
@@ -420,7 +492,7 @@
     </div>
     <!-- Person details bottom sheet -->
     <div class="onboarding-overlay" id="person-details-overlay" onclick="handleDetailsOverlayClick(event)">
-        <div class="person-details-sheet" id="person-details-sheet">
+        <div class="person-details-sheet" id="person-details-sheet" role="dialog" aria-modal="true" aria-labelledby="details-person-name">
             <div class="details-drag-handle"></div>
             <div>
                 <input type="text" class="details-person-name" id="details-person-name" placeholder="Name" data-i18n-placeholder="four_questions.diagram.name_center">
@@ -442,6 +514,10 @@
             <div class="details-actions">
                 <button class="btn btn-secondary" onclick="closePersonDetails()" data-i18n="mawl.cancel">Cancel</button>
                 <button class="btn btn-primary" onclick="savePersonDetails()" data-i18n="conversation_box.save">Save</button>
+            </div>
+            <div class="details-more">
+                <button type="button" class="text-btn" id="details-move-back"><svg class="ic"><use href="#i-arrow"/></svg><span id="details-move-back-label"></span></button>
+                <button type="button" class="text-btn danger" id="details-remove"><svg class="ic"><use href="#i-trash"/></svg><span data-i18n="conversation_box.remove_btn">Remove</span></button>
             </div>
         </div>
     </div>
@@ -475,7 +551,7 @@
             </div>
             <div class="onboarding-step" id="ob-step-2">
                 <!-- Chips cycle clockwise: Casual→Meaningful→Spiritual→Discovery -->
-                <div class="ob-cw-hint" data-i18n="conversation_box.ob_clockwise_hint">↻ moves clockwise as conversations deepen</div>
+                <div class="ob-cw-hint"><svg class="ic" aria-hidden="true"><use href="#i-cw"/></svg><span data-ob-hint="conversation_box.ob_clockwise_hint">moves clockwise as conversations deepen</span></div>
                 <div class="ob-quad">
                     <div class="ob-quad-box ob-fb-1">
                         <div class="ob-quad-label" data-i18n="conversation_box.box_casual">Casual</div>
@@ -550,7 +626,7 @@
             </div>
             <!-- Shown only where following Jesus is dangerous (see SAFETY_MODE) -->
             <div class="onboarding-step" id="ob-step-4">
-                <div class="ob-cw-hint" data-i18n="conversation_box.ob_step4_hint">🔒 initials keep people safe</div>
+                <div class="ob-cw-hint"><svg class="ic" aria-hidden="true"><use href="#i-lock"/></svg><span data-ob-hint="conversation_box.ob_step4_hint">initials keep people safe</span></div>
                 <div class="ob-quad ob-quad-safe">
                     <div class="ob-quad-box">
                         <div class="ob-quad-label" data-i18n="conversation_box.box_casual">Casual</div>
@@ -969,7 +1045,7 @@ function saveConversations() {
             for (const c of checks) {
                 seen.push(c.col + ':' + c.val);
                 const n = counts ? +(c.col === 'country_code' ? counts.country_events : counts.place_events) : 0;
-                if (n === 1) { showNotification(c.msg()); break; }
+                if (n === 1) { showNotification(stripSymbols(c.msg())); break; }
             }
             try { localStorage.setItem('firstOnMapChecked', JSON.stringify(seen)); } catch {}
         }
@@ -1179,7 +1255,8 @@ function saveConversations() {
             if (name) {
                 if (!Object.values(conversations).flat().some(p => p.name === name)) { 
                     pendingNewName = name; 
-                    document.getElementById('box-selection-prompt').style.display = 'flex'; 
+                    document.getElementById('box-selection-name').textContent = name;
+                    openDialog('box-selection-prompt', '.option');
                     input.value = ''; 
                 } else {
                     showNotification(window.t('conversation_box.person_exists'));
@@ -1206,7 +1283,8 @@ function saveConversations() {
                     currentName = pendingNewName; 
                     currentFromBox = null; 
                     currentToBox = 'discovery'; 
-                    document.getElementById('move-prompt').style.display = 'flex'; 
+                    document.getElementById('move-prompt-name').textContent = currentName;
+                    openDialog('move-prompt', '.option');
                 } else { 
                     conversations[box].push({ 
                         name: pendingNewName, 
@@ -1252,7 +1330,8 @@ function saveConversations() {
             currentName = name; 
             currentFromBox = fromBox; 
             currentToBox = toBox; 
-            document.getElementById('move-prompt').style.display = 'flex'; 
+            document.getElementById('move-prompt-name').textContent = name;
+            openDialog('move-prompt', '.option');
         }
 
         function closeMovePrompt() {
@@ -1266,7 +1345,7 @@ function saveConversations() {
             document.getElementById('move-prompt').style.display = 'none';
             
             if (option === 'rejected') {
-                document.getElementById('remove-prompt').style.display = 'flex';
+                openDialog('remove-prompt', '.no-btn');
             } else {
                 const hexColor = colorMap[option];
                 
@@ -1328,7 +1407,7 @@ function saveConversations() {
         }
 
         function showResetPrompt() { 
-            document.getElementById('reset-prompt').style.display = 'flex'; 
+            openDialog('reset-prompt', '.no-btn');
         }
 
         function confirmReset(confirm) {
@@ -1357,6 +1436,7 @@ function saveConversations() {
         // ── Per-person details ────────────────────────────────────────────────
 
         let _detailsPerson = null;
+        let _detailsReturnFocus = null;
 
         function hasPersonDetails(name, box) {
             const person = (conversations[box] || []).find(p => p.name === name);
@@ -1368,16 +1448,40 @@ function saveConversations() {
             _detailsPerson = { name, box };
             const person = (conversations[box] || []).find(p => p.name === name);
             document.getElementById('details-person-name').value = name;
-            document.getElementById('details-quadrant').textContent = box.charAt(0).toUpperCase() + box.slice(1);
+            document.getElementById('details-quadrant').innerHTML = `<span class="stage-num" aria-hidden="true">${STAGES.indexOf(box) + 1}</span><span></span>`;
+            document.getElementById('details-quadrant').lastChild.textContent = stageLabel(box);
+            const back = document.getElementById('details-move-back');
+            back.hidden = !PREV_STAGE[box];
+            back.dataset.from = box;
+            if (PREV_STAGE[box]) document.getElementById('details-move-back-label').textContent = window.t('conversation_box.move_back_to', { stage: stageLabel(PREV_STAGE[box]) });
             document.getElementById('details-next-step').value = (person && person.next_step) || '';
             document.getElementById('details-note').value = (person && person.person_note) || '';
             document.getElementById('details-follow-up-date').value = (person && person.follow_up_date) || '';
             document.getElementById('person-details-overlay').classList.add('visible');
+            _detailsReturnFocus = document.activeElement;
+        }
+
+        // Secondary actions live in the details sheet, away from the row's
+        // forward button, so a hurried tap can't remove someone.
+        function detailsMoveBack() {
+            if (!_detailsPerson) return;
+            const { name, box } = _detailsPerson;
+            closePersonDetails();
+            if (PREV_STAGE[box]) moveConversation(name, box, PREV_STAGE[box]);
+        }
+
+        function detailsRemove() {
+            if (!_detailsPerson) return;
+            const { name, box } = _detailsPerson;
+            closePersonDetails();
+            deleteConversation(name, box);
         }
 
         function closePersonDetails() {
             _detailsPerson = null;
             document.getElementById('person-details-overlay').classList.remove('visible');
+            if (_detailsReturnFocus && document.contains(_detailsReturnFocus)) _detailsReturnFocus.focus({ preventScroll: true });
+            _detailsReturnFocus = null;
         }
 
         function savePersonDetails() {
@@ -1406,99 +1510,127 @@ function saveConversations() {
             if (event.target === document.getElementById('person-details-overlay')) closePersonDetails();
         }
 
+        // Stage order and the next / previous stage for each (methodology order).
+        const STAGES = ['casual', 'meaningful', 'spiritual', 'discovery'];
+        const NEXT_STAGE = { casual: 'meaningful', meaningful: 'spiritual', spiritual: 'discovery' };
+        const PREV_STAGE = { meaningful: 'casual', spiritual: 'meaningful', discovery: 'spiritual' };
+        const stageLabel = box => window.t(`conversation_box.box_${box}`);
+        const icon = id => `<svg class="ic" aria-hidden="true"><use href="#${id}"/></svg>`;
+
         function updateDisplay() {
             // Too early: i18n.js hasn't run yet. Its i18n:ready event re-renders.
             if (typeof window.t !== 'function') return;
-            ['casual', 'meaningful', 'discovery', 'spiritual'].forEach(box => {
+            const allEmpty = !Object.values(conversations).some(a => a.length > 0);
+            // The overview only helps once there is something to overview.
+            document.querySelector('.stage-strip').classList.toggle('is-hidden', allEmpty);
+            STAGES.forEach(box => {
+                const people = conversations[box] || [];
                 const listElement = document.getElementById(`${box}-list`);
                 listElement.innerHTML = '';
-                if (conversations[box].length === 0) {
+                if (people.length === 0) {
                     const emptyEl = document.createElement('div');
-                    emptyEl.className = 'empty-state';
-                    const allEmpty = !Object.values(conversations).some(a => a.length > 0);
-                    emptyEl.textContent = (box === 'casual' && allEmpty)
+                    const firstRun = box === 'casual' && allEmpty;
+                    emptyEl.className = 'empty-state' + (firstRun ? ' first-run' : '');
+                    emptyEl.textContent = firstRun
                         ? window.t('conversation_box.ob_empty_hint_casual')
                         : window.t('conversation_box.no_conversations');
                     listElement.appendChild(emptyEl);
                 } else {
-                    conversations[box].forEach(person => {
+                    people.forEach(person => {
                         listElement.appendChild(createConversationItem(person.name, box, person.color));
                     });
                 }
-                const titleEl = document.querySelector(`.conversation-box.${box} .box-title`);
-                if (titleEl) {
-                    const label = window.t(`conversation_box.box_${box}`);
-                    if (window.innerWidth < 768) {
-                        titleEl.innerHTML = `<span class="box-label">${label}</span><span class="box-count">${conversations[box].length}</span>`;
-                    } else {
-                        titleEl.textContent = label;
-                    }
-                }
-                if (window.innerWidth < 768) {
-                    const boxEl = document.querySelector(`.conversation-box.${box}`);
-                    if (conversations[box].length === 0) {
-                        boxEl.classList.add('collapsed');
-                    } else {
-                        boxEl.classList.remove('collapsed');
-                    }
+                const boxEl = document.querySelector(`.conversation-box.${box}`);
+                boxEl.classList.toggle('is-empty', people.length === 0);
+                boxEl.querySelector('.box-count').textContent = people.length || '';
+                const strip = document.getElementById(`strip-${box}`);
+                if (strip) {
+                    strip.textContent = people.length;
+                    const btn = strip.closest('button');
+                    btn.classList.toggle('has-people', people.length > 0);
+                    btn.classList.toggle('is-empty', people.length === 0);
+                    btn.setAttribute('aria-label', `${stageLabel(box)}: ${people.length}`);
                 }
             });
         }
 
+        // One row per person: tap the name for details (next step, note,
+        // follow-up, move back, remove); the single forward button moves them
+        // to the next stage. Spiritual → Discovery still asks for a response.
         function createConversationItem(name, box, color) {
-            const item = document.createElement('div'); 
+            const person = (conversations[box] || []).find(p => p.name === name) || {};
+            const item = document.createElement('div');
             item.className = 'conversation-item';
-            const nameSpan = document.createElement('span'); 
-            nameSpan.className = 'conversation-name';
-            
-            if (color && box === 'discovery') { 
-                const circle = document.createElement('span'); 
-                circle.className = 'color-circle'; 
-                circle.style.backgroundColor = color; 
-                nameSpan.appendChild(circle); 
+
+            const nameBtn = document.createElement('button');
+            nameBtn.type = 'button';
+            nameBtn.className = 'conversation-name';
+            const line = document.createElement('span');
+            line.className = 'name-line';
+            if (color && box === 'discovery') {
+                const circle = document.createElement('span');
+                circle.className = 'color-circle';
+                circle.style.backgroundColor = color;
+                line.appendChild(circle);
             }
-            
-            nameSpan.appendChild(document.createTextNode(name));
-            if (hasPersonDetails(name, box)) {
+            const text = document.createElement('span');
+            text.className = 'name-text';
+            text.textContent = name;
+            line.appendChild(text);
+            nameBtn.appendChild(line);
+            if (person.next_step) {
+                const sub = document.createElement('span');
+                sub.className = 'name-sub';
+                sub.textContent = person.next_step;
+                nameBtn.appendChild(sub);
+            } else if (hasPersonDetails(name, box)) {
                 const dot = document.createElement('span');
                 dot.className = 'details-dot';
-                dot.title = 'Has notes';
-                nameSpan.appendChild(dot);
+                dot.setAttribute('aria-hidden', 'true');
+                line.appendChild(dot);
             }
-            nameSpan.addEventListener('click', () => {
-                addHapticFeedback(nameSpan);
+            nameBtn.addEventListener('click', () => {
+                addHapticFeedback(nameBtn);
                 openPersonDetails(name, box);
             });
-            
-            const actions = document.createElement('div'); 
-            actions.className = 'conversation-actions';
-            const isMobile = window.innerWidth < 768;
-            
-            if (box === 'casual') {
-                actions.innerHTML = isMobile ? 
-                    `<button class="action-btn move-btn" onclick="moveConversation('${name}', '${box}', 'meaningful')" title="Move Forward">↓</button><button class="action-btn delete-btn" onclick="deleteConversation('${name}', '${box}')" title="Delete">×</button>` : 
-                    `<button class="action-btn move-btn" onclick="moveConversation('${name}', '${box}', 'meaningful')" title="Move Forward">→</button><button class="action-btn delete-btn" onclick="deleteConversation('${name}', '${box}')" title="Delete">×</button>`;
-            } else if (box === 'meaningful') {
-                actions.innerHTML = isMobile ? 
-                    `<button class="action-btn down-btn" onclick="moveConversation('${name}', '${box}', 'spiritual')" title="Move to Spiritual">↓</button><button class="action-btn back-btn" onclick="moveConversation('${name}', '${box}', 'casual')" title="Move Back">↑</button><button class="action-btn delete-btn" onclick="deleteConversation('${name}', '${box}')" title="Delete">×</button>` : 
-                    `<button class="action-btn down-btn" onclick="moveConversation('${name}', '${box}', 'spiritual')" title="Move to Spiritual">↓</button><button class="action-btn back-btn" onclick="moveConversation('${name}', '${box}', 'casual')" title="Move Back">←</button><button class="action-btn delete-btn" onclick="deleteConversation('${name}', '${box}')" title="Delete">×</button>`;
-            } else if (box === 'discovery') {
-                actions.innerHTML = isMobile ? 
-                    `<button class="action-btn back-btn" onclick="moveConversation('${name}', '${box}', 'spiritual')" title="Move to Spiritual">↑</button><button class="action-btn delete-btn" onclick="deleteConversation('${name}', '${box}')" title="Delete">×</button>` : 
-                    `<button class="action-btn move-btn" onclick="moveConversation('${name}', '${box}', 'spiritual')" title="Move to Spiritual">→</button><button class="action-btn delete-btn" onclick="deleteConversation('${name}', '${box}')" title="Delete">×</button>`;
-            } else if (box === 'spiritual') {
-                actions.innerHTML = isMobile ? 
-                    `<button class="action-btn down-btn" onclick="moveWithPrompt('${name}', 'spiritual', 'discovery')" title="Move to Discovery">↓</button><button class="action-btn back-btn" onclick="moveConversation('${name}', 'spiritual', 'meaningful')" title="Move to Meaningful">↑</button><button class="action-btn delete-btn" onclick="deleteConversation('${name}', '${box}')" title="Delete">×</button>` : 
-                    `<button class="action-btn down-btn" onclick="moveWithPrompt('${name}', 'spiritual', 'discovery')" title="Move to Discovery">←</button><button class="action-btn back-btn" onclick="moveConversation('${name}', 'spiritual', 'meaningful')" title="Move to Meaningful">↑</button><button class="action-btn delete-btn" onclick="deleteConversation('${name}', '${box}')" title="Delete">×</button>`;
+            item.appendChild(nameBtn);
+
+            const next = NEXT_STAGE[box];
+            if (next) {
+                const actions = document.createElement('div');
+                actions.className = 'conversation-actions';
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'action-btn move-btn';
+                const label = window.t('conversation_box.move_to', { stage: stageLabel(next) });
+                btn.setAttribute('aria-label', `${label}: ${name}`);
+                btn.title = label;
+                btn.innerHTML = `<span></span>${icon('i-arrow')}`;
+                btn.querySelector('span').textContent = stageLabel(next);
+                btn.addEventListener('click', () => {
+                    addHapticFeedback(btn);
+                    if (next === 'discovery') moveWithPrompt(name, box, next);
+                    else moveConversation(name, box, next);
+                });
+                actions.appendChild(btn);
+                item.appendChild(actions);
             }
-            
-            actions.querySelectorAll('.action-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => addHapticFeedback(e.target));
-            });
-            
-            item.appendChild(nameSpan); 
-            item.appendChild(actions);
             return item;
+        }
+
+        function jumpToStage(box) {
+            const el = document.getElementById(`stage-${box}`);
+            if (!el) return;
+            const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+        }
+
+        // Shows a dialog and moves keyboard focus into it.
+        function openDialog(id, focusSelector) {
+            const el = document.getElementById(id);
+            el.style.display = 'flex';
+            const target = el.querySelector(focusSelector || 'button, input');
+            if (target) setTimeout(() => target.focus({ preventScroll: true }), 0);
         }
 
         // ── Onboarding ────────────────────────────────────────────────────────
@@ -1673,13 +1805,26 @@ function saveConversations() {
             document.querySelectorAll('.btn').forEach(btn => {
                 btn.addEventListener('click', (e) => addHapticFeedback(e.target));
             });
-            document.querySelectorAll('.box-header').forEach(header => {
-                header.addEventListener('click', () => {
-                    if (window.innerWidth < 768) {
-                        header.closest('.conversation-box').classList.toggle('collapsed');
-                    }
-                });
+            document.querySelectorAll('.stage-strip button').forEach(btn => {
+                btn.addEventListener('click', () => jumpToStage(btn.dataset.stage));
             });
+            document.getElementById('details-move-back').addEventListener('click', detailsMoveBack);
+            document.getElementById('details-remove').addEventListener('click', detailsRemove);
+        });
+
+        // Escape closes whichever dialog is open, the same way its Close / No does.
+        document.addEventListener('keydown', (e) => {
+            if (e.key !== 'Escape') return;
+            const open = id => { const el = document.getElementById(id); return el && (el.style.display === 'flex' || el.classList.contains('visible')); };
+            if (open('person-details-overlay')) closePersonDetails();
+            else if (open('move-prompt')) closeMovePrompt();
+            else if (open('box-selection-prompt')) closeBoxSelection();
+            else if (open('remove-prompt')) confirmRemove(false);
+            else if (open('reset-prompt')) confirmReset(false);
+            else if (open('share-popup')) closeSharePopup();
+            else if (open('tutorial-popup')) closeTutorial();
+            else if (open('edit-name-prompt')) document.getElementById('edit-name-prompt').style.display = 'none';
+            else if (open('onboarding-overlay')) closeOnboarding();
         });
         
         document.getElementById('user-name-input').addEventListener('keypress', (e) => { 
@@ -1697,6 +1842,12 @@ function saveConversations() {
         // (e.g. "conversation_box.no_conversations") in dynamically-built text.
         // Re-render once i18n signals it's ready so real translations appear.
         window.addEventListener('i18n:ready', updateDisplay);
+        const stripSymbols = s => String(s).replace(/^[^\p{L}\p{N}{]+/u, '');
+        function renderOnboardingHints() {
+            if (typeof window.t !== 'function') return;
+            document.querySelectorAll('[data-ob-hint]').forEach(el => { el.textContent = stripSymbols(window.t(el.dataset.obHint)); });
+        }
+        window.addEventListener('i18n:ready', renderOnboardingHints);
 
         // Scroll focused detail fields into view when mobile keyboard opens
         ['details-next-step', 'details-note', 'details-follow-up-date'].forEach(id => {
