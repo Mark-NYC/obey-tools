@@ -7,7 +7,6 @@ on:
       - 'supabase/migrations/*follow*.sql'
       - 'scripts/test-follow-circles.mjs'
       - 'daily-sos-circles.*'
-      - 'daily-sos-circles.*'
       - 'scripts/circles-*.sql'
       - 'scripts/test-following-together.mjs'
       - '.github/workflows/follow-circles.yml'
@@ -15,8 +14,11 @@ on:
     paths:
       - 'follow-circles.*'
       - 'daily-sos.html'
+      - 'daily-sos-circles.*'
       - 'supabase/migrations/*follow*.sql'
+      - 'scripts/circles-*.sql'
       - 'scripts/test-follow-circles.mjs'
+      - 'scripts/test-following-together.mjs'
 jobs:
   static-contracts:
     runs-on: ubuntu-latest
