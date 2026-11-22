@@ -1,7 +1,7 @@
 import {supabase} from './supabase.js';
 const $=id=>document.getElementById(id);
 const params=new URLSearchParams(location.search);
-let user=null,memberships=[],selected=null,activeTab='feed',offset=0,memberOffset=0;
+let user=null,memberships=[],selected=null,activeTab='feed',offset=0,memberOffset=0,cbReady=false,churchNames=new Map();
 const PAGE=20,mentions=new Map();
 let searchTimer=null;
 const val=id=>$(id).value.trim();
@@ -16,19 +16,31 @@ async function loadAuth(){
  try{const result=await supabase.auth.getUser();user=result.data?.user||null;
  $('loading').hidden=true;$('auth-needed').hidden=!!user;$('app').hidden=!user;
  if(!user){if(params.get('invite')){const preview=await invoke('follow_circle_invite_preview',{p_token:params.get('invite')});if(preview){$('auth-needed').querySelector('h2').textContent='Join '+preview.circle_name;$('auth-needed').querySelector('p').textContent='Sign in with OBEY.TOOLS to join this Circle. Return to your invitation link afterward.'}}return;}
+ await detectConversations();
  await loadCircles();
  if(params.get('invite'))await previewInvitation(params.get('invite'));
- if(params.get('circle')&&memberships.some(m=>m.circle_id===params.get('circle')))await showCircle(params.get('circle'));
+ if(params.get('circle')&&memberships.some(m=>m.circle_id===params.get('circle')))await showCircle(params.get('circle'),params.get('tab'));
  else if(!params.get('invite'))showOverview();
  // Arriving from a milestone or "Your journey": open Start a Circle directly.
  if(params.get('new')==='1'&&!params.get('invite')){showOverview();$('new-circle').click()}
  }catch(e){$('loading').hidden=true;status(e.message||'Unable to load your account',true)}
 }
+// Conversation Box sharing needs the 20261123 migration. Until it is applied
+// the page keeps working exactly as before and the new parts stay hidden.
+async function detectConversations(){
+ const r=await supabase.from('follow_circle_members').select('share_conversations').eq('user_id',user.id).limit(1);
+ cbReady=!r.error;
+ document.querySelectorAll('[data-tab="conversations"]').forEach(b=>b.hidden=!cbReady);
+}
 async function loadCircles(){
- const {data,error}=await supabase.from('follow_circle_members').select('circle_id,user_id,display_name,role,progress_visible,email_replies,email_mentions,email_digest').eq('user_id',user.id);
+ const memberCols='circle_id,user_id,display_name,role,progress_visible,email_replies,email_mentions,email_digest'+(cbReady?',share_conversations':'');
+ const {data,error}=await supabase.from('follow_circle_members').select(memberCols).eq('user_id',user.id);
  if(error)throw error;
  const ids=(data||[]).map(x=>x.circle_id);let circles=[];
- if(ids.length){const r=await supabase.from('follow_circles').select('id,name,owner_id,created_at').in('id',ids);if(r.error)throw r.error;circles=r.data||[]}
+ if(ids.length){const r=await supabase.from('follow_circles').select('id,name,owner_id,created_at'+(cbReady?',church_id':'')).in('id',ids);if(r.error)throw r.error;circles=r.data||[]}
+ churchNames=new Map();
+ const churchIds=[...new Set(circles.map(c=>c.church_id).filter(Boolean))];
+ if(churchIds.length){const r=await supabase.from('follow_churches').select('id,name').in('id',churchIds);if(!r.error)churchNames=new Map((r.data||[]).map(c=>[c.id,c.name]))}
  const schedules=await invoke('follow_circle_schedule',{});
  const byId=new Map((schedules||[]).map(x=>[x.circle_id,x]));
  memberships=(data||[]).map(m=>({...m,circle:circles.find(c=>c.id===m.circle_id),schedule:byId.get(m.circle_id)})).filter(m=>m.circle);
@@ -49,7 +61,20 @@ function renderCircleList(){
 }
 function showOverview(){
  selected=null;$('overview').hidden=false;$('circle-view').hidden=true;
- history.replaceState(null,'','/follow-circles.html');renderCircleList()
+ history.replaceState(null,'','/follow-circles.html');renderCircleList();renderChurchLinks()
+}
+async function renderChurchLinks(){
+ const root=$('church-links');root.replaceChildren();if(!cbReady)return;
+ try{
+  const churches=await invoke('follow_church_list',{});
+  for(const c of churches||[]){
+   const a=el('a',undefined,'circle-card');a.href='/church.html?church='+encodeURIComponent(c.church_id);
+   const text=el('span',undefined,'circle-text');text.append(el('strong',c.name),el('small','Church view · '+c.circles+' Circle'+(c.circles===1?'':'s')));
+   a.append(avatar(c.name,'avatar circle-mark church-mark'),text);
+   a.insertAdjacentHTML('beforeend','<svg class="ico chev" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>');
+   root.append(a);
+  }
+ }catch{}
 }
 async function previewInvitation(token){
  const preview=await invoke('follow_circle_invite_preview',{p_token:token});
@@ -63,7 +88,7 @@ function showInvitation(token){
  $('invite-url').value=new URL('/follow-circles.html?invite='+encodeURIComponent(token),location.origin).href;
  $('link-dialog').hidden=false;
 }
-async function showCircle(id){
+async function showCircle(id,tab){
  const m=memberships.find(x=>x.circle_id===id);if(!m)return status('Not a member of that Circle',true);
  selected=m;mentions.clear();renderMentions();$('overview').hidden=true;$('invite-preview').hidden=true;$('circle-view').hidden=false;
  $('circle-name').textContent=m.circle.name;$('circle-subtitle').textContent='Reading Day '+(m.schedule?.day_no||1)+' of 365 together'+(m.schedule?.finished?' · Finished':'')+' · New day at midnight, '+String(m.schedule?.time_zone||'UTC').replaceAll('_',' ');
@@ -75,17 +100,20 @@ async function showCircle(id){
  $('make-primary').hidden=!!m.schedule?.is_primary;
  $('read-independent').hidden=!m.schedule?.is_primary;
  $('display-name').value=m.display_name;$('show-progress').checked=m.progress_visible;
+ $('share-conversations').checked=!!m.share_conversations;$('share-conversations').closest('label').hidden=!cbReady;
  $('email-replies').checked=m.email_replies;$('email-mentions').checked=m.email_mentions;$('email-digest').checked=m.email_digest;
  history.replaceState(null,'','/follow-circles.html?circle='+encodeURIComponent(id));
- renderTargets();await setTab('feed');
+ renderTargets();await setTab(cbReady&&tab==='conversations'?'conversations':'feed');
 }
 async function setTab(tab){
  activeTab=tab;
  document.querySelectorAll('[data-tab]').forEach(b=>b.setAttribute('aria-current',b.dataset.tab===tab?'page':'false'));
- for(const name of ['feed','members','about'])$('tab-'+name).hidden=name!==tab;
+ for(const name of ['feed','conversations','members','about'])$('tab-'+name).hidden=name!==tab;
+ const url=new URL(location.href);if(tab==='conversations')url.searchParams.set('tab','conversations');else url.searchParams.delete('tab');history.replaceState(null,'',url.pathname+url.search);
  if(tab==='feed')await loadFeed(true);
+ if(tab==='conversations')await loadConversations();
  if(tab==='members'){await loadMembers(true);if(selected.role==='steward')await loadReports();}
- if(tab==='about'){renderAbout();$('steward-controls').hidden=selected.role!=='steward';if(selected.role==='steward')await renderTransferMembers();}
+ if(tab==='about'){renderAbout();renderChurchSetting();$('steward-controls').hidden=selected.role!=='steward';if(selected.role==='steward')await renderTransferMembers();}
 }
 function renderMentions(){
  const root=$('mention-selected');root.replaceChildren();
@@ -151,7 +179,7 @@ async function fetchNames(ids){
 }
 async function loadFeed(reset){
  if(reset){offset=0;$('feed-items').replaceChildren()}
- const filter=val('feed-filter');let query=supabase.from('follow_circle_posts').select('id,circle_id,author_id,reading_day,body,parent_id,created_at', {count:'exact'}).eq('circle_id',selected.circle_id).is('parent_id',null).order('created_at',{ascending:false}).range(offset,offset+PAGE-1);
+ const filter=val('feed-filter');let query=supabase.from('follow_circle_posts').select('id,circle_id,author_id,reading_day,body,parent_id,created_at'+(cbReady?',kind,prayer_initials,prayer_stage':''), {count:'exact'}).eq('circle_id',selected.circle_id).is('parent_id',null).order('created_at',{ascending:false}).range(offset,offset+PAGE-1);
  if(filter==='general')query=query.is('reading_day',null);
  if(filter==='passage'){const day=Number(val('passage-day'));if(!Number.isInteger(day)||day<1||day>365)return status('Choose a day between 1 and 365',true);query=query.eq('reading_day',day)}
  const {data,error,count}=await query;if(error)return status(error.message,true);
@@ -165,7 +193,7 @@ async function loadFeed(reset){
 function renderPost(post,name,replies,names){
  const article=el('article',undefined,'post');
  const meta=el('div',undefined,'meta');
- const who=el('div');who.append(el('strong',name),el('span',post.reading_day?'Day '+post.reading_day:'Prayer & plans','tag'),el('span',when(post.created_at),'time'));
+ const who=el('div');who.append(el('strong',name),el('span',post.kind==='prayer'?'Pray for '+post.prayer_initials+' · '+STAGE_LABEL[post.prayer_stage]:post.reading_day?'Day '+post.reading_day:'Prayer & plans','tag'),el('span',when(post.created_at),'time'));
  meta.append(avatar(name),who);
  const body=el('div',undefined,'post-body');body.append(el('p',post.body));
  const thread=el('div',undefined,'replies');
@@ -235,6 +263,149 @@ async function removeMember(p){
  if(!confirm('Remove '+p.display_name+' from the Circle?'))return;
  try{await invoke('follow_circle_remove',{p_circle:selected.circle_id,p_user:p.user_id});await loadMembers(true)}
  catch(e){status(e.message,true)}
+}
+// ── Conversations tab: Conversation Box × Circles ─────────────────────────
+// The Circle sees counts, shared steps and initials-only prayer requests.
+// Names come only from this device's Conversation Box and never leave it here.
+const STAGES=['casual','meaningful','spiritual','discovery'];
+const STAGE_LABEL={casual:'Casual',meaningful:'Meaningful',spiritual:'Spiritual',discovery:'Discovery'};
+const localJSON=(key,fallback)=>{try{return JSON.parse(localStorage.getItem(key))??fallback}catch{return fallback}};
+function isoDay(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function mondayOf(date=new Date()){const d=new Date(date.getFullYear(),date.getMonth(),date.getDate());d.setDate(d.getDate()-((d.getDay()+6)%7));return d}
+async function loadConversations(){
+ const circle=selected.circle_id;
+ $('cb-optin').hidden=!!selected.share_conversations;
+ await Promise.all([loadCbSummary(circle),loadPrayers(circle),loadActivity(circle)]);
+ if(selected?.circle_id===circle)await renderHuddle(circle);
+}
+async function loadCbSummary(circle){
+ let s;try{s=await invoke('follow_circle_cb_summary',{p_circle:circle})}catch(e){return status(e.message,true)}
+ if(selected?.circle_id!==circle)return;
+ for(const stage of STAGES){
+  const cell=$('cb-quad').querySelector(`[data-stage="${stage}"]`);
+  cell.querySelector('.cb-total').textContent=s.totals?.[stage]??0;
+  const week=s.week?.[stage]||0;
+  cell.querySelector('.cb-week').textContent=stage==='discovery'&&s.week?.trusted?s.week.trusted+' trusted Christ':week?'+'+week+' this week':'';
+ }
+ $('cb-sharing').textContent=s.sharing_members+' of '+s.members+' sharing';
+ $('huddle-group').textContent=s.committed_members?s.committed_members+' member'+(s.committed_members===1?'':'s')+' committed to '+s.goals+' '+(s.goals===1?'person':'people')+' this week.':'No one has committed this week yet. Be the first.';
+}
+async function loadActivity(circle){
+ const root=$('cb-activity');root.replaceChildren();
+ let rows=[];try{rows=await invoke('follow_circle_cb_activity',{p_circle:circle,p_days:7})||[]}catch(e){return status(e.message,true)}
+ if(selected?.circle_id!==circle)return;
+ if(!rows.length){root.append(el('p','No shared steps yet this week. When you move someone forward in your Conversation Box, you can share the step here.','empty'));return}
+ const byUser=new Map();
+ for(const r of rows){if(!byUser.has(r.user_id))byUser.set(r.user_id,{name:r.display_name,rows:[]});byUser.get(r.user_id).rows.push(r)}
+ for(const {name,rows:list} of byUser.values()){
+  const added=list.filter(r=>!r.from_stage),moved=list.filter(r=>r.from_stage),trusted=list.filter(r=>r.response==='trusted').length;
+  const parts=[];
+  if(moved.length)parts.push('moved '+moved.length+' '+(moved.length===1?'person':'people')+' forward');
+  if(added.length)parts.push('added '+added.length);
+  const item=el('div',undefined,'activity');
+  const text=el('div');const line=el('p');line.append(el('strong',name),' '+parts.join(' and '));
+  const counts=new Map();for(const r of moved){const k=STAGE_LABEL[r.from_stage]+' → '+STAGE_LABEL[r.to_stage];counts.set(k,(counts.get(k)||0)+1)}
+  for(const r of added){const k='New in '+STAGE_LABEL[r.to_stage];counts.set(k,(counts.get(k)||0)+1)}
+  const detail=[...counts].map(([k,n])=>n>1?k+' ×'+n:k);if(trusted)detail.push(trusted===1?'Someone trusted Christ':trusted+' trusted Christ');
+  text.append(line,el('small',detail.join(' · ')+' · '+when(list[0].created_at)));
+  item.append(avatar(name),text);root.append(item);
+ }
+}
+async function loadPrayers(circle){
+ const root=$('prayer-list');root.replaceChildren();
+ const since=new Date(Date.now()-30*864e5).toISOString();
+ const {data,error}=await supabase.from('follow_circle_posts').select('id,author_id,body,created_at,prayer_initials,prayer_stage').eq('circle_id',circle).eq('kind','prayer').gte('created_at',since).order('created_at',{ascending:false}).limit(30);
+ if(error)return status(error.message,true);
+ if(selected?.circle_id!==circle)return;
+ const posts=data||[];
+ if(!posts.length){root.append(el('p','No prayer requests yet. Ask your Circle to pray for someone you’re talking with, using their initials.','empty'));return}
+ const names=await fetchNames(posts.map(p=>p.author_id));
+ const r=await supabase.from('follow_circle_reactions').select('post_id,user_id').eq('circle_id',circle).in('post_id',posts.map(p=>p.id));
+ const reactions=r.error?[]:r.data||[];
+ const list=el('div',undefined,'prayer-list');
+ for(const post of posts)list.append(renderPrayer(post,names.get(post.author_id)||'Member',reactions.filter(x=>x.post_id===post.id)));
+ root.append(list);
+}
+function renderPrayer(post,name,reactions){
+ const row=el('div',undefined,'prayer');
+ const text=el('div',undefined,'prayer-text');
+ const head=el('p',undefined,'prayer-head');head.append(el('strong',post.prayer_initials),el('span',' · '+(STAGES.indexOf(post.prayer_stage)+1)+' '+STAGE_LABEL[post.prayer_stage],'tag'));
+ text.append(head,el('p',post.body,'prayer-body'),el('small','Shared by '+name+' · '+when(post.created_at)));
+ let mine=reactions.some(x=>x.user_id===user.id),count=reactions.length;
+ const btn=el('button',undefined,'pray-btn');btn.type='button';
+ const paint=()=>{btn.textContent=mine?'Praying · '+count:count?'Pray · '+count:'Pray';btn.setAttribute('aria-pressed',String(mine));btn.classList.toggle('on',mine)};
+ btn.addEventListener('click',async()=>{
+  btn.disabled=true;
+  try{
+   if(mine){const r=await supabase.from('follow_circle_reactions').delete().eq('post_id',post.id).eq('user_id',user.id);if(r.error)throw r.error;mine=false;count--}
+   else{const r=await supabase.from('follow_circle_reactions').insert({circle_id:selected.circle_id,post_id:post.id,user_id:user.id});if(r.error&&r.error.code!=='23505')throw r.error;mine=true;count++}
+   paint();
+  }catch(e){status(e.message,true)}finally{btn.disabled=false}
+ });
+ paint();
+ const more=el('details',undefined,'more');const sum=el('summary');sum.setAttribute('aria-label','More actions');sum.textContent='•••';more.append(sum);
+ const menu=el('div',undefined,'more-menu');
+ if(post.author_id===user.id||selected.role==='steward')menu.append(button('Delete',async()=>{
+  if(!confirm('Delete this prayer request?'))return;
+  const r=await supabase.from('follow_circle_posts').delete().eq('id',post.id).eq('circle_id',selected.circle_id);
+  if(r.error)status(r.error.message,true);else loadPrayers(selected.circle_id);
+ },'menu-item danger-text'));
+ menu.append(button('Report',()=>reportPost(post),'menu-item'));
+ more.append(menu);
+ const actions=el('div',undefined,'prayer-actions');actions.append(btn,more);
+ row.append(text,actions);return row;
+}
+function localSteps(){return localJSON('cb-steps',[]).filter(s=>s&&s.at&&STAGES.includes(s.to))}
+async function renderHuddle(circle){
+ const thisWeek=mondayOf(),lastWeek=new Date(thisWeek);lastWeek.setDate(lastWeek.getDate()-7);
+ const steps=localSteps();
+ const inRange=(s,from,to)=>{const t=new Date(s.at);return t>=from&&t<to};
+ const next=new Date(thisWeek);next.setDate(next.getDate()+7);
+ const forwardThis=steps.filter(s=>s.from&&inRange(s,thisWeek,next));
+ const forwardLast=steps.filter(s=>s.from&&inRange(s,lastWeek,thisWeek));
+ const addedThis=steps.filter(s=>!s.from&&inRange(s,thisWeek,next));
+ const {data}=await supabase.from('follow_circle_commitments').select('week_start,goal').eq('circle_id',circle).eq('user_id',user.id).in('week_start',[isoDay(lastWeek),isoDay(thisWeek)]);
+ if(selected?.circle_id!==circle)return;
+ const goalFor=d=>(data||[]).find(r=>r.week_start===isoDay(d))?.goal;
+ const back=$('huddle-back');back.replaceChildren();
+ const last=goalFor(lastWeek);
+ if(last!=null)back.append(el('p','Last week you planned to move '+last+' forward. You moved '+forwardLast.length+'.'));
+ const grid=el('div',undefined,'huddle-grid');
+ for(const stage of STAGES){const n=steps.filter(s=>s.to===stage&&inRange(s,thisWeek,next)).length;const c=el('div',undefined,'huddle-stat'+(n?' on':''));c.append(el('strong',(n?'+':'')+n),el('span',STAGE_LABEL[stage]));grid.append(c)}
+ back.append(grid,el('p',forwardThis.length||addedThis.length?'This week so far, on this device.':'Nothing moved yet this week on this device.','hint'));
+ // Look forward: names from this device's box only.
+ const picksAll=localJSON('cb-huddle-picks',{}),saved=picksAll[circle]?.week===isoDay(thisWeek)?picksAll[circle].names:[];
+ const conv=localJSON('conversations',{});const people=['casual','meaningful','spiritual'].flatMap(stage=>(conv[stage]||[]).map(p=>({name:p.name,stage})));
+ const root=$('huddle-picks');root.replaceChildren();
+ if(!people.length){root.append(el('p','Your Conversation Box on this device is empty. Add the people you’re talking with first.','empty'));$('huddle-commit').hidden=true;return}
+ $('huddle-commit').hidden=false;
+ for(const p of people){
+  const label=el('label',undefined,'pick');const cb=document.createElement('input');cb.type='checkbox';cb.value=p.name;cb.checked=saved.includes(p.name);
+  const to=STAGES[STAGES.indexOf(p.stage)+1];
+  label.append(cb,el('span',p.name,'pick-name'),el('span',(STAGES.indexOf(p.stage)+1)+' → '+(STAGES.indexOf(to)+1),'pick-step'));
+  label.title=STAGE_LABEL[p.stage]+' to '+STAGE_LABEL[to];root.append(label);
+ }
+ const goal=goalFor(thisWeek);
+ const paint=()=>{const n=root.querySelectorAll('input:checked').length;$('huddle-commit').textContent=goal!=null&&n===goal&&saved.length===n?'Committed to '+n:'Commit to '+n+' this week'};
+ root.onchange=paint;paint();
+}
+async function commitHuddle(){
+ const circle=selected.circle_id,week=isoDay(mondayOf());
+ const names=[...$('huddle-picks').querySelectorAll('input:checked')].map(x=>x.value);
+ $('huddle-commit').disabled=true;
+ try{
+  await invoke('follow_circle_commit',{p_circle:circle,p_week:week,p_goal:names.length});
+  const all=localJSON('cb-huddle-picks',{});all[circle]={week,names};localStorage.setItem('cb-huddle-picks',JSON.stringify(all));
+  status(names.length?'Committed to '+names.length+' this week. The Circle sees the number only.':'Saved.');
+  await loadCbSummary(circle);await renderHuddle(circle);
+ }catch(e){status(e.message,true)}finally{$('huddle-commit').disabled=false}
+}
+function renderChurchSetting(){
+ const box=$('church-setting');box.hidden=!cbReady;if(!cbReady)return;
+ const churchId=selected.circle.church_id,name=churchNames.get(churchId);
+ $('church-status').textContent=churchId?'Linked to '+(name||'a church')+'. Its leaders see this Circle’s counts, never names or posts.':'Not linked to a church.';
+ $('church-unlink').hidden=!(churchId&&selected.role==='steward');
+ $('church-hint').hidden=!!churchId||selected.role!=='steward';
 }
 function personalReadingDay(){
  try{
@@ -322,7 +493,7 @@ $('post-form').addEventListener('submit',async e=>{
  }catch(err){status(err.message,true)}finally{b.disabled=false}
 });
 $('member-settings').addEventListener('submit',async e=>{
- e.preventDefault();const r=await supabase.from('follow_circle_members').update({display_name:val('display-name'),progress_visible:$('show-progress').checked,email_replies:$('email-replies').checked,email_mentions:$('email-mentions').checked,email_digest:$('email-digest').checked}).eq('circle_id',selected.circle_id).eq('user_id',user.id);
+ e.preventDefault();const r=await supabase.from('follow_circle_members').update({display_name:val('display-name'),progress_visible:$('show-progress').checked,email_replies:$('email-replies').checked,email_mentions:$('email-mentions').checked,email_digest:$('email-digest').checked,...(cbReady?{share_conversations:$('share-conversations').checked}:{})}).eq('circle_id',selected.circle_id).eq('user_id',user.id);
  if(r.error)return status(r.error.message,true);await loadCircles();selected=memberships.find(x=>x.circle_id===selected.circle_id);status('Settings saved')
 });
 $('transfer-circle').addEventListener('click',async()=>{
@@ -335,6 +506,29 @@ $('transfer-circle').addEventListener('click',async()=>{
 $('leave-circle').addEventListener('click',async()=>{
  if(!confirm('Leave this Circle? Your private reading progress will stay intact.'))return;
  try{await invoke('follow_circle_leave',{p_circle:selected.circle_id});await loadCircles();showOverview();status('You left the Circle')}
+ catch(e){status(e.message,true)}
+});
+$('cb-optin-btn').addEventListener('click',async()=>{
+ const r=await supabase.from('follow_circle_members').update({share_conversations:true}).eq('circle_id',selected.circle_id).eq('user_id',user.id);
+ if(r.error)return status(r.error.message,true);
+ selected.share_conversations=true;status('Your counts are now included. Names stay on your phone.');await loadConversations();
+});
+$('prayer-toggle').addEventListener('click',()=>{const open=$('prayer-form').hidden;$('prayer-form').hidden=!open;$('prayer-toggle').setAttribute('aria-expanded',String(open));if(open)$('prayer-initials').focus()});
+$('prayer-form').addEventListener('submit',async e=>{
+ e.preventDefault();const b=e.submitter;
+ const initials=val('prayer-initials').replace(/\s+/g,' ');
+ if(!/^[^\s\d.]{1,2}\.?( [^\s\d.]{1,2}\.?){0,2}$/u.test(initials))return status('Use initials only, like J. K.',true);
+ b.disabled=true;
+ try{
+  const r=await supabase.from('follow_circle_posts').insert({circle_id:selected.circle_id,author_id:user.id,kind:'prayer',prayer_initials:initials,prayer_stage:val('prayer-stage'),body:val('prayer-body')});
+  if(r.error)throw r.error;
+  $('prayer-form').reset();$('prayer-form').hidden=true;$('prayer-toggle').setAttribute('aria-expanded','false');status('Your Circle can pray now.');await loadPrayers(selected.circle_id);
+ }catch(err){status(err.message,true)}finally{b.disabled=false}
+});
+$('huddle-commit').addEventListener('click',commitHuddle);
+$('church-unlink').addEventListener('click',async()=>{
+ if(!confirm('Unlink this Circle from its church? Church leaders will stop seeing its counts.'))return;
+ try{await invoke('follow_church_unlink',{p_circle:selected.circle_id});const id=selected.circle_id;await loadCircles();selected=memberships.find(x=>x.circle_id===id);renderChurchSetting();status('Unlinked')}
  catch(e){status(e.message,true)}
 });
 for(let day=1;day<=365;day++){const option=el('option','Day '+day);option.value=String(day);$('post-day').append(option)}

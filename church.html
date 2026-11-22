@@ -1,0 +1,81 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ffffff"><title>Church view | OBEY.TOOLS</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="/assets/images/favicons/favicon.ico"><link rel="stylesheet" href="/fonts.css">
+<link rel="stylesheet" href="/follow-circles.css"><link rel="stylesheet" href="/church.css">
+<script type="module" src="/i18n.js"></script></head>
+<body><header class="sitehead"><a href="/follow-circles.html" class="back"><svg class="ico" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg><span>Circles</span></a><strong class="sitename">CHURCH VIEW</strong><span class="spacer" aria-hidden="true"></span></header>
+<main class="layout church-layout">
+<div id="loading" role="status">Checking your account…</div>
+<div id="notice" role="status" aria-live="polite"></div>
+<section id="auth-needed" hidden>
+ <h1>Church view</h1>
+ <p class="lead">See how conversations are moving across your church’s Circles. Counts only: names stay private to each person. Sign in with your OBEY.TOOLS account.</p>
+ <form id="sign-in-form" class="stack"><label for="auth-email">Email</label><input type="email" id="auth-email" autocomplete="email" required><label for="auth-password">Password</label><input type="password" id="auth-password" autocomplete="current-password" required><button type="submit" class="primary">Sign in</button></form>
+ <div class="auth-alt"><button id="magic-sign-in" class="textbtn" type="button">Email me a sign-in link instead</button><a href="/" class="textbtn">Create an account</a></div>
+</section>
+
+<section id="invite-view" hidden>
+ <p class="kicker" id="invite-kicker"></p>
+ <h1 id="invite-church"></h1>
+ <div id="invite-admin" hidden>
+  <p class="lead">You’ve been invited to help lead this church’s view. You’ll see counts across its Circles, never names or posts.</p>
+  <form id="admin-form" class="stack"><label for="admin-name">Your name</label><input id="admin-name" maxlength="60" required placeholder="First name"><button class="primary" type="submit">Join as a church leader</button></form>
+ </div>
+ <div id="invite-circle" hidden>
+  <p class="lead">Link a Circle you steward. Church leaders will see its counts: how many people are in each stage and how many steps were shared. Never names, posts or prayer requests.</p>
+  <form id="link-form" class="stack"><label for="link-circle">Your Circle</label><select id="link-circle" required></select><button class="primary" type="submit">Link this Circle</button></form>
+  <p id="no-steward" class="empty" hidden>Only a Circle’s steward can link it. Start a Circle first, or ask your Circle’s steward to open this link.</p>
+ </div>
+</section>
+
+<section id="list-view" hidden>
+ <h1>Church view</h1>
+ <p class="lead">See how conversations are moving across your church’s Circles. Counts only: names stay private to each person.</p>
+ <div id="church-list" class="circle-list"></div>
+ <form id="create-church" class="stack create-church">
+  <h2>Set up a church</h2>
+  <label for="church-name">Church or ministry name</label><input id="church-name" maxlength="80" required placeholder="Grace Fellowship">
+  <label for="church-display">Your name</label><input id="church-display" maxlength="60" required placeholder="First name">
+  <button class="primary" type="submit">Create church view</button>
+  <p class="hint">Next, send the Circle link to each group’s steward. They choose to link their Circle.</p>
+ </form>
+</section>
+
+<section id="church-view" hidden>
+ <a href="/church.html" class="textbtn back-link"><svg class="ico" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>All churches</a>
+ <p class="kicker" id="church-kicker"></p>
+ <h1 id="church-title"></h1>
+ <section class="stage-row" aria-label="People in each stage across linked Circles">
+  <div class="stage" data-stage="casual"><span class="stage-label">1 Casual</span><strong class="stage-total">0</strong></div>
+  <span class="stage-arrow" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+  <div class="stage" data-stage="meaningful"><span class="stage-label">2 Meaningful</span><strong class="stage-total">0</strong></div>
+  <span class="stage-arrow" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+  <div class="stage" data-stage="spiritual"><span class="stage-label">3 Spiritual</span><strong class="stage-total">0</strong></div>
+  <span class="stage-arrow" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+  <div class="stage is-end" data-stage="discovery"><span class="stage-label">4 Discovery</span><strong class="stage-total">0</strong></div>
+ </section>
+ <p id="stage-note" class="hint"></p>
+ <div class="church-grid">
+  <section class="church-main" aria-labelledby="circles-title">
+   <div class="cb-head"><h2 id="circles-title">Circles</h2><button id="invite-circle-btn" class="secondary" type="button">Invite a Circle</button></div>
+   <div class="table-box"><table id="circles-table"><thead><tr><th scope="col">Circle</th><th scope="col" class="num" title="Casual">1</th><th scope="col" class="num" title="Meaningful">2</th><th scope="col" class="num" title="Spiritual">3</th><th scope="col" class="num" title="Discovery">4</th><th scope="col" class="num">Steps, 30 days</th><th scope="col">Last huddle</th><th scope="col"><span class="sr-only">Actions</span></th></tr></thead><tbody id="circles-body"></tbody></table></div>
+   <p id="no-circles" class="empty" hidden>No Circles linked yet. Send the Circle link to your group stewards. Each steward chooses whether to link.</p>
+  </section>
+  <aside class="church-side" aria-labelledby="nudge-title">
+   <h2 id="nudge-title">Worth a nudge</h2>
+   <div id="nudges"></div>
+   <p class="hint">Counts only. Leaders never see the names people keep in their own Conversation Box, or Circle posts.</p>
+  </aside>
+ </div>
+ <section class="setting" aria-labelledby="leaders-title">
+  <h3 id="leaders-title">Church leaders</h3>
+  <div id="admins"></div>
+  <div class="row wrap"><button id="invite-admin-btn" class="secondary" type="button">Add a church leader</button><button id="revoke-links" class="danger" type="button">Turn off all links</button></div>
+ </section>
+ <section class="setting"><button id="leave-church" class="textbtn danger-text" type="button">Leave this church view</button></section>
+</section>
+
+<section id="link-dialog" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="link-title"><div class="modal-card"><h2 id="link-title"></h2><p id="link-help" class="muted"></p><input id="invite-url" readonly aria-label="Invitation URL"><div class="actions"><button id="close-link" class="secondary" type="button">Done</button><button id="copy-link" class="primary" type="button">Copy link</button></div></div></section>
+</main><script type="module" src="/church.js"></script></body></html>

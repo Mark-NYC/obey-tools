@@ -169,3 +169,62 @@ legend{font-weight:650;font-size:14px;padding:0;margin-bottom:8px}
  .tabs button{padding:12px 10px;font-size:14px}
  .badge{font-size:11px;padding:3px 8px}
 }
+
+/* Conversations tab: the group's Conversation Box, prayer, steps, huddle */
+.cb-section{padding:4px 0 26px}
+.cb-section+.cb-section{border-top:1px solid var(--line);padding-top:22px}
+.cb-section h2{font-size:19px;margin:0}
+.cb-section h3{font-size:15px;margin:18px 0 8px}
+.cb-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.cb-quad{display:grid;grid-template-columns:minmax(0,1fr) 28px minmax(0,1fr);grid-template-rows:auto 28px auto;padding:10px;border:1px solid var(--line);border-radius:18px}
+.cb-cell{padding:12px;border-radius:12px;background:var(--soft);display:flex;flex-direction:column;min-width:0}
+.cb-cell[data-stage=casual]{grid-area:1/1}.cb-cell[data-stage=meaningful]{grid-area:1/3}
+.cb-cell[data-stage=spiritual]{grid-area:3/3}.cb-cell[data-stage=discovery]{grid-area:3/1}
+.cb-cell.is-end{background:var(--green-soft)}
+.cb-label{font-size:12px;font-weight:650;color:var(--muted)}
+.cb-cell.is-end .cb-label,.cb-cell.is-end .cb-total{color:var(--green-ink)}
+.cb-total{font-size:30px;line-height:1.15;font-weight:750;font-variant-numeric:tabular-nums}
+.cb-week{font-size:12px;font-weight:650;color:var(--green-ink);min-height:18px}
+.cb-arrow{display:grid;place-items:center;color:#9a9aa1}
+.cb-arrow .ico{width:18px;height:18px}
+.a-right{grid-area:1/2}.a-down{grid-area:2/3}.a-left{grid-area:3/2}
+.a-down .ico{transform:rotate(90deg)}.a-left .ico{transform:rotate(180deg)}
+[dir=rtl] .a-right .ico{transform:rotate(180deg)}[dir=rtl] .a-left .ico{transform:none}
+.cb-optin{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:14px;padding:14px 16px;border-radius:16px;background:var(--green-soft)}
+.cb-optin p{margin:0;font-weight:650;font-size:15px}
+.cb-optin .secondary{min-height:44px}
+.prayer-form{margin:0 0 16px;padding:16px;border-radius:16px;background:var(--soft)}
+.prayer-form label{margin-top:10px}
+.prayer-row{align-items:flex-end;gap:12px}
+.prayer-row>.stack{flex:1;min-width:0}
+.prayer-row>.stack:first-child{flex:0 0 112px}
+.prayer-list{border-top:1px solid var(--line)}
+.prayer{display:flex;gap:12px;align-items:center;padding:14px 0;border-bottom:1px solid var(--line)}
+.prayer-text{flex:1;min-width:0}
+.prayer-head{margin:0;font-size:16px}
+.prayer-body{margin:2px 0;font-size:15px;color:var(--ink-2);overflow-wrap:anywhere}
+.prayer small,.activity small{color:var(--muted);font-size:12px}
+.prayer-actions{display:flex;align-items:center;gap:2px;flex:none}
+.prayer-actions .more-menu{left:auto;right:0}
+.pray-btn{min-height:40px;padding:0 14px;border:0;border-radius:999px;background:var(--soft-2);font-weight:700;font-size:13px;white-space:nowrap}
+.pray-btn.on{background:var(--green-soft);color:var(--green-ink)}
+.activity{display:flex;gap:12px;align-items:flex-start;padding:10px 0}
+.activity p{margin:0;font-size:15px}
+.huddle-back p{margin:0 0 10px;font-size:15px}
+.huddle-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.huddle-stat{padding:8px 4px;border-radius:12px;background:var(--soft);text-align:center;min-width:0}
+.huddle-stat strong{display:block;font-size:18px}
+.huddle-stat span{display:block;font-size:11px;font-weight:650;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.huddle-stat.on{background:var(--green-soft)}.huddle-stat.on strong,.huddle-stat.on span{color:var(--green-ink)}
+.huddle-picks{border:1px solid var(--line);border-radius:16px;overflow:hidden;margin-top:12px}
+.pick{display:flex!important;align-items:center;gap:12px;min-height:54px;margin:0!important;padding:0 16px;border-bottom:1px solid var(--line);font-weight:600!important;font-size:16px!important;cursor:pointer}
+.pick:last-child{border-bottom:0}
+.pick input{width:20px;height:20px;accent-color:var(--green);flex:none}
+.pick-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pick-step{font-size:13px;color:var(--green-ink);font-weight:650}
+.huddle-actions{margin-top:14px}
+.huddle-actions .primary{flex:1 1 220px}
+.church-links{margin-top:20px}
+.church-links .circle-card:first-child{border-top:1px solid var(--line)}
+.avatar.church-mark{background:var(--green-soft);color:var(--green-ink)}
+@media(max-width:440px){.tabs{gap:0;margin-left:-8px;margin-right:-8px}.tabs button{padding:12px 8px;font-size:14px}}

@@ -1,0 +1,41 @@
+/* Church view: counts across linked Circles. Builds on follow-circles.css. */
+.church-layout{max-width:1080px}
+.sitehead{max-width:1080px}
+.create-church{margin-top:28px;padding:20px;border-radius:20px;background:var(--soft)}
+.create-church h2{margin:0}
+.stage-row{display:grid;grid-template-columns:minmax(0,1fr) 24px minmax(0,1fr) 24px minmax(0,1fr) 24px minmax(0,1fr);margin:20px 0 6px;padding:14px;border:1px solid var(--line);border-radius:20px}
+.stage{padding:8px 10px;border-radius:12px;min-width:0}
+.stage.is-end{background:var(--green-soft)}
+.stage-label{display:block;font-size:13px;font-weight:650;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stage-total{display:block;font-size:40px;line-height:1.1;font-weight:750;font-variant-numeric:tabular-nums}
+.stage.is-end .stage-label,.stage.is-end .stage-total{color:var(--green-ink)}
+.stage-arrow{display:grid;place-items:center;color:#9a9aa1}
+.stage-arrow .ico{width:18px;height:18px}
+[dir=rtl] .stage-arrow .ico{transform:scaleX(-1)}
+.church-grid{display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start;margin:24px 0 8px}
+.church-main{flex:999 1 560px;min-width:0}
+.church-side{flex:1 1 280px;min-width:0}
+.church-side h2,.church-main h2{font-size:19px;margin:0}
+.church-side h2{margin-bottom:12px}
+.table-box{overflow-x:auto;border:1px solid var(--line);border-radius:16px}
+#circles-table{width:100%;min-width:620px;border-collapse:collapse;font-size:14px}
+#circles-table th{font-size:12px;font-weight:650;color:var(--muted);text-align:left;padding:12px 10px}
+#circles-table td{padding:12px 10px;border-top:1px solid var(--line);vertical-align:middle}
+#circles-table th:first-child,#circles-table td:first-child{padding-left:16px}
+#circles-table .num{text-align:right;font-variant-numeric:tabular-nums}
+#circles-table td.end{color:var(--green-ink);font-weight:750}
+.circle-cell strong{display:block;font-size:15px}
+.circle-cell small{color:var(--muted);font-size:12px}
+.pill{display:inline-block;padding:3px 9px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap}
+.pill.warn{background:#fff4d6;color:#7a5a00}
+.pill.ok{background:var(--green-soft);color:var(--green-ink)}
+.nudge{padding:14px 0;border-bottom:1px solid var(--line);font-size:14px;line-height:1.45}
+.nudge:first-child{border-top:1px solid var(--line)}
+.nudge a{font-weight:700}
+.admin-row{display:flex;align-items:center;gap:10px;padding:8px 0}
+@media(max-width:640px){
+ .stage-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:auto auto;gap:8px;padding:10px}
+ .stage-arrow{display:none}
+ .stage[data-stage=casual]{grid-area:1/1}.stage[data-stage=meaningful]{grid-area:1/2}.stage[data-stage=spiritual]{grid-area:2/2}.stage[data-stage=discovery]{grid-area:2/1}
+ .stage-total{font-size:30px}
+}

@@ -23,6 +23,8 @@
   <p class="invite-prompt">Who could you begin following Jesus with?</p>
   <button class="primary" id="new-circle" type="button"><svg class="ico" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>Start a Circle</button>
   <p class="hint">Joining a friend’s Circle? Open the invitation link they sent you. Circles are private and never listed publicly.</p>
+  <div id="church-links" class="church-links"></div>
+  <p class="hint"><a href="/church.html">Leading a church? Set up a church view</a></p>
  </section>
  <section id="circle-view" hidden>
   <button id="back-circles" class="textbtn back-link" type="button"><svg class="ico" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>All Circles</button>
@@ -33,7 +35,7 @@
    <button type="button" class="textbtn" id="read-independent">Read at my own pace instead</button>
   </div>
   <div class="row actions-row"><a class="primary linkbtn" id="circle-today-link" href="/daily-sos.html">Open this Circle’s reading</a><button id="invite-top" class="secondary" type="button"><svg class="ico" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6"/><path d="M22 11h-6"/></svg>Invite friends</button></div>
-  <nav class="tabs" aria-label="Circle sections"><button type="button" data-tab="feed" aria-current="page">Prayer &amp; plans</button><button type="button" data-tab="members">Members</button><button type="button" data-tab="about">Settings</button></nav>
+  <nav class="tabs" aria-label="Circle sections"><button type="button" data-tab="feed" aria-current="page">Prayer &amp; plans</button><button type="button" data-tab="conversations">Conversations</button><button type="button" data-tab="members">Members</button><button type="button" data-tab="about">Settings</button></nav>
   <div id="tab-feed">
    <p class="muted tab-intro">Passage reflections appear under each day’s reading. Use this space for prayer requests and plans.</p>
    <details class="composer" id="composer"><summary><span class="avatar me" aria-hidden="true"></span><span>Write to your Circle</span></summary>
@@ -50,18 +52,61 @@
    <span id="passage-filter" class="row" hidden><label for="passage-day" class="sr-only">Day</label><input type="number" id="passage-day" min="1" max="365" value="1" aria-label="Reading day"><button id="passage-go" class="secondary" type="button">Show</button></span></div>
    <div id="feed-items"></div><button id="more-posts" class="secondary wide" hidden type="button">Load more</button>
   </div>
+  <div id="tab-conversations" hidden>
+   <section class="cb-section" aria-labelledby="cb-title">
+    <div class="cb-head"><h2 id="cb-title">Our Conversation Box</h2><span id="cb-sharing" class="muted"></span></div>
+    <div class="cb-quad" id="cb-quad">
+     <div class="cb-cell" data-stage="casual"><span class="cb-label">1 Casual</span><strong class="cb-total">0</strong><span class="cb-week"></span></div>
+     <span class="cb-arrow a-right"><svg class="ico" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+     <div class="cb-cell" data-stage="meaningful"><span class="cb-label">2 Meaningful</span><strong class="cb-total">0</strong><span class="cb-week"></span></div>
+     <span class="cb-arrow a-down"><svg class="ico" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+     <div class="cb-cell is-end" data-stage="discovery"><span class="cb-label">4 Discovery</span><strong class="cb-total">0</strong><span class="cb-week"></span></div>
+     <span class="cb-arrow a-left"><svg class="ico" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+     <div class="cb-cell" data-stage="spiritual"><span class="cb-label">3 Spiritual</span><strong class="cb-total">0</strong><span class="cb-week"></span></div>
+    </div>
+    <p class="hint">Counts only. The names in each person’s Conversation Box stay private to them.</p>
+    <div id="cb-optin" class="cb-optin" hidden><p>Your numbers aren’t included yet.</p><button id="cb-optin-btn" class="secondary" type="button">Include my numbers</button></div>
+   </section>
+   <section class="cb-section" aria-labelledby="pray-title">
+    <div class="cb-head"><h2 id="pray-title">Pray for</h2><button id="prayer-toggle" class="textbtn" type="button" aria-expanded="false" aria-controls="prayer-form">Add a request</button></div>
+    <form id="prayer-form" class="stack prayer-form" hidden>
+     <div class="row prayer-row"><div class="stack"><label for="prayer-initials">Initials</label><input id="prayer-initials" maxlength="12" required placeholder="J. K." autocomplete="off"></div>
+     <div class="stack"><label for="prayer-stage">Where they are</label><select id="prayer-stage"><option value="casual">1 Casual</option><option value="meaningful">2 Meaningful</option><option value="spiritual" selected>3 Spiritual</option><option value="discovery">4 Discovery</option></select></div></div>
+     <label for="prayer-body">What should we pray for?</label><textarea id="prayer-body" maxlength="280" rows="2" required placeholder="Asked to read John 3 together on Friday"></textarea>
+     <p class="hint">Initials only, never a full name.</p>
+     <button class="primary" type="submit">Ask the Circle to pray</button>
+    </form>
+    <div id="prayer-list"></div>
+   </section>
+   <section class="cb-section" aria-labelledby="week-title">
+    <h2 id="week-title">This week</h2>
+    <div id="cb-activity"></div>
+   </section>
+   <section class="cb-section huddle" id="huddle" aria-labelledby="huddle-title">
+    <h2 id="huddle-title">Weekly huddle</h2>
+    <p id="huddle-group" class="muted"></p>
+    <h3>Your week</h3>
+    <div id="huddle-back" class="huddle-back"></div>
+    <h3>Who will you move forward this week?</h3>
+    <p class="muted">Pick from your own Conversation Box on this device. The Circle sees how many, not who.</p>
+    <div id="huddle-picks" class="huddle-picks"></div>
+    <div class="row wrap huddle-actions"><button id="huddle-commit" class="primary" type="button">Commit</button><a class="textbtn" href="/conversation-box.html">Open your Conversation Box</a></div>
+   </section>
+  </div>
   <div id="tab-members" hidden><div id="moderation-reports" hidden class="callout"><h3>Reports to review</h3><div id="reports-list"></div></div><div id="members-list"></div><button id="more-members" type="button" class="secondary wide" hidden>Load more</button><p class="hint">Progress shows only for members who choose to share it.</p></div>
   <div id="tab-about" hidden>
    <section class="setting"><h3>Invitations</h3><p class="muted">Anyone with a link can join after signing in. If a link is lost, create a new one.</p><div id="invite-actions" class="row wrap"></div></section>
    <section class="setting"><h3>You in this Circle</h3><form id="member-settings" class="stack">
     <label for="display-name">Your name</label><input id="display-name" maxlength="60" required>
     <label class="toggle"><input type="checkbox" id="show-progress"> Show my reading progress to members</label>
+    <label class="toggle"><input type="checkbox" id="share-conversations"> Include my Conversation Box numbers (counts only, never names)</label>
     <p class="subhead">Email me about</p>
     <label class="toggle"><input type="checkbox" id="email-replies"> Replies to my posts</label>
     <label class="toggle"><input type="checkbox" id="email-mentions"> Mentions</label>
     <label class="toggle"><input type="checkbox" id="email-digest"> A weekly digest</label>
     <p class="hint">Email delivery isn’t on yet. Your choices are saved for when it launches.</p>
     <button class="secondary" type="submit">Save</button></form></section>
+   <section id="church-setting" class="setting" hidden><h3>Church</h3><p id="church-status" class="muted"></p><button id="church-unlink" class="secondary" type="button" hidden>Unlink from this church</button><p id="church-hint" class="hint">To link this Circle, open the Circle link from your church’s leader.</p></section>
    <section id="steward-controls" class="setting" hidden><h3>Steward</h3><label for="steward-transfer">Hand stewardship to</label><select id="steward-transfer"><option value="">Choose a member</option></select><button id="transfer-circle" type="button" class="secondary">Transfer stewardship</button></section>
    <section class="setting"><button id="leave-circle" class="danger" type="button">Leave this Circle</button></section>
   </div>
