@@ -4,15 +4,17 @@ on:
     paths:
       - 'follow-circles.*'
       - 'daily-sos.html'
-      - 'supabase/migrations/*follow_multiplying_circles.sql'
+      - 'supabase/migrations/*follow*.sql'
       - 'scripts/test-follow-circles.mjs'
+      - 'daily-sos-circles.*'
+      - 'daily-sos-circles.*'
       - 'scripts/circles-*.sql'
       - '.github/workflows/follow-circles.yml'
   push:
     paths:
       - 'follow-circles.*'
       - 'daily-sos.html'
-      - 'supabase/migrations/*follow_multiplying_circles.sql'
+      - 'supabase/migrations/*follow*.sql'
       - 'scripts/test-follow-circles.mjs'
 jobs:
   static-contracts:
@@ -23,6 +25,7 @@ jobs:
         with:
           node-version: '22'
       - run: node --check follow-circles.js
+      - run: node --check daily-sos-circles.js
       - run: node scripts/test-follow-circles.mjs
   database-contracts:
     runs-on: ubuntu-latest
@@ -53,3 +56,7 @@ jobs:
         run: psql -v ON_ERROR_STOP=1 -f supabase/migrations/20261122120000_follow_multiplying_circles.sql
       - name: Exercise authenticated RLS and invitation contracts
         run: psql -v ON_ERROR_STOP=1 -f scripts/circles-rls-tests.sql
+      - name: Apply shared Circle schedule migration
+        run: psql -v ON_ERROR_STOP=1 -f supabase/migrations/20261122190000_follow_circle_shared_schedules.sql
+      - name: Exercise shared schedule and primary Circle contracts
+        run: psql -v ON_ERROR_STOP=1 -f scripts/circles-shared-schedule-tests.sql
