@@ -37,6 +37,7 @@ create table public.follow_circle_posts(
  author_id uuid not null references auth.users(id) on delete cascade,
  reading_day integer check(reading_day between 1 and 365),
  body text not null check(char_length(btrim(body)) between 1 and 3000),
+ mentioned_user_ids uuid[] not null default '{}'::uuid[] check(cardinality(mentioned_user_ids)<=10),
  parent_id uuid references public.follow_circle_posts(id) on delete cascade,
  created_at timestamptz not null default now(),
  updated_at timestamptz not null default now(),
@@ -58,6 +59,30 @@ create table public.follow_circle_reports(
  reporter_id uuid not null references auth.users(id) on delete cascade,
  reason text not null check(char_length(btrim(reason)) between 4 and 500),
  created_at timestamptz not null default now()
+);
+-- Delivery-only queue. Never exposed to end users or the Data API.
+create table public.follow_circle_email_outbox(
+ id uuid primary key default gen_random_uuid(),
+ user_id uuid not null references auth.users(id) on delete cascade,
+ circle_id uuid not null references public.follow_circles(id) on delete cascade,
+ post_id uuid not null references public.follow_circle_posts(id) on delete cascade,
+ kind text not null check(kind in ('reply','mention')),
+ status text not null default 'pending' check(status in ('pending','sending','sent')),
+ attempts integer not null default 0,
+ retry_at timestamptz not null default now(),
+ created_at timestamptz not null default now(),
+ sent_at timestamptz,
+ last_error text,
+ unique(user_id,post_id,kind)
+);
+create index follow_circle_email_pending_idx on public.follow_circle_email_outbox(status,retry_at);
+create table public.follow_circle_digest_deliveries(
+ user_id uuid not null references auth.users(id) on delete cascade,
+ circle_id uuid not null references public.follow_circles(id) on delete cascade,
+ week_start date not null,
+ status text not null default 'pending' check(status in ('pending','sent')),
+ sent_at timestamptz,
+ primary key(user_id,circle_id,week_start)
 );
 create table public.follow_circle_blocks(
  user_id uuid not null references auth.users(id) on delete cascade,
@@ -88,6 +113,8 @@ alter table public.follow_circle_posts enable row level security;
 alter table public.follow_circle_reactions enable row level security;
 alter table public.follow_circle_reports enable row level security;
 alter table public.follow_circle_blocks enable row level security;
+alter table public.follow_circle_email_outbox enable row level security;
+alter table public.follow_circle_digest_deliveries enable row level security;
 create policy circles_read on public.follow_circles for select to authenticated
  using(circles_private.is_member(id,(select auth.uid())));
 create policy members_read on public.follow_circle_members for select to authenticated
@@ -121,7 +148,7 @@ create policy reports_steward_read on public.follow_circle_reports for select to
 create policy blocks_all on public.follow_circle_blocks for all to authenticated
  using(user_id=(select auth.uid())) with check(user_id=(select auth.uid()));
 -- Never expose invitation token hashes in the Data API.
-revoke all on public.follow_circle_invites from anon, authenticated;
+revoke all on public.follow_circle_invites,public.follow_circle_email_outbox,public.follow_circle_digest_deliveries from anon, authenticated;
 revoke all on public.follow_circles,public.follow_circle_members,public.follow_circle_posts,public.follow_circle_reactions,public.follow_circle_reports,public.follow_circle_blocks from anon;
 grant select on public.follow_circles,public.follow_circle_members,public.follow_circle_posts,public.follow_circle_reactions,public.follow_circle_reports to authenticated;
 grant insert on public.follow_circle_posts,public.follow_circle_reactions,public.follow_circle_reports,public.follow_circle_blocks to authenticated;
@@ -236,6 +263,47 @@ begin
  from public.follow_circle_members m where m.circle_id=p_circle and m.progress_visible=true
  order by m.joined_at,m.user_id limit least(greatest(p_limit,1),100) offset greatest(p_offset,0);
 end;$;
+-- All mention recipients must be existing Circle members.
+create function circles_private.validate_mentions() returns trigger language plpgsql
+security definer set search_path=''
+as $
+begin
+ if exists(select 1 from unnest(new.mentioned_user_ids) as id
+  where id=new.author_id or not exists(
+   select 1 from public.follow_circle_members m where m.circle_id=new.circle_id and m.user_id=id))
+ then raise exception 'Mentions must target other Circle members';end if;
+ return new;
+end;$;
+create trigger follow_circle_mentions_valid before insert or update of mentioned_user_ids,circle_id on public.follow_circle_posts
+ for each row execute function circles_private.validate_mentions();
+-- No private SOS content, post bodies or email addresses are written into this queue.
+create function circles_private.queue_post_emails() returns trigger language plpgsql
+security definer set search_path=''
+as $
+declare parent_author uuid;
+begin
+ if new.parent_id is not null then
+  select author_id into parent_author from public.follow_circle_posts where id=new.parent_id and circle_id=new.circle_id;
+  if parent_author is not null and parent_author<>new.author_id and exists(
+   select 1 from public.follow_circle_members m where m.circle_id=new.circle_id
+    and m.user_id=parent_author and m.email_replies=true)
+   and not exists(select 1 from public.follow_circle_blocks b where b.user_id=parent_author and b.blocked_user_id=new.author_id)
+  then
+   insert into public.follow_circle_email_outbox(user_id,circle_id,post_id,kind)
+   values(parent_author,new.circle_id,new.id,'reply') on conflict do nothing;
+  end if;
+ end if;
+ insert into public.follow_circle_email_outbox(user_id,circle_id,post_id,kind)
+ select m.user_id,new.circle_id,new.id,'mention' from public.follow_circle_members m
+ where m.circle_id=new.circle_id and m.email_mentions=true
+ and m.user_id=any(new.mentioned_user_ids) and m.user_id<>new.author_id
+ and not exists(select 1 from public.follow_circle_blocks b where b.user_id=m.user_id and b.blocked_user_id=new.author_id)
+ on conflict do nothing;
+ return new;
+end;$;
+create trigger follow_circle_queue_email after insert on public.follow_circle_posts
+ for each row execute function circles_private.queue_post_emails();
+
 -- Enforce a small post rate limit server-side, including direct REST calls.
 create function circles_private.limit_posts() returns trigger language plpgsql
 security definer set search_path=''
