@@ -21,20 +21,51 @@ const message=(text,error=false)=>{
  $('following-notice').classList.toggle('following-error',error);
 };
 const day=()=>bridge()?.day?.()||1;
+const ICON={
+ heart:'<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>',
+ reply:'<path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>',
+ send:'<path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/>'
+};
+const icon=name=>{const s=document.createElementNS('http://www.w3.org/2000/svg','svg');s.setAttribute('viewBox','0 0 24 24');s.setAttribute('aria-hidden','true');s.setAttribute('class','following-ico');s.setAttribute('fill','none');s.setAttribute('stroke','currentColor');s.setAttribute('stroke-width','2');s.setAttribute('stroke-linecap','round');s.setAttribute('stroke-linejoin','round');s.innerHTML=ICON[name];return s};
+const avatar=(name,cls='following-avatar')=>{const a=element('span',(String(name||'?').trim()[0]||'?').toUpperCase(),cls);a.setAttribute('aria-hidden','true');return a};
+function when(iso){
+ const t=new Date(iso);if(Number.isNaN(t.getTime()))return '';
+ const mins=Math.round((Date.now()-t.getTime())/60000);
+ if(mins<1)return 'Just now';if(mins<60)return mins+'m';
+ const hours=Math.round(mins/60);if(hours<24)return hours+'h';
+ if(hours<48)return 'Yesterday';
+ return t.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+}
+const myName=()=>circles.find(c=>c.is_primary)?.display_name||user?.user_metadata?.full_name||user?.email||'';
 const circleLabel=id=>circles.find(c=>c.circle_id===id)?.circle_name||'Circle';
 const allowedIds=()=>circles.map(c=>c.circle_id);
+// Sharing is always available, but becomes the natural next step once the
+// day's SOS is complete. Completion never depends on sharing.
 function updateShareEmphasis(){
- const b=$('following-share-toggle');
- b.classList.toggle('following-featured',!!bridge()?.completed?.());
+ const b=$('following-share-toggle'),done=!!bridge()?.completed?.();
+ b.classList.toggle('following-featured',done);
+ $('following-share-label').textContent=done?'Today is complete. Share what stood out with your Circle?':'Share a reflection on this passage';
 }
 function setContext(){
  const primary=circles.find(c=>c.is_primary);
- $('following-context').textContent=primary
-  ?(primary.finished?'Your primary Circle has finished its study.':primary.circle_name+' · Day '+primary.day_no+' shared reading')
-  :(user?(circles.length?'You are reading independently. Circle conversations remain available.':'Read independently or start a Circle with friends.'):'Your personal SOS answers stay private.');
+ const names=circles.map(c=>c.circle_name);
+ $('following-context').textContent=names.length
+  ?'Reflections on this passage from '+(names.length<=2?names.join(' and '):names.slice(0,2).join(', ')+' and '+(names.length-2)+' more')
+  :'';
+ $('following-context').hidden=!names.length;
+ // Top of the page answers "which day am I reading, and with whom?"
+ const top=$('reading-context');
+ if(top){
+  top.hidden=!user||!circles.length;
+  top.textContent=primary
+   ?(primary.finished?primary.circle_name+' finished the 365-day reading':'Reading with '+primary.circle_name+' · their Day '+primary.day_no)
+   :'Reading at your own pace';
+ }
  $('following-manage').hidden=!user;
+ const me=root.querySelector('.following-avatar-me');if(me)me.textContent=(String(myName()).trim()[0]||'').toUpperCase();
  $('following-finished-actions').hidden=!primary?.finished;
- $('following-share-toggle').hidden=!user||!circles.length;
+ $('following-share-toggle').hidden=!user||!circles.length||!$('following-share-form').hidden;
+ if(!user||!circles.length)$('following-share-form').hidden=true;
  updateShareEmphasis();
 }
 async function getNames(posts){
@@ -49,7 +80,7 @@ async function getNames(posts){
 }
 function labelOf(names,post){return names.get(post.circle_id+':'+post.author_id)||'Member'}
 async function loadReplies(post,container){
- container.replaceChildren(element('p','Loading replies…','following-muted'));
+ container.replaceChildren(element('p','Loading replies…','following-muted following-loading'));
  const {data,error}=await supabase.from('follow_circle_posts')
   .select('id,author_id,circle_id,body,created_at')
   .eq('circle_id',post.circle_id).eq('parent_id',post.id)
@@ -59,58 +90,106 @@ async function loadReplies(post,container){
  container.replaceChildren();
  const items=data||[],names=await getNames(items);
  for(const reply of items){
-  const item=element('div',undefined,'following-reply');
-  item.append(element('strong',labelOf(names,reply)),element('p',reply.body));
+  const item=element('div',undefined,'following-reply'),text=element('div');
+  const who=element('div',undefined,'following-reply-meta');
+  who.append(element('strong',labelOf(names,reply)),element('span',when(reply.created_at),'following-time'));
+  text.append(who,element('p',reply.body));
+  item.append(avatar(labelOf(names,reply),'following-avatar following-avatar-sm'),text);
   container.append(item);
  }
- if(items.length===200)container.append(element('p','Additional replies are available in the Circle.','following-muted'));
- if(!items.length)container.append(element('p','Be the first to reply.','following-muted'));
+ if(items.length===200)container.append(element('p','More replies are in the Circle.','following-muted'));
+ return items.length;
 }
-function postCard(post,names,replyCount=0){
+function postCard(post,names,replyCount=0,reactions={count:0,mine:false}){
  const card=element('article',undefined,'following-post');
- const meta=element('div',undefined,'following-post-meta');
- meta.append(element('strong',labelOf(names,post)),element('span',circleLabel(post.circle_id)));
- card.append(meta,element('p',post.body));
+ const name=labelOf(names,post);
+ const head=element('div',undefined,'following-post-meta');
+ const who=element('div');
+ who.append(element('strong',name));
+ const sub=element('span',circleLabel(post.circle_id),'following-circle');
+ const time=when(post.created_at);
+ who.append(sub);if(time)who.append(element('span',time,'following-time'));
+ head.append(avatar(name),who);
+ const body=element('div',undefined,'following-post-body');
+ body.append(element('p',post.body));
  const controls=element('div',undefined,'following-actions');
  const replies=element('div',undefined,'following-replies');replies.hidden=true;
  const form=element('form',undefined,'following-reply-form');form.hidden=true;
- const input=element('textarea');input.required=true;input.maxLength=3000;input.rows=2;input.placeholder='Write an encouraging reply…';
- const submit=element('button','Post reply','following-small');submit.type='submit';
+ const input=element('textarea');input.required=true;input.maxLength=3000;input.rows=1;input.placeholder='Reply to '+name+'…';
+ input.setAttribute('aria-label','Reply to '+name);
+ const submit=element('button',undefined,'following-send');submit.type='submit';submit.setAttribute('aria-label','Send reply');submit.append(icon('send'));
  form.append(input,submit);
- let opened=false;
- const replyToggle=button('Reply',async()=>{
-  opened=!opened;replies.hidden=!opened;form.hidden=!opened;
-  if(opened)await loadReplies(post,replies);
-  if(opened)input.focus();
+ input.addEventListener('input',()=>{input.style.height='auto';input.style.height=Math.min(input.scrollHeight+2,200)+'px'});
+ let opened=false,count=replyCount;
+ const replyLabel=()=>opened?'Hide replies':count?count+' repl'+(count===1?'y':'ies'):'Reply';
+ const replyToggle=element('button',undefined,'following-act');replyToggle.type='button';
+ const replyText=element('span',replyLabel());replyToggle.append(icon('reply'),replyText);
+ replyToggle.setAttribute('aria-expanded','false');
+ replyToggle.addEventListener('click',async()=>{
+  opened=!opened;replies.hidden=!opened;form.hidden=!opened;replyText.textContent=replyLabel();
+  replyToggle.setAttribute('aria-expanded',String(opened));
+  if(opened){input.focus();const n=await loadReplies(post,replies);if(typeof n==='number'){count=n;replyText.textContent=replyLabel()}}
  });
- controls.append(replyToggle);
- if(replyCount)controls.append(element('span',replyCount+' repl'+(replyCount===1?'y':'ies'),'following-muted'));
- controls.append(button('Encourage',async()=>{
-  if(!user)return;
-  const {error}=await supabase.from('follow_circle_reactions')
-   .insert({circle_id:post.circle_id,post_id:post.id,user_id:user.id});
-  message(error&&error.code!=='23505'?error.message:'Encouragement sent.',!!error&&error.code!=='23505');
- }));
- card.append(controls,replies,form);
+ let mine=!!reactions.mine,total=reactions.count||0,busy=false;
+ const encourage=element('button',undefined,'following-act following-encourage');encourage.type='button';
+ const encText=element('span');encourage.append(icon('heart'),encText);
+ const paint=()=>{encourage.setAttribute('aria-pressed',String(mine));encText.textContent=(mine?'Encouraged':'Encourage')+(total?' · '+total:'')};
+ paint();
+ encourage.addEventListener('click',async()=>{
+  if(!user||busy)return;busy=true;
+  const was=mine;mine=!mine;total=Math.max(0,total+(mine?1:-1));paint();
+  try{
+   const {error}=was
+    ?await supabase.from('follow_circle_reactions').delete().eq('post_id',post.id).eq('user_id',user.id)
+    :await supabase.from('follow_circle_reactions').insert({circle_id:post.circle_id,post_id:post.id,user_id:user.id});
+   if(error&&error.code!=='23505')throw error;
+  }catch(err){mine=was;total=Math.max(0,total+(was?1:-1));paint();message(err.message,true)}
+  finally{busy=false}
+ });
+ controls.append(replyToggle,encourage);
+ body.append(controls,replies,form);
+ card.append(head,body);
  form.addEventListener('submit',async e=>{
-  e.preventDefault();const body=input.value.trim();
-  if(!body)return;submit.disabled=true;
+  e.preventDefault();const text=input.value.trim();
+  if(!text)return;submit.disabled=true;
   try{
    const {error}=await supabase.from('follow_circle_posts')
-    .insert({circle_id:post.circle_id,author_id:user.id,parent_id:post.id,body});
+    .insert({circle_id:post.circle_id,author_id:user.id,parent_id:post.id,body:text});
    if(error)throw error;
-   input.value='';await loadReplies(post,replies);message('Reply shared with '+circleLabel(post.circle_id)+'.');
+   input.value='';input.style.height='';
+   const n=await loadReplies(post,replies);if(typeof n==='number'){count=n;replyText.textContent=replyLabel()}
+   message('Reply shared with '+circleLabel(post.circle_id)+'.');
   }catch(err){message(err.message,true)}finally{submit.disabled=false}
  });
  return card;
+}
+async function reactionsFor(posts){
+ const map=new Map();
+ if(!posts.length||!user)return map;
+ const {data,error}=await supabase.from('follow_circle_reactions')
+  .select('post_id,user_id').in('post_id',posts.map(p=>p.id)).limit(2000);
+ if(error)return map; // Encouragement counts are a nicety; never block reflections.
+ for(const row of data||[]){
+  const r=map.get(row.post_id)||{count:0,mine:false};
+  r.count++;if(row.user_id===user.id)r.mine=true;map.set(row.post_id,r);
+ }
+ return map;
+}
+function emptyState(title,text,link){
+ const box=element('div',undefined,'following-empty');
+ box.append(element('p',title,'following-empty-title'));
+ if(text)box.append(element('p',text,'following-muted'));
+ if(link){const a=element('a',link[0],'following-link');a.href=link[1];box.append(a)}
+ return box;
 }
 async function fetchPosts(reset=true){
  if(loading&&!reset)return;
  const requestedDay=day(),serial=++requestId;
  if(reset){offset=0;$('following-posts').replaceChildren()}
  if(!user||!circles.length){
-  $('following-posts').replaceChildren(element('p',
-   user?'No Circles yet. Start one to follow Jesus with friends.':'Sign in to see reflections shared within your Circles.','following-muted'));
+  $('following-posts').replaceChildren(user
+   ?emptyState('Read with friends','Start a Circle and you’ll read the same passage each day and encourage one another here.',['Start a Circle','/follow-circles.html?day='+day()])
+   :emptyState('Read with friends','Circles let a few friends read the same passage each day and encourage one another.',['Sign in or learn about Circles','/follow-circles.html']));
   $('following-expand').hidden=true;$('following-more').hidden=true;return;
  }
  loading=true;
@@ -134,12 +213,13 @@ async function fetchPosts(reset=true){
    if(replyResult.error)throw replyResult.error;
    for(const row of replyResult.data||[])replyCounts.set(row.parent_id,(replyCounts.get(row.parent_id)||0)+1);
   }
+  const reactions=await reactionsFor(posts);
   if(serial!==requestId||requestedDay!==day())return;
-  for(const p of posts)$('following-posts').append(postCard(p,names,replyCounts.get(p.id)||0));
+  for(const p of posts)$('following-posts').append(postCard(p,names,replyCounts.get(p.id)||0,reactions.get(p.id)));
   offset+=posts.length;
   $('following-expand').hidden=expanded||offset>=(count||0);
   $('following-more').hidden=!expanded||offset>=(count||0);
-  if(reset&&!posts.length)$('following-posts').append(element('p','No reflections for this reading yet. You could share the first.','following-muted'));
+  if(reset&&!posts.length)$('following-posts').append(emptyState('No reflections on this passage yet',bridge()?.completed?.()?'You finished today. A sentence about what stood out could encourage someone.':'When someone in your Circles shares about this passage, it will appear here.'));
  }catch(e){
   if(serial===requestId)message('Conversations are unavailable right now. Your personal reading still works. '+e.message,true);
  }finally{loading=false}
@@ -149,7 +229,7 @@ function updateTargetOptions(){
  for(const c of circles){
   const label=element('label',undefined,'following-target');
   const checkbox=element('input');checkbox.type='checkbox';checkbox.value=c.circle_id;
-  label.append(checkbox,document.createTextNode(' '+c.circle_name));
+  label.append(checkbox,element('span',c.circle_name));
   root.append(label);
  }
  const select=$('following-filter');select.replaceChildren();
@@ -204,7 +284,12 @@ if(root){
  $('following-more').addEventListener('click',()=>fetchPosts(false));
  $('following-share-toggle').addEventListener('click',()=>{
   const form=$('following-share-form');form.hidden=!form.hidden;
+  $('following-share-toggle').hidden=!form.hidden;
   if(!form.hidden)$('following-body').focus();
+ });
+ $('following-cancel').addEventListener('click',()=>{
+  $('following-share-form').hidden=true;$('following-share-toggle').hidden=!user||!circles.length;
+  $('following-share-toggle').focus();
  });
  $('following-share-form').addEventListener('submit',async e=>{
   e.preventDefault();if(!user)return;
@@ -219,16 +304,17 @@ if(root){
    if(error)throw error;
    $('following-body').value='';
    $('following-targets').querySelectorAll('input:checked').forEach(cb=>cb.checked=false);
-   $('following-share-form').hidden=true;
-   message('Shared separately with '+targets.length+' Circle'+(targets.length===1?'':'s')+'.');
+   $('following-share-form').hidden=true;$('following-share-toggle').hidden=false;
+   message('Shared with '+targets.map(circleLabel).join(', ')+'.');
    await fetchPosts(true);
   }catch(err){message(err.message,true)}finally{submit.disabled=false}
  });
  window.addEventListener('sos:day-rendered',()=>{
-  expanded=false;filter='';$('following-expanded-controls').hidden=true;
+  expanded=false;filter='';message('');$('following-expanded-controls').hidden=true;
   $('following-filter').value='';updateShareEmphasis();fetchPosts(true);
  });
  window.addEventListener('sos:progress-saved',updateShareEmphasis);
+ window.addEventListener('sos:day-completed',updateShareEmphasis);
  window.addEventListener('sos:sync-applied',()=>{
   // Sync may restore a personal cursor; the shared primary schedule wins only
   // when loading the daily view, never when someone manually explores history.

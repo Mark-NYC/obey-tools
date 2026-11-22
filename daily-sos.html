@@ -1,385 +1,349 @@
 <!DOCTYPE html>
 <html lang="en"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#00A468">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
 <link rel="icon" href="assets/images/favicons/favicon.ico">
 <link rel="stylesheet" href="/fonts.css"><link rel="stylesheet" href="/buttons.css"><link rel="stylesheet" href="/grow/grow.css">
 <title>Following Jesus’ Way | Follow Daily | OBEY.TOOLS</title>
 <style>
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:#1c1c1e;background:#f2f2f7;font:16px/1.45 -apple-system,BlinkMacSystemFont,"SF Pro Display",sans-serif}
-.shell{max-width:480px;margin:auto;background:#fff;min-height:100dvh;padding-bottom:38px}
-header{display:flex;justify-content:space-between;align-items:center;padding:20px 18px 18px}
-.round{border:0;border-radius:50%;background:#f4f4f5;width:44px;height:44px;display:grid;place-items:center;font-size:24px;color:#161616;text-decoration:none}
-.headline{text-align:center}.headline strong{display:block;font-size:23px;letter-spacing:-.6px}.headline small{display:block;font-size:14px;color:#8e8e93}
-.brand{margin:15px 18px 24px;padding:28px 18px 30px;border-radius:16px;background:var(--ot-nav-green-deep);color:white;text-align:center}
-.brand span{font:30px/1 "Bebas Neue",Impact,sans-serif;letter-spacing:1px}.brand h1{font:56px/.95 "Bebas Neue",Impact,sans-serif;letter-spacing:2px;margin:10px 0 8px}.brand p{margin:0;font-size:13px;font-weight:600}
-.days{display:flex;gap:8px;min-width:0;max-width:100%;overflow-x:auto;overflow-y:hidden;padding:2px 18px 12px;scrollbar-width:thin;scrollbar-color:#b8cbbf transparent;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;touch-action:pan-x pan-y}.days::-webkit-scrollbar{height:5px}.days::-webkit-scrollbar-thumb{background:#b8cbbf;border-radius:6px}
-.day{position:relative;flex:0 0 88px;min-height:79px;padding:11px 8px 9px;border:2px solid transparent;border-radius:10px;background:#f2f2f4;color:#1c1c1e}
-.day b{display:block;font-size:23px}.day small{font-size:11px;color:#777}.day[aria-current=true]{background:#fff;border-color:#1c1c1e}.day .tick{position:absolute;top:5px;right:7px;color:#00875f;font-size:12px}
-.content{padding:17px 20px}.row{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.daytitle{margin:0;font-size:29px;letter-spacing:-1px}.pill{font-size:11px;font-weight:800;letter-spacing:.03em;border-radius:99px;padding:5px 10px;background:#e2f5ec;color:#00754a}
-.section-note{font-size:13px;color:#72727a;margin:6px 0 17px}.summary{margin:0 0 16px;font-size:15px;line-height:1.45}
-.tasks{margin:14px 0 14px}.task{display:flex;align-items:center;gap:14px;min-height:70px;width:100%;background:white;border:0;border-top:1px solid #eee;padding:12px 0;text-align:left;font:inherit;color:inherit}
-.task:last-child{border-bottom:1px solid #eee}.task strong{display:block;font-size:18px}.task small{display:block;color:#75757b;font-size:13px;margin-top:2px}
-.circle{height:26px;width:26px;border:2px solid #222;border-radius:50%;display:grid;place-items:center;flex-shrink:0;font-weight:bold}.circle.done{background:#00a468;color:#fff;border-color:#00a468}.chevron{margin-left:auto;font-size:24px;color:#8a8a8f}
-.panel{border:1px solid #dfe0e2;border-radius:13px;padding:16px;margin:16px 0 18px;background:#fff;scroll-margin-top:15px}.panel[hidden]{display:none}
-.panel h2{font-size:21px;margin:0 0 5px}.panel .sub{font-size:14px;color:#707077;margin-bottom:15px}.panel p{font-size:14px}
-.ref{color:#007a57;font-weight:800;text-decoration:none}.optional{padding:10px 0;border-top:1px solid #eee;margin:14px 0;color:#57575d;font-size:13px}
-.optional summary{cursor:pointer;font-weight:700}.optional p{margin:8px 0 0}
-.field{margin:16px 0}.field label{display:block;font-size:17px;font-weight:750;margin-bottom:5px}.field p{margin:0 0 9px;color:#5d5d65;font-size:13px}textarea,input{font:inherit;padding:12px;border:1px solid #bdbdc3;border-radius:10px;width:100%;background:#fff}textarea{min-height:85px;resize:vertical}
-button{font:inherit;cursor:pointer}.primary{display:block;background:var(--ot-nav-green-deep);color:white;font-weight:750;border:0;border-radius:99px;width:100%;padding:15px 18px;margin-top:18px}.secondary{border:1px solid #aaa;border-radius:10px;background:white;padding:11px 14px;font-weight:650}
-.outline-row{display:flex;gap:8px;flex-wrap:wrap}.outline-row button{border:1px solid #ccc;border-radius:10px;background:#f6f6f6;padding:9px 12px;font-size:13px}.outline-row [aria-pressed=true]{border-color:#00a468;background:#e1f6ec;color:#006a43;font-weight:800}
-.status{min-height:24px;color:#006a43;font-size:13px;margin:10px 0}.muted{color:#797980;font-size:12px}.notice{margin-top:16px;color:#696971;background:#f7f7f8;padding:13px;border-radius:10px;font-size:12px}
-a{color:#007a57}button:focus-visible,a:focus-visible,textarea:focus-visible,input:focus-visible{outline:3px solid #00a468;outline-offset:2px}
-@media(max-width:350px){.brand h1{font-size:47px}.content{padding:14px}.day{flex-basis:74px}}
-
-/* Daily SOS plan menu */
-.menu-backdrop{position:fixed;inset:0;background:rgba(10,24,17,.12);z-index:30}
-.menu-pop{position:fixed;top:76px;right:18px;z-index:31;width:min(320px,calc(100vw - 36px));padding:8px;background:rgba(249,252,250,.87);-webkit-backdrop-filter:blur(24px) saturate(145%);backdrop-filter:blur(24px) saturate(145%);border:1px solid rgba(255,255,255,.8);border-radius:24px;box-shadow:0 16px 50px rgba(0,0,0,.18)}
-.menu-pop button{width:100%;min-height:58px;display:flex;gap:16px;align-items:center;padding:13px 16px;background:transparent;border:0;border-radius:12px;text-align:left;font-size:18px;font-weight:500;color:#171b19}
-.menu-pop button:hover,.menu-pop button:focus-visible{background:rgba(255,255,255,.65)}
-.menu-pop button:focus-visible{outline:2px solid #008956;outline-offset:-2px}
-.menu-pop .danger{color:#c84040}
-.menu-pop .menu-ico{width:29px;height:29px;display:grid;place-items:center;flex-shrink:0;color:inherit}
-.ui-icon{display:inline-block;width:23px;height:23px;flex-shrink:0;vertical-align:middle}
-.menu-ico .ui-icon{width:24px;height:24px}
-.desktop-nav .ui-icon{width:17px;height:17px;margin-right:9px}
-.menu-pop button[disabled]{opacity:.45;cursor:not-allowed}
-@media(min-width:1100px){.menu-pop{right:max(24px,calc((100vw - 1370px)/2 + 16px));top:80px}}
-@media(prefers-reduced-transparency:reduce){.menu-pop{background:#f7faf8}}
-
-.dialog-overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);display:grid;place-items:center;z-index:40;padding:18px}
-.dialog-card{background:#fff;border-radius:17px;max-width:420px;width:100%;padding:22px;max-height:calc(100dvh - 36px);overflow:auto;box-shadow:0 15px 45px #0003}
-.dialog-card h2{margin:0 0 10px;font-size:24px}.dialog-card p{font-size:14px;color:#54545b}.dialog-card label{display:block;font-size:14px;font-weight:700;margin:15px 0 6px}.dialog-card select{width:100%;border:1px solid #bdbdc3;border-radius:10px;padding:12px;background:#fff;font:inherit}
-.dialog-card .dialog-actions{display:flex;gap:10px;margin-top:18px}.dialog-card .dialog-actions>*{flex:1}
-.dialog-card .small-notice{padding:10px;background:#f3f3f5;border-radius:9px;font-size:13px;color:#696970}
-.dialog-card button[disabled]{opacity:.5;cursor:not-allowed}
+/* FOLLOW DAILY: one reading column, one journey.
+   Read → Insight → Respond (SOS) → Following together. */
+:root{
+ --ink:#1c1c1e;--ink-2:#3a3a3c;--muted:#6b6b72;--faint:#9a9aa0;
+ --line:#e7e7ea;--soft:#f4f4f5;--soft-2:#ececef;
+ --green:#00a468;--green-ink:#00744a;--green-soft:#e6f5ee;--deep:#12231c;--yellow:#fcb900;
+ --col:680px;--gutter:20px;
+ --sans:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-serif;
+ --serif:Georgia,"Times New Roman",serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;color:var(--ink);background:#fff;font:16px/1.5 var(--sans)}
 [hidden]{display:none!important}
+a{color:var(--green-ink)}
+button{font:inherit;cursor:pointer;color:inherit}
+button:focus-visible,a:focus-visible,textarea:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid var(--green);outline-offset:2px}
+.ui-icon{display:inline-block;width:20px;height:20px;flex:none;vertical-align:middle}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 
-.desktop-nav,.desktop-aside{display:none}
-.desktop-side-card{background:#fff;border:1px solid #e3e3e5;border-radius:16px;padding:23px;margin-bottom:16px}
-.desktop-side-card h2{font-size:21px;margin:0 0 13px}.desktop-side-card p{font-size:14px;color:#616169;line-height:1.55}
-.desktop-phases{display:grid;grid-template-columns:1fr 1fr;gap:12px}.desktop-phase{display:flex;align-items:center;gap:8px;font-weight:700;font-size:13px;color:#006d42}
-.desktop-phase b{background:#e1f6e9;width:30px;height:30px;display:grid;place-items:center;border-radius:50%}
-.desktop-flow{display:flex;gap:12px;align-items:flex-start;margin:17px 0}
-.desktop-flow b{background:#00a468;color:white;width:27px;height:27px;flex:none;display:grid;place-items:center;border-radius:50%}
-.desktop-flow strong{display:block}.desktop-flow small{font-size:13px;color:#707077}
-.circle.draft{border-color:#00a468}.circle.draft:after{content:"";background:#00a468;width:8px;height:8px;border-radius:50%}
-#sos-draft-note{color:#00754a;font-weight:650}
-@media(min-width:1100px){
-body{padding:26px;background:#f2f3f4}
-.shell{max-width:1440px;display:grid;grid-template-columns:190px minmax(0,1fr) 320px;grid-template-rows:auto auto auto 1fr;column-gap:24px;min-height:calc(100vh - 52px);border:1px solid #e5e5e8;border-radius:20px;box-shadow:0 10px 35px #0000000c;overflow:hidden;padding-bottom:26px}
-.shell>header{grid-column:1/4;grid-row:1;border-bottom:1px solid #e7e7e9;min-height:80px;padding:16px 28px}
-.headline{margin:0 auto 0 24px;text-align:left}
-.desktop-nav{display:flex;grid-column:1;grid-row:2/5;flex-direction:column;gap:8px;padding:26px 12px;border-right:1px solid #e7e7e9}
-.desktop-nav a{padding:12px 13px;border-radius:10px;text-decoration:none;font-size:14px;font-weight:650;color:#333}
-.desktop-nav a[aria-current=page]{background:#e4f6ec;color:#00673f}
-.shell>.brand{grid-column:2;grid-row:2;margin:26px 0 18px;min-height:190px;background:linear-gradient(130deg,#00a468,#008c56);display:flex;flex-direction:column;align-items:center;justify-content:center}
-.brand h1{font-size:72px}.brand p{letter-spacing:1.8px}
-.shell>.days{grid-column:2;grid-row:3;padding:0 0 12px;gap:12px}.day{flex:1 0 108px}
-.shell>.content{grid-column:2;grid-row:4;padding:12px 0 26px;min-width:0}
-.daytitle{font-size:33px}
-.tasks{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
-.task{border:1px solid #e1e4e3!important;border-radius:14px;background:#f0f7f3;padding:18px 16px;min-height:110px}
-.task:hover{background:#e3f2e9}
-.desktop-aside{display:block;grid-column:3;grid-row:2/5;padding:26px 22px 20px 0}
-.panel{padding:23px}.menu-pop{top:93px;right:max(30px,calc((100vw - 1440px)/2 + 28px))}
-}
-@media(min-width:1100px) and (max-width:1250px){.shell{grid-template-columns:150px minmax(0,1fr) 270px;column-gap:16px}.desktop-side-card{padding:16px}.desktop-aside{padding-right:15px}.brand h1{font-size:58px}}
-@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+/* Shell: full width, no frame. */
+.shell{width:100%;min-height:100dvh;padding-bottom:calc(48px + env(safe-area-inset-bottom))}
+.col{max-width:var(--col);margin:0 auto;padding:0 var(--gutter)}
 
-/* Open Scripture reading: always visible, no accordion required. */
-#reading-panel{border:0;padding:6px 0 15px;margin:8px 0 12px;background:transparent}
-#reading-panel .sub{margin-bottom:10px}
-.scripture-copy{font-family:Georgia,"Times New Roman",serif;font-size:18px;line-height:1.82;color:#24272a;overflow-wrap:break-word}
-.scripture-copy p{font-size:inherit!important;line-height:inherit;margin:0 0 20px}
-.scripture-copy h3{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",sans-serif;font-size:14px;font-weight:800;letter-spacing:.02em;color:#008755;margin:22px 0 9px}
-.scripture-verse sup{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",sans-serif;font-size:10px;font-weight:750;color:#008755;vertical-align:super;margin-right:3px}
-.scripture-copy .scripture-error{font:14px/1.6 -apple-system,BlinkMacSystemFont,sans-serif;color:#a33}
-.scripture-source{font-size:12px;color:#73737c;margin-top:8px}
-#read-link{display:none}
-@media(min-width:1100px){.scripture-copy{font-size:19px;line-height:1.9;max-width:70ch}#reading-panel{padding:10px 10px 18px 4px}}
-
-/* Daily SOS email reminders */
-.email-card{margin:22px 0 16px;padding:22px;border:1px solid #d7e7dd;background:#f7fbf8;border-radius:14px;scroll-margin-top:28px}
-.email-card h2{font-size:23px;letter-spacing:-.5px;margin:0 0 5px}
-.email-card>p{margin:0 0 13px;font-size:14px;color:#616b66;line-height:1.5}
-.email-card label{display:block;font-size:13px;color:#444;font-weight:750;margin:12px 0 5px}
-.email-card input,.email-card select{width:100%;border:1px solid #c4d4ca;border-radius:9px;padding:12px;font:inherit;background:white}
-.email-card .email-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.email-card .primary{border-radius:10px;margin-top:14px}
-.email-card .email-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
-.email-card .email-row button{flex:1;min-width:90px}
-.email-card .email-caption{font-size:12px;color:#58665d;margin-top:12px}
-#email-reminder-status{font-size:13px;min-height:20px;color:#006b42;margin-top:12px;overflow-wrap:anywhere}
-#email-not-ready{background:#edf3ef;padding:12px;border-radius:8px;font-size:13px;color:#516159}
-#email-state{font-size:14px;font-weight:800;color:#006f47}
-#email-next{font-size:12px;color:#5b6961;margin-top:4px}
-@media(max-width:360px){.email-card .email-grid{grid-template-columns:1fr}}
-
-/* Growing Faith visual alignment. Full-page workspace, not a phone inside a frame. */
-body{background:#f8f8f8}
-.shell{width:100%;max-width:none;margin:0;min-height:100dvh;background:transparent;padding-bottom:48px}
-.shell>header{min-height:75px;padding:15px max(22px,calc((100vw - 1120px)/2));border-bottom:1px solid #e1e2e4;background:#fff;gap:16px}
-.site-logo{font:30px/1 "Bebas Neue",Impact,sans-serif;letter-spacing:1px;text-decoration:none;color:#1c1c1e}
-.shell>header .round{background:#edf1ee;border-radius:10px;flex:none}
-.shell>.brand{background:#12231c;border-radius:0;margin:0 0 22px;padding:43px 20px 39px}
-.shell>.brand span{color:#83deb0}
-.shell>.brand h1{font-size:clamp(54px,7.5vw,82px);letter-spacing:1px}
-.shell>.brand p{color:#d1e3d7;letter-spacing:.08em}
-.shell>.days,.shell>.content{max-width:760px;width:calc(100% - 36px);margin-left:auto;margin-right:auto}
-.shell>.days{padding:2px 0 11px}
-.shell>.content{padding:17px 0 26px}
-.day{background:#f0f2f1}
-.day[aria-current=true]{border-color:#00a468}
-.task{background:#fff}
-.panel,.email-card{border-radius:12px;border-color:#e1e2e4}
-.menu-pop{top:82px;right:18px}
-@media(max-width:1099px){
+/* Header */
+.top{display:grid;grid-template-columns:44px 1fr 44px;align-items:center;gap:8px;max-width:1120px;margin:0 auto;padding:10px 12px 4px}
+.round{width:44px;height:44px;border:0;border-radius:12px;background:transparent;display:grid;place-items:center;color:var(--ink);text-decoration:none}
+.round:hover{background:var(--soft)}
+.wordmark{text-align:center;font:24px/1 "Bebas Neue",Impact,sans-serif;letter-spacing:.06em;margin:0;color:var(--ink)}
 .site-logo{display:none}
-.shell>header{padding:12px 18px;min-height:69px}
-.shell>header .headline{flex:1}
-.shell>.brand{padding:34px 18px 32px}
-.shell>.days,.shell>.content{max-width:760px;width:calc(100% - 36px)}
-}
-@media(min-width:1100px){
-body{padding:0;background:#f8f8f8}
-.shell{max-width:none;width:100%;display:grid;grid-template-columns:minmax(168px,210px) minmax(0,800px) minmax(265px,310px);justify-content:center;grid-template-rows:auto auto auto 1fr;column-gap:clamp(18px,2vw,32px);min-height:100dvh;border:none;border-radius:0;box-shadow:none;overflow:visible;padding-bottom:55px;background:#f8f8f8}
-.shell>header{grid-column:1/-1;grid-row:1;padding:13px max(24px,calc((100vw - 1370px)/2));margin:0;min-height:76px;background:#fff;border-bottom:1px solid #e1e2e4}
-.shell>header .site-logo{display:block}
-.shell>header .round:first-of-type{font-size:24px}
-.shell>header .headline{margin-left:0}
-.desktop-nav{grid-column:1;grid-row:2/5;border-right:1px solid #e1e2e4;padding:31px 14px 30px 20px;background:transparent}
-.desktop-nav a{border-radius:9px}
-.shell>.brand{grid-column:2;grid-row:2;min-height:155px;margin:29px 0 22px;padding:26px 24px;background:#12231c;border-radius:13px}
-.shell>.brand h1{font-size:66px}
-.shell>.days{grid-column:2;grid-row:3;width:100%;max-width:none;min-width:0;padding:2px 0 12px;margin:0}
-.shell>.content{grid-column:2;grid-row:4;width:100%;max-width:none;margin:0;padding:13px 0 26px}
-.desktop-aside{grid-column:3;grid-row:2/5;padding:29px 18px 25px 0}
-.desktop-side-card{border-radius:12px}
-.menu-pop{top:80px;right:max(25px,calc((100vw - 1370px)/2 + 15px))}
-}
-@media(min-width:1100px) and (max-width:1250px){
-.shell{grid-template-columns:155px minmax(0,1fr) 265px;column-gap:17px}
-.shell>.brand h1{font-size:60px}
-.desktop-nav{padding-left:12px}
-.desktop-aside{padding-right:13px}
-}
-@media(min-width:1500px){
-.shell{grid-template-columns:210px 800px 310px}
-}
 
-
-.sos-sync{margin:18px 0;padding:19px 20px;background:#f7faf8;border:1px solid #dae8df;border-radius:12px}
-.sos-sync h2{font-size:19px;margin:0 0 5px;font-weight:800;color:#08301f}
-.sos-sync p{font-size:13px;line-height:1.5;color:#52645a;margin:0 0 11px}
-.sos-sync .sync-row{display:flex;gap:8px;flex-wrap:wrap}
-.sos-sync input{min-width:0;flex:1 1 145px;padding:12px;border:1px solid #c5d9cb;border-radius:8px;background:white;font:inherit}
-.sos-sync button{border:0;border-radius:8px;background:#008956;color:#fff;padding:12px 15px;font:700 13px Arial,sans-serif;cursor:pointer}
-.sos-sync button.secondary{background:transparent;border:1px solid #bfd3c4;color:#00683c}
-.sos-sync a{color:#00683c}
-.sos-sync #sos-sync-state{font-weight:650;color:#256c49;margin:9px 0}
-.sos-sync .sync-secondary{font-size:12px;margin-top:10px;color:#586b60}
-.sos-sync button:disabled{opacity:.6;cursor:wait}
-@media(max-width:520px){.sos-sync .sync-row{flex-direction:column}.sos-sync input,.sos-sync button{width:100%}}
-
-.insight-body{font-size:16px!important;line-height:1.75;white-space:pre-line}.insight-label{font-size:15px;margin:18px 0 5px}.tasks .task{min-width:0}.tasks .task small{overflow-wrap:anywhere}@media(min-width:1100px) and (max-width:1320px){.tasks{grid-template-columns:1fr}}@media(max-width:1099px){.tasks{display:block}}
- .circle-invite{display:flex;justify-content:space-between;align-items:center;gap:14px;border-top:1px solid #e6ebe7;margin-top:20px;padding-top:19px}.circle-invite p{color:#606b63;font-size:13px;margin:5px 0 0}.circle-invite .secondary{flex:none;text-decoration:none;font-size:13px}@media(max-width:440px){.circle-invite{align-items:flex-start;flex-direction:column}}
-/* Insight cards: scripture-first lenses, not compulsory leadership labels. */
-#insight-panel{border:0;background:transparent;padding:10px 0 18px;margin:9px 0 18px}
-#insight-panel h2{font-size:27px;letter-spacing:-.7px;margin-bottom:4px}
-.insight-intro{font-size:14px!important;line-height:1.55;color:#686d6a;margin:10px 0 17px}
-.insight-cards{display:grid;gap:12px}
-.insight-card{border-radius:14px;border:1px solid var(--lens-border);background:var(--lens-bg);padding:18px 19px 19px;color:#17241e}
-.insight-card[data-lens="revelation"]{--lens-bg:#eef2fc;--lens-border:#d5def6;--lens-ink:#354fa2;--lens-soft:#dce5fc}
-.insight-card[data-lens="formation"]{--lens-bg:#fff5e6;--lens-border:#f4dfbd;--lens-ink:#89520e;--lens-soft:#ffe7c0}
-.insight-card[data-lens="multiplication"]{--lens-bg:#e8f6ef;--lens-border:#c9e8d5;--lens-ink:#176b47;--lens-soft:#d0ebdc}
-.insight-card[data-lens="observe"]{--lens-bg:#f2f4f5;--lens-border:#dce0e2;--lens-ink:#45515a;--lens-soft:#e4e9eb}
-.insight-card-header{display:flex;align-items:center;gap:10px;margin-bottom:11px}
-.insight-card-icon{background:var(--lens-soft);color:var(--lens-ink);width:35px;height:35px;border-radius:10px;flex:none;display:grid;place-items:center}
-.insight-card-icon svg,.insight-apply-icon svg{height:20px;width:20px}
-.insight-card-category{font-size:11px;letter-spacing:.09em;font-weight:850;text-transform:uppercase;color:var(--lens-ink)}
-.insight-card-title{font-size:18px;font-weight:800;letter-spacing:-.3px;line-height:1.28;margin:3px 0 0}
-.insight-card p{font-size:15px!important;line-height:1.65;margin:0;color:#29342e}
-.insight-pattern{display:inline-block;margin:12px 0 0;padding:5px 10px;border:1px solid var(--lens-border);background:#ffffffa8;color:var(--lens-ink);font-size:11px;font-weight:800;border-radius:99px}
-.insight-apply{display:flex;gap:12px;align-items:flex-start;border-top:1px solid #dfe4e1;margin:22px 0 12px;padding:18px 0 0}
-.insight-apply-icon{color:#00774a;flex:none;margin-top:1px}
-.insight-apply h3{font-size:16px;margin:0 0 6px}
-.insight-apply p{font-size:15px!important;line-height:1.6;margin:0}
-@media(min-width:1100px){.insight-cards{grid-template-columns:repeat(auto-fit,minmax(235px,1fr))}.insight-card{min-width:0}}
-@media(prefers-reduced-motion:no-preference){.insight-card{transition:background .18s ease,transform .18s ease}.insight-card:hover{transform:translateY(-1px)}}
-.response-pattern{border:1px solid #e5ddd0;background:#fffaf1;border-radius:14px;margin:12px 0 18px;padding:16px}
-.response-pattern-header{display:flex;align-items:center;gap:9px;font-size:12px;font-weight:850;letter-spacing:.06em;color:#80561e;text-transform:uppercase;margin-bottom:13px}
-.response-pattern-steps{display:grid;grid-template-columns:repeat(var(--response-columns,3),minmax(0,1fr));gap:8px;max-width:560px;margin-inline:auto}
-.response-pattern-step{text-align:center;min-width:0}
-.response-pattern-step svg{display:block;width:24px;height:24px;margin:0 auto 7px;color:#2d4c3b}
-.response-pattern-step strong{display:block;font-size:12px;letter-spacing:.05em}
-.response-pattern-step small{display:block;font-size:12px;line-height:1.35;color:#5d605b;margin-top:5px}
-.response-pattern-step.is-absent{opacity:.34}
-.response-pattern-caption{font-size:12px;color:#6a675d;margin:12px 0 0}
-@media(max-width:390px){.response-pattern{padding:12px}.response-pattern-steps{gap:5px}.response-pattern-step small{font-size:11px}}
-/* Bible Recap-style day rail: visible neighboring cards, centered selected day. */
+/* Day rail */
 .days{
- --day-card-width:112px;
- position:relative;
- width:100%;
- max-width:100%;
- gap:9px;
- padding:3px max(0px,calc((100% - var(--day-card-width))/2)) 15px;
- overflow-x:auto;
- overflow-y:hidden;
- scrollbar-width:none;
- -webkit-overflow-scrolling:touch;
- scroll-behavior:auto;
+ --day-card-width:58px;
+ display:flex;gap:6px;position:relative;width:100%;max-width:var(--col);margin:0 auto;
+ overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;scroll-behavior:auto;
+ padding:8px max(var(--gutter),calc((100% - var(--day-card-width))/2)) 10px;
 }
 .days::-webkit-scrollbar{display:none}
-.days .day{
- flex:0 0 var(--day-card-width);
- min-height:92px;
- border:3px solid transparent;
- border-radius:11px;
- padding:12px 8px 10px;
- background:#f1f1f2;
- text-align:center;
- cursor:pointer;
+.day{position:relative;flex:0 0 var(--day-card-width);height:64px;border:0;border-radius:14px;background:transparent;padding:8px 2px 6px;text-align:center;color:var(--ink-2)}
+.day b{display:block;font-size:20px;line-height:1.15;font-weight:700;font-variant-numeric:tabular-nums}
+.day small{display:block;font-size:11px;line-height:1.3;color:var(--muted);margin-top:4px;white-space:nowrap}
+.day:hover{background:var(--soft)}
+.day.future b{color:var(--faint)}
+.day.is-today b,.day.is-today small{color:var(--green-ink);font-weight:700}
+.day.is-today::after{content:"";position:absolute;left:50%;bottom:3px;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:var(--green)}
+.day.done{background:var(--green-soft)}
+.day .tick{position:absolute;top:4px;right:4px;width:12px;height:12px;color:var(--green-ink)}
+.days .day[aria-current=step]{background:var(--ink);color:#fff}
+.days .day[aria-current=step] b,.days .day[aria-current=step] small{color:#fff}
+.days .day[aria-current=step] .tick{color:#7fe0b4}
+.days .day[aria-current=step]::after{background:#7fe0b4}
+
+/* Day heading */
+.day-head{padding-top:14px}
+.day-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0;font-size:14px;color:var(--muted);font-weight:600}
+.day-meta .today-tag{color:var(--green-ink)}
+.linkish{border:0;background:none;padding:6px 0;color:var(--green-ink);font-weight:650;font-size:14px;text-decoration:underline;text-underline-offset:3px}
+.daytitle{margin:4px 0 2px;font-size:30px;line-height:1.15;letter-spacing:-.02em;font-weight:800}
+.passage-ref{margin:0;font-size:16px;color:var(--ink-2);font-weight:600}
+#reading-context{margin:8px 0 0;font-size:14px;color:var(--muted)}
+#paused-note{margin:10px 0 0;font-size:13px;color:var(--ink-2);background:var(--soft);padding:8px 12px;border-radius:10px}
+
+/* Sticky progress: Read · Insight · SOS */
+.tracker{position:sticky;top:0;z-index:5;background:rgba(255,255,255,.96);margin-top:14px;border-bottom:1px solid var(--line)}
+@supports (backdrop-filter:blur(8px)){.tracker{background:rgba(255,255,255,.88);backdrop-filter:blur(12px)}}
+.tasks{display:flex;gap:4px;max-width:var(--col);margin:0 auto;padding:6px calc(var(--gutter) - 10px)}
+.task{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;min-height:44px;border:0;background:none;border-radius:10px;padding:6px 8px;font-size:14px;font-weight:650;color:var(--ink-2)}
+.task:hover{background:var(--soft)}
+.task strong{font-weight:inherit}
+.circle{width:20px;height:20px;border-radius:50%;border:2px solid #c7c7cc;display:grid;place-items:center;flex:none;font-size:12px;line-height:1;color:#fff}
+.circle.done{background:var(--green);border-color:var(--green)}
+.circle.draft{border-color:var(--yellow)}
+.circle.draft::after{content:"";width:8px;height:8px;border-radius:50%;background:var(--yellow)}
+#sos-draft-note{display:none}
+
+/* Journey sections */
+.step{padding:32px 0 8px;scroll-margin-top:40px}
+.step:focus{outline:none}
+.step+.step{border-top:1px solid var(--line);margin-top:28px}
+.step-title{margin:0 0 4px;font-size:22px;letter-spacing:-.015em;font-weight:800}
+.step-sub{margin:0 0 20px;font-size:15px;color:var(--muted)}
+#reading-panel{padding-top:24px}
+
+/* Scripture */
+.scripture-copy{font-family:var(--serif);font-size:19px;line-height:1.75;color:#222;overflow-wrap:break-word;max-width:66ch}
+.scripture-copy p{margin:0 0 18px}
+.scripture-copy h3{font:700 13px/1.3 var(--sans);letter-spacing:.06em;text-transform:uppercase;color:var(--green-ink);margin:24px 0 8px}
+.scripture-verse sup{font:700 10px var(--sans);color:var(--green-ink);margin-right:3px}
+.scripture-copy .scripture-error{font:15px/1.6 var(--sans);color:#a33}
+.scripture-source{font-size:12px;color:var(--muted);margin:4px 0 0}
+.scripture-source a{color:inherit}
+.optional{margin:14px 0 0;font-size:14px;color:var(--ink-2)}
+.optional summary{cursor:pointer;font-weight:650;padding:8px 0;color:var(--green-ink)}
+.optional p{margin:4px 0 0;color:var(--muted)}
+
+/* Buttons */
+.primary{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:52px;margin-top:24px;padding:14px 20px;border:0;border-radius:999px;background:var(--ink);color:#fff;font-weight:700;font-size:16px}
+.primary:hover{background:#000}
+.primary.done{background:var(--soft);color:var(--ink)}
+.primary.done:hover{background:var(--soft-2)}
+.primary .check{color:var(--green)}
+.secondary{border:1px solid #d1d1d6;border-radius:999px;background:#fff;padding:10px 16px;font-weight:650;font-size:14px;min-height:44px}
+.secondary:hover{background:var(--soft)}
+.textbtn{display:inline-flex;align-items:center;gap:6px;border:0;background:none;padding:10px 4px;min-height:44px;color:var(--ink-2);font-weight:650;font-size:14px}
+.textbtn:hover{color:var(--ink)}
+
+/* Insight */
+.insight-cards{display:grid;gap:26px}
+.insight-card{min-width:0}
+.insight-card-header{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.insight-card-icon{color:var(--green-ink);display:grid;place-items:center}
+.insight-card-icon svg{width:18px;height:18px}
+.insight-card-category{font-size:12px;letter-spacing:.08em;font-weight:750;color:var(--green-ink)}
+.insight-card-title{font-size:19px;line-height:1.3;letter-spacing:-.01em;margin:0 0 6px;font-weight:750}
+.insight-card p{font-size:16px;line-height:1.65;margin:0;color:var(--ink-2)}
+.insight-pattern{display:inline-block;margin-top:8px;font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.02em}
+.insight-pattern::before{content:"Pattern: ";font-weight:500}
+.response-pattern{margin:28px 0 0;padding:16px;border-radius:16px;background:var(--soft)}
+.response-pattern-header{font-size:13px;font-weight:750;margin-bottom:12px;color:var(--ink)}
+.response-pattern-steps{display:grid;grid-template-columns:repeat(var(--response-columns,3),minmax(0,1fr));gap:10px}
+.response-pattern-step{text-align:center;min-width:0}
+.response-pattern-step svg{display:block;width:22px;height:22px;margin:0 auto 6px;color:var(--green-ink)}
+.response-pattern-step strong{display:block;font-size:12px;letter-spacing:.06em}
+.response-pattern-step small{display:block;font-size:12px;line-height:1.35;color:var(--muted);margin-top:4px}
+.response-pattern-caption{font-size:13px;color:var(--ink-2);margin:12px 0 0;text-align:center}
+.insight-apply{margin:28px 0 0;padding-left:16px;border-left:3px solid var(--green)}
+.insight-label{font-size:13px;letter-spacing:.04em;font-weight:750;margin:0 0 4px;color:var(--ink)}
+.insight-apply p{margin:0;font-size:17px;line-height:1.55;color:var(--ink)}
+
+/* SOS */
+.private{display:inline-flex;align-items:center;gap:5px;font-size:13px;color:var(--muted);font-weight:600}
+.private .ui-icon{width:14px;height:14px}
+.discovery{margin:0 0 24px;font:italic 18px/1.55 var(--serif);color:var(--ink)}
+#previous{margin:0 0 24px;padding:14px 16px;border-radius:14px;background:var(--soft)}
+#previous strong{display:block;font-size:13px;color:var(--muted);font-weight:650}
+#previous-obey{margin:4px 0 12px;font-size:16px}
+.outline-row{display:flex;gap:6px;flex-wrap:wrap}
+.outline-row button{border:1px solid #d1d1d6;border-radius:999px;background:#fff;padding:8px 14px;font-size:14px;font-weight:600;min-height:40px}
+.outline-row [aria-pressed=true]{background:var(--ink);border-color:var(--ink);color:#fff}
+.field{margin:0 0 22px}
+.field label{display:block;margin-bottom:8px}
+.field label b{display:block;font-size:18px;font-weight:800;letter-spacing:-.01em}
+.field label span{display:block;font-size:15px;color:var(--muted);margin-top:1px}
+textarea,input,select{font:inherit;color:var(--ink)}
+.field textarea,.field input{width:100%;border:1px solid transparent;border-radius:14px;background:var(--soft);padding:14px 16px;font-size:17px;line-height:1.5}
+.field textarea{min-height:96px;resize:vertical}
+.field textarea:focus,.field input:focus{background:#fff;border-color:#c7c7cc}
+.sos-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:4px}
+#save-state{font-size:13px;color:var(--muted);display:inline-flex;align-items:center;gap:6px;min-height:20px}
+#save-state .ui-icon{width:15px;height:15px;color:var(--green)}
+#save{margin-top:16px}
+.status{min-height:22px;margin:12px 0 0;font-size:15px;color:var(--ink-2);text-align:center}
+.status.complete{color:var(--green-ink);font-weight:700}
+
+/* Footer: quiet utilities */
+.page-foot{margin-top:56px;padding-top:8px;border-top:1px solid var(--line)}
+#progress{margin:16px 0 8px;font-size:13px;color:var(--muted);text-align:center}
+.foot-item{border-bottom:1px solid var(--line)}
+.foot-item>summary{list-style:none;display:flex;align-items:center;gap:12px;min-height:56px;cursor:pointer;font-weight:650;font-size:15px}
+.foot-item>summary::-webkit-details-marker{display:none}
+.foot-item>summary .ui-icon{color:var(--muted)}
+.foot-item>summary .chev{margin-left:auto;transition:transform .15s}
+.foot-item[open]>summary .chev{transform:rotate(90deg)}
+.foot-item>summary small{display:block;font-weight:500;color:var(--muted);font-size:13px}
+.foot-body{padding:0 0 20px}
+.foot-body p{font-size:14px;color:var(--muted);margin:0 0 12px}
+.foot-body input,.foot-body select{width:100%;border:1px solid #d1d1d6;border-radius:12px;padding:12px;background:#fff;font-size:16px;min-height:46px}
+.foot-body label{display:block;font-size:13px;font-weight:650;margin:12px 0 6px}
+.sync-row{display:flex;gap:8px;flex-wrap:wrap}
+.sync-row input{flex:1 1 160px;min-width:0}
+.sync-row button{border:0;border-radius:999px;background:var(--ink);color:#fff;font-weight:700;padding:12px 18px;min-height:46px}
+.sync-row button.secondary{background:#fff;color:var(--ink);border:1px solid #d1d1d6}
+.sync-row button:disabled{opacity:.6;cursor:wait}
+.sync-secondary{font-size:13px!important;margin-top:10px!important}
+.email-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.email-caption{font-size:12px!important;margin-top:12px!important}
+#email-reminder-status{font-size:13px;color:var(--green-ink);overflow-wrap:anywhere}
+#email-not-ready{font-size:14px;color:var(--muted);background:var(--soft);padding:12px;border-radius:12px}
+#email-start{margin-top:16px}
+@media(max-width:360px){.email-grid{grid-template-columns:1fr}}
+
+/* Menu + dialogs */
+.menu-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.12);z-index:30}
+.menu-pop{position:fixed;top:58px;right:12px;z-index:31;width:min(300px,calc(100vw - 24px));padding:6px;background:#fff;border:1px solid var(--line);border-radius:18px;box-shadow:0 16px 44px rgba(0,0,0,.16)}
+.menu-pop button{width:100%;min-height:50px;display:flex;gap:14px;align-items:center;padding:10px 14px;background:transparent;border:0;border-radius:12px;text-align:left;font-size:16px;font-weight:500}
+.menu-pop button:hover,.menu-pop button:focus-visible{background:var(--soft)}
+.menu-pop button:focus-visible{outline:2px solid var(--green);outline-offset:-2px}
+.menu-pop .danger{color:#c84040}
+.menu-pop .menu-ico{width:24px;height:24px;display:grid;place-items:center;color:inherit}
+.menu-pop .ui-icon{width:20px;height:20px}
+.dialog-overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);display:grid;place-items:center;z-index:40;padding:18px}
+.dialog-card{background:#fff;border-radius:20px;max-width:420px;width:100%;padding:24px;max-height:calc(100dvh - 36px);overflow:auto;box-shadow:0 15px 45px #0003}
+.dialog-card h2{margin:0 0 10px;font-size:22px}.dialog-card p{font-size:15px;color:var(--ink-2)}
+.dialog-card .dialog-actions{display:flex;gap:10px;margin-top:18px}.dialog-card .dialog-actions>*{flex:1;margin:0;min-height:46px}
+.dialog-card .dialog-actions .primary{width:auto}
+.dialog-card .small-notice{padding:12px;background:var(--soft);border-radius:12px;font-size:13px;color:var(--muted)}
+
+@media(min-width:900px){
+ :root{--gutter:24px}
+ .top{grid-template-columns:200px 1fr 200px;padding:14px 24px 6px}
+ .site-logo{display:block;font:26px/1 "Bebas Neue",Impact,sans-serif;letter-spacing:1px;color:var(--ink);text-decoration:none;justify-self:start}
+ .top .round.back{display:none}
+ .top .round#menu{justify-self:end}
+ .wordmark{font-size:26px}
+ .daytitle{font-size:38px}
+ .scripture-copy{font-size:20px;line-height:1.8}
+ .days{--day-card-width:62px}
+ .menu-pop{top:66px;right:max(24px,calc((100vw - 1120px)/2 + 24px))}
 }
-.days .day b{font-size:29px;line-height:1.1;letter-spacing:-.5px}
-.days .day small{display:block;margin-top:8px;font-size:12px;color:#67676d}
-.days .day .tick{top:5px;right:7px;font-size:16px;color:#10744f}
-.days .day:hover{background:#e9f1ec}
-.days .day[aria-current=step]{background:#fff;border-color:#202424}
-.days .day:focus-visible{outline:3px solid #00a468;outline-offset:2px}
-@media(max-width:1099px){
- .shell>.days{width:100%;max-width:100%;margin-left:0;margin-right:0;padding:3px max(0px,calc((100% - var(--day-card-width))/2)) 15px}
-}
-@media(min-width:1100px){
- .shell>.days{--day-card-width:120px;max-width:none;width:100%;padding:3px max(0px,calc((100% - var(--day-card-width))/2)) 15px}
- .shell>.content{grid-row:4}
- .desktop-nav,.desktop-aside{grid-row:2/5}
-}
-@media(prefers-reduced-motion:reduce){.days{scroll-behavior:auto}}
-/* Options menu stays anchored to the three-dot button at every breakpoint. */
-.menu-pop{top:76px;right:18px}
-@media(min-width:1100px){.menu-pop{top:80px;right:max(24px,calc((100vw - 1370px)/2 + 16px))}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.foot-item>summary .chev{transition:none}}
 </style><link rel="stylesheet" href="/daily-sos-circles.css"></head>
 <body><div class="shell">
-<header><a class="site-logo" href="/" aria-label="Obey Tools home">OBEY.TOOLS</a><a class="round" href="/follow-daily/" aria-label="Back to Follow Daily"><svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></a><div class="headline"><strong>Overview</strong><small id="topday">Day 1</small></div><button class="round" id="menu" type="button" aria-label="Following Jesus’ Way options"><svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg></button></header>
-<nav class="desktop-nav" aria-label="Obey Tools navigation">
-<a href="/"><svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V10z"/><path d="M9 21v-8h6v8"/></svg> Home</a>
-<a href="/follow-daily/"><svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> Follow Daily</a><a href="/daily-sos.html" aria-current="page"><svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> Following Jesus’ Way</a><a href="/commands-of-christ.html"><svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4L19 6"/></svg> Commands of Christ</a><a href="/4-questions.html"><svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg> 4 Questions</a></nav><div class="brand"><span>OBEY.TOOLS</span><h1>FOLLOWING JESUS’ WAY</h1><p>ABIDE IN JESUS · SAY, OBEY, SHARE</p></div>
+<header class="top">
+ <a class="site-logo" href="/" aria-label="OBEY.TOOLS home">OBEY.TOOLS</a>
+ <a class="round back" href="/follow-daily/" aria-label="Back to Follow Daily"><svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></a>
+ <p class="wordmark">Following Jesus’ Way</p>
+ <button class="round" id="menu" type="button" aria-label="Plan options"><svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg></button>
+</header>
 <nav id="days" class="days" aria-label="Swipe left or right to choose a reading day"></nav>
 <main class="content">
-<div class="row"><h2 class="daytitle" id="daytitle">Day 1</h2></div>
-<p class="summary" id="title"></p>
-<div class="tasks" aria-label="Today's three activities">
-<button class="task" id="open-reading" type="button"><span class="circle" id="read-check" aria-hidden="true"></span><span><strong>READ</strong><small id="passage"></small></span><span class="chevron" aria-hidden="true">›</span></button>
-<button class="task" id="open-insight" type="button"><span class="circle" id="insight-check" aria-hidden="true"></span><span><strong>INSIGHT</strong><small>See how Jesus made disciples</small></span><span class="chevron" aria-hidden="true">›</span></button>
-<button class="task" id="open-sos" type="button"><span class="circle" id="sos-check" aria-hidden="true"></span><span><strong>SOS</strong><small>Say · Obey · Share</small><small id="sos-draft-note" hidden>Draft saved</small></span><span class="chevron" aria-hidden="true">›</span></button>
+<div class="col day-head">
+ <p class="day-meta"><span id="day-label">Day 1</span><button id="go-today" class="linkish" type="button" hidden>Go to today</button></p>
+ <h1 class="daytitle" id="title"></h1>
+ <p class="passage-ref" id="passage"></p>
+ <p id="reading-context" hidden></p>
+ <p id="paused-note" hidden>This plan is paused on this device. Resume it from the options menu.</p>
 </div>
-<section class="panel" id="reading-panel" tabindex="-1" aria-label="Scripture reading">
-<h2 id="reading-title"></h2><div class="sub">Today's primary reading</div>
-<p><a class="ref" id="read-link" href="https://ebible.org/engwebu/" target="_blank" rel="noopener">Read Scripture in WEB Updated ↗</a></p>
-<div class="scripture-copy" id="scripture-copy" aria-label="WEB Updated Scripture passage"></div>
-<p class="scripture-source">World English Bible Updated (WEBU), public domain. <a href="https://ebible.org/engwebu/" target="_blank" rel="noopener">Source: eBible.org</a></p>
-<details class="optional" id="parallel-box" hidden><summary>Optional parallel Gospel accounts</summary><p id="parallel-text"></p></details>
-<button id="mark-read" class="primary" type="button">Mark Scripture as read</button>
+<div class="tracker">
+ <div class="tasks" role="navigation" aria-label="Today's steps">
+  <button class="task" id="open-reading" type="button"><span class="circle" id="read-check" aria-hidden="true"></span><strong>Read</strong></button>
+  <button class="task" id="open-insight" type="button"><span class="circle" id="insight-check" aria-hidden="true"></span><strong>Insight</strong></button>
+  <button class="task" id="open-sos" type="button"><span class="circle" id="sos-check" aria-hidden="true"></span><strong>SOS</strong><span id="sos-draft-note" hidden>Draft saved</span></button>
+ </div>
+</div>
+<div class="col">
+<section class="step" id="reading-panel" tabindex="-1" aria-label="Scripture reading">
+ <div class="scripture-copy" id="scripture-copy" aria-label="WEB Updated Scripture passage"></div>
+ <p class="scripture-source">World English Bible Updated, public domain · <a href="https://ebible.org/engwebu/" target="_blank" rel="noopener">eBible.org</a></p>
+ <details class="optional" id="parallel-box" hidden><summary>Parallel Gospel accounts</summary><p id="parallel-text"></p></details>
+ <button id="mark-read" class="primary" type="button">Done reading · Continue</button>
 </section>
-<section class="panel" id="insight-panel" hidden tabindex="-1" aria-label="Daily disciple-making insight">
-<h2>Today’s Insight</h2><div class="sub" id="insight-reference"></div>
-<p class="insight-intro">Follow the passage: what Jesus reveals about Himself, how faith is formed, and how His Kingdom advances. Only the themes actually present appear below.</p>
-<div id="insight-cards" class="insight-cards" aria-live="polite"></div>
-<div id="response-pattern" class="response-pattern" hidden aria-label="Hear Obey Share pattern observed in this passage"></div>
-<div class="insight-apply"><span class="insight-apply-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/><path d="M4 12h11"/></svg></span><div><h3 class="insight-label">Consider &amp; Respond</h3><p id="insight-action"></p></div></div>
-<button id="mark-insight" class="primary" type="button">Mark Insight as read</button>
+<section class="step" id="insight-panel" tabindex="-1" aria-labelledby="insight-heading">
+ <h2 class="step-title" id="insight-heading">Insight</h2>
+ <p class="step-sub">What Jesus says, does, and models in <span id="insight-reference"></span></p>
+ <div id="insight-cards" class="insight-cards" aria-live="polite"></div>
+ <div id="response-pattern" class="response-pattern" hidden aria-label="Hear, Obey, Share pattern observed in this passage"></div>
+ <div class="insight-apply"><h3 class="insight-label">Consider</h3><p id="insight-action"></p></div>
+ <button id="mark-insight" class="primary" type="button">Continue to SOS</button>
 </section>
-<section class="panel" id="sos-panel" hidden tabindex="-1" aria-label="Say Obey Share">
-<h2>Today's SOS</h2><div class="sub" id="discovery"></div>
-<div id="previous" hidden><strong>Yesterday's obedience</strong><p id="previous-obey"></p><div class="outline-row"><button data-check="done" type="button">I did it</button><button data-check="pending" type="button">Not yet</button><button data-check="revised" type="button">Change my plan</button></div><hr style="border:0;border-top:1px solid #eee;margin:20px 0"></div>
-<div class="field"><label for="say">Say</label><p>What is God saying to you through this Scripture?</p><textarea id="say" placeholder="What stands out?"></textarea></div>
-<div class="field"><label for="obey">Obey</label><p>What specific action will you take in response?</p><textarea id="obey" placeholder="Today I will..."></textarea></div>
-<div class="field"><label for="share">Share</label><p>Who needs to hear what you're learning?</p><input id="share" placeholder="Person or group"></div>
-<button id="save" class="primary" type="button">Save today's SOS</button><button id="share-btn" class="secondary" type="button" style="width:100%;margin-top:10px">Share my SOS</button>
-<div id="status" class="status" role="status" aria-live="polite"></div>
-<div class="circle-invite"><div><strong>Following Together</strong><p>Discuss today's Scripture with friends below. Your personal SOS answers stay private.</p></div><a id="open-circles" class="secondary" href="/follow-circles.html">Manage Circles</a></div>
+<section class="step" id="sos-panel" tabindex="-1" aria-labelledby="sos-heading">
+ <div class="sos-head"><h2 class="step-title" id="sos-heading">Respond</h2><p class="step-sub">Say · Obey · Share &nbsp;<span class="private"><svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Private to you</span></p></div>
+ <p class="discovery" id="discovery"></p>
+ <div id="previous" hidden><strong>Yesterday you planned to</strong><p id="previous-obey"></p><div class="outline-row" role="group" aria-label="Did you follow through?"><button data-check="done" type="button">I did it</button><button data-check="pending" type="button">Not yet</button><button data-check="revised" type="button">Change my plan</button></div></div>
+ <div class="field"><label for="say"><b>Say</b><span>What is God saying to you through this passage?</span></label><textarea id="say" rows="3" placeholder="What stands out to you?"></textarea></div>
+ <div class="field"><label for="obey"><b>Obey</b><span>What specific step will you take in response?</span></label><textarea id="obey" rows="3" placeholder="Today I will…"></textarea></div>
+ <div class="field"><label for="share"><b>Share</b><span>Who needs to hear what you’re learning?</span></label><input id="share" autocomplete="off" placeholder="A friend, roommate, or group"></div>
+ <div class="sos-foot"><span id="save-state" aria-live="polite"></span><button id="share-btn" class="textbtn" type="button"><svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V3"/><path d="m7 8 5-5 5 5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg>Send to a friend</button></div>
+ <button id="save" class="primary" type="button">Finish today</button>
+ <div id="status" class="status" role="status" aria-live="polite"></div>
 </section>
-<section id="following-together" aria-label="Following Together">
-<div class="following-heading"><h2>Following Together</h2><a id="following-manage" href="/follow-circles.html" hidden>Manage Circles</a></div>
-<p id="following-context">Loading your Circles…</p>
-<div id="following-finished-actions" class="following-finished-actions" hidden>
-<p>The Circle has completed Day 365. Its conversations remain available. You can review earlier readings, continue independently, or start another Circle.</p>
-<button id="following-independent" type="button" class="following-small">Continue independently</button>
-<a href="/follow-circles.html" class="following-small following-action-link">Start or choose a Circle</a>
-</div>
-<p class="following-subtitle">Reflections about this day's Scripture from friends in your Circles. Your personal SOS stays private.</p>
-<div id="following-posts" aria-live="polite"></div>
-<div class="following-controls">
-<button id="following-expand" class="following-small" type="button" hidden>View all reflections</button>
-<div id="following-expanded-controls" class="following-controls" hidden><label for="following-filter">Circle</label><select id="following-filter" aria-label="Filter reflections by Circle"><option value="">All my Circles</option></select><button id="following-collapse" class="following-small" type="button">Show fewer</button></div>
-<button id="following-more" class="following-small" type="button" hidden>Load more</button>
-<button id="following-share-toggle" class="following-small" type="button" hidden>Share a reflection</button>
-</div>
-<form id="following-share-form" hidden>
-<label for="following-body">What would you like to share?</label>
-<p class="following-muted">Write something for your friends. Your private Say, Obey, and Share answers are never copied here.</p>
-<textarea id="following-body" rows="3" maxlength="3000" required placeholder="What stood out? What are you putting into practice?"></textarea>
-<fieldset><legend>Choose the Circles that will receive this reflection</legend><div id="following-targets"></div></fieldset>
-<p class="following-muted">Each selected Circle receives its own separate conversation.</p>
-<button id="following-submit" class="following-small following-featured" type="submit">Post reflection</button>
-</form><div id="following-notice" role="status" aria-live="polite"></div>
+<section class="step" id="following-together" aria-labelledby="following-heading">
+ <div class="following-heading"><h2 class="step-title" id="following-heading">Following together</h2><a id="following-manage" href="/follow-circles.html" hidden>Circles</a></div>
+ <p id="following-context">Loading your Circles…</p>
+ <div id="following-finished-actions" class="following-finished-actions" hidden>
+  <p>This Circle finished Day 365. Its conversations stay available. Review earlier readings, continue on your own, or start another Circle.</p>
+  <button id="following-independent" type="button" class="following-small">Continue on my own</button>
+  <a href="/follow-circles.html" class="following-small following-action-link">Start or choose a Circle</a>
+ </div>
+ <button id="following-share-toggle" class="following-compose-prompt" type="button" hidden><span class="following-avatar following-avatar-me" aria-hidden="true"></span><span id="following-share-label">Share a reflection on this passage</span></button>
+ <form id="following-share-form" hidden>
+  <label for="following-body" class="sr-only">Your reflection</label>
+  <textarea id="following-body" rows="3" maxlength="3000" required placeholder="What stood out? What are you putting into practice?"></textarea>
+  <fieldset><legend>Share with</legend><div id="following-targets"></div></fieldset>
+  <p class="following-muted">Only what you write here is shared. Your SOS answers stay private.</p>
+  <div class="following-form-actions"><button id="following-cancel" class="following-text" type="button">Cancel</button><button id="following-submit" class="following-featured" type="submit">Share</button></div>
+ </form>
+ <div id="following-notice" role="status" aria-live="polite"></div>
+ <div id="following-posts" aria-live="polite"></div>
+ <div class="following-controls">
+  <button id="following-expand" class="following-text" type="button" hidden>View all reflections</button>
+  <div id="following-expanded-controls" class="following-controls" hidden><label for="following-filter" class="sr-only">Circle</label><select id="following-filter" aria-label="Filter reflections by Circle"><option value="">All my Circles</option></select><button id="following-collapse" class="following-text" type="button">Show fewer</button></div>
+  <button id="following-more" class="following-text" type="button" hidden>Load more</button>
+ </div>
 </section>
-<button id="start" class="primary" type="button">Open Insight ↑</button>
-<div id="progress" class="muted" style="text-align:center;margin-top:13px"></div>
-<section id="sos-sync" class="sos-sync" aria-label="Sync Follow Daily progress">
-<h2>Keep your progress</h2>
-<p>Your readings and SOS answers save on this device. Sign in with your Obey.Tools account to sync them across devices.</p>
-<div id="sos-sync-state" role="status" aria-live="polite">Saved on this device</div>
-<form id="sos-sync-login" hidden>
-<div class="sync-row">
-<input id="sos-sync-email" type="email" autocomplete="email" placeholder="Account email" aria-label="Account email" required>
-<input id="sos-sync-password" type="password" autocomplete="current-password" placeholder="Password" aria-label="Account password" required>
-<button id="sos-sync-login-button" type="submit">Sign in & sync</button>
 </div>
-<p class="sync-secondary">Already have an Obey.Tools account? Sign in here. <a href="/">Create an account on Obey.Tools</a>. Daily emails remain account-free.</p>
-</form>
-<div id="sos-sync-logged-in" class="sync-row" hidden>
-<button id="sos-sync-now" type="button" class="secondary">Sync now</button>
-<button id="sos-sync-signout" type="button" class="secondary">Sign out</button>
+<div class="col page-foot">
+ <p id="progress"></p>
+ <details id="sos-sync" class="foot-item" aria-label="Sync Follow Daily progress">
+  <summary><svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg><span>Your progress<small id="sos-sync-state" role="status" aria-live="polite">Saved on this device</small></span><svg class="ui-icon chev" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></summary>
+  <div class="foot-body">
+   <form id="sos-sync-login" hidden>
+    <p>Sign in with your OBEY.TOOLS account to keep readings and SOS answers on every device.</p>
+    <div class="sync-row">
+     <input id="sos-sync-email" type="email" autocomplete="email" placeholder="Email" aria-label="Account email" required>
+     <input id="sos-sync-password" type="password" autocomplete="current-password" placeholder="Password" aria-label="Account password" required>
+     <button id="sos-sync-login-button" type="submit">Sign in</button>
+    </div>
+    <p class="sync-secondary">No account yet? <a href="/">Create one on OBEY.TOOLS</a>.</p>
+   </form>
+   <div id="sos-sync-logged-in" class="sync-row" hidden>
+    <button id="sos-sync-now" type="button" class="secondary">Sync now</button>
+    <button id="sos-sync-signout" type="button" class="secondary">Sign out</button>
+   </div>
+  </div>
+ </details>
+ <details class="foot-item" id="email-reminders" aria-label="Following Jesus’ Way email reminders">
+  <summary><svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg><span>Daily email<small>One passage in your inbox each morning</small></span><svg class="ui-icon chev" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></summary>
+  <div class="foot-body">
+   <p>Emails start at Day 1 and follow their own daily schedule. No account needed.</p>
+   <div id="email-not-ready">Email reminders are being prepared. They are not sending yet.</div>
+   <div id="email-public-signup" hidden>
+    <form id="follow-daily-form">
+     <label for="email-input">Email address</label>
+     <input type="email" id="email-input" autocomplete="email" placeholder="you@example.com" required>
+     <div class="email-grid">
+      <div><label for="email-hour">Delivery time</label><select id="email-hour">
+       <option value="6">6:00 AM</option><option value="7" selected>7:00 AM</option><option value="8">8:00 AM</option><option value="9">9:00 AM</option>
+       <option value="10">10:00 AM</option><option value="12">12:00 PM</option><option value="18">6:00 PM</option><option value="20">8:00 PM</option><option value="21">9:00 PM</option>
+      </select></div>
+      <div><label for="email-timezone">Time zone</label><select id="email-timezone" aria-label="Your time zone"></select></div>
+     </div>
+     <button type="submit" id="email-start" class="primary">Start daily emails</button>
+     <p class="email-caption">Confirm with one click. Emails keep coming even on days you don’t mark complete. Pause or unsubscribe from any email.</p>
+    </form>
+   </div>
+   <div id="email-reminder-status" role="status" aria-live="polite"></div>
+  </div>
+ </details>
 </div>
-</section>
-<section class="email-card" id="email-reminders" aria-label="Following Jesus’ Way email reminders">
-<h2>Following Jesus’ Way in your inbox</h2>
-<p>Receive one passage and discovery question each day, beginning at Day 1 after signup. Emails follow their own daily schedule, separate from the days you open here.</p>
-<div id="email-not-ready">Email reminders are being prepared. They are not sending yet.</div>
-<div id="email-public-signup" hidden>
-<form id="follow-daily-form">
-<label for="email-input">Email address</label>
-<input type="email" id="email-input" autocomplete="email" placeholder="you@example.com" required>
-<div class="email-grid">
-<div><label for="email-hour">Delivery time</label><select id="email-hour">
-<option value="6">6:00 AM</option><option value="7" selected>7:00 AM</option><option value="8">8:00 AM</option><option value="9">9:00 AM</option>
-<option value="10">10:00 AM</option><option value="12">12:00 PM</option><option value="18">6:00 PM</option><option value="20">8:00 PM</option><option value="21">9:00 PM</option>
-</select></div>
-<div><label for="email-timezone">Time zone</label><select id="email-timezone" aria-label="Your time zone"></select></div>
-</div>
-<button type="submit" id="email-start" class="primary">Start Daily Emails</button>
-<p class="email-caption">One-click email confirmation. No account needed. Your email sequence advances daily even when you haven't marked a reading complete. Pause or unsubscribe from an email's Manage link.</p>
-</form>
-</div>
-<div id="email-reminder-status" role="status" aria-live="polite"></div>
-</section>
-<div class="notice">365 readings through the Gospel harmony and Acts, with WEB Updated Scripture on the page. Every day includes a passage-specific Insight centered on Revelation, Formation, or Multiplication. Guest responses stay on this device. Signed-in users can sync readings and SOS answers securely across devices. Daily email reminders remain optional and account-free.</div>
-</main><aside class="desktop-aside" aria-label="About Following Jesus’ Way">
-<div class="desktop-side-card"><h2>Following Jesus’ Way</h2>
-<p>A 365-day journey through a harmony of the Gospels and Acts, learning how Jesus made disciples who multiplied.</p>
-<div class="desktop-phases"><div class="desktop-phase"><b>1</b>Identify</div><div class="desktop-phase"><b>2</b>Equip</div><div class="desktop-phase"><b>3</b>Invest</div><div class="desktop-phase"><b>4</b>Entrust</div></div></div>
-<div class="desktop-side-card"><h2>The daily flow</h2><div class="desktop-flow"><b>1</b><div><strong>Read</strong><small>One primary passage. Parallel accounts optional.</small></div></div><div class="desktop-flow"><b>2</b><div><strong>Insight</strong><small>See how Jesus made disciples.</small></div></div><div class="desktop-flow"><b>3</b><div><strong>SOS</strong><small>Say · Obey · Share. Save a draft anytime.</small></div></div></div>
-<div class="desktop-side-card"><h2>Grow at your pace</h2><p>Save just one answer and finish the rest later. Sign in to keep drafts across devices.</p><button type="button" class="secondary" id="desktop-plan-info">View plan info</button></div></aside></div><div id="menu-backdrop" class="menu-backdrop" hidden></div>
-<div id="plan-menu" class="menu-pop" role="menu" aria-label="Following Jesus’ Way options" hidden>
-<button type="button" role="menuitem" data-action="share"><span class="menu-ico" aria-hidden="true"><svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V3"/><path d="m7 8 5-5 5 5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg></span>Share</button>
-<button type="button" role="menuitem" data-action="settings"><span class="menu-ico" aria-hidden="true"><svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2h4l.55 2.4 1.9.8 2.1-1.3 2.8 2.8-1.3 2.1.8 1.9L23 11v2l-2.15.55-.8 1.9 1.3 2.1-2.8 2.8-2.1-1.3-1.9.8L14 22h-4l-.55-2.15-1.9-.8-2.1 1.3-2.8-2.8 1.3-2.1-.8-1.9L1 13v-2l2.15-.55.8-1.9-1.3-2.1 2.8-2.8 2.1 1.3 1.9-.8L10 2Z"/><circle cx="12" cy="12" r="3.2"/></svg></span>Settings</button>
-<button type="button" role="menuitem" data-action="info"><span class="menu-ico" aria-hidden="true"><svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></span>Plan Info</button>
-<button type="button" role="menuitem" data-action="catchup"><span class="menu-ico" aria-hidden="true"><svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><path d="m4 5 7 7-7 7V5z"/><path d="m13 5 7 7-7 7V5z"/></svg></span>Catch Me Up</button>
-<button type="button" role="menuitem" data-action="stop" class="danger"><span class="menu-ico" aria-hidden="true"><svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/></svg></span><span id="stop-label">Stop This Plan</span></button>
+</main></div><div id="menu-backdrop" class="menu-backdrop" hidden></div>
+<div id="plan-menu" class="menu-pop" role="menu" aria-label="Plan options" hidden>
+<button type="button" role="menuitem" data-action="catchup"><span class="menu-ico" aria-hidden="true"><svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><path d="m4 5 7 7-7 7V5z"/><path d="m13 5 7 7-7 7V5z"/></svg></span>Catch me up</button>
+<button type="button" role="menuitem" data-action="circles"><span class="menu-ico" aria-hidden="true"><svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>Circles</button>
+<button type="button" role="menuitem" data-action="settings"><span class="menu-ico" aria-hidden="true"><svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg></span>Daily email</button>
+<button type="button" role="menuitem" data-action="share"><span class="menu-ico" aria-hidden="true"><svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V3"/><path d="m7 8 5-5 5 5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg></span>Share this plan</button>
+<button type="button" role="menuitem" data-action="info"><span class="menu-ico" aria-hidden="true"><svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></span>About this plan</button>
+<button type="button" role="menuitem" data-action="stop" class="danger"><span class="menu-ico" aria-hidden="true"><svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/></svg></span><span id="stop-label">Pause this plan</span></button>
 </div>
 <div id="dialog-overlay" class="dialog-overlay" hidden>
 <div class="dialog-card" role="dialog" aria-modal="true" aria-labelledby="dialog-title">
@@ -446,13 +410,25 @@ const hasLinkedDay=Number.isInteger(linkedDay)&&linkedDay>=1&&linkedDay<=reading
 if(!hasLinkedDay){state.day=resumeDay(state);try{localStorage.setItem(KEY,JSON.stringify(state))}catch{}}
 
 function persist(){try{localStorage.setItem(KEY,JSON.stringify(state));window.dispatchEvent(new Event('sos:progress-saved'));return true}catch{return false}}
+// One continuous journey: the step buttons scroll to a section rather than
+// swapping hidden panels, so Scripture, Insight, and SOS stay in reading order.
 function changePanel(name){
- if(!$('sos-panel').hidden)save(true);
  const panelIds={reading:'reading-panel',insight:'insight-panel',sos:'sos-panel'};
- for(const [key,id] of Object.entries(panelIds))$(id).hidden=key!==name;
- $('start').textContent=name==='reading'?'Open Insight ↑':name==='insight'?'Open SOS ↑':'Return to Scripture ↑';
  const panel=$(panelIds[name]);panel.scrollIntoView({behavior:'smooth',block:'start'});panel.focus({preventScroll:true});
 }
+const isComplete=e=>!!(e&&e.read&&e.insight&&String(e.say||'').trim()&&String(e.obey||'').trim()&&String(e.share||'').trim());
+// The reader's "today": a primary Circle's shared calendar day, otherwise the
+// furthest point of personal progress (one reading per day, at their own pace).
+let homeDay=state.day;
+function todayIndex(){
+ const shared=window.sosPrimarySchedule;
+ if(shared&&Number.isInteger(Number(shared.day_no))&&Number(shared.day_no)>=1)return Math.min(readings.length-1,Number(shared.day_no)-1);
+ let last=-1;for(const [k,e] of Object.entries(state.entries))if(isComplete(e))last=Math.max(last,Number(k));
+ return Math.min(readings.length-1,Math.max(homeDay,last+1));
+}
+const svgIcon=(path,cls='ui-icon')=>'<svg class="'+cls+'" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">'+path+'</svg>';
+const CHECK='<path d="M20 6 9 17l-5-5"/>';
+function autoGrow(el){if(el.tagName!=='TEXTAREA')return;el.style.height='auto';el.style.height=Math.min(el.scrollHeight+2,480)+'px'}
 const bookFiles={Matthew:'MAT',Mark:'MRK',Luke:'LUK',John:'JHN',Acts:'ACT'};
 
 function parseReadingReference(ref){
@@ -663,7 +639,7 @@ function renderResponsePattern(r){
  }
  root.append(steps);
  const note=document.createElement('p');note.className='response-pattern-caption';
- note.textContent='Notice what happens in this passage. Then practice Say · Obey · Share yourself.';
+ note.textContent='Now it’s your turn: Say, Obey, Share.';
  root.append(note);
 }
 function renderInsight(r){
@@ -675,11 +651,11 @@ function renderInsight(r){
   const header=document.createElement('div');header.className='insight-card-header';
   const icon=document.createElement('span');icon.className='insight-card-icon';icon.setAttribute('aria-hidden','true');
   icon.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+meta.path+'</svg>';
-  const heads=document.createElement('div'),label=document.createElement('div'),heading=document.createElement('h3');
+  const label=document.createElement('div'),heading=document.createElement('h3');
   label.className='insight-card-category';label.textContent=meta.label;
-  heading.className='insight-card-title';heading.textContent=title;heads.append(label,heading);
-  header.append(icon,heads);
-  const p=document.createElement('p');p.textContent=body;card.append(header,p);
+  heading.className='insight-card-title';heading.textContent=title;
+  header.append(icon,label);
+  const p=document.createElement('p');p.textContent=body;card.append(header,heading,p);
   if(pattern){const span=document.createElement('span');span.className='insight-pattern';span.textContent=pattern;card.append(span)}
   container.append(card);
  }
@@ -688,32 +664,36 @@ function renderInsight(r){
  $('insight-reference').textContent=r[1]+(data.pending?' · Reflection guide':'');
 }
 function render(){
- const i=state.day,r=readings[i],e=entry(),previous=i>0?entry(i-1):null;
- $('topday').textContent='Day '+(i+1);$('daytitle').textContent='Day '+(i+1);
- $('title').textContent=r[0];$('passage').textContent=r[1];$('reading-title').textContent=r[0];
+ const i=state.day,r=readings[i],e=entry(),previous=i>0?entry(i-1):null,today=todayIndex();
+ $('title').textContent=r[0];$('passage').textContent=r[1];
+ $('day-label').replaceChildren(document.createTextNode('Day '+(i+1)));
+ if(i===today){const t=document.createElement('span');t.className='today-tag';t.textContent=' · Today';$('day-label').append(t)}
+ else if(isComplete(e)){const t=document.createElement('span');t.className='today-tag';t.textContent=' · Completed';$('day-label').append(t)}
+ $('go-today').hidden=i===today;$('go-today').textContent=i<today?'Go to today (Day '+(today+1)+')':'Back to today (Day '+(today+1)+')';
  $('discovery').textContent=r[4];renderInsight(r);
- const book=r[1].split(' ')[0];
- $('read-link').href='https://ebible.org/engwebu/'+(bookFiles[book]||'MAT')+'.htm';
- $('read-link').textContent='Read '+r[1]+' in WEB Updated ↗';
  showScripture(r[1]);
  $('parallel-box').hidden=!r[2];$('parallel-text').textContent=r[2]||'';
  ['say','obey','share'].forEach(k=>$(k).value=e[k]||'');
  const sosComplete=!!(e.say&&e.obey&&e.share);
  for(const [id,done] of [['read-check',!!e.read],['insight-check',!!e.insight],['sos-check',sosComplete]]){
- const el=$(id);el.classList.toggle('done',done);el.classList.toggle('draft',id==='sos-check'&&!done&&!!(e.say||e.obey||e.share));el.textContent=done?'✓':'';
+ const el=$(id);el.classList.toggle('done',done);el.classList.toggle('draft',id==='sos-check'&&!done&&!!(e.say||e.obey||e.share));el.innerHTML=done?svgIcon(CHECK):'';
  }
- $('sos-draft-note').hidden=sosComplete||!(e.say||e.obey||e.share);$('mark-read').textContent=e.read?'Reading completed ✓':'Mark Scripture as read';$('mark-insight').textContent=e.insight?'Insight completed ✓':'Mark Insight as read';
+ $('sos-draft-note').hidden=sosComplete||!(e.say||e.obey||e.share);
+ $('mark-read').classList.toggle('done',!!e.read);$('mark-read').innerHTML=e.read?svgIcon(CHECK,'ui-icon check')+'Read · Continue to Insight':'Done reading · Continue';
+ $('mark-insight').classList.toggle('done',!!e.insight);$('mark-insight').innerHTML=e.insight?svgIcon(CHECK,'ui-icon check')+'Continue to SOS':'Continue to SOS';
+ ['say','obey','share'].forEach(k=>autoGrow($(k)));
+ $('save-state').textContent='';
  $('previous').hidden=!previous?.obey;
  if(previous?.obey){$('previous-obey').textContent=previous.obey;document.querySelectorAll('[data-check]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.check===previous.check)))}
  $('days').replaceChildren();
  for(let n=0;n<readings.length;n++){
-  const b=document.createElement('button');b.type='button';b.className='day';
+  const b=document.createElement('button');b.type='button';b.className='day'+(n===today?' is-today':'')+(n>today?' future':'')+(isComplete(entry(n))?' done':'');
   if(i===n)b.setAttribute('aria-current','step');
   const start=prefs.startDate?new Date(prefs.startDate+'T12:00:00'):null;
   let sublabel='Day '+(n+1);
   const shared=window.sosPrimarySchedule;
   if(shared){
-   if(n+1<shared.start_day)sublabel='Earlier reading';
+   if(n+1<shared.start_day)sublabel='Earlier';
    else{
     const date=new Date(shared.start_on+'T12:00:00Z');
     if(!Number.isNaN(date.getTime())){
@@ -722,11 +702,12 @@ function render(){
     }
    }
   }else if(start&&!Number.isNaN(start.getTime())){start.setDate(start.getDate()+n);sublabel=start.toLocaleDateString('en-US',{month:'short',day:'numeric'});}
-  b.setAttribute('aria-label','Day '+(n+1)+', '+sublabel);
+  if(n===today)sublabel='Today';
+  b.setAttribute('aria-label','Day '+(n+1)+', '+sublabel+(isComplete(entry(n))?', completed':''));
   const number=document.createElement('b');number.textContent=n+1;
   const sub=document.createElement('small');sub.textContent=sublabel;
   b.append(number,sub);
-  const done=entry(n);if(done.read&&done.insight&&done.say&&done.obey&&done.share){const tick=document.createElement('span');tick.className='tick';tick.textContent='✓';b.appendChild(tick)}
+  if(isComplete(entry(n))){const tick=document.createElement('span');tick.className='tick';tick.setAttribute('aria-hidden','true');tick.innerHTML=svgIcon(CHECK,'tick');b.appendChild(tick)}
   b.addEventListener('click',()=>move(n));$('days').appendChild(b)
  }
  const activeDay=$('days').children[i];
@@ -741,7 +722,8 @@ function render(){
  }
  const finished=Object.values(state.entries).filter(x=>x.read&&x.insight&&x.say&&x.obey&&x.share).length;
  $('progress').textContent=finished+' of '+readings.length+' days completed';
- $('status').textContent='';
+ $('status').textContent='';$('status').classList.remove('complete');
+ $('save').textContent=sosComplete?'Saved · Finish today':'Finish today';
  window.dispatchEvent(new CustomEvent('sos:day-rendered',{detail:{day:i+1}}));
 }
 function save(silent=false){
@@ -756,30 +738,36 @@ function save(silent=false){
    if(existing[field]!==value){e[field]=value;changed=true}
   }
  }
- if(changed){state.entries[state.day]=e;if(!persist()){if(!silent)$('status').textContent='Unable to save on this device.';return false}}
- if(!silent)$('status').textContent=hasAnswer?(e.say&&e.obey&&e.share?'SOS complete. Saved locally; cloud sync follows if signed in.':'Draft saved. Finish the rest anytime.'):'No response yet. You can save just one SOS answer.';
+ if(changed){state.entries[state.day]=e;if(!persist()){$('save-state').textContent='Unable to save on this device.';if(!silent)$('status').textContent='Unable to save on this device.';return false}
+  $('save-state').innerHTML=svgIcon(CHECK)+'Saved';}
+ if(!silent){
+  const done=isComplete(entry());
+  $('status').classList.toggle('complete',done);
+  $('status').textContent=done?'Day '+(state.day+1)+' complete. Well done.':hasAnswer?(e.say&&e.obey&&e.share?'SOS saved. Mark the reading and Insight to complete the day.':'Saved. Finish the rest anytime.'):'Write one answer to start. You can finish the rest later.';
+  if(done)window.dispatchEvent(new Event('sos:day-completed'));
+ }
  renderAfterSave();
  return true;
 }
-function renderAfterSave(){const e=entry(),done=!!(e.say&&e.obey&&e.share),partial=!done&&!!(e.say||e.obey||e.share);const check=$('sos-check');check.classList.toggle('done',done);check.classList.toggle('draft',partial);check.textContent=done?'✓':'';$('sos-draft-note').hidden=!partial;$('progress').textContent=Object.values(state.entries).filter(x=>x.read&&x.insight&&x.say&&x.obey&&x.share).length+' of '+readings.length+' days completed'}
-function move(n){clearTimeout(draftTimer);if(!$('sos-panel').hidden)save(true);state.day=Math.max(0,Math.min(readings.length-1,n));persist();render();$('reading-panel').hidden=false;$('insight-panel').hidden=true;$('sos-panel').hidden=true;$('start').textContent='Open Insight ↑';window.scrollTo({top:0,behavior:'smooth'})}
+function renderAfterSave(){const e=entry(),done=!!(e.say&&e.obey&&e.share),partial=!done&&!!(e.say||e.obey||e.share);const check=$('sos-check');check.classList.toggle('done',done);check.classList.toggle('draft',partial);check.innerHTML=done?svgIcon(CHECK):'';$('sos-draft-note').hidden=!partial;$('progress').textContent=Object.values(state.entries).filter(x=>x.read&&x.insight&&x.say&&x.obey&&x.share).length+' of '+readings.length+' days completed'}
+function move(n){clearTimeout(draftTimer);if(!$('sos-panel').hidden)save(true);state.day=Math.max(0,Math.min(readings.length-1,n));persist();render();window.scrollTo({top:0,behavior:'smooth'})}
 
 $('open-reading').addEventListener('click',()=>changePanel('reading'));
 $('open-insight').addEventListener('click',()=>changePanel('insight'));
-$('mark-insight').addEventListener('click',()=>{const e=entry();e.insight=true;state.entries[state.day]=e;if(persist()){render();changePanel('sos')}});
+$('mark-insight').addEventListener('click',()=>{const e=entry();if(!e.insight){e.insight=true;state.entries[state.day]=e;if(!persist())return;render()}changePanel('sos')});
 $('open-sos').addEventListener('click',()=>changePanel('sos'));
-$('start').addEventListener('click',()=>changePanel(!$('sos-panel').hidden?'reading':!$('insight-panel').hidden?'sos':'insight'));
-$('mark-read').addEventListener('click',()=>{if(!$('sos-panel').hidden)save(true);const e=entry();e.read=true;state.entries[state.day]=e;if(persist()){render();changePanel('insight')}});
+$('go-today').addEventListener('click',()=>move(todayIndex()));
+$('mark-read').addEventListener('click',()=>{if(!$('sos-panel').hidden)save(true);const e=entry();if(e.read){changePanel('insight');return}e.read=true;state.entries[state.day]=e;if(persist()){render();changePanel('insight')}});
 $('save').addEventListener('click',()=>save());
 let draftTimer;
 for(const key of ['say','obey','share']){
- $(key).addEventListener('input',()=>{clearTimeout(draftTimer);draftTimer=setTimeout(()=>save(true),750)});
+ $(key).addEventListener('input',()=>{autoGrow($(key));$('save-state').textContent='';clearTimeout(draftTimer);draftTimer=setTimeout(()=>save(true),750)});
  $(key).addEventListener('blur',()=>{clearTimeout(draftTimer);save(true)});
 }
 window.addEventListener('pagehide',()=>{if(!$('sos-panel').hidden)save(true)});
 
 document.querySelectorAll('[data-check]').forEach(b=>b.addEventListener('click',()=>{if(state.day===0)return;const e=entry(state.day-1);e.check=b.dataset.check;state.entries[state.day-1]=e;persist();document.querySelectorAll('[data-check]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)))}));
-$('open-circles').addEventListener('click',function(){this.href='/follow-circles.html?day='+(state.day+1)});
+$('following-manage').addEventListener('click',function(){this.href='/follow-circles.html?day='+(state.day+1)});
 $('share-btn').addEventListener('click',async()=>{if(!$('sos-panel').hidden)save(true);const r=readings[state.day],e=entry(),msg='Following Jesus’ Way · SOS: '+r[0]+' ('+r[1]+')\nSay: '+(e.say||'')+'\nObey: '+(e.obey||'')+'\nShare: '+(e.share||'')+'\nhttps://obey.tools/daily-sos.html';try{if(navigator.share)await navigator.share({title:'Following Jesus’ Way · SOS',text:msg});else if(navigator.clipboard){await navigator.clipboard.writeText(msg);$('status').textContent='Copied to clipboard.'}else $('status').textContent='Sharing is unavailable here.'}catch(err){if(err.name!=='AbortError')$('status').textContent='Sharing failed.'}});
 
 const MENU_KEY='obeytools:daily-sos:preferences:v1';
@@ -809,11 +797,14 @@ function planShare(){const text="Following Jesus’ Way: a Gospel harmony focuse
 function infoDialog(){
  const body=node('div');
  body.append(node('p','Follow Jesus’ Way is designed as a 365-day journey through a harmony of the Gospels and Acts. Learn how Jesus identified, equipped, invested in, and entrusted his disciples to carry on his mission.'));
- body.append(node('p','Each day has three steps: Read Scripture, review an Insight about Jesus’ way, then Say, Obey, and Share. Parallel Gospel accounts are optional.'));
+ body.append(node('p','Each day has three steps: read the Scripture, discover the Insight, then respond through Say, Obey, and Share. Following together with a Circle is optional. Parallel Gospel accounts are optional.'));
+ body.append(node('p','Insights look at what Jesus reveals about Himself (Revelation), how faith is formed (Formation), and how His Kingdom spreads through people (Multiplication). Only the themes actually present in a passage appear.'));
+ body.append(node('p','Your SOS answers save on this device and, when you sign in, sync across devices. They are never shared with a Circle unless you write a reflection yourself.'));
  body.append(node('p','The complete 365-day Gospel harmony and Acts journey is available. Historical ordering is approximate where the Gospels do not specify timing. Daily email reminders are available through the opt-in section when sender setup has been verified. The harmony follows a traditional approximate Gospel event sequence. Some placements differ between published harmonies. Scripture text is from the public-domain World English Bible Updated.','small-notice'));
- dialog('Plan Info',body)
+ dialog('About this plan',body)
 }
-function settingsDialog(){closeMenu();$('email-reminders').scrollIntoView({behavior:'smooth',block:'start'})}
+function settingsDialog(){closeMenu();$('email-reminders').open=true;$('email-reminders').scrollIntoView({behavior:'smooth',block:'start'})}
+function circlesLink(){closeMenu();location.href='/follow-circles.html?day='+(state.day+1)}
 function dateUTC(s){const d=new Date(s+'T12:00:00');return Number.isNaN(d.getTime())?null:d}
 function catchupDialog(){
  const start=dateUTC(prefs.startDate),today=new Date();today.setHours(12,0,0,0);
@@ -826,16 +817,15 @@ function catchupDialog(){
  else dialog('Catch Me Up',body,'Go to Day '+(target+1),()=>move(target))
 }
 function stopDialog(){
- if(prefs.paused){dialog('Resume Following Jesus’ Way','Resume your reading journey? Your saved answers are still here. To resume paused emails, use Manage reminders in your inbox.','Resume plan',()=>{prefs.paused=false;savePrefs();updatePlanStatus();void 0});return}
+ if(prefs.paused){dialog('Resume this plan','Resume your reading journey? Your saved answers are still here. To resume paused emails, use Manage reminders in your inbox.','Resume plan',()=>{prefs.paused=false;savePrefs();updatePlanStatus();void 0});return}
  const body=node('div');
  body.append(node('p','Pause this study on this device? Your responses will remain saved. You can resume anytime from this menu.'));
  body.append(node('p','Pausing the study here will not pause subscribed emails. Use Manage reminders in any email to pause delivery.','small-notice'));
- dialog('Stop This Plan',body,'Pause plan',()=>{prefs.paused=true;savePrefs();updatePlanStatus();void 0});
+ dialog('Pause this plan',body,'Pause plan',()=>{prefs.paused=true;savePrefs();updatePlanStatus();void 0});
 }
 function updatePlanStatus(){
- $('stop-label').textContent=prefs.paused?'Resume This Plan':'Stop This Plan';
- $('start').disabled=!!prefs.paused;
- $('start').textContent=prefs.paused?'Plan paused':!$('sos-panel').hidden?'Return to Scripture ↑':!$('insight-panel').hidden?'Open SOS ↑':'Open Insight ↑';
+ $('stop-label').textContent=prefs.paused?'Resume this plan':'Pause this plan';
+ $('paused-note').hidden=!prefs.paused;
 }
 $('menu').setAttribute('aria-haspopup','menu');$('menu').setAttribute('aria-expanded','false');
 $('menu').addEventListener('click',()=>menu.hidden?openMenu():closeMenu());
@@ -845,14 +835,13 @@ cancelBtn.addEventListener('click',closeDialog);
 overlay.addEventListener('click',e=>{if(e.target===overlay)closeDialog()});
 menu.querySelectorAll('[data-action]').forEach(b=>b.addEventListener('click',()=>{
  const action=b.dataset.action;closeMenu();
- ({share:planShare,settings:settingsDialog,info:infoDialog,catchup:catchupDialog,stop:stopDialog})[action]?.()
+ ({share:planShare,settings:settingsDialog,info:infoDialog,catchup:catchupDialog,stop:stopDialog,circles:circlesLink})[action]?.()
 }));
 updatePlanStatus();
-$('desktop-plan-info').addEventListener('click',infoDialog);
 
 window.sosCircleBridge={
  setSchedule:(schedule)=>{
-  const next=schedule?{start_day:schedule.start_day,start_on:schedule.start_on,time_zone:schedule.time_zone}:null;
+  const next=schedule?{start_day:schedule.start_day,start_on:schedule.start_on,time_zone:schedule.time_zone,day_no:schedule.day_no}:null;
   if(JSON.stringify(window.sosPrimarySchedule||null)===JSON.stringify(next))return;
   if(!$('sos-panel').hidden)save(true);
   window.sosPrimarySchedule=next;
@@ -877,6 +866,7 @@ window.sosSyncAdapter={
   if(!snapshot||typeof snapshot!=='object')return;
   state.entries=snapshot.entries&&typeof snapshot.entries==='object'?JSON.parse(JSON.stringify(snapshot.entries)):{};
   state.day=hasLinkedDay?linkedDay-1:resumeDay(snapshot);
+  if(!hasLinkedDay)homeDay=state.day;
   try{localStorage.setItem(KEY,JSON.stringify(state))}catch{}
   render();
   window.dispatchEvent(new Event('sos:sync-applied'));

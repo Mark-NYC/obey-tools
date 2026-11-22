@@ -8,6 +8,8 @@ const val=id=>$(id).value.trim();
 function status(message,error=false){$('notice').textContent=message;$('notice').classList.toggle('error',error)}
 function el(tag,txt,cls){const e=document.createElement(tag);if(txt!==undefined)e.textContent=txt;if(cls)e.className=cls;return e}
 function button(txt,fn,cls='mini'){const b=el('button',txt,cls);b.type='button';b.addEventListener('click',fn);return b}
+function avatar(name,cls='avatar'){const a=el('span',(String(name||'?').trim()[0]||'?').toUpperCase(),cls);a.setAttribute('aria-hidden','true');return a}
+function when(iso){const t=new Date(iso);if(Number.isNaN(t.getTime()))return '';const m=Math.round((Date.now()-t)/60000);if(m<1)return 'Just now';if(m<60)return m+'m';const h=Math.round(m/60);if(h<24)return h+'h';if(h<48)return 'Yesterday';return t.toLocaleDateString('en-US',{month:'short',day:'numeric'})}
 async function invoke(name,args){const {data,error}=await supabase.rpc(name,args);if(error)throw error;return data}
 async function loadAuth(){
  $('loading').hidden=false;
@@ -34,8 +36,12 @@ function renderCircleList(){
  const root=$('circle-list');root.replaceChildren();
  $('empty-circles').hidden=memberships.length>0;
  for(const m of memberships){
-  const card=el('button',undefined,'circle-card');
-  card.append(el('strong',m.circle.name),el('small',(m.schedule?.is_primary?'Primary · ':'')+'Day '+(m.schedule?.day_no||1)+(m.schedule?.finished?' · Finished':'')+' · '+(m.role==='steward'?'Steward':'Member')));
+  const card=el('button',undefined,'circle-card');card.type='button';
+  const text=el('span',undefined,'circle-text');
+  text.append(el('strong',m.circle.name),el('small','Day '+(m.schedule?.day_no||1)+(m.schedule?.finished?' · Finished':'')+(m.role==='steward'?' · Steward':'')));
+  card.append(avatar(m.circle.name,'avatar circle-mark'),text);
+  if(m.schedule?.is_primary)text.append(el('span','Your daily reading','badge'));
+  card.insertAdjacentHTML('beforeend','<svg class="ico chev" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>');
   card.addEventListener('click',()=>showCircle(m.circle_id));root.append(card)
  }
 }
@@ -58,14 +64,16 @@ function showInvitation(token){
 async function showCircle(id){
  const m=memberships.find(x=>x.circle_id===id);if(!m)return status('Not a member of that Circle',true);
  selected=m;mentions.clear();renderMentions();$('overview').hidden=true;$('invite-preview').hidden=true;$('circle-view').hidden=false;
- $('circle-name').textContent=m.circle.name;$('circle-subtitle').textContent='Shared reading · Day '+(m.schedule?.day_no||1)+(m.schedule?.finished?' · Study complete':'')+' · '+(m.schedule?.time_zone||'UTC');
+ $('circle-name').textContent=m.circle.name;$('circle-subtitle').textContent='Reading Day '+(m.schedule?.day_no||1)+' of 365 together'+(m.schedule?.finished?' · Finished':'')+' · New day at midnight, '+String(m.schedule?.time_zone||'UTC').replaceAll('_',' ');
+ $('composer').open=false;document.querySelectorAll('.avatar.me').forEach(a=>a.textContent=(String(m.display_name||'').trim()[0]||'').toUpperCase());
  $('circle-today-link').href='/daily-sos.html?day='+(m.schedule?.day_no||1);
- $('primary-context').textContent=m.schedule?.is_primary?'This Circle determines your daily reading.':'Your primary Circle determines the daily reading that opens by default.';
+ const primary=memberships.find(x=>x.schedule?.is_primary);
+ $('primary-context').textContent=m.schedule?.is_primary?'Your daily reading follows this Circle. Follow Daily opens on its current day.':primary?'Your daily reading follows '+primary.circle.name+'. You can still talk with this Circle about any passage.':'You’re reading at your own pace. You can still talk with this Circle about any passage.';
+ $('primary-context').parentElement.classList.toggle('is-primary',!!m.schedule?.is_primary);
  $('make-primary').hidden=!!m.schedule?.is_primary;
  $('read-independent').hidden=!m.schedule?.is_primary;
  $('display-name').value=m.display_name;$('show-progress').checked=m.progress_visible;
  $('email-replies').checked=m.email_replies;$('email-mentions').checked=m.email_mentions;$('email-digest').checked=m.email_digest;
- $('circle-settings').hidden=m.role!=='steward';
  history.replaceState(null,'','/follow-circles.html?circle='+encodeURIComponent(id));
  renderTargets();await setTab('feed');
 }
@@ -97,9 +105,9 @@ async function findMentions(){
 function renderTargets(){
  const root=$('post-target-list');root.replaceChildren();
  for(const m of memberships){
-  const label=el('label');
+  const label=el('label',undefined,'chip-check');
   const cb=document.createElement('input');cb.type='checkbox';cb.value=m.circle_id;cb.checked=false;
-  label.append(cb,document.createTextNode(' '+m.circle.name));root.append(label)
+  label.append(cb,el('span',m.circle.name));root.append(label)
  }
 }
 async function renderTransferMembers(){
@@ -124,11 +132,11 @@ async function loadReports(){
 }
 function renderAbout(){
  const root=$('invite-actions');root.replaceChildren();
- root.append(button('Create invitation link',async()=>{
+ root.append(button('Create a new link',async()=>{
   try{const token=await invoke('follow_circle_new_invite',{p_circle:selected.circle_id});showInvitation(token)}
   catch(e){status(e.message,true)}
  },'secondary'));
- if(selected.role==='steward')root.append(button('Revoke all invitation links',async()=>{
+ if(selected.role==='steward')root.append(button('Turn off all links',async()=>{
   if(!confirm('Revoke all existing invitation links for this Circle?'))return;
   try{await invoke('follow_circle_revoke_invites',{p_circle:selected.circle_id});status('Invitation links revoked. Members can create fresh links.')}
   catch(e){status(e.message,true)}
@@ -150,25 +158,38 @@ async function loadFeed(reset){
  const replyNames=await fetchNames(replies.map(p=>p.author_id));
  for(const post of posts)$('feed-items').append(renderPost(post,names.get(post.author_id)||'Member',replies.filter(r=>r.parent_id===post.id),replyNames));
  offset+=posts.length;$('more-posts').hidden=offset>=(count||0);
- if(reset&&!posts.length)$('feed-items').append(el('p','No posts here yet. Share the first reflection.','muted'));
+ if(reset&&!posts.length)$('feed-items').append(el('p','Nothing here yet. Share a prayer request or plan with your Circle.','empty'));
 }
 function renderPost(post,name,replies,names){
  const article=el('article',undefined,'post');
- const meta=el('div',undefined,'meta');meta.append(el('strong',name),el('span',post.reading_day?'Day '+post.reading_day:'General conversation'));article.append(meta,el('p',post.body));
- for(const r of replies){const box=el('div',undefined,'reply');box.append(el('strong',names.get(r.author_id)||'Member'),el('p',r.body));article.append(box)}
+ const meta=el('div',undefined,'meta');
+ const who=el('div');who.append(el('strong',name),el('span',post.reading_day?'Day '+post.reading_day:'Prayer & plans','tag'),el('span',when(post.created_at),'time'));
+ meta.append(avatar(name),who);
+ const body=el('div',undefined,'post-body');body.append(el('p',post.body));
+ const thread=el('div',undefined,'replies');
+ for(const r of replies){const box=el('div',undefined,'reply'),t=el('div');t.append(el('strong',names.get(r.author_id)||'Member'),el('p',r.body));box.append(avatar(names.get(r.author_id)||'Member','avatar sm'),t);thread.append(box)}
+ const form=el('form',undefined,'reply-form');form.hidden=true;
+ const input=el('textarea');input.rows=1;input.maxLength=3000;input.required=true;input.placeholder='Reply to '+name+'…';input.setAttribute('aria-label','Reply to '+name);
+ const send=el('button','Send','send');send.type='submit';form.append(input,send);
+ form.addEventListener('submit',async e=>{e.preventDefault();await replyTo(post.id,input.value,send)});
  const actions=el('div',undefined,'actions');
- actions.append(button('Reply',()=>replyTo(post.id)));
- actions.append(button('Encourage ♥',()=>reactTo(post)));
- if(post.author_id===user.id||selected.role==='steward')actions.append(button('Delete',()=>deletePost(post),'mini'));
- actions.append(button('Report',()=>reportPost(post)));
- if(post.author_id!==user.id)actions.append(button('Block author',()=>blockMember(post)));
- article.append(actions);return article
+ actions.append(button(replies.length?'Reply · '+replies.length:'Reply',()=>{form.hidden=!form.hidden;if(!form.hidden)input.focus()},'act'));
+ actions.append(button('Encourage',()=>reactTo(post),'act'));
+ const more=el('details',undefined,'more');const sum=el('summary');sum.setAttribute('aria-label','More actions');sum.textContent='•••';more.append(sum);
+ const menu=el('div',undefined,'more-menu');
+ if(post.author_id===user.id||selected.role==='steward')menu.append(button('Delete',()=>deletePost(post),'menu-item danger-text'));
+ menu.append(button('Report',()=>reportPost(post),'menu-item'));
+ if(post.author_id!==user.id)menu.append(button('Hide this person',()=>blockMember(post),'menu-item'));
+ more.append(menu);actions.append(more);
+ body.append(actions,thread,form);
+ article.append(meta,body);return article
 }
-async function replyTo(id){
- const body=prompt('Write a reply (visible to this Circle only):');
- if(!body?.trim())return;if(body.length>3000)return status('Reply is too long.',true);
- try{const r=await supabase.from('follow_circle_posts').insert({circle_id:selected.circle_id,author_id:user.id,parent_id:id,body:body.trim()});if(r.error)throw r.error;await loadFeed(true)}
- catch(e){status(e.message,true)}
+async function replyTo(id,text,btn){
+ const body=String(text||'').trim();
+ if(!body)return;if(body.length>3000)return status('Reply is too long.',true);
+ if(btn)btn.disabled=true;
+ try{const r=await supabase.from('follow_circle_posts').insert({circle_id:selected.circle_id,author_id:user.id,parent_id:id,body});if(r.error)throw r.error;await loadFeed(true)}
+ catch(e){status(e.message,true)}finally{if(btn)btn.disabled=false}
 }
 async function reactTo(post){
  try{const r=await supabase.from('follow_circle_reactions').insert({circle_id:selected.circle_id,post_id:post.id,user_id:user.id});if(r.error&&r.error.code!=='23505')throw r.error;status('Encouragement sent')}
@@ -197,12 +218,13 @@ async function loadMembers(reset){
  const people=r.data||[];let progress=new Map();
  try{const data=await invoke('follow_circle_progress',{p_circle:selected.circle_id,p_limit:PAGE,p_offset:memberOffset});progress=new Map((data||[]).map(p=>[p.user_id,p]))}catch(e){status('Progress unavailable: '+e.message,true)}
  for(const p of people){
-  const box=el('div',undefined,'member'),details=el('div');
-  details.append(el('strong',p.display_name),el('small',p.role==='steward'?' · Steward':' · Member'));
+  const box=el('div',undefined,'member'),details=el('div',undefined,'member-text');
+  details.append(el('strong',p.display_name+(p.user_id===user.id?' (you)':'')));
+  if(p.role==='steward')details.append(el('span','Steward','tag'));
   const stats=progress.get(p.user_id);
-  details.append(el('div',stats?'Day '+stats.current_day+' · '+(stats.current_day_done?'Completed today':'In progress')+' · '+stats.completed_days+' total completed':'Progress private','muted'));
-  box.append(details);
-  if(selected.role==='steward'&&p.user_id!==user.id)box.append(button('Remove',()=>removeMember(p)));
+  details.append(el('small',stats?'Day '+stats.current_day+' · '+(stats.current_day_done?'Done today':'Reading')+' · '+stats.completed_days+' days completed':'Progress private'));
+  box.append(avatar(p.display_name),details);
+  if(selected.role==='steward'&&p.user_id!==user.id)box.append(button('Remove',()=>removeMember(p),'textbtn danger-text'));
   $('members-list').append(box)
  }
  memberOffset+=people.length;$('more-members').hidden=memberOffset>=(r.count||0);
@@ -227,11 +249,11 @@ for(const zone of [...new Set(['UTC',preferred,...timeZones])]){
 }
 zoneSelect.value=preferred;
 $('read-independent').addEventListener('click',async()=>{
- if(!selected||!confirm('Follow the reading independently? You will stay in your Circles.'))return;
+ if(!selected||!confirm('Read at your own pace? You’ll stay in all your Circles.'))return;
  try{
   await invoke('follow_circle_set_independent',{});
   const id=selected.circle_id;await loadCircles();await showCircle(id);
-  status('You are now following an independent daily schedule.');
+  status('You’re now reading at your own pace. You’re still in your Circles.');
  }catch(e){status(e.message,true)}
 });
 $('make-primary').addEventListener('click',async()=>{
@@ -239,7 +261,7 @@ $('make-primary').addEventListener('click',async()=>{
  try{
   await invoke('follow_circle_set_primary',{p_circle:selected.circle_id});
   const id=selected.circle_id;await loadCircles();await showCircle(id);
-  status('This Circle now sets your daily reading.');
+  status('Follow Daily now opens on this Circle’s day.');
  }catch(e){status(e.message,true)}
 });
 $('retry-auth').addEventListener('click',loadAuth);
@@ -257,7 +279,7 @@ $('new-circle').addEventListener('click',()=>{
  $('create-display').value=displayName();
  const current=memberships.find(x=>x.schedule?.is_primary)?.schedule?.day_no||personalReadingDay();
  $('create-start-current').value=String(current);
- $('create-start-current').textContent='Start at my current day (Day '+current+')';
+ $('create-start-current').textContent='My current day (Day '+current+')';
  $('create-dialog').hidden=false;
 });
 $('cancel-create').addEventListener('click',()=>{$('create-dialog').hidden=true});
@@ -274,7 +296,11 @@ $('join-form').addEventListener('submit',async e=>{
 $('copy-link').addEventListener('click',async()=>{try{await navigator.clipboard.writeText($('invite-url').value);status('Invitation link copied')}catch{ $('invite-url').select();status('Select and copy the invitation link')}});
 $('close-link').addEventListener('click',()=>{$('link-dialog').hidden=true});
 $('back-circles').addEventListener('click',showOverview);
-$('circle-settings').addEventListener('click',()=>setTab('about'));
+$('invite-top').addEventListener('click',async()=>{
+ if(!selected)return;
+ try{const token=await invoke('follow_circle_new_invite',{p_circle:selected.circle_id});showInvitation(token)}
+ catch(e){status(e.message,true)}
+});
 document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));
 $('feed-filter').addEventListener('change',()=>{$('passage-filter').hidden=val('feed-filter')!=='passage';if(val('feed-filter')!=='passage')loadFeed(true)});
 $('passage-go').addEventListener('click',()=>loadFeed(true));
@@ -290,7 +316,7 @@ $('post-form').addEventListener('submit',async e=>{
   const records=targets.map(circle_id=>({circle_id,author_id:user.id,body,reading_day:day,mentioned_user_ids:[...mentions.keys()]}));
   const r=await supabase.from('follow_circle_posts').insert(records);
   if(r.error)throw r.error;
-  $('post-body').value='';mentions.clear();renderMentions();$('mention-options').replaceChildren();status('Shared with '+targets.length+' Circle'+(targets.length===1?'':'s'));await loadFeed(true);
+  $('post-body').value='';$('composer').open=false;$('post-target-list').querySelectorAll('input').forEach(x=>x.checked=false);mentions.clear();renderMentions();$('mention-options').replaceChildren();status('Shared with '+targets.length+' Circle'+(targets.length===1?'':'s'));await loadFeed(true);
  }catch(err){status(err.message,true)}finally{b.disabled=false}
 });
 $('member-settings').addEventListener('submit',async e=>{
