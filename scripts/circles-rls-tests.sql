@@ -7,6 +7,7 @@ select (public.follow_circle_create('Other Circle','Alice')->>'circle_id')::uuid
 select set_config('test.circle_a', :'circle_a',false),set_config('test.circle_b', :'circle_b',false);
 -- Generate a valid secret link for independent join.
 select public.follow_circle_new_invite(current_setting('test.circle_a')::uuid) as invite_token \gset
+select set_config('test.invite_token', :'invite_token',false);
 -- Alice can write in each Circle.
 insert into public.follow_circle_posts(circle_id,author_id,body,reading_day) values
  (current_setting('test.circle_a')::uuid,auth.uid(),'Circle A reflection',5),
@@ -93,7 +94,7 @@ do $$
 begin
  if exists(select 1 from public.follow_circle_posts where circle_id=current_setting('test.circle_a')::uuid) then raise exception 'FAIL: removed member can read';end if;
  begin
-  perform public.follow_circle_join(:'invite_token','Bob');
+  perform public.follow_circle_join(current_setting('test.invite_token'),'Bob');
   raise exception 'FAIL: removed member rejoined';
  exception when others then
   if SQLERRM not like '%Membership invitation not available%' then raise;end if;
