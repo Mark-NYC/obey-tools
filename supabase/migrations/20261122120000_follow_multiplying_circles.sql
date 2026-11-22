@@ -95,7 +95,9 @@ create policy members_read on public.follow_circle_members for select to authent
 create policy members_edit_self on public.follow_circle_members for update to authenticated
  using(user_id=(select auth.uid())) with check(user_id=(select auth.uid()));
 create policy posts_read on public.follow_circle_posts for select to authenticated
- using(circles_private.is_member(circle_id,(select auth.uid())));
+ using(circles_private.is_member(circle_id,(select auth.uid()))
+ and not exists(select 1 from public.follow_circle_blocks b
+  where b.user_id=(select auth.uid()) and b.blocked_user_id=author_id));
 create policy posts_add on public.follow_circle_posts for insert to authenticated
  with check(author_id=(select auth.uid()) and circles_private.is_member(circle_id,(select auth.uid()))
  and (parent_id is null or exists(select 1 from public.follow_circle_posts p where p.id=parent_id and p.circle_id=follow_circle_posts.circle_id and p.parent_id is null)));
@@ -112,13 +114,16 @@ create policy reactions_add on public.follow_circle_reactions for insert to auth
 create policy reactions_delete on public.follow_circle_reactions for delete to authenticated
  using(user_id=(select auth.uid()));
 create policy reports_add on public.follow_circle_reports for insert to authenticated
- with check(reporter_id=(select auth.uid()) and circles_private.is_member(circle_id,(select auth.uid())));
+ with check(reporter_id=(select auth.uid()) and circles_private.is_member(circle_id,(select auth.uid()))
+ and (post_id is null or exists(select 1 from public.follow_circle_posts p where p.id=post_id and p.circle_id=follow_circle_reports.circle_id)));
+create policy reports_steward_read on public.follow_circle_reports for select to authenticated
+ using(circles_private.is_steward(circle_id,(select auth.uid())));
 create policy blocks_all on public.follow_circle_blocks for all to authenticated
  using(user_id=(select auth.uid())) with check(user_id=(select auth.uid()));
 -- Never expose invitation token hashes in the Data API.
 revoke all on public.follow_circle_invites from anon, authenticated;
 revoke all on public.follow_circles,public.follow_circle_members,public.follow_circle_posts,public.follow_circle_reactions,public.follow_circle_reports,public.follow_circle_blocks from anon;
-grant select on public.follow_circles,public.follow_circle_members,public.follow_circle_posts,public.follow_circle_reactions to authenticated;
+grant select on public.follow_circles,public.follow_circle_members,public.follow_circle_posts,public.follow_circle_reactions,public.follow_circle_reports to authenticated;
 grant insert on public.follow_circle_posts,public.follow_circle_reactions,public.follow_circle_reports,public.follow_circle_blocks to authenticated;
 grant delete on public.follow_circle_posts,public.follow_circle_reactions,public.follow_circle_blocks to authenticated;
 grant update(body,updated_at) on public.follow_circle_posts to authenticated;
@@ -208,7 +213,7 @@ begin
 end;$$;
 -- Progress is returned only for visible members of Circles the caller currently belongs to.
 -- No private SOS text is ever selected or returned.
-create function public.follow_circle_progress(p_circle uuid)
+create function public.follow_circle_progress(p_circle uuid,p_limit integer default 20,p_offset integer default 0)
 returns table(user_id uuid,display_name text,current_day integer,completed_days integer)
 language plpgsql stable security definer set search_path=''
 as $$
@@ -225,9 +230,23 @@ begin
     and count(*) filter(where field_name='say' and length(trim(value))>0)>0
     and count(*) filter(where field_name='obey' and length(trim(value))>0)>0
     and count(*) filter(where field_name='share' and length(trim(value))>0)>0) d) as completed_days
- from public.follow_circle_members m where m.circle_id=p_circle and m.progress_visible=true;
-end;$$;
+ from public.follow_circle_members m where m.circle_id=p_circle and m.progress_visible=true
+ order by m.joined_at,m.user_id limit least(greatest(p_limit,1),100) offset greatest(p_offset,0);
+end;$;
+-- Enforce a small post rate limit server-side, including direct REST calls.
+create function circles_private.limit_posts() returns trigger language plpgsql
+security definer set search_path=''
+as $
+begin
+ if (select count(*) from public.follow_circle_posts where author_id=new.author_id and created_at>now()-interval '1 minute')>=12
+ or (select count(*) from public.follow_circle_posts where author_id=new.author_id and created_at>now()-interval '1 day')>=250
+ then raise exception 'Too many messages; try again later';end if;
+ return new;
+end;$;
+create trigger follow_circle_limit_post_trigger before insert on public.follow_circle_posts
+ for each row execute function circles_private.limit_posts();
+
 -- Public access revoked for privileged functions, including preview unless anonymous preview explicitly permitted.
-revoke all on function public.follow_circle_create(text,text),public.follow_circle_join(text,text),public.follow_circle_invite_preview(text),public.follow_circle_new_invite(uuid),public.follow_circle_revoke_invites(uuid),public.follow_circle_leave(uuid),public.follow_circle_remove(uuid,uuid),public.follow_circle_transfer(uuid,uuid),public.follow_circle_progress(uuid) from public;
-grant execute on function public.follow_circle_create(text,text),public.follow_circle_join(text,text),public.follow_circle_new_invite(uuid),public.follow_circle_revoke_invites(uuid),public.follow_circle_leave(uuid),public.follow_circle_remove(uuid,uuid),public.follow_circle_transfer(uuid,uuid),public.follow_circle_progress(uuid) to authenticated;
+revoke all on function public.follow_circle_create(text,text),public.follow_circle_join(text,text),public.follow_circle_invite_preview(text),public.follow_circle_new_invite(uuid),public.follow_circle_revoke_invites(uuid),public.follow_circle_leave(uuid),public.follow_circle_remove(uuid,uuid),public.follow_circle_transfer(uuid,uuid),public.follow_circle_progress(uuid,integer,integer) from public;
+grant execute on function public.follow_circle_create(text,text),public.follow_circle_join(text,text),public.follow_circle_new_invite(uuid),public.follow_circle_revoke_invites(uuid),public.follow_circle_leave(uuid),public.follow_circle_remove(uuid,uuid),public.follow_circle_transfer(uuid,uuid),public.follow_circle_progress(uuid,integer,integer) to authenticated;
 grant execute on function public.follow_circle_invite_preview(text) to anon,authenticated;
