@@ -228,3 +228,35 @@ legend{font-weight:650;font-size:14px;padding:0;margin-bottom:8px}
 .church-links .circle-card:first-child{border-top:1px solid var(--line)}
 .avatar.church-mark{background:var(--green-soft);color:var(--green-ink)}
 @media(max-width:440px){.tabs{gap:0;margin-left:-8px;margin-right:-8px}.tabs button{padding:12px 8px;font-size:14px}}
+
+/* One Circle system: daily reading, purpose, church at a glance */
+.daily-reading{display:flex;align-items:center;gap:12px;margin:0 0 18px;padding:14px 16px;border-radius:16px;background:var(--green-soft);color:var(--ink);text-decoration:none}
+.daily-reading:hover{background:#d9f0e4}
+.dr-text{flex:1;min-width:0;display:flex;flex-direction:column}
+.dr-label{font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--green-ink)}
+.daily-reading strong{font-size:17px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dr-meta{font-size:13px;color:var(--ink-2)}
+.daily-reading .chev{color:var(--green-ink)}
+.circle-head{display:flex;align-items:center;gap:8px;min-width:0}
+.circle-head strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.role-tag{flex:none;font-size:11px;font-weight:700;color:var(--muted);background:var(--soft);border-radius:999px;padding:2px 8px}
+.circle-extras{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.circle-extras .badge{margin-top:0}
+.church-tag{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:650;color:var(--ink-2);background:var(--soft);border-radius:999px;padding:4px 10px;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.church-tag::before{content:"";width:12px;height:12px;flex:none;background:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 2v4M10 4h4M6 22V11l6-4 6 4v11M2 22h20M10 22v-5h4v5'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 2v4M10 4h4M6 22V11l6-4 6 4v11M2 22h20M10 22v-5h4v5'/%3E%3C/svg%3E") center/contain no-repeat}
+.view-nav{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:8px}
+.view-nav .back-link{margin:0 0 0 -6px}
+.circle-switch select{min-height:40px;max-width:min(220px,52vw);padding:0 32px 0 12px;border:1px solid var(--line);border-radius:999px;background:#fff;font-size:14px;font-weight:650;color:var(--ink);-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b6b72' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;background-size:16px;text-overflow:ellipsis}
+.circle-tags{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 0}
+.circle-tags:empty{display:none}
+.purpose-tag{font-size:12px;font-weight:700;color:var(--green-ink);background:var(--green-soft);border-radius:999px;padding:4px 10px}
+.activities{border:0;padding:0;margin:14px 0 0;display:flex;flex-direction:column;gap:8px}
+.activities legend{font-weight:650;font-size:14px;margin:0 0 8px;padding:0}
+.activity-option{display:flex!important;align-items:flex-start;gap:12px;margin:0!important;padding:12px 14px;border:1px solid var(--line);border-radius:14px;cursor:pointer;font-weight:400!important}
+.activity-option:has(input:checked){border-color:var(--green);background:#f6fbf8}
+.activity-option:has(input:disabled){cursor:default}
+.activity-option input{width:20px;height:20px;margin:2px 0 0;accent-color:var(--green);flex:none}
+.activity-option b{display:block;font-size:15px}
+.activity-option small{display:block;font-size:13px;color:var(--muted);margin-top:1px}
+.activities .hint{margin-top:4px}
+.activities .secondary{align-self:flex-start;margin-top:4px}

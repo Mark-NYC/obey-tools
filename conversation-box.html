@@ -1824,8 +1824,11 @@ function saveConversations() {
                 const m = await window.supabase.from('follow_circle_members').select('circle_id,share_conversations').eq('user_id', user.id);
                 if (m.error || !(m.data || []).length) { _myCircles = []; _myCirclesFor = user.id; }
                 else {
-                    const c = await window.supabase.from('follow_circles').select('id,name').in('id', m.data.map(x => x.circle_id));
-                    _myCircles = c.error ? [] : (c.data || []).map(x => ({ id: x.id, name: x.name }));
+                    // Only Circles that use Conversations. Before that option existed, all of them did.
+                    const ids = m.data.map(x => x.circle_id);
+                    let c = await window.supabase.from('follow_circles').select('id,name,uses_conversations').in('id', ids);
+                    if (c.error) c = await window.supabase.from('follow_circles').select('id,name').in('id', ids);
+                    _myCircles = c.error ? [] : (c.data || []).filter(x => x.uses_conversations !== false).map(x => ({ id: x.id, name: x.name }));
                     _myCirclesFor = user.id;
                 }
             } catch { _myCircles = []; }

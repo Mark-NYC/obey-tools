@@ -67,7 +67,28 @@ button:focus-visible,a:focus-visible,textarea:focus-visible,input:focus-visible,
 .linkish{border:0;background:none;padding:6px 0;color:var(--green-ink);font-weight:650;font-size:14px;text-decoration:underline;text-underline-offset:3px}
 .daytitle{margin:4px 0 2px;font-size:30px;line-height:1.15;letter-spacing:-.02em;font-weight:800}
 .passage-ref{margin:0;font-size:16px;color:var(--ink-2);font-weight:600}
-#reading-context{margin:8px 0 0;font-size:14px;color:var(--muted)}
+/* Which Circle's reading this is. Viewing another Circle never changes the daily reading. */
+.reading-switch{position:relative;margin:10px 0 0}
+.reading-switch-btn{display:inline-flex;align-items:center;gap:6px;max-width:100%;min-height:40px;padding:6px 12px 6px 14px;border:1px solid var(--line);border-radius:999px;background:#fff;font-size:14px;color:var(--muted);text-align:left}
+.reading-switch-btn strong{color:var(--ink);font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.reading-switch-btn .ui-icon{width:16px;height:16px;color:var(--muted)}
+.reading-switch-btn:hover{background:var(--soft)}
+.reading-switch-menu{position:absolute;z-index:40;left:0;top:calc(100% + 6px);width:min(360px,calc(100vw - 32px));padding:6px;background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 14px 36px rgba(0,0,0,.14)}
+.rs-item{display:flex;align-items:center;gap:10px;width:100%;min-height:52px;padding:8px 12px;border:0;border-radius:12px;background:none;text-align:left}
+.rs-item:hover,.rs-item:focus-visible{background:var(--soft)}
+.rs-item[aria-checked=true]{background:var(--green-soft)}
+.rs-main{flex:1;min-width:0}
+.rs-name{display:block;font-weight:650;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rs-meta{display:block;font-size:13px;color:var(--muted)}
+.rs-tag{flex:none;font-size:12px;font-weight:700;color:var(--green-ink);background:var(--green-soft);border-radius:999px;padding:3px 9px}
+.rs-item[aria-checked=true] .rs-tag{background:#fff}
+.rs-check{flex:none;width:18px;height:18px;color:var(--green-ink)}
+.rs-sep{height:1px;background:var(--line);margin:4px 8px}
+.rs-foot{display:block;padding:8px 12px 6px;font-size:12px;color:var(--muted)}
+.reading-context{margin:8px 0 0;padding:10px 14px;border-radius:14px;background:var(--soft);font-size:14px}
+.reading-context p{margin:0;color:var(--ink-2)}
+.reading-context-actions{display:flex;flex-wrap:wrap;gap:4px 16px}
+.reading-context-actions .linkish{min-height:40px}
 #paused-note{margin:10px 0 0;font-size:13px;color:var(--ink-2);background:var(--soft);padding:8px 12px;border-radius:10px}
 /* Journey: a quiet ring in the day header opens "Your journey". */
 .day-meta{justify-content:space-between}
@@ -300,7 +321,11 @@ textarea,input,select{font:inherit;color:var(--ink)}
  <div class="day-meta"><span class="day-meta-left"><span id="day-label">Day 1</span><button id="go-today" class="linkish" type="button" hidden>Go to today</button></span><button id="journey-open" class="journey-btn" type="button" aria-haspopup="dialog"><svg class="ring" viewBox="0 0 36 36" aria-hidden="true"><circle class="ring-bg" cx="18" cy="18" r="15"/><circle class="ring-fg" id="journey-ring" cx="18" cy="18" r="15" stroke-dasharray="94.25" stroke-dashoffset="94.25"/></svg><span id="progress">0 of 365</span></button></div>
  <h2 class="daytitle" id="title"></h2>
  <p class="passage-ref" id="passage"></p>
- <p id="reading-context" hidden></p>
+ <div id="reading-switch" class="reading-switch" hidden>
+  <button id="reading-switch-btn" class="reading-switch-btn" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="reading-switch-menu"><span id="reading-switch-label">Reading with</span> <strong id="reading-switch-name"></strong><svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+  <div id="reading-switch-menu" class="reading-switch-menu" role="menu" aria-labelledby="reading-switch-btn" hidden></div>
+ </div>
+ <div id="reading-context" class="reading-context" hidden><p id="reading-context-text"></p><div class="reading-context-actions"><button id="reading-back" class="linkish" type="button">Back to my daily reading</button><button id="reading-make-primary" class="linkish" type="button"></button></div></div>
  <p id="day-note" hidden></p>
  <button id="friends-line" class="friends-line" type="button" hidden></button>
  <p id="paused-note" hidden>This plan is paused on this device. Resume it from the options menu.</p>
