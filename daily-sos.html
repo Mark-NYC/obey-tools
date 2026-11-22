@@ -175,19 +175,53 @@ body{padding:0;background:#f8f8f8}
 .sos-sync button:disabled{opacity:.6;cursor:wait}
 @media(max-width:520px){.sos-sync .sync-row{flex-direction:column}.sos-sync input,.sos-sync button{width:100%}}
 
-/* Keep the original horizontally scrolling 365-day navigation visible on all screens. */
-.days{position:relative}
-.days .day{cursor:pointer}
-.days .day:hover{background:#e7eee9}
-.days .day[aria-current=true]{background:#e8f7ee;border-color:#008c56}
-@media(min-width:1100px){.shell>.content{grid-row:4}.desktop-nav,.desktop-aside{grid-row:2/5}}
+/* Bible Recap-style day rail: visible neighboring cards, centered selected day. */
+.days{
+ --day-card-width:112px;
+ position:relative;
+ width:100%;
+ max-width:100%;
+ gap:9px;
+ padding:3px max(0px,calc((100% - var(--day-card-width))/2)) 15px;
+ overflow-x:auto;
+ overflow-y:hidden;
+ scrollbar-width:none;
+ -webkit-overflow-scrolling:touch;
+ scroll-behavior:auto;
+}
+.days::-webkit-scrollbar{display:none}
+.days .day{
+ flex:0 0 var(--day-card-width);
+ min-height:92px;
+ border:3px solid transparent;
+ border-radius:11px;
+ padding:12px 8px 10px;
+ background:#f1f1f2;
+ text-align:center;
+ cursor:pointer;
+}
+.days .day b{font-size:29px;line-height:1.1;letter-spacing:-.5px}
+.days .day small{display:block;margin-top:8px;font-size:12px;color:#67676d}
+.days .day .tick{top:5px;right:7px;font-size:16px;color:#10744f}
+.days .day:hover{background:#e9f1ec}
+.days .day[aria-current=true]{background:#fff;border-color:#202424}
+.days .day:focus-visible{outline:3px solid #00a468;outline-offset:2px}
+@media(max-width:1099px){
+ .shell>.days{width:100%;max-width:100%;margin-left:0;margin-right:0;padding:3px max(0px,calc((100% - var(--day-card-width))/2)) 15px}
+}
+@media(min-width:1100px){
+ .shell>.days{--day-card-width:120px;max-width:none;width:100%;padding:3px max(0px,calc((100% - var(--day-card-width))/2)) 15px}
+ .shell>.content{grid-row:4}
+ .desktop-nav,.desktop-aside{grid-row:2/5}
+}
+@media(prefers-reduced-motion:reduce){.days{scroll-behavior:auto}}
 </style></head>
 <body><div class="shell">
 <header><a class="site-logo" href="/" aria-label="Obey Tools home">OBEY.TOOLS</a><a class="round" href="/follow-daily/" aria-label="Back to Follow Daily">‹</a><div class="headline"><strong>Overview</strong><small id="topday">Day 1</small></div><button class="round" id="menu" type="button" aria-label="Following Jesus’ Way options">···</button></header>
 <nav class="desktop-nav" aria-label="Obey Tools navigation">
 <a href="/">⌂ &nbsp; Home</a>
 <a href="/follow-daily/">◈ &nbsp; Follow Daily</a><a href="/daily-sos.html" aria-current="page">▣ &nbsp; Following Jesus’ Way</a><a href="/commands-of-christ.html">✓ &nbsp; Commands of Christ</a><a href="/4-questions.html">◯ &nbsp; 4 Questions</a></nav><div class="brand"><span>OBEY.TOOLS</span><h1>FOLLOWING JESUS’ WAY</h1><p>ABIDE IN JESUS · SAY, OBEY, SHARE</p></div>
-<nav id="days" class="days" aria-label="Reading days"></nav>
+<nav id="days" class="days" aria-label="Swipe left or right to choose a reading day"></nav>
 <main class="content">
 <div class="row"><h2 class="daytitle" id="daytitle">Day 1</h2><span class="pill" id="phase">IDENTIFY</span></div>
 <p class="section-note" id="phase-detail"></p>
@@ -397,14 +431,26 @@ function render(){
  if(previous?.obey){$('previous-obey').textContent=previous.obey;document.querySelectorAll('[data-check]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.check===previous.check)))}
  $('days').replaceChildren();
  for(let n=0;n<readings.length;n++){
-  const b=document.createElement('button');b.type='button';b.className='day';b.setAttribute('aria-current',String(i===n));b.setAttribute('aria-label','Day '+(n+1));b.innerHTML='<b>'+(n+1)+'</b><small>Day '+(n+1)+'</small>';
+  const b=document.createElement('button');b.type='button';b.className='day';
+  if(i===n)b.setAttribute('aria-current','step');
+  const start=prefs.startDate?new Date(prefs.startDate+'T12:00:00'):null;
+  let sublabel='Day '+(n+1);
+  if(start&&!Number.isNaN(start.getTime())){start.setDate(start.getDate()+n);sublabel=start.toLocaleDateString('en-US',{month:'short',day:'numeric'});}
+  b.setAttribute('aria-label','Day '+(n+1)+', '+sublabel);
+  const number=document.createElement('b');number.textContent=n+1;
+  const sub=document.createElement('small');sub.textContent=sublabel;
+  b.append(number,sub);
   const done=entry(n);if(done.read&&done.say&&done.obey&&done.share){const tick=document.createElement('span');tick.className='tick';tick.textContent='✓';b.appendChild(tick)}
   b.addEventListener('click',()=>move(n));$('days').appendChild(b)
  }
  const activeDay=$('days').children[i];
  if(activeDay){
   const track=$('days');
-  const center=()=>{const position=activeDay.offsetLeft-(track.clientWidth-activeDay.offsetWidth)/2;track.scrollLeft=Math.max(0,position)};
+  const center=()=>{
+   const trackBox=track.getBoundingClientRect(),activeBox=activeDay.getBoundingClientRect();
+   const delta=(activeBox.left+activeBox.width/2)-(trackBox.left+trackBox.width/2);
+   track.scrollLeft+=delta;
+  };
   center();requestAnimationFrame(center);
  }
  const finished=Object.values(state.entries).filter(x=>x.read&&x.say&&x.obey&&x.share).length;
