@@ -20,6 +20,8 @@ async function loadAuth(){
  if(params.get('invite'))await previewInvitation(params.get('invite'));
  if(params.get('circle')&&memberships.some(m=>m.circle_id===params.get('circle')))await showCircle(params.get('circle'));
  else if(!params.get('invite'))showOverview();
+ // Arriving from a milestone or "Your journey": open Start a Circle directly.
+ if(params.get('new')==='1'&&!params.get('invite')){showOverview();$('new-circle').click()}
  }catch(e){$('loading').hidden=true;status(e.message||'Unable to load your account',true)}
 }
 async function loadCircles(){
