@@ -7,7 +7,7 @@
 <main class="layout">
 <section class="intro"><div class="eyebrow">FOLLOW DAILY · FRIENDS</div><h1>Follow Jesus together.</h1><p>Read at your own pace. Encourage one another. Invite others to do the same.</p></section>
 <div id="loading" role="status">Checking your account…</div>
-<section id="auth-needed" class="panel" hidden><h2>Join the conversation</h2><p>Your daily readings work without an account. Circles use your existing OBEY.TOOLS login so conversations stay private.</p><a class="primary linkbtn" href="/daily-sos.html#sos-sync">Sign in through Follow Daily</a><button id="retry-auth" class="secondary" type="button">I've signed in</button></section>
+<section id="auth-needed" class="panel" hidden><h2>Join the conversation</h2><p>Your daily readings work without an account. Circles use your existing OBEY.TOOLS login so conversations stay private.</p><form id="sign-in-form"><label for="auth-email">Email</label><input type="email" id="auth-email" autocomplete="email" required><label for="auth-password">Password</label><input type="password" id="auth-password" autocomplete="current-password" required><button type="submit" class="primary">Sign in</button></form><p>Don't have a password? Use an email sign-in link.</p><button id="magic-sign-in" class="secondary" type="button">Email me a sign-in link</button> <a href="/" class="textbtn">Create an OBEY.TOOLS account</a><button id="retry-auth" class="secondary" type="button">I've signed in</button></section>
 <section id="app" hidden>
  <div id="notice" role="status" aria-live="polite"></div>
  <section id="invite-preview" class="panel" hidden><div class="eyebrow">YOU'RE INVITED</div><h2 id="invite-circle-name"></h2><p>A friend invited you to follow Jesus together. You'll keep your own reading day. Your private SOS answers stay private.</p><form id="join-form"><label for="join-name">Your display name</label><input id="join-name" maxlength="60" required placeholder="Name your friends will see"><button class="primary" type="submit">Join Circle</button></form></section>
@@ -31,7 +31,7 @@
    <fieldset id="post-targets"><legend>Share with these Circles</legend><div id="post-target-list"></div></fieldset>
    <button class="primary" type="submit">Share reflection</button></form></div>
   </div>
-  <div id="tab-members" hidden><h3>Members</h3><p class="muted">Only members who choose to share their progress appear in the progress list.</p><div id="members-list"></div><button id="more-members" type="button" class="secondary" hidden>Load more</button></div>
+  <div id="tab-members" hidden><h3>Members</h3><div id="moderation-reports" hidden class="panel"><h4>Reports for steward review</h4><div id="reports-list"></div></div><p class="muted">Only members who choose to share their progress appear in the progress list.</p><div id="members-list"></div><button id="more-members" type="button" class="secondary" hidden>Load more</button></div>
   <div id="tab-about" hidden><h3>About this Circle</h3><p>Everyone follows their own reading day. Your SOS journal is private. You can start another Circle any time.</p>
    <div class="panel"><h3>Share an invitation</h3><p>Members can invite friends. Ask your steward for a new invitation if the original link is lost or revoked.</p><div id="invite-actions"></div></div>
    <div class="panel"><h3>Your settings</h3><form id="member-settings">
@@ -42,7 +42,7 @@
    <label class="toggle"><input type="checkbox" id="email-mentions"> Mentions</label>
    <label class="toggle"><input type="checkbox" id="email-digest"> Weekly digest</label>
    <button class="secondary" type="submit">Save settings</button></form></div>
-   <div class="panel"><button id="leave-circle" class="danger" type="button">Leave Circle</button></div>
+   <div id="steward-controls" class="panel" hidden><h3>Steward tools</h3><label for="steward-transfer">Transfer stewardship</label><select id="steward-transfer"><option value="">Choose a member</option></select><button id="transfer-circle" type="button" class="secondary">Transfer stewardship</button></div><div class="panel"><button id="leave-circle" class="danger" type="button">Leave Circle</button></div>
   </div>
  </section>
 </section>
