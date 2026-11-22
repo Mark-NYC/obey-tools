@@ -14,9 +14,9 @@ window.OBEY_SOS_FIRST30 = {
   "Luke 1:1–4": {
     "cards": [
       [
-        "observe",
-        "Faith built on testimony",
-        "Luke writes an orderly account based on reports from eyewitnesses and servants of the word. His aim is that Theophilus may know the certainty of what he has been taught. Following Jesus is grounded in what He actually did and said. The account deserves careful attention before we draw applications from it."
+        "formation",
+        "Faith rooted in careful testimony",
+        "Luke tells Theophilus he has investigated reports from eyewitnesses and written an orderly account so he may know the certainty of what he has learned. Disciples need more than enthusiasm: they need a trustworthy understanding of Jesus' words and deeds. Listening carefully to Scripture protects us from building faith on assumptions."
       ]
     ],
     "action": "What would change if you paid closer attention to the text before drawing conclusions?"
@@ -139,9 +139,9 @@ window.OBEY_SOS_FIRST30 = {
   "Luke 1:80": {
     "cards": [
       [
-        "observe",
-        "A quiet season of preparation",
-        "Luke says that John grew, became strong in spirit, and lived in the wilderness until the day of his public appearance to Israel. The verse gives us very little detail about those years. We should not turn that silence into an invented training method. It does remind us that public ministry was preceded by a long, mostly unseen period."
+        "formation",
+        "Preparation outside the spotlight",
+        "John grows strong in spirit and remains in the wilderness until his public appearance. Luke does not describe the details of his training. The quiet years remind us that public calling may follow a long period of unseen growth, without offering a formula for how every worker should be developed."
       ]
     ],
     "action": "Can you be faithful in a season that other people do not see?"
@@ -184,9 +184,9 @@ window.OBEY_SOS_FIRST30 = {
         "On the eighth day, the child is circumcised and named Jesus, just as the angel had instructed before His conception. Luke places His early life within Israel’s covenant practices and reminds us that His name and coming were announced by God."
       ],
       [
-        "observe",
-        "Do not invent the missing details",
-        "This single verse does not describe Jesus identifying or training disciples. Its significance lies in His naming and covenant setting. A faithful reading does not need to manufacture a multiplication lesson from every scene."
+        "revelation",
+        "The child receives His promised name",
+        "Eight days after His birth, Jesus is circumcised and given the name announced before His conception. Luke places Him within Israel's covenant life and reminds us that His arrival was directed by God. The verse is about Jesus' identity and faithful naming, not a disciple-making technique."
       ]
     ],
     "action": "What does the God-given name Jesus lead you to remember about His mission?"
@@ -289,9 +289,9 @@ window.OBEY_SOS_FIRST30 = {
         "Luke summarizes Jesus’ childhood: He grows, becomes strong, is filled with wisdom, and God’s grace is upon Him. The verse points to His real human growth while introducing the wisdom that will become evident in the next scene."
       ],
       [
-        "observe",
-        "Respect the silence",
-        "Luke offers no program for Jesus’ childhood and no account of Him training disciples here. We can affirm His growth without imagining details the text does not provide."
+        "formation",
+        "Real growth in an ordinary childhood",
+        "Luke says Jesus grew, became strong, was filled with wisdom, and enjoyed God's favor. The Son of God truly entered human life and developed through childhood. The text offers no hidden ministry program, but it does honor growth that takes place outside public attention."
       ]
     ],
     "action": "What does Jesus’ real human development teach you about the significance of ordinary growth?"
