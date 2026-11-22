@@ -31,3 +31,7 @@
 #following-together button:focus-visible{outline:3px solid #2db377;outline-offset:2px}
 #following-together button:disabled{opacity:.5;cursor:wait}
 @media(max-width:560px){.following-heading h2{font-size:20px}.following-post-meta{align-items:flex-start}}
+
+.following-finished-actions{border:1px solid #d4e3d8;background:#f5faf6;border-radius:10px;padding:12px 14px;margin:10px 0}
+.following-finished-actions p{margin:0 0 10px;color:#365f48;font-size:13px}
+.following-action-link{display:inline-block;text-decoration:none;margin-left:8px}
