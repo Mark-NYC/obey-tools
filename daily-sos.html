@@ -184,6 +184,7 @@ body{padding:0;background:#f8f8f8}
 @media(max-width:520px){.sos-sync .sync-row{flex-direction:column}.sos-sync input,.sos-sync button{width:100%}}
 
 .insight-body{font-size:16px!important;line-height:1.75;white-space:pre-line}.insight-label{font-size:15px;margin:18px 0 5px}.tasks .task{min-width:0}.tasks .task small{overflow-wrap:anywhere}@media(min-width:1100px) and (max-width:1320px){.tasks{grid-template-columns:1fr}}@media(max-width:1099px){.tasks{display:block}}
+ .circle-invite{display:flex;justify-content:space-between;align-items:center;gap:14px;border-top:1px solid #e6ebe7;margin-top:20px;padding-top:19px}.circle-invite p{color:#606b63;font-size:13px;margin:5px 0 0}.circle-invite .secondary{flex:none;text-decoration:none;font-size:13px}@media(max-width:440px){.circle-invite{align-items:flex-start;flex-direction:column}}
 /* Insight cards: scripture-first lenses, not compulsory leadership labels. */
 #insight-panel{border:0;background:transparent;padding:10px 0 18px;margin:9px 0 18px}
 #insight-panel h2{font-size:27px;letter-spacing:-.7px;margin-bottom:4px}
@@ -299,6 +300,7 @@ body{padding:0;background:#f8f8f8}
 <div class="field"><label for="share">Share</label><p>Who needs to hear what you're learning?</p><input id="share" placeholder="Person or group"></div>
 <button id="save" class="primary" type="button">Save today's SOS</button><button id="share-btn" class="secondary" type="button" style="width:100%;margin-top:10px">Share my SOS</button>
 <div id="status" class="status" role="status" aria-live="polite"></div>
+<div class="circle-invite"><div><strong>Follow with friends</strong><p>Encourage one another at your own pace. Your SOS answers stay private.</p></div><a id="open-circles" class="secondary" href="/follow-circles.html">Your Circles</a></div>
 </section>
 <button id="start" class="primary" type="button">Open Insight ↑</button>
 <div id="progress" class="muted" style="text-align:center;margin-top:13px"></div>
@@ -745,6 +747,7 @@ for(const key of ['say','obey','share']){
 window.addEventListener('pagehide',()=>{if(!$('sos-panel').hidden)save(true)});
 
 document.querySelectorAll('[data-check]').forEach(b=>b.addEventListener('click',()=>{if(state.day===0)return;const e=entry(state.day-1);e.check=b.dataset.check;state.entries[state.day-1]=e;persist();document.querySelectorAll('[data-check]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)))}));
+$('open-circles').addEventListener('click',function(){this.href='/follow-circles.html?day='+(state.day+1)});
 $('share-btn').addEventListener('click',async()=>{if(!$('sos-panel').hidden)save(true);const r=readings[state.day],e=entry(),msg='Following Jesus’ Way · SOS: '+r[0]+' ('+r[1]+')\nSay: '+(e.say||'')+'\nObey: '+(e.obey||'')+'\nShare: '+(e.share||'')+'\nhttps://obey.tools/daily-sos.html';try{if(navigator.share)await navigator.share({title:'Following Jesus’ Way · SOS',text:msg});else if(navigator.clipboard){await navigator.clipboard.writeText(msg);$('status').textContent='Copied to clipboard.'}else $('status').textContent='Sharing is unavailable here.'}catch(err){if(err.name!=='AbortError')$('status').textContent='Sharing failed.'}});
 
 const MENU_KEY='obeytools:daily-sos:preferences:v1';
