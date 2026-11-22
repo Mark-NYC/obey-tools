@@ -17,7 +17,7 @@ update public.follow_circles c set
 
 create table public.follow_circle_primary(
  user_id uuid primary key references auth.users(id) on delete cascade,
- circle_id uuid not null,
+ circle_id uuid,
  chosen_at timestamptz not null default now(),
  foreign key(circle_id,user_id) references public.follow_circle_members(circle_id,user_id) on delete cascade
 );
@@ -64,6 +64,20 @@ end;$$;
 revoke all on function public.follow_circle_set_primary(uuid) from public,anon;
 grant execute on function public.follow_circle_set_primary(uuid) to authenticated;
 
+-- Choosing independent mode must persist even when joining another Circle.
+-- A NULL primary preserves this explicit preference without changing memberships.
+create function public.follow_circle_set_independent()
+returns void language plpgsql security definer set search_path=''
+as $
+begin
+ if auth.uid() is null then raise exception 'Sign in required';end if;
+ insert into public.follow_circle_primary(user_id,circle_id,chosen_at)
+ values(auth.uid(),null,now())
+ on conflict(user_id) do update set circle_id=null,chosen_at=excluded.chosen_at;
+end;$;
+revoke all on function public.follow_circle_set_independent() from public,anon;
+grant execute on function public.follow_circle_set_independent() to authenticated;
+
 -- One small per-member RPC for schedule, Circle list and primary choice.
 -- Server-side timezone arithmetic handles DST and travel correctly.
 create function public.follow_circle_schedule()
@@ -74,7 +88,7 @@ as $$
  select c.id,c.name,
   least(365,c.start_day+greatest(0,(now() at time zone c.time_zone)::date-c.start_on))::integer,
   c.start_day+greatest(0,(now() at time zone c.time_zone)::date-c.start_on)>365,
-  (p.circle_id=c.id),c.time_zone,c.start_day,c.start_on
+  coalesce(p.circle_id=c.id,false),c.time_zone,c.start_day,c.start_on
  from public.follow_circle_members m
  join public.follow_circles c on c.id=m.circle_id
  left join public.follow_circle_primary p on p.user_id=m.user_id
