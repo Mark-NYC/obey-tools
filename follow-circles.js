@@ -25,7 +25,9 @@ async function loadCircles(){
  if(error)throw error;
  const ids=(data||[]).map(x=>x.circle_id);let circles=[];
  if(ids.length){const r=await supabase.from('follow_circles').select('id,name,owner_id,created_at').in('id',ids);if(r.error)throw r.error;circles=r.data||[]}
- memberships=(data||[]).map(m=>({...m,circle:circles.find(c=>c.id===m.circle_id)})).filter(m=>m.circle);
+ const schedules=await invoke('follow_circle_schedule',{});
+ const byId=new Map((schedules||[]).map(x=>[x.circle_id,x]));
+ memberships=(data||[]).map(m=>({...m,circle:circles.find(c=>c.id===m.circle_id),schedule:byId.get(m.circle_id)})).filter(m=>m.circle);
  renderCircleList();
 }
 function renderCircleList(){
@@ -33,7 +35,7 @@ function renderCircleList(){
  $('empty-circles').hidden=memberships.length>0;
  for(const m of memberships){
   const card=el('button',undefined,'circle-card');
-  card.append(el('strong',m.circle.name),el('small',m.role==='steward'?'You steward this Circle':'Private Circle · Your own pace'));
+  card.append(el('strong',m.circle.name),el('small',(m.schedule?.is_primary?'Primary · ':'')+'Day '+(m.schedule?.day_no||1)+(m.schedule?.finished?' · Finished':'')+' · '+(m.role==='steward'?'Steward':'Member')));
   card.addEventListener('click',()=>showCircle(m.circle_id));root.append(card)
  }
 }
@@ -56,7 +58,11 @@ function showInvitation(token){
 async function showCircle(id){
  const m=memberships.find(x=>x.circle_id===id);if(!m)return status('Not a member of that Circle',true);
  selected=m;mentions.clear();renderMentions();$('overview').hidden=true;$('invite-preview').hidden=true;$('circle-view').hidden=false;
- $('circle-name').textContent=m.circle.name;$('circle-subtitle').textContent='Follow at your own pace · Private Circle';
+ $('circle-name').textContent=m.circle.name;$('circle-subtitle').textContent='Shared reading · Day '+(m.schedule?.day_no||1)+(m.schedule?.finished?' · Study complete':'')+' · '+(m.schedule?.time_zone||'UTC');
+ $('circle-today-link').href='/daily-sos.html?day='+(m.schedule?.day_no||1);
+ $('primary-context').textContent=m.schedule?.is_primary?'This Circle determines your daily reading.':'Your primary Circle determines the daily reading that opens by default.';
+ $('make-primary').hidden=!!m.schedule?.is_primary;
+ $('read-independent').hidden=!m.schedule?.is_primary;
  $('display-name').value=m.display_name;$('show-progress').checked=m.progress_visible;
  $('email-replies').checked=m.email_replies;$('email-mentions').checked=m.email_mentions;$('email-digest').checked=m.email_digest;
  $('circle-settings').hidden=m.role!=='steward';
@@ -92,7 +98,7 @@ function renderTargets(){
  const root=$('post-target-list');root.replaceChildren();
  for(const m of memberships){
   const label=el('label');
-  const cb=document.createElement('input');cb.type='checkbox';cb.value=m.circle_id;cb.checked=m.circle_id===selected.circle_id;
+  const cb=document.createElement('input');cb.type='checkbox';cb.value=m.circle_id;cb.checked=false;
   label.append(cb,document.createTextNode(' '+m.circle.name));root.append(label)
  }
 }
@@ -206,6 +212,36 @@ async function removeMember(p){
  try{await invoke('follow_circle_remove',{p_circle:selected.circle_id,p_user:p.user_id});await loadMembers(true)}
  catch(e){status(e.message,true)}
 }
+function personalReadingDay(){
+ try{
+  const saved=JSON.parse(localStorage.getItem('obeytools:daily-sos:v2')||'{}');
+  return Math.max(1,Math.min(365,(Number(saved.day)||0)+1));
+ }catch{return 1}
+}
+const timeZones=typeof Intl.supportedValuesOf==='function'
+ ?Intl.supportedValuesOf('timeZone'):['UTC','America/New_York','America/Chicago','America/Denver','America/Los_Angeles','Europe/London','Asia/Kolkata'];
+const zoneSelect=$('create-timezone');
+const preferred=Intl.DateTimeFormat().resolvedOptions().timeZone||'UTC';
+for(const zone of [...new Set(['UTC',preferred,...timeZones])]){
+ const opt=el('option',zone.replaceAll('_',' '));opt.value=zone;zoneSelect.append(opt);
+}
+zoneSelect.value=preferred;
+$('read-independent').addEventListener('click',async()=>{
+ if(!selected||!confirm('Follow the reading independently? You will stay in your Circles.'))return;
+ try{
+  await invoke('follow_circle_set_independent',{});
+  const id=selected.circle_id;await loadCircles();await showCircle(id);
+  status('You are now following an independent daily schedule.');
+ }catch(e){status(e.message,true)}
+});
+$('make-primary').addEventListener('click',async()=>{
+ if(!selected)return;
+ try{
+  await invoke('follow_circle_set_primary',{p_circle:selected.circle_id});
+  const id=selected.circle_id;await loadCircles();await showCircle(id);
+  status('This Circle now sets your daily reading.');
+ }catch(e){status(e.message,true)}
+});
 $('retry-auth').addEventListener('click',loadAuth);
 $('sign-in-form').addEventListener('submit',async e=>{
  e.preventDefault();const btn=e.submitter;btn.disabled=true;
@@ -217,11 +253,17 @@ $('magic-sign-in').addEventListener('click',async()=>{
  const {error}=await supabase.auth.signInWithOtp({email,options:{emailRedirectTo:location.href}});
  status(error?error.message:'Check your email for the sign-in link.',!!error)
 });
-$('new-circle').addEventListener('click',()=>{$('create-display').value=displayName();$('create-dialog').hidden=false});
+$('new-circle').addEventListener('click',()=>{
+ $('create-display').value=displayName();
+ const current=memberships.find(x=>x.schedule?.is_primary)?.schedule?.day_no||personalReadingDay();
+ $('create-start-current').value=String(current);
+ $('create-start-current').textContent='Start at my current day (Day '+current+')';
+ $('create-dialog').hidden=false;
+});
 $('cancel-create').addEventListener('click',()=>{$('create-dialog').hidden=true});
 $('create-form').addEventListener('submit',async e=>{
  e.preventDefault();const b=e.submitter;b.disabled=true;
- try{const result=await invoke('follow_circle_create',{p_name:val('create-name'),p_display_name:val('create-display')});$('create-dialog').hidden=true;await loadCircles();await showCircle(result.circle_id);showInvitation(result.token)}
+ try{const result=await invoke('follow_circle_create_scheduled',{p_name:val('create-name'),p_display_name:val('create-display'),p_start_day:Number(val('create-start')),p_time_zone:val('create-timezone')});$('create-dialog').hidden=true;await loadCircles();await showCircle(result.circle_id);showInvitation(result.token)}
  catch(err){status(err.message,true)}finally{b.disabled=false}
 });
 $('join-form').addEventListener('submit',async e=>{

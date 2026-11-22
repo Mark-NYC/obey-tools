@@ -261,7 +261,7 @@ body{padding:0;background:#f8f8f8}
 /* Options menu stays anchored to the three-dot button at every breakpoint. */
 .menu-pop{top:76px;right:18px}
 @media(min-width:1100px){.menu-pop{top:80px;right:max(24px,calc((100vw - 1370px)/2 + 16px))}}
-</style></head>
+</style><link rel="stylesheet" href="/daily-sos-circles.css"></head>
 <body><div class="shell">
 <header><a class="site-logo" href="/" aria-label="Obey Tools home">OBEY.TOOLS</a><a class="round" href="/follow-daily/" aria-label="Back to Follow Daily"><svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></a><div class="headline"><strong>Overview</strong><small id="topday">Day 1</small></div><button class="round" id="menu" type="button" aria-label="Following Jesus’ Way options"><svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg></button></header>
 <nav class="desktop-nav" aria-label="Obey Tools navigation">
@@ -300,7 +300,32 @@ body{padding:0;background:#f8f8f8}
 <div class="field"><label for="share">Share</label><p>Who needs to hear what you're learning?</p><input id="share" placeholder="Person or group"></div>
 <button id="save" class="primary" type="button">Save today's SOS</button><button id="share-btn" class="secondary" type="button" style="width:100%;margin-top:10px">Share my SOS</button>
 <div id="status" class="status" role="status" aria-live="polite"></div>
-<div class="circle-invite"><div><strong>Follow with friends</strong><p>Encourage one another at your own pace. Your SOS answers stay private.</p></div><a id="open-circles" class="secondary" href="/follow-circles.html">Your Circles</a></div>
+<div class="circle-invite"><div><strong>Following Together</strong><p>Discuss today's Scripture with friends below. Your personal SOS answers stay private.</p></div><a id="open-circles" class="secondary" href="/follow-circles.html">Manage Circles</a></div>
+</section>
+<section id="following-together" aria-label="Following Together">
+<div class="following-heading"><h2>Following Together</h2><a id="following-manage" href="/follow-circles.html" hidden>Manage Circles</a></div>
+<p id="following-context">Loading your Circles…</p>
+<div id="following-finished-actions" class="following-finished-actions" hidden>
+<p>The Circle has completed Day 365. Its conversations remain available. You can review earlier readings, continue independently, or start another Circle.</p>
+<button id="following-independent" type="button" class="following-small">Continue independently</button>
+<a href="/follow-circles.html" class="following-small following-action-link">Start or choose a Circle</a>
+</div>
+<p class="following-subtitle">Reflections about this day's Scripture from friends in your Circles. Your personal SOS stays private.</p>
+<div id="following-posts" aria-live="polite"></div>
+<div class="following-controls">
+<button id="following-expand" class="following-small" type="button" hidden>View all reflections</button>
+<div id="following-expanded-controls" class="following-controls" hidden><label for="following-filter">Circle</label><select id="following-filter" aria-label="Filter reflections by Circle"><option value="">All my Circles</option></select><button id="following-collapse" class="following-small" type="button">Show fewer</button></div>
+<button id="following-more" class="following-small" type="button" hidden>Load more</button>
+<button id="following-share-toggle" class="following-small" type="button" hidden>Share a reflection</button>
+</div>
+<form id="following-share-form" hidden>
+<label for="following-body">What would you like to share?</label>
+<p class="following-muted">Write something for your friends. Your private Say, Obey, and Share answers are never copied here.</p>
+<textarea id="following-body" rows="3" maxlength="3000" required placeholder="What stood out? What are you putting into practice?"></textarea>
+<fieldset><legend>Choose the Circles that will receive this reflection</legend><div id="following-targets"></div></fieldset>
+<p class="following-muted">Each selected Circle receives its own separate conversation.</p>
+<button id="following-submit" class="following-small following-featured" type="submit">Post reflection</button>
+</form><div id="following-notice" role="status" aria-live="polite"></div>
 </section>
 <button id="start" class="primary" type="button">Open Insight ↑</button>
 <div id="progress" class="muted" style="text-align:center;margin-top:13px"></div>
@@ -686,7 +711,17 @@ function render(){
   if(i===n)b.setAttribute('aria-current','step');
   const start=prefs.startDate?new Date(prefs.startDate+'T12:00:00'):null;
   let sublabel='Day '+(n+1);
-  if(start&&!Number.isNaN(start.getTime())){start.setDate(start.getDate()+n);sublabel=start.toLocaleDateString('en-US',{month:'short',day:'numeric'});}
+  const shared=window.sosPrimarySchedule;
+  if(shared){
+   if(n+1<shared.start_day)sublabel='Earlier reading';
+   else{
+    const date=new Date(shared.start_on+'T12:00:00Z');
+    if(!Number.isNaN(date.getTime())){
+     date.setUTCDate(date.getUTCDate()+(n+1-shared.start_day));
+     sublabel=date.toLocaleDateString('en-US',{month:'short',day:'numeric',timeZone:'UTC'});
+    }
+   }
+  }else if(start&&!Number.isNaN(start.getTime())){start.setDate(start.getDate()+n);sublabel=start.toLocaleDateString('en-US',{month:'short',day:'numeric'});}
   b.setAttribute('aria-label','Day '+(n+1)+', '+sublabel);
   const number=document.createElement('b');number.textContent=n+1;
   const sub=document.createElement('small');sub.textContent=sublabel;
@@ -707,6 +742,7 @@ function render(){
  const finished=Object.values(state.entries).filter(x=>x.read&&x.insight&&x.say&&x.obey&&x.share).length;
  $('progress').textContent=finished+' of '+readings.length+' days completed';
  $('status').textContent='';
+ window.dispatchEvent(new CustomEvent('sos:day-rendered',{detail:{day:i+1}}));
 }
 function save(silent=false){
  const existing=entry(),e={...existing};
@@ -814,6 +850,25 @@ menu.querySelectorAll('[data-action]').forEach(b=>b.addEventListener('click',()=
 updatePlanStatus();
 $('desktop-plan-info').addEventListener('click',infoDialog);
 
+window.sosCircleBridge={
+ setSchedule:(schedule)=>{
+  const next=schedule?{start_day:schedule.start_day,start_on:schedule.start_on,time_zone:schedule.time_zone}:null;
+  if(JSON.stringify(window.sosPrimarySchedule||null)===JSON.stringify(next))return;
+  if(!$('sos-panel').hidden)save(true);
+  window.sosPrimarySchedule=next;
+  render();
+ },
+ soloDay:()=>resumeDay(state)+1,
+ day:()=>state.day+1,
+ goToDay:(requested)=>{
+  const index=Number(requested)-1;
+  if(Number.isInteger(index)&&index>=0&&index<readings.length&&index!==state.day)move(index);
+ },
+ completed:()=>{
+  const e=entry();
+  return !!(e.read&&e.insight&&String(e.say||'').trim()&&String(e.obey||'').trim()&&String(e.share||'').trim());
+ }
+};
 render();
 
 window.sosSyncAdapter={
@@ -824,7 +879,8 @@ window.sosSyncAdapter={
   state.day=hasLinkedDay?linkedDay-1:resumeDay(snapshot);
   try{localStorage.setItem(KEY,JSON.stringify(state))}catch{}
   render();
+  window.dispatchEvent(new Event('sos:sync-applied'));
  },
  flush(){if(!$('sos-panel').hidden)save(true)}
 };
-</script><script type="module" src="/daily-sos-sync.js"></script><script type="module" src="/daily-sos-email.js"></script></body></html>
+</script><script type="module" src="/daily-sos-sync.js"></script><script type="module" src="/daily-sos-email.js"></script><script type="module" src="/daily-sos-circles.js"></script></body></html>
