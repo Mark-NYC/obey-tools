@@ -1,0 +1,25 @@
+name: Follow Daily Circles
+on:
+  pull_request:
+    paths:
+      - 'follow-circles.*'
+      - 'daily-sos.html'
+      - 'supabase/migrations/*follow_multiplying_circles.sql'
+      - 'scripts/test-follow-circles.mjs'
+      - '.github/workflows/follow-circles.yml'
+  push:
+    paths:
+      - 'follow-circles.*'
+      - 'daily-sos.html'
+      - 'supabase/migrations/*follow_multiplying_circles.sql'
+      - 'scripts/test-follow-circles.mjs'
+jobs:
+  static-contracts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --check follow-circles.js
+      - run: node scripts/test-follow-circles.mjs
