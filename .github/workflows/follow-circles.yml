@@ -9,6 +9,7 @@ on:
       - 'daily-sos-circles.*'
       - 'daily-sos-circles.*'
       - 'scripts/circles-*.sql'
+      - 'scripts/test-following-together.mjs'
       - '.github/workflows/follow-circles.yml'
   push:
     paths:
@@ -27,6 +28,7 @@ jobs:
       - run: node --check follow-circles.js
       - run: node --check daily-sos-circles.js
       - run: node scripts/test-follow-circles.mjs
+      - run: node scripts/test-following-together.mjs
   database-contracts:
     runs-on: ubuntu-latest
     services:
