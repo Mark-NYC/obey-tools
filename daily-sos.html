@@ -404,7 +404,7 @@ function render(){
  const activeDay=$('days').children[i];
  if(activeDay){
   const track=$('days');
-  const center=()=>{const position=activeDay.offsetLeft-track.offsetLeft-(track.clientWidth-activeDay.offsetWidth)/2;track.scrollLeft=Math.max(0,position)};
+  const center=()=>{const position=activeDay.offsetLeft-(track.clientWidth-activeDay.offsetWidth)/2;track.scrollLeft=Math.max(0,position)};
   center();requestAnimationFrame(center);
  }
  const finished=Object.values(state.entries).filter(x=>x.read&&x.say&&x.obey&&x.share).length;
