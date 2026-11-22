@@ -1,0 +1,51 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#007a4a"><title>Multiplying Circles | FOLLOW DAILY | OBEY.TOOLS</title>
+<link rel="icon" href="/assets/images/favicons/favicon.ico"><link rel="stylesheet" href="/fonts.css">
+<link rel="stylesheet" href="/follow-circles.css"></head>
+<body><header class="sitehead"><a href="/daily-sos.html" class="back">‹ Follow Daily</a><strong>MULTIPLYING CIRCLES</strong></header>
+<main class="layout">
+<section class="intro"><div class="eyebrow">FOLLOW DAILY · FRIENDS</div><h1>Follow Jesus together.</h1><p>Read at your own pace. Encourage one another. Invite others to do the same.</p></section>
+<div id="loading" role="status">Checking your account…</div>
+<section id="auth-needed" class="panel" hidden><h2>Join the conversation</h2><p>Your daily readings work without an account. Circles use your existing OBEY.TOOLS login so conversations stay private.</p><form id="sign-in-form"><label for="auth-email">Email</label><input type="email" id="auth-email" autocomplete="email" required><label for="auth-password">Password</label><input type="password" id="auth-password" autocomplete="current-password" required><button type="submit" class="primary">Sign in</button></form><p>Don't have a password? Use an email sign-in link.</p><button id="magic-sign-in" class="secondary" type="button">Email me a sign-in link</button> <a href="/" class="textbtn">Create an OBEY.TOOLS account</a><button id="retry-auth" class="secondary" type="button">I've signed in</button></section>
+<section id="app" hidden>
+ <div id="notice" role="status" aria-live="polite"></div>
+ <section id="invite-preview" class="panel" hidden><div class="eyebrow">YOU'RE INVITED</div><h2 id="invite-circle-name"></h2><p>A friend invited you to follow Jesus together. You'll keep your own reading day. Your private SOS answers stay private.</p><form id="join-form"><label for="join-name">Your display name</label><input id="join-name" maxlength="60" required placeholder="Name your friends will see"><button class="primary" type="submit">Join Circle</button></form></section>
+ <section id="overview">
+  <div class="row spread"><h2>Your Circles</h2><button class="secondary" id="new-circle" type="button">+ Start a Circle</button></div>
+  <div id="circle-list" class="circle-list"></div>
+  <div id="empty-circles" class="panel" hidden><p>You haven't joined a Circle yet. Start one, or ask a friend for an invitation link.</p></div>
+  <div class="panel"><h3>Joining a Circle?</h3><p>Open the invitation link your friend sent you. There is no public Circle directory.</p></div>
+ </section>
+ <section id="circle-view" hidden>
+  <div class="row spread"><button id="back-circles" class="textbtn" type="button">‹ Your Circles</button><button id="circle-settings" class="secondary" type="button">Settings</button></div>
+  <h2 id="circle-name"></h2><p id="circle-subtitle" class="muted"></p>
+  <nav class="tabs" aria-label="Circle sections"><button data-tab="feed" aria-current="page">Conversation</button><button data-tab="members">Members</button><button data-tab="about">About</button></nav>
+  <div id="tab-feed">
+   <div class="row spread"><h3>Conversation</h3><select id="feed-filter" aria-label="Filter posts"><option value="recent">Recent activity</option><option value="passage">By passage</option><option value="general">General discussion</option></select></div>
+   <div id="passage-filter" class="row" hidden><label for="passage-day">Day</label><input type="number" id="passage-day" min="1" max="365" value="1"><button id="passage-go" class="secondary" type="button">Show</button></div>
+   <div id="feed-items"></div><button id="more-posts" class="secondary" hidden type="button">Load more</button>
+   <div class="panel composer"><h3>Share with your Circle</h3><p>Write something you want your friends to see. Your private SOS answers will never be copied automatically.</p>
+   <form id="post-form"><label for="post-day">Related reading (optional)</label><select id="post-day"><option value="">General conversation</option></select>
+   <label for="post-body">Your reflection</label><textarea id="post-body" maxlength="3000" rows="4" required placeholder="What stood out? How are you responding?"></textarea><label for="mention-search">Mention a member (optional)</label><input id="mention-search" maxlength="60" autocomplete="off" placeholder="Search Circle members"><div id="mention-options" aria-live="polite"></div><div id="mention-selected" aria-label="Selected members to mention"></div><p class="muted">Mentions are available when posting to one Circle. Members only receive emails if they opt in.</p>
+   <fieldset id="post-targets"><legend>Share with these Circles</legend><div id="post-target-list"></div></fieldset>
+   <button class="primary" type="submit">Share reflection</button></form></div>
+  </div>
+  <div id="tab-members" hidden><h3>Members</h3><div id="moderation-reports" hidden class="panel"><h4>Reports for steward review</h4><div id="reports-list"></div></div><p class="muted">Only members who choose to share their progress appear in the progress list.</p><div id="members-list"></div><button id="more-members" type="button" class="secondary" hidden>Load more</button></div>
+  <div id="tab-about" hidden><h3>About this Circle</h3><p>Everyone follows their own reading day. Your SOS journal is private. You can start another Circle any time.</p>
+   <div class="panel"><h3>Share an invitation</h3><p>Members can invite friends. Ask your steward for a new invitation if the original link is lost or revoked.</p><div id="invite-actions"></div></div>
+   <div class="panel"><h3>Your settings</h3><form id="member-settings">
+   <label for="display-name">Display name</label><input id="display-name" maxlength="60" required>
+   <label class="toggle"><input type="checkbox" id="show-progress"> Show my current day and completed days</label>
+   <h4>Email preferences</h4><p class="muted">Email delivery is not enabled in this release. Preferences are saved for when notifications launch.</p>
+   <label class="toggle"><input type="checkbox" id="email-replies"> Replies</label>
+   <label class="toggle"><input type="checkbox" id="email-mentions"> Mentions</label>
+   <label class="toggle"><input type="checkbox" id="email-digest"> Weekly digest</label>
+   <button class="secondary" type="submit">Save settings</button></form></div>
+   <div id="steward-controls" class="panel" hidden><h3>Steward tools</h3><label for="steward-transfer">Transfer stewardship</label><select id="steward-transfer"><option value="">Choose a member</option></select><button id="transfer-circle" type="button" class="secondary">Transfer stewardship</button></div><div class="panel"><button id="leave-circle" class="danger" type="button">Leave Circle</button></div>
+  </div>
+ </section>
+</section>
+<section id="create-dialog" class="modal" hidden aria-label="Create Circle"><div class="modal-card"><h2>Start a Circle</h2><p>A few friends or hundreds. Everyone can follow Jesus at their own pace.</p><form id="create-form"><label for="create-name">Circle name</label><input id="create-name" maxlength="80" required placeholder="Tuesday Friends"><label for="create-display">Your display name</label><input id="create-display" maxlength="60" required placeholder="Your first name"><div class="actions"><button class="secondary" type="button" id="cancel-create">Cancel</button><button class="primary" type="submit">Create Circle</button></div></form></div></section>
+<section id="link-dialog" class="modal" hidden aria-label="Invitation link"><div class="modal-card"><h2>Invite friends</h2><p>Anyone with this link can join after signing in. Only share it with people you want in your Circle.</p><input id="invite-url" readonly aria-label="Invitation URL"><div class="actions"><button id="copy-link" class="primary" type="button">Copy link</button><button id="close-link" class="secondary" type="button">Done</button></div></div></section>
+</main><script type="module" src="/follow-circles.js"></script></body></html>
