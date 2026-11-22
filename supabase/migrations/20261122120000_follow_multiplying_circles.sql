@@ -131,11 +131,11 @@ create policy members_edit_self on public.follow_circle_members for update to au
 -- RLS evaluation when posts are inserted into the same protected table.
 create function circles_private.valid_parent(p_parent uuid,p_circle uuid)
 returns boolean language sql stable security definer set search_path=''
-as $
+as $$
 select circles_private.is_member(p_circle,auth.uid()) and exists(
  select 1 from public.follow_circle_posts p
  where p.id=p_parent and p.circle_id=p_circle and p.parent_id is null
-)$;
+)$$;
 revoke all on function circles_private.valid_parent(uuid,uuid) from public;
 grant execute on function circles_private.valid_parent(uuid,uuid) to authenticated;
 create policy posts_read on public.follow_circle_posts for select to authenticated
