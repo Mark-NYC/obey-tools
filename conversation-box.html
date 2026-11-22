@@ -92,6 +92,7 @@
         .conversation-name:active { background: #f4f4f6; }
         .name-line { display: flex; align-items: center; gap: 8px; max-width: 100%; font-size: 17px; font-weight: 550; color: var(--cb-ink); }
         .name-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .name-chevron { width: 12px; height: 12px; flex-shrink: 0; color: #9a9aa1; pointer-events: none; }
         .name-sub { font-size: 13px; color: var(--cb-muted); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .color-circle { width: 12px; height: 12px; border-radius: 50%; display: inline-block; flex-shrink: 0; box-shadow: inset 0 0 0 1px rgba(0,0,0,.12); }
         .details-dot { width: 6px; height: 6px; border-radius: 50%; background: #aeaeb2; display: inline-block; flex-shrink: 0; }
@@ -1680,6 +1681,11 @@ function saveConversations() {
             text.className = 'name-text';
             text.textContent = name;
             line.appendChild(text);
+            const detailsChevron = document.createElement('span');
+            detailsChevron.className = 'name-chevron';
+            detailsChevron.setAttribute('aria-hidden', 'true');
+            detailsChevron.innerHTML = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>';
+            line.appendChild(detailsChevron);
             nameBtn.appendChild(line);
             const pick = circlesOn() ? weekPicks().get(name) : null;
             if (pick) {
