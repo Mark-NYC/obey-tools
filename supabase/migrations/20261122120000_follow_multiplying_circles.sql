@@ -168,6 +168,9 @@ as $$
 declare v_token text;
 begin
  if auth.uid() is null or not circles_private.is_member(p_circle,auth.uid()) then raise exception 'Not permitted';end if;
+ if (select count(*) from public.follow_circle_invites
+     where created_by=auth.uid() and created_at>now()-interval '1 day')>=20
+ then raise exception 'Too many invitations today';end if;
  v_token:=replace(gen_random_uuid()::text,'-','')||replace(gen_random_uuid()::text,'-','');
  insert into public.follow_circle_invites(circle_id,token_hash,created_by) values(p_circle,md5(v_token),auth.uid());
  return v_token;
