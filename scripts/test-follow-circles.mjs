@@ -27,6 +27,9 @@ assert(migration.includes('grant update(display_name,progress_visible'),'members
 assert(migration.includes('if not circles_private.is_member(p_circle,auth.uid())'),'membership validation missing');
 assert(migration.includes("field_name='say'"),'progress derived from completion, not journal text');
 assert(migration.includes('created_at>now()'),'spam throttle missing');
+assert(migration.includes('follow_circle_removed_members'),'removed users must not rejoin with old links');
+assert(migration.includes('if exists(select 1 from public.follow_circle_removed_members'),'join must reject removed users');
+assert(migration.includes('order by joined_at,user_id limit'),'progress and membership pagination must match');
 assert(css.includes('@media(max-width:500px)'),'mobile CSS missing');
 // Browser module is syntax checked via Node's --check separately in CI.
 new Script(js.replace(/^import[^\n]*\n/,''),{filename:'follow-circles.js'});
