@@ -62,6 +62,7 @@ async function showCircle(id){
  $('circle-today-link').href='/daily-sos.html?day='+(m.schedule?.day_no||1);
  $('primary-context').textContent=m.schedule?.is_primary?'This Circle determines your daily reading.':'Your primary Circle determines the daily reading that opens by default.';
  $('make-primary').hidden=!!m.schedule?.is_primary;
+ $('read-independent').hidden=!m.schedule?.is_primary;
  $('display-name').value=m.display_name;$('show-progress').checked=m.progress_visible;
  $('email-replies').checked=m.email_replies;$('email-mentions').checked=m.email_mentions;$('email-digest').checked=m.email_digest;
  $('circle-settings').hidden=m.role!=='steward';
@@ -225,6 +226,14 @@ for(const zone of [...new Set(['UTC',preferred,...timeZones])]){
  const opt=el('option',zone.replaceAll('_',' '));opt.value=zone;zoneSelect.append(opt);
 }
 zoneSelect.value=preferred;
+$('read-independent').addEventListener('click',async()=>{
+ if(!selected||!confirm('Follow the reading independently? You will stay in your Circles.'))return;
+ try{
+  await invoke('follow_circle_set_independent',{});
+  const id=selected.circle_id;await loadCircles();await showCircle(id);
+  status('You are now following an independent daily schedule.');
+ }catch(e){status(e.message,true)}
+});
 $('make-primary').addEventListener('click',async()=>{
  if(!selected)return;
  try{
