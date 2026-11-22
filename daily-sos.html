@@ -36,6 +36,7 @@ button:focus-visible,a:focus-visible,textarea:focus-visible,input:focus-visible,
 .round:hover{background:var(--soft)}
 .wordmark{text-align:center;font:24px/1 "Bebas Neue",Impact,sans-serif;letter-spacing:.06em;margin:0;color:var(--ink)}
 .site-logo{display:none}
+.wordmark h1{font:inherit;letter-spacing:inherit;margin:0}
 
 /* Day rail */
 .days{
@@ -172,6 +173,8 @@ textarea,input,select{font:inherit;color:var(--ink)}
 .foot-item[open]>summary .chev{transform:rotate(90deg)}
 .foot-item>summary small{display:block;font-weight:500;color:var(--muted);font-size:13px}
 .foot-body{padding:0 0 20px}
+.foot-title h2{font-size:16px;margin:0 0 6px}
+.tagline{margin:0 0 16px;text-align:center;font:15px/1 "Bebas Neue",Impact,sans-serif;letter-spacing:.12em;color:var(--faint)}
 .foot-body p{font-size:14px;color:var(--muted);margin:0 0 12px}
 .foot-body input,.foot-body select{width:100%;border:1px solid #d1d1d6;border-radius:12px;padding:12px;background:#fff;font-size:16px;min-height:46px}
 .foot-body label{display:block;font-size:13px;font-weight:650;margin:12px 0 6px}
@@ -222,14 +225,14 @@ textarea,input,select{font:inherit;color:var(--ink)}
 <header class="top">
  <a class="site-logo" href="/" aria-label="OBEY.TOOLS home">OBEY.TOOLS</a>
  <a class="round back" href="/follow-daily/" aria-label="Back to Follow Daily"><svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></a>
- <p class="wordmark">Following Jesus’ Way</p>
+ <div class="wordmark"><h1>FOLLOWING JESUS’ WAY</h1></div>
  <button class="round" id="menu" type="button" aria-label="Plan options"><svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg></button>
 </header>
 <nav id="days" class="days" aria-label="Swipe left or right to choose a reading day"></nav>
 <main class="content">
 <div class="col day-head">
  <p class="day-meta"><span id="day-label">Day 1</span><button id="go-today" class="linkish" type="button" hidden>Go to today</button></p>
- <h1 class="daytitle" id="title"></h1>
+ <h2 class="daytitle" id="title"></h2>
  <p class="passage-ref" id="passage"></p>
  <p id="reading-context" hidden></p>
  <p id="paused-note" hidden>This plan is paused on this device. Resume it from the options menu.</p>
@@ -294,6 +297,7 @@ textarea,input,select{font:inherit;color:var(--ink)}
 </div>
 <div class="col page-foot">
  <p id="progress"></p>
+ <p class="tagline">ABIDE IN JESUS · SAY, OBEY, SHARE</p>
  <details id="sos-sync" class="foot-item" aria-label="Sync Follow Daily progress">
   <summary><svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg><span>Your progress<small id="sos-sync-state" role="status" aria-live="polite">Saved on this device</small></span><svg class="ui-icon chev" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></summary>
   <div class="foot-body">
@@ -315,6 +319,7 @@ textarea,input,select{font:inherit;color:var(--ink)}
  <details class="foot-item" id="email-reminders" aria-label="Following Jesus’ Way email reminders">
   <summary><svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg><span>Daily email<small>One passage in your inbox each morning</small></span><svg class="ui-icon chev" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></summary>
   <div class="foot-body">
+   <div class="foot-title"><h2>Following Jesus’ Way in your inbox</h2></div>
    <p>Emails start at Day 1 and follow their own daily schedule. No account needed.</p>
    <div id="email-not-ready">Email reminders are being prepared. They are not sending yet.</div>
    <div id="email-public-signup" hidden>
