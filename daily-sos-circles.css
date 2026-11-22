@@ -73,3 +73,18 @@
 .following-finished-actions{padding:16px;border-radius:18px;background:var(--soft,#f4f4f5);margin:0 0 16px}
 .following-finished-actions p{margin:0 0 12px;font-size:14px;color:var(--ink-2,#3a3a3c)}
 .following-action-link{display:inline-flex;align-items:center;text-decoration:none;margin-left:6px;color:inherit}
+
+/* Engagement refinements: who encouraged, new reflections, sent confirmation. */
+.following-new{display:inline-block;margin-left:8px;padding:1px 8px;border-radius:999px;background:var(--green-soft,#e6f5ee);color:var(--green-ink,#00744a);font-size:12px;font-weight:700;vertical-align:1px}
+.following-encouraged{display:flex;align-items:center;gap:6px;margin:2px 0 0;font-size:13px;color:var(--green-ink,#00744a)}
+.following-encouraged[hidden]{display:none}
+.following-sent{margin:6px 0 0;font-size:13px;color:var(--green-ink,#00744a);font-weight:600}
+.following-sent:empty{display:none}
+.following-reply{border-radius:12px;transition:background 1.2s ease}
+.following-just-posted{background:var(--green-soft,#e6f5ee)}
+@media(prefers-reduced-motion:no-preference){
+ .following-pulse svg{animation:following-pulse .4s cubic-bezier(.2,.9,.3,1.4)}
+ .following-just-posted{animation:following-in .3s ease-out}
+}
+@keyframes following-pulse{0%{transform:scale(1)}45%{transform:scale(1.3)}100%{transform:scale(1)}}
+@keyframes following-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}

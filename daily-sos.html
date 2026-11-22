@@ -36,6 +36,7 @@ button:focus-visible,a:focus-visible,textarea:focus-visible,input:focus-visible,
 .round:hover{background:var(--soft)}
 .wordmark{text-align:center;font:24px/1 "Bebas Neue",Impact,sans-serif;letter-spacing:.06em;margin:0;color:var(--ink)}
 .site-logo{display:none}
+.wordmark h1{font:inherit;letter-spacing:inherit;margin:0}
 
 /* Day rail */
 .days{
@@ -68,6 +69,68 @@ button:focus-visible,a:focus-visible,textarea:focus-visible,input:focus-visible,
 .passage-ref{margin:0;font-size:16px;color:var(--ink-2);font-weight:600}
 #reading-context{margin:8px 0 0;font-size:14px;color:var(--muted)}
 #paused-note{margin:10px 0 0;font-size:13px;color:var(--ink-2);background:var(--soft);padding:8px 12px;border-radius:10px}
+/* Journey: a quiet ring in the day header opens "Your journey". */
+.day-meta{justify-content:space-between}
+.day-meta-left{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.journey-btn{display:inline-flex;align-items:center;gap:7px;min-height:40px;padding:4px 12px 4px 6px;border:0;border-radius:999px;background:none;color:var(--ink-2);font-size:13px;font-weight:650}
+.journey-btn:hover{background:var(--soft)}
+.ring{width:26px;height:26px;flex:none;transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:3.2}
+.ring .ring-bg{stroke:var(--soft-2)}
+.ring .ring-fg{stroke:var(--green);stroke-linecap:round;transition:stroke-dashoffset .6s ease}
+#day-note{margin:6px 0 0;font-size:14px;color:var(--green-ink);font-weight:600}
+.friends-line{display:inline-flex;align-items:center;gap:8px;margin:10px 0 0;padding:4px 10px 4px 4px;border:0;border-radius:999px;background:var(--soft);font-size:13px;font-weight:600;color:var(--ink);text-align:left;max-width:100%;min-height:36px}
+.friends-line:hover{background:var(--soft-2)}
+.friends-line .stack{display:flex;flex:none}
+.friends-line .stack span{width:24px;height:24px;border-radius:50%;background:#fff;border:2px solid var(--soft);margin-left:-8px;display:grid;place-items:center;font-size:11px;font-weight:750;color:var(--ink-2)}
+.friends-line .stack span:first-child{margin-left:0}
+.friends-line .ui-icon{width:14px;height:14px;color:var(--muted)}
+/* Celebration: lives inside the existing finish feedback. */
+.celebrate{display:flex;gap:14px;align-items:flex-start;text-align:left;margin:16px 0 0;padding:16px;border-radius:18px;background:var(--green-soft)}
+.celebrate svg.done-mark{width:40px;height:40px;flex:none}
+.done-mark circle{fill:var(--green)}
+.done-mark path{fill:none;stroke:#fff;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:24;stroke-dashoffset:0}
+.celebrate strong{display:block;font-size:17px;color:var(--ink)}
+.celebrate p{margin:2px 0 0;font-size:15px;color:var(--ink-2)}
+.celebrate .celebrate-links{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:6px}
+.celebrate .celebrate-links a,.celebrate .celebrate-links button{font-size:14px;font-weight:700;color:var(--green-ink);background:none;border:0;padding:6px 0;text-decoration:underline;text-underline-offset:3px}
+.celebrate .invite-q{margin-top:10px;font-size:14px;color:var(--ink-2)}
+@media(prefers-reduced-motion:no-preference){
+ .celebrate{animation:rise .35s ease-out both}
+ .done-mark circle{animation:pop .45s cubic-bezier(.2,.9,.3,1.3) both}
+ .done-mark path{stroke-dashoffset:24;animation:draw .35s .25s ease-out forwards}
+ .circle.just-done{animation:pop .45s cubic-bezier(.2,.9,.3,1.3)}
+ .day.done{transition:background .4s}
+}
+@keyframes draw{to{stroke-dashoffset:0}}
+@keyframes pop{0%{transform:scale(.6)}100%{transform:scale(1)}}
+@keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.done-mark circle{transform-origin:center;transform-box:fill-box}
+/* Journey sheet */
+.journey-sum{margin:0 0 14px;font-size:15px;color:var(--ink-2)}
+.journey-map{display:grid;grid-template-columns:repeat(19,1fr);gap:3px;margin:0 0 8px}
+.journey-map i{display:block;aspect-ratio:1;border-radius:3px;background:var(--soft-2)}
+.journey-map i.c{background:var(--green)}
+.journey-map i.p{background:#b9e4cf}
+.journey-map i.t{box-shadow:0 0 0 2px #fff,0 0 0 3.5px var(--green)}
+.journey-map i.m{position:relative}
+.journey-map i.m::after{content:"";position:absolute;inset:30%;border-radius:50%;background:#fff;opacity:.9}
+.journey-map i.m:not(.c)::after{background:var(--faint)}
+.journey-legend{display:flex;flex-wrap:wrap;gap:4px 14px;margin:0 0 18px;font-size:12px;color:var(--muted)}
+.journey-legend span{display:inline-flex;align-items:center;gap:6px}
+.journey-legend i{width:10px;height:10px;border-radius:3px;display:inline-block;background:var(--soft-2)}
+.journey-legend i.c{background:var(--green)}.journey-legend i.p{background:#b9e4cf}.journey-legend i.t{background:#fff;box-shadow:0 0 0 1.5px var(--green)}
+.journey-h{font-size:15px;margin:20px 0 8px}
+.milestones{display:flex;gap:6px;flex-wrap:wrap;margin:0;padding:0;list-style:none}
+.milestones li{font-size:13px;font-weight:650;padding:6px 10px;border-radius:999px;background:var(--soft);color:var(--muted)}
+.milestones li.earned{background:var(--green-soft);color:var(--green-ink)}
+.recap-list{list-style:none;margin:0;padding:0}
+.recap-list li{padding:8px 0;border-bottom:1px solid var(--line);font-size:14px;color:var(--ink-2)}
+.recap-list li:last-child{border-bottom:0}
+.recap-list b{color:var(--ink);font-weight:650}
+.recap-list small{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+.journey-invite{margin-top:18px;padding-top:14px;border-top:1px solid var(--line);font-size:14px;color:var(--ink-2)}
+.journey-invite a{font-weight:700}
 
 /* Sticky progress: Read · Insight · SOS */
 .tracker{position:sticky;top:0;z-index:5;background:rgba(255,255,255,.96);margin-top:14px;border-bottom:1px solid var(--line)}
@@ -140,9 +203,13 @@ button:focus-visible,a:focus-visible,textarea:focus-visible,input:focus-visible,
 .private{display:inline-flex;align-items:center;gap:5px;font-size:13px;color:var(--muted);font-weight:600}
 .private .ui-icon{width:14px;height:14px}
 .discovery{margin:0 0 24px;font:italic 18px/1.55 var(--serif);color:var(--ink)}
-#previous{margin:0 0 24px;padding:14px 16px;border-radius:14px;background:var(--soft)}
-#previous strong{display:block;font-size:13px;color:var(--muted);font-weight:650}
-#previous-obey{margin:4px 0 12px;font-size:16px}
+#previous{margin:0 0 24px;padding:16px;border-radius:16px;background:var(--soft);border-left:4px solid var(--green)}
+.prev-label{display:flex;align-items:center;gap:6px;margin:0;font-size:13px;color:var(--muted);font-weight:650}
+.prev-label .ui-icon{width:16px;height:16px;color:var(--green-ink)}
+#previous-obey{margin:6px 0 2px;font-size:18px;line-height:1.4;font-weight:650;color:var(--ink)}
+#previous-source{margin:0 0 12px;font-size:13px;color:var(--muted)}
+#previous-reply{margin:10px 0 0;font-size:14px;color:var(--ink-2);min-height:0}
+#previous-reply:empty{display:none}
 .outline-row{display:flex;gap:6px;flex-wrap:wrap}
 .outline-row button{border:1px solid #d1d1d6;border-radius:999px;background:#fff;padding:8px 14px;font-size:14px;font-weight:600;min-height:40px}
 .outline-row [aria-pressed=true]{background:var(--ink);border-color:var(--ink);color:#fff}
@@ -172,6 +239,8 @@ textarea,input,select{font:inherit;color:var(--ink)}
 .foot-item[open]>summary .chev{transform:rotate(90deg)}
 .foot-item>summary small{display:block;font-weight:500;color:var(--muted);font-size:13px}
 .foot-body{padding:0 0 20px}
+.foot-title h2{font-size:16px;margin:0 0 6px}
+.tagline{margin:0 0 16px;text-align:center;font:15px/1 "Bebas Neue",Impact,sans-serif;letter-spacing:.12em;color:var(--faint)}
 .foot-body p{font-size:14px;color:var(--muted);margin:0 0 12px}
 .foot-body input,.foot-body select{width:100%;border:1px solid #d1d1d6;border-radius:12px;padding:12px;background:#fff;font-size:16px;min-height:46px}
 .foot-body label{display:block;font-size:13px;font-weight:650;margin:12px 0 6px}
@@ -222,16 +291,18 @@ textarea,input,select{font:inherit;color:var(--ink)}
 <header class="top">
  <a class="site-logo" href="/" aria-label="OBEY.TOOLS home">OBEY.TOOLS</a>
  <a class="round back" href="/follow-daily/" aria-label="Back to Follow Daily"><svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></a>
- <p class="wordmark">Following Jesus’ Way</p>
+ <div class="wordmark"><h1>FOLLOWING JESUS’ WAY</h1></div>
  <button class="round" id="menu" type="button" aria-label="Plan options"><svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg></button>
 </header>
 <nav id="days" class="days" aria-label="Swipe left or right to choose a reading day"></nav>
 <main class="content">
 <div class="col day-head">
- <p class="day-meta"><span id="day-label">Day 1</span><button id="go-today" class="linkish" type="button" hidden>Go to today</button></p>
- <h1 class="daytitle" id="title"></h1>
+ <div class="day-meta"><span class="day-meta-left"><span id="day-label">Day 1</span><button id="go-today" class="linkish" type="button" hidden>Go to today</button></span><button id="journey-open" class="journey-btn" type="button" aria-haspopup="dialog"><svg class="ring" viewBox="0 0 36 36" aria-hidden="true"><circle class="ring-bg" cx="18" cy="18" r="15"/><circle class="ring-fg" id="journey-ring" cx="18" cy="18" r="15" stroke-dasharray="94.25" stroke-dashoffset="94.25"/></svg><span id="progress">0 of 365</span></button></div>
+ <h2 class="daytitle" id="title"></h2>
  <p class="passage-ref" id="passage"></p>
  <p id="reading-context" hidden></p>
+ <p id="day-note" hidden></p>
+ <button id="friends-line" class="friends-line" type="button" hidden></button>
  <p id="paused-note" hidden>This plan is paused on this device. Resume it from the options menu.</p>
 </div>
 <div class="tracker">
@@ -258,8 +329,8 @@ textarea,input,select{font:inherit;color:var(--ink)}
 </section>
 <section class="step" id="sos-panel" tabindex="-1" aria-labelledby="sos-heading">
  <div class="sos-head"><h2 class="step-title" id="sos-heading">Respond</h2><p class="step-sub">Say · Obey · Share &nbsp;<span class="private"><svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Private to you</span></p></div>
+ <div id="previous" hidden><p class="prev-label"><svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16v-2.38C4 11.5 2.97 10.5 3 8c.03-2.72 1.49-6 4.5-6C9.37 2 10 3.8 10 5.5c0 3.11-2 5.66-2 8.68V16a2 2 0 1 1-4 0Z"/><path d="M20 20v-2.38c0-2.12 1.03-3.12 1-5.62-.03-2.72-1.49-6-4.5-6C14.63 6 14 7.8 14 9.5c0 3.11 2 5.66 2 8.68V20a2 2 0 1 0 4 0Z"/></svg><span id="previous-when">Last time</span> you planned to</p><p id="previous-obey"></p><p id="previous-source"></p><div class="outline-row" role="group" aria-label="How did it go? Optional"><button data-check="done" type="button">I did it</button><button data-check="pending" type="button">Not yet</button><button data-check="revised" type="button">Change my plan</button></div><p id="previous-reply" aria-live="polite"></p></div>
  <p class="discovery" id="discovery"></p>
- <div id="previous" hidden><strong>Yesterday you planned to</strong><p id="previous-obey"></p><div class="outline-row" role="group" aria-label="Did you follow through?"><button data-check="done" type="button">I did it</button><button data-check="pending" type="button">Not yet</button><button data-check="revised" type="button">Change my plan</button></div></div>
  <div class="field"><label for="say"><b>Say</b><span>What is God saying to you through this passage?</span></label><textarea id="say" rows="3" placeholder="What stands out to you?"></textarea></div>
  <div class="field"><label for="obey"><b>Obey</b><span>What specific step will you take in response?</span></label><textarea id="obey" rows="3" placeholder="Today I will…"></textarea></div>
  <div class="field"><label for="share"><b>Share</b><span>Who needs to hear what you’re learning?</span></label><input id="share" autocomplete="off" placeholder="A friend, roommate, or group"></div>
@@ -293,7 +364,7 @@ textarea,input,select{font:inherit;color:var(--ink)}
 </section>
 </div>
 <div class="col page-foot">
- <p id="progress"></p>
+ <p class="tagline">ABIDE IN JESUS · SAY, OBEY, SHARE</p>
  <details id="sos-sync" class="foot-item" aria-label="Sync Follow Daily progress">
   <summary><svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg><span>Your progress<small id="sos-sync-state" role="status" aria-live="polite">Saved on this device</small></span><svg class="ui-icon chev" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></summary>
   <div class="foot-body">
@@ -315,6 +386,7 @@ textarea,input,select{font:inherit;color:var(--ink)}
  <details class="foot-item" id="email-reminders" aria-label="Following Jesus’ Way email reminders">
   <summary><svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg><span>Daily email<small>One passage in your inbox each morning</small></span><svg class="ui-icon chev" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></summary>
   <div class="foot-body">
+   <div class="foot-title"><h2>Following Jesus’ Way in your inbox</h2></div>
    <p>Emails start at Day 1 and follow their own daily schedule. No account needed.</p>
    <div id="email-not-ready">Email reminders are being prepared. They are not sending yet.</div>
    <div id="email-public-signup" hidden>
@@ -339,6 +411,7 @@ textarea,input,select{font:inherit;color:var(--ink)}
 </main></div><div id="menu-backdrop" class="menu-backdrop" hidden></div>
 <div id="plan-menu" class="menu-pop" role="menu" aria-label="Plan options" hidden>
 <button type="button" role="menuitem" data-action="catchup"><span class="menu-ico" aria-hidden="true"><svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><path d="m4 5 7 7-7 7V5z"/><path d="m13 5 7 7-7 7V5z"/></svg></span>Catch me up</button>
+<button type="button" role="menuitem" data-action="journey"><span class="menu-ico" aria-hidden="true"><svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 9 9h-9z"/></svg></span>Your journey</button>
 <button type="button" role="menuitem" data-action="circles"><span class="menu-ico" aria-hidden="true"><svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>Circles</button>
 <button type="button" role="menuitem" data-action="settings"><span class="menu-ico" aria-hidden="true"><svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg></span>Daily email</button>
 <button type="button" role="menuitem" data-action="share"><span class="menu-ico" aria-hidden="true"><svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V3"/><path d="m7 8 5-5 5 5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg></span>Share this plan</button>
@@ -358,6 +431,7 @@ textarea,input,select{font:inherit;color:var(--ink)}
 <script src="/daily-sos-insights-days111-200.js"></script>
 <script src="/daily-sos-insights-days201-280.js"></script>
 <script src="/daily-sos-insights-days281-365.js"></script>
+<script src="/daily-sos-journey.js"></script>
 <script>
 const readings=window.OBEY_SOS_READINGS;
 if(!Array.isArray(readings)||readings.length!==365)throw new Error('365-day Daily SOS schedule failed to load');
@@ -420,6 +494,17 @@ const isComplete=e=>!!(e&&e.read&&e.insight&&String(e.say||'').trim()&&String(e.
 // The reader's "today": a primary Circle's shared calendar day, otherwise the
 // furthest point of personal progress (one reading per day, at their own pace).
 let homeDay=state.day;
+const J=window.OBEY_SOS_JOURNEY;
+const REVISIONS_KEY='obeytools:daily-sos:revisions:v1',MILESTONE_KEY='obeytools:daily-sos:milestones:v1';
+const pageOpenedAt=Date.now();
+const readRevisions=()=>{try{return JSON.parse(localStorage.getItem(REVISIONS_KEY))||{}}catch{return {}}};
+const storedMilestones=()=>{try{const v=JSON.parse(localStorage.getItem(MILESTONE_KEY));return Array.isArray(v)?v:[]}catch{return []}};
+const saveMilestones=list=>{try{localStorage.setItem(MILESTONE_KEY,JSON.stringify(list))}catch{}};
+const completedCount=()=>J.completedDays(state.entries).length;
+// Milestones are earned once and kept; record any reached (also via sync) without celebrating them.
+function recordMilestones(){const earned=J.earnedMilestones(completedCount(),storedMilestones());saveMilestones(earned);return earned}
+// Celebrate only a real transition to complete that happened while this day was open.
+let openedDay=-1,openedComplete=false,celebratedDay=-1;
 function todayIndex(){
  const shared=window.sosPrimarySchedule;
  if(shared&&Number.isInteger(Number(shared.day_no))&&Number(shared.day_no)>=1)return Math.min(readings.length-1,Number(shared.day_no)-1);
@@ -664,7 +749,8 @@ function renderInsight(r){
  $('insight-reference').textContent=r[1]+(data.pending?' · Reflection guide':'');
 }
 function render(){
- const i=state.day,r=readings[i],e=entry(),previous=i>0?entry(i-1):null,today=todayIndex();
+ const i=state.day,r=readings[i],e=entry(),today=todayIndex();
+ if(openedDay!==i){openedDay=i;openedComplete=isComplete(e)}
  $('title').textContent=r[0];$('passage').textContent=r[1];
  $('day-label').replaceChildren(document.createTextNode('Day '+(i+1)));
  if(i===today){const t=document.createElement('span');t.className='today-tag';t.textContent=' · Today';$('day-label').append(t)}
@@ -683,8 +769,7 @@ function render(){
  $('mark-insight').classList.toggle('done',!!e.insight);$('mark-insight').innerHTML=e.insight?svgIcon(CHECK,'ui-icon check')+'Continue to SOS':'Continue to SOS';
  ['say','obey','share'].forEach(k=>autoGrow($(k)));
  $('save-state').textContent='';
- $('previous').hidden=!previous?.obey;
- if(previous?.obey){$('previous-obey').textContent=previous.obey;document.querySelectorAll('[data-check]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.check===previous.check)))}
+ renderCommitment();renderDayNote(today);
  $('days').replaceChildren();
  for(let n=0;n<readings.length;n++){
   const b=document.createElement('button');b.type='button';b.className='day'+(n===today?' is-today':'')+(n>today?' future':'')+(isComplete(entry(n))?' done':'');
@@ -720,9 +805,8 @@ function render(){
   };
   center();requestAnimationFrame(center);
  }
- const finished=Object.values(state.entries).filter(x=>x.read&&x.insight&&x.say&&x.obey&&x.share).length;
- $('progress').textContent=finished+' of '+readings.length+' days completed';
- $('status').textContent='';$('status').classList.remove('complete');
+ renderProgress();
+ if(celebratedDay!==i){$('status').replaceChildren();$('status').classList.remove('complete')}
  $('save').textContent=sosComplete?'Saved · Finish today':'Finish today';
  window.dispatchEvent(new CustomEvent('sos:day-rendered',{detail:{day:i+1}}));
 }
@@ -742,22 +826,121 @@ function save(silent=false){
   $('save-state').innerHTML=svgIcon(CHECK)+'Saved';}
  if(!silent){
   const done=isComplete(entry());
-  $('status').classList.toggle('complete',done);
-  $('status').textContent=done?'Day '+(state.day+1)+' complete. Well done.':hasAnswer?(e.say&&e.obey&&e.share?'SOS saved. Mark the reading and Insight to complete the day.':'Saved. Finish the rest anytime.'):'Write one answer to start. You can finish the rest later.';
+  if(done&&!celebrate()&&celebratedDay!==state.day){$('status').classList.add('complete');$('status').textContent='Day '+(state.day+1)+' is complete and saved.'}
+  else if(!done){$('status').classList.remove('complete');$('status').textContent=hasAnswer?(e.say&&e.obey&&e.share?'SOS saved. Mark the reading and Insight to complete the day.':'Saved. Finish the rest anytime.'):'Write one answer to start. You can finish the rest later.'}
   if(done)window.dispatchEvent(new Event('sos:day-completed'));
  }
  renderAfterSave();
  return true;
 }
-function renderAfterSave(){const e=entry(),done=!!(e.say&&e.obey&&e.share),partial=!done&&!!(e.say||e.obey||e.share);const check=$('sos-check');check.classList.toggle('done',done);check.classList.toggle('draft',partial);check.innerHTML=done?svgIcon(CHECK):'';$('sos-draft-note').hidden=!partial;$('progress').textContent=Object.values(state.entries).filter(x=>x.read&&x.insight&&x.say&&x.obey&&x.share).length+' of '+readings.length+' days completed'}
+function renderAfterSave(){const e=entry(),done=!!(e.say&&e.obey&&e.share),partial=!done&&!!(e.say||e.obey||e.share);const check=$('sos-check');check.classList.toggle('done',done);check.classList.toggle('draft',partial);check.innerHTML=done?svgIcon(CHECK):'';$('sos-draft-note').hidden=!partial;renderProgress()}
+function renderProgress(){
+ const n=completedCount();
+ $('progress').textContent=n+' of '+readings.length;
+ $('journey-open').setAttribute('aria-label','Your journey: '+n+' of '+readings.length+' readings completed');
+ $('journey-ring').setAttribute('stroke-dashoffset',String(94.25*(1-n/readings.length)));
+}
+// The completion moment: a drawn check, real progress, and, only at a
+// milestone, a gentle question about inviting someone to begin with them.
+function celebrate(){
+ const i=state.day;
+ if(!isComplete(entry())||openedComplete||celebratedDay===i)return false;
+ celebratedDay=i;
+ const before=storedMilestones(),count=completedCount();
+ const fresh=J.MILESTONES.filter(m=>count>=m&&!before.includes(m)).pop()||null;
+ recordMilestones();
+ const c=J.celebration({day:i+1,count,newMilestone:fresh});
+ const box=document.createElement('div');box.className='celebrate';
+ box.innerHTML='<svg class="done-mark" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="20"/><path d="M12 20.5l5.5 5.5L28.5 15"/></svg>';
+ const text=document.createElement('div');
+ text.append(node('strong',c.title),node('p',c.line));
+ if(fresh){
+  const q=node('p','Who could you begin following Jesus with?','invite-q');text.append(q);
+ }
+ const links=document.createElement('div');links.className='celebrate-links';
+ const journey=node('button','See your journey');journey.type='button';journey.addEventListener('click',journeyDialog);links.append(journey);
+ if(fresh){const a=node('a','Start a Circle');a.href='/follow-circles.html?new=1&day='+(i+1);links.append(a)}
+ text.append(links);box.append(text);
+ $('status').classList.remove('complete');$('status').replaceChildren(box);
+ for(const id of ['read-check','insight-check','sos-check']){const el=$(id);el.classList.remove('just-done');void el.offsetWidth;el.classList.add('just-done')}
+ return true;
+}
+// Surface the most recent earlier commitment, even after a missed day.
+function renderCommitment(){
+ const prev=J.previousCommitment(state.entries,state.day);
+ $('previous').hidden=!prev;$('previous-reply').textContent='';
+ if(!prev)return;
+ $('previous').dataset.day=String(prev.index);
+ $('previous-when').textContent=prev.gap===1?'In your last reading,':'On Day '+prev.day+',';
+ $('previous-obey').textContent=prev.text;
+ const r=readings[prev.index];$('previous-source').textContent='From '+r[1]+' · '+r[0];
+ document.querySelectorAll('[data-check]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.check===prev.check)));
+}
+const commitmentReplies={done:'Thank God for that.',pending:'That’s okay. It’s still yours to carry into today.',revised:'Plans change. You can write today’s step below.'};
+// Welcome someone back without counting what they missed.
+function renderDayNote(today){
+ const note=$('day-note');
+ const last=J.lastActivity(readRevisions(),pageOpenedAt);
+ const back=J.welcomeBack({last,now:pageOpenedAt});
+ if(!back||isComplete(entry(today))||state.day!==today){note.hidden=true;return}
+ const shared=window.sosPrimarySchedule;
+ note.textContent=shared
+  ?'Welcome back. Start right here with your Circle.'
+  :'Welcome back. You’re picking up at Day '+(today+1)+'.';
+ note.hidden=false;
+}
+function journeyDialog(){
+ closeMenu();
+ const n=completedCount(),today=todayIndex(),body=node('div');
+ const earned=J.earnedMilestones(n,storedMilestones()),next=J.nextMilestone(n);
+ body.append(node('p',n?n+' of '+readings.length+' readings completed. You’re on Day '+(state.day+1)+'.':'Your journey starts with today’s reading.','journey-sum'));
+ const map=document.createElement('div');map.className='journey-map';map.setAttribute('role','img');
+ map.setAttribute('aria-label',n+' of 365 readings completed. Today is Day '+(today+1)+'.');
+ const frag=document.createDocumentFragment();
+ for(let d=0;d<readings.length;d++){
+  const e=state.entries[d],cell=document.createElement('i');
+  cell.className=(isComplete(e)?'c':(e&&(e.read||e.say||e.obey||e.share))?'p':'')+(d===today?' t':'')+(J.MILESTONES.includes(d+1)?' m':'');
+  frag.append(cell);
+ }
+ map.append(frag);body.append(map);
+ const legend=node('div',null,'journey-legend');
+ for(const [cls,label] of [['c','Completed'],['p','Started'],['t',window.sosPrimarySchedule?'Your Circle’s day':'Today']]){const s=node('span');const i=node('i',null,cls);s.append(i,document.createTextNode(label));legend.append(s)}
+ body.append(legend);
+ body.append(node('h3','Milestones','journey-h'));
+ const ms=node('ul',null,'milestones');
+ for(const m of J.MILESTONES){const li=node('li',m+' readings',earned.includes(m)?'earned':'');if(earned.includes(m))li.setAttribute('aria-label',m+' readings, reached');ms.append(li)}
+ body.append(ms);
+ if(next)body.append(node('p',(next-n)+' more to reach '+next+'. Missed days never take a milestone away.','muted'));
+ const week=J.weekRecap({entries:state.entries,revisions:readRevisions(),readings});
+ body.append(node('h3','Your week','journey-h'));
+ if(!week.completed.length&&!week.commitments.length){
+  body.append(node('p','Readings you complete in the next seven days will show here.','muted'));
+ }else{
+  body.append(node('p',week.completed.length?'You completed '+week.completed.length+' reading'+(week.completed.length===1?'':'s')+' in the last seven days.':'No readings completed in the last seven days yet.','journey-sum'));
+  if(week.completed.length){const ul=node('ul',null,'recap-list');for(const c of week.completed){const li=node('li');li.append(node('b','Day '+c.day+' · '+c.title),node('small',c.ref));ul.append(li)}body.append(ul)}
+  if(week.commitments.length){
+   body.append(node('h3','What you planned to put into practice','journey-h'));
+   const ul=node('ul',null,'recap-list');
+   const checkText={done:'You marked: I did it',pending:'You marked: Not yet',revised:'You changed this plan'};
+   for(const c of week.commitments){const li=node('li');li.append(node('b',c.obey),node('small',c.ref+(c.check?' · '+checkText[c.check]:'')));ul.append(li)}
+   body.append(ul);
+  }
+  body.append(node('p','Only you can see this. It comes from your own saved answers.','muted'));
+ }
+ const inv=node('p',null,'journey-invite');
+ inv.append(document.createTextNode('Who could you begin following Jesus with? '));
+ const a=node('a','Start a Circle');a.href='/follow-circles.html?new=1&day='+(state.day+1);inv.append(a);
+ body.append(inv);
+ dialog('Your journey',body);
+}
 function move(n){clearTimeout(draftTimer);if(!$('sos-panel').hidden)save(true);state.day=Math.max(0,Math.min(readings.length-1,n));persist();render();window.scrollTo({top:0,behavior:'smooth'})}
 
 $('open-reading').addEventListener('click',()=>changePanel('reading'));
 $('open-insight').addEventListener('click',()=>changePanel('insight'));
-$('mark-insight').addEventListener('click',()=>{const e=entry();if(!e.insight){e.insight=true;state.entries[state.day]=e;if(!persist())return;render()}changePanel('sos')});
+$('mark-insight').addEventListener('click',()=>{const e=entry();if(!e.insight){e.insight=true;state.entries[state.day]=e;if(!persist())return;render();if(celebrate())window.dispatchEvent(new Event('sos:day-completed'))}changePanel('sos')});
 $('open-sos').addEventListener('click',()=>changePanel('sos'));
 $('go-today').addEventListener('click',()=>move(todayIndex()));
-$('mark-read').addEventListener('click',()=>{if(!$('sos-panel').hidden)save(true);const e=entry();if(e.read){changePanel('insight');return}e.read=true;state.entries[state.day]=e;if(persist()){render();changePanel('insight')}});
+$('mark-read').addEventListener('click',()=>{if(!$('sos-panel').hidden)save(true);const e=entry();if(e.read){changePanel('insight');return}e.read=true;state.entries[state.day]=e;if(persist()){render();if(celebrate())window.dispatchEvent(new Event('sos:day-completed'));changePanel('insight')}});
 $('save').addEventListener('click',()=>save());
 let draftTimer;
 for(const key of ['say','obey','share']){
@@ -766,7 +949,15 @@ for(const key of ['say','obey','share']){
 }
 window.addEventListener('pagehide',()=>{if(!$('sos-panel').hidden)save(true)});
 
-document.querySelectorAll('[data-check]').forEach(b=>b.addEventListener('click',()=>{if(state.day===0)return;const e=entry(state.day-1);e.check=b.dataset.check;state.entries[state.day-1]=e;persist();document.querySelectorAll('[data-check]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)))}));
+// Saves the response on the day the commitment was made (existing history).
+document.querySelectorAll('[data-check]').forEach(b=>b.addEventListener('click',()=>{
+ const day=Number($('previous').dataset.day);if(!Number.isInteger(day)||day<0)return;
+ const e=entry(day);e.check=b.dataset.check;state.entries[day]=e;persist();
+ document.querySelectorAll('[data-check]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));
+ $('previous-reply').textContent=commitmentReplies[b.dataset.check]||'';
+}));
+$('journey-open').addEventListener('click',journeyDialog);
+$('friends-line').addEventListener('click',()=>{$('following-together').scrollIntoView({behavior:'smooth',block:'start'})});
 $('following-manage').addEventListener('click',function(){this.href='/follow-circles.html?day='+(state.day+1)});
 $('share-btn').addEventListener('click',async()=>{if(!$('sos-panel').hidden)save(true);const r=readings[state.day],e=entry(),msg='Following Jesus’ Way · SOS: '+r[0]+' ('+r[1]+')\nSay: '+(e.say||'')+'\nObey: '+(e.obey||'')+'\nShare: '+(e.share||'')+'\nhttps://obey.tools/daily-sos.html';try{if(navigator.share)await navigator.share({title:'Following Jesus’ Way · SOS',text:msg});else if(navigator.clipboard){await navigator.clipboard.writeText(msg);$('status').textContent='Copied to clipboard.'}else $('status').textContent='Sharing is unavailable here.'}catch(err){if(err.name!=='AbortError')$('status').textContent='Sharing failed.'}});
 
@@ -785,7 +976,7 @@ function dialog(title,body,confirmText=null,onConfirm=null){
  else $('dialog-body').appendChild(body);
  confirmBtn.hidden=!confirmText;
  if(confirmText){confirmBtn.textContent=confirmText;confirmBtn.onclick=()=>{onConfirm?.();closeDialog()}}
- overlay.hidden=false;cancelBtn.focus()
+ overlay.hidden=false;overlay.querySelector('.dialog-card').scrollTop=0;cancelBtn.focus({preventScroll:true})
 }
 function node(tag,text,cls){const el=document.createElement(tag);if(text!=null)el.textContent=text;if(cls)el.className=cls;return el}
 function planShare(){const text="Following Jesus’ Way: a Gospel harmony focused on how Jesus made disciples. Practice SOS: Say, Obey, Share. https://obey.tools/daily-sos.html";
@@ -835,7 +1026,7 @@ cancelBtn.addEventListener('click',closeDialog);
 overlay.addEventListener('click',e=>{if(e.target===overlay)closeDialog()});
 menu.querySelectorAll('[data-action]').forEach(b=>b.addEventListener('click',()=>{
  const action=b.dataset.action;closeMenu();
- ({share:planShare,settings:settingsDialog,info:infoDialog,catchup:catchupDialog,stop:stopDialog,circles:circlesLink})[action]?.()
+ ({share:planShare,settings:settingsDialog,info:infoDialog,catchup:catchupDialog,stop:stopDialog,circles:circlesLink,journey:journeyDialog})[action]?.()
 }));
 updatePlanStatus();
 
@@ -858,6 +1049,7 @@ window.sosCircleBridge={
   return !!(e.read&&e.insight&&String(e.say||'').trim()&&String(e.obey||'').trim()&&String(e.share||'').trim());
  }
 };
+recordMilestones(); // already-earned milestones are kept, never celebrated retroactively
 render();
 
 window.sosSyncAdapter={
@@ -867,6 +1059,7 @@ window.sosSyncAdapter={
   state.entries=snapshot.entries&&typeof snapshot.entries==='object'?JSON.parse(JSON.stringify(snapshot.entries)):{};
   state.day=hasLinkedDay?linkedDay-1:resumeDay(snapshot);
   if(!hasLinkedDay)homeDay=state.day;
+  recordMilestones();
   try{localStorage.setItem(KEY,JSON.stringify(state))}catch{}
   render();
   window.dispatchEvent(new Event('sos:sync-applied'));
