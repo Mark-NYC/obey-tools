@@ -147,7 +147,7 @@ async function replyTo(id){
  catch(e){status(e.message,true)}
 }
 async function reactTo(post){
- try{const r=await supabase.from('follow_circle_reactions').upsert({circle_id:selected.circle_id,post_id:post.id,user_id:user.id},{onConflict:'post_id,user_id',ignoreDuplicates:true});if(r.error)throw r.error;status('Encouragement sent')}
+ try{const r=await supabase.from('follow_circle_reactions').insert({circle_id:selected.circle_id,post_id:post.id,user_id:user.id});if(r.error&&r.error.code!=='23505')throw r.error;status('Encouragement sent')}
  catch(e){status(e.message,true)}
 }
 async function reportPost(post){
@@ -158,8 +158,8 @@ async function reportPost(post){
 }
 async function blockMember(post){
  if(!confirm('Hide this person’s posts from your feed?'))return;
- const r=await supabase.from('follow_circle_blocks').upsert({user_id:user.id,blocked_user_id:post.author_id},{onConflict:'user_id,blocked_user_id'});
- if(r.error)status(r.error.message,true);else{status('Member blocked');loadFeed(true)}
+ const r=await supabase.from('follow_circle_blocks').insert({user_id:user.id,blocked_user_id:post.author_id});
+ if(r.error&&r.error.code!=='23505')status(r.error.message,true);else{status('Member blocked');loadFeed(true)}
 }
 async function deletePost(post){
  if(!confirm('Delete this post and its replies?'))return;
