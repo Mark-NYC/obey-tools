@@ -10,8 +10,10 @@ begin
  if (select time_zone from public.follow_circle_schedule() where circle_id=current_setting('test.new_circle')::uuid)<>'America/New_York'
  then raise exception 'FAIL: timezone';end if;
  if (select count(*) from public.follow_circle_schedule() where is_primary)<>1
- then raise exception 'FAIL: first Circle was not selected as primary';end if;
+ then raise exception 'FAIL: existing primary Circle was lost';end if;
 end;$$;
+-- Explicitly choose the new scheduled Circle. Creating another must not change it.
+select public.follow_circle_set_primary(current_setting('test.new_circle')::uuid);
 select (public.follow_circle_create_scheduled('Second Circle','Alice',1,'UTC')->>'circle_id')::uuid as second_id \gset
 select set_config('test.second_circle',:'second_id',false);
 do $$
@@ -42,8 +44,8 @@ begin
 end;$$;
 set request.jwt.claim.sub='11111111-1111-4111-8111-111111111111';
 select public.follow_circle_new_invite(current_setting('test.new_circle')::uuid) as join_token \gset
-set request.jwt.claim.sub='22222222-2222-4222-8222-222222222222';
-select public.follow_circle_join(:'join_token','Bob');
+set request.jwt.claim.sub='33333333-3333-4333-8333-333333333333';
+select public.follow_circle_join(:'join_token','Charlie');
 do $$
 begin
  if (select circle_id from public.follow_circle_primary where user_id=auth.uid())<>current_setting('test.new_circle')::uuid
@@ -56,8 +58,8 @@ reset role;
 update public.follow_circles set start_on=(now() at time zone 'America/New_York')::date-7
 where id=current_setting('test.new_circle')::uuid;
 set role authenticated;
-set request.jwt.claim.sub='22222222-2222-4222-8222-222222222222';
-do $$
+set request.jwt.claim.sub='33333333-3333-4333-8333-333333333333';
+do $
 begin
  if (select day_no from public.follow_circle_schedule() where is_primary)<>35
  then raise exception 'FAIL: shared schedule did not advance seven days';end if;
