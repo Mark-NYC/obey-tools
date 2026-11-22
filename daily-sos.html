@@ -209,7 +209,7 @@ body{padding:0;background:#f8f8f8}
 @media(prefers-reduced-motion:no-preference){.insight-card{transition:background .18s ease,transform .18s ease}.insight-card:hover{transform:translateY(-1px)}}
 .response-pattern{border:1px solid #e5ddd0;background:#fffaf1;border-radius:14px;margin:12px 0 18px;padding:16px}
 .response-pattern-header{display:flex;align-items:center;gap:9px;font-size:12px;font-weight:850;letter-spacing:.06em;color:#80561e;text-transform:uppercase;margin-bottom:13px}
-.response-pattern-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.response-pattern-steps{display:grid;grid-template-columns:repeat(var(--response-columns,3),minmax(0,1fr));gap:8px;max-width:560px;margin-inline:auto}
 .response-pattern-step{text-align:center;min-width:0}
 .response-pattern-step svg{display:block;width:24px;height:24px;margin:0 auto 7px;color:#2d4c3b}
 .response-pattern-step strong{display:block;font-size:12px;letter-spacing:.05em}
@@ -503,7 +503,7 @@ function insightFor(r){
 // and message-circle. Display only observations supported by the passage.
 const responseIcons={
  hear:'<path d="M6 8a6 6 0 0 1 12 0c0 4-3 5-4 8-.6 1.8-1.9 3-4 3a4 4 0 0 1-4-4"/><path d="M9 8a3 3 0 0 1 6 0c0 2-1 3-2 4"/><path d="M10 14c.5-.4 1.5-.9 2-2"/>',
- obey:'<path d="M4 16v-2.5a3.5 3.5 0 0 1 5.1-3.1L12 12v5a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3z"/><path d="M12 7V5a3 3 0 0 1 3-3h2a3 3 0 0 1 3 3v2.5a3.5 3.5 0 0 1-5.1 3.1L12 9z"/>',
+ obey:'<path d="M4 16v-2.38C4 11.5 2.97 10.5 3 8c.03-2.72 1.49-6 4.5-6C9.37 2 10 3.8 10 5.5c0 3.11-2 5.66-2 8.68V16a2 2 0 1 1-4 0Z"/><path d="M20 20v-2.38c0-2.12 1.03-3.12 1-5.62-.03-2.72-1.49-6-4.5-6C14.63 6 14 7.8 14 9.5c0 3.11 2 5.66 2 8.68V20a2 2 0 1 0 4 0Z"/><path d="M16 17h4"/><path d="M4 13h4"/>',
  share:'<path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8A8.5 8.5 0 0 1 8.7 3.9a8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8z"/>'
 };
 const responseObservations={
@@ -517,23 +517,24 @@ const responseObservations={
 };
 function renderResponsePattern(r){
  const root=$('response-pattern'),data=responseObservations[r[1]];
- root.replaceChildren();root.hidden=!data;
- if(!data)return;
+ const present=[['hear','HEAR'],['obey','OBEY'],['share','SHARE']].filter(([key])=>typeof data?.[key]==='string'&&data[key].trim());
+ root.replaceChildren();root.hidden=present.length===0;
+ if(!present.length)return;
  const heading=document.createElement('div');heading.className='response-pattern-header';
  heading.textContent='Notice the response';root.append(heading);
  const steps=document.createElement('div');steps.className='response-pattern-steps';
- for(const [key,label] of [['hear','HEAR'],['obey','OBEY'],['share','SHARE']]){
+ steps.style.setProperty('--response-columns',String(present.length));
+ for(const [key,label] of present){
   const step=document.createElement('div');step.className='response-pattern-step';
-  if(!data[key])step.classList.add('is-absent');
   const ico=document.createElement('span');ico.setAttribute('aria-hidden','true');
-  ico.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+responseIcons[key]+'</svg>';
+  ico.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+responseIcons[key]+'</svg>';
   const title=document.createElement('strong');title.textContent=label;
-  const detail=document.createElement('small');detail.textContent=data[key]||'Not emphasized here';
+  const detail=document.createElement('small');detail.textContent=data[key];
   step.append(ico,title,detail);steps.append(step);
  }
  root.append(steps);
  const note=document.createElement('p');note.className='response-pattern-caption';
- note.textContent='These observations prepare us to practice Say · Obey · Share. Not every passage shows all three.';
+ note.textContent='Notice how people respond to what God reveals. Practice your own response through Say · Obey · Share.';
  root.append(note);
 }
 function renderInsight(r){
