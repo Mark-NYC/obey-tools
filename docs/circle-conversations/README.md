@@ -4,12 +4,11 @@ Groups share an outreach rhythm without sharing anyone's name. Screenshots in th
 
 ## What people see
 
-- **Conversation Box**: after you add someone or move them forward, a sheet asks how to share the step with your Circle (`mobile-share-sheet.jpg`).
-  - **Just the step.** The Circle sees the stage, never the name.
-  - **Ask them to pray.** Shares initials (prefilled, editable) and one line (`mobile-share-prayer.jpg`).
-  - **Keep it private.**
-
-  "Always do this" skips the sheet next time. Moving someone back never asks. Where following Jesus is dangerous (safety mode), "Keep it private" is preselected and a warning shows. A **Your Circles** link appears when you belong to one.
+- **Conversation Box** (only for signed-in members of a Circle):
+  - **Bottom bar, not a pop-up.** After you add someone or move them forward, a dark bar names the step and offers one tap to share it with your Circle: stage only, never the name (`mobile-share-bar.jpg`). It closes itself after 6 seconds and pauses while you touch it. Moving someone back never asks. In safety mode it never appears.
+  - **This week.** Turn on "Focus on … this week" in a person's sheet, or pick people in the Circle huddle. Those rows carry a green flag that turns into "Moved this week" once you move them, and a card under the title shows "This week · 1 of 2 moved forward" (`mobile-box-week.jpg`). The Circle sees only the number.
+  - **Ask the group to pray.** It's in the person sheet, with initials prefilled and the next step as the line (`mobile-person-pray.jpg`). Once people pray, the row shows "4 praying" on your device only.
+  - A **Your Circles** link sits in the footer.
 - **Circle › Conversations tab** (`mobile-circle-conversations.jpg`):
   - **Our Conversation Box.** Clockwise totals with "+N this week", counting members who chose *Include my numbers*.
   - **Pray for.** Initials-only requests with a Praying toggle, Report and Delete.
