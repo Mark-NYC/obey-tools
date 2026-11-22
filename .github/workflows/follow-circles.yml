@@ -10,6 +10,10 @@ on:
       - 'scripts/circles-*.sql'
       - 'scripts/test-following-together.mjs'
       - '.github/workflows/follow-circles.yml'
+      - 'church.*'
+      - 'conversation-box.html'
+      - 'scripts/test-circle-conversations.mjs'
+      - 'scripts/e2e/**'
   push:
     paths:
       - 'follow-circles.*'
@@ -19,6 +23,10 @@ on:
       - 'scripts/circles-*.sql'
       - 'scripts/test-follow-circles.mjs'
       - 'scripts/test-following-together.mjs'
+      - 'church.*'
+      - 'conversation-box.html'
+      - 'scripts/test-circle-conversations.mjs'
+      - 'scripts/e2e/**'
 jobs:
   static-contracts:
     runs-on: ubuntu-latest
@@ -31,6 +39,8 @@ jobs:
       - run: node --check daily-sos-circles.js
       - run: node scripts/test-follow-circles.mjs
       - run: node scripts/test-following-together.mjs
+      - run: node --check church.js
+      - run: node scripts/test-circle-conversations.mjs
   database-contracts:
     runs-on: ubuntu-latest
     services:
@@ -64,3 +74,41 @@ jobs:
         run: psql -v ON_ERROR_STOP=1 -f supabase/migrations/20261122190000_follow_circle_shared_schedules.sql
       - name: Exercise shared schedule and primary Circle contracts
         run: psql -v ON_ERROR_STOP=1 -f scripts/circles-shared-schedule-tests.sql
+      - name: Apply Conversation Box and church migration
+        run: psql -v ON_ERROR_STOP=1 -f supabase/migrations/20261123090000_follow_circle_conversations.sql
+      - name: Exercise Conversation Box sharing and church contracts
+        run: psql -v ON_ERROR_STOP=1 -f scripts/circles-conversations-tests.sql
+  browser-e2e:
+    # Real pages, real migrations and RLS, through a test-only SQL bridge.
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: testpassword
+          POSTGRES_DB: circles_e2e
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d circles_e2e"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PGHOST: localhost
+      PGPORT: 5432
+      PGUSER: postgres
+      PGPASSWORD: testpassword
+      PGDATABASE: circles_e2e
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm i --no-save playwright@1.63.0 && npx playwright install --with-deps chromium
+      - run: node scripts/e2e/circle-conversations.e2e.mjs e2e-shots
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: circle-conversations-e2e
+          path: e2e-shots

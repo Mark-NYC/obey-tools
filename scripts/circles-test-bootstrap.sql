@@ -1,7 +1,7 @@
 -- Isolated PostgreSQL CI harness for the Supabase-specific auth contract.
 -- Never run against production.
-create role anon nologin;
-create role authenticated nologin;
+do $$begin create role anon nologin; exception when duplicate_object then null; end$$;
+do $$begin create role authenticated nologin; exception when duplicate_object then null; end$$;
 create schema auth;
 create table auth.users(id uuid primary key,email text not null);
 create function auth.uid() returns uuid language sql stable as
@@ -33,3 +33,20 @@ insert into public.sos_daily_progress(user_id,day_no,field_name,value) values
  ('11111111-1111-4111-8111-111111111111',5,'obey','PRIVATE-OBEY'),
  ('11111111-1111-4111-8111-111111111111',5,'share','PRIVATE-SHARE'),
  ('22222222-2222-4222-8222-222222222222',1,'cursor','3');
+-- Conversation Box cloud copy (production shape as used by conversation-box.html).
+create table public.conversation_people(
+ user_id uuid not null references auth.users(id),
+ person_name text not null,
+ box_name text not null,
+ color text,
+ next_step text,
+ person_note text,
+ follow_up_date date
+);
+alter table public.conversation_people enable row level security;
+create policy people_own on public.conversation_people for all to authenticated
+ using(user_id=auth.uid()) with check(user_id=auth.uid());
+grant select,insert,update,delete on public.conversation_people to authenticated;
+insert into auth.users(id,email) values
+ ('44444444-4444-4444-8444-444444444444','dana@example.test'),
+ ('55555555-5555-4555-8555-555555555555','evan@example.test');

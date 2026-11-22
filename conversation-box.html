@@ -132,7 +132,7 @@
         .add-person-input .btn { min-height: 48px; min-width: 76px; }
 
         /* ── Dialogs (shared look) ── */
-        .name-prompt, .edit-name-prompt, .box-selection-prompt, .move-prompt, .share-popup, .tutorial-popup, .remove-prompt, .reset-prompt {
+        .name-prompt, .edit-name-prompt, .box-selection-prompt, .move-prompt, .share-popup, .tutorial-popup, .remove-prompt, .reset-prompt, .share-sheet {
             position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1000; display: none; flex-direction: column; gap: 12px;
             width: calc(100% - 32px); max-width: 360px; background: #fff; padding: 20px; border-radius: 18px;
             box-shadow: 0 0 0 100vmax rgba(0,0,0,.38), 0 10px 30px rgba(0,0,0,.18); }
@@ -162,6 +162,35 @@
         .color-circle.yellow { background-color: #ffd700; }
         .color-circle.lightgreen { background-color: #90ee90; }
         .color-circle.darkgreen { background-color: #228b22; }
+        /* Share a step with a Circle */
+        .share-sheet { gap: 14px; max-height: 92vh; overflow-y: auto; }
+        .share-circles { display: flex; flex-wrap: wrap; gap: 8px; }
+        .share-circles[hidden] { display: none; }
+        .share-circle { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 14px 0 10px; border-radius: 999px; background: var(--ot-secondary); font-size: 14px; font-weight: 650; cursor: pointer; max-width: 100%; }
+        .share-circle span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .share-circle input { width: 18px; height: 18px; accent-color: var(--cb-green); flex-shrink: 0; }
+        .share-circles.single .share-circle { background: none; padding: 0; min-height: 0; }
+        .share-circles.single input { display: none; }
+        .share-circles.single .share-circle span { color: var(--cb-muted); font-weight: 600; }
+        .share-options { display: flex; flex-direction: column; gap: 8px; }
+        .share-opt { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; border: 1px solid var(--cb-line); border-radius: 14px; cursor: pointer; }
+        .share-opt:has(input:checked) { border-color: var(--cb-green); box-shadow: inset 0 0 0 1px var(--cb-green); background: #f6fbf8; }
+        .share-opt input { width: 20px; height: 20px; margin: 1px 0 0; accent-color: var(--cb-green); flex-shrink: 0; }
+        .share-opt b { display: block; font-size: 15px; }
+        .share-opt small { display: block; font-size: 13px; color: var(--cb-muted); margin-top: 1px; }
+        .share-prayer { display: flex; gap: 8px; margin: -2px 0 2px; }
+        .share-prayer input { min-height: 44px; padding: 0 12px; border: 1px solid #d1d1d6; border-radius: 10px; font-size: 16px; outline: none; min-width: 0; }
+        .share-prayer input:focus { border-color: var(--cb-ink); }
+        #share-initials { flex: 0 0 84px; font-weight: 650; }
+        #share-prayer-line { flex: 1; }
+        .share-safety { font-size: 13px; color: #7a5a00; background: #fff4d6; border-radius: 10px; padding: 8px 12px; }
+        .share-always { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--cb-muted); }
+        .share-always input { width: 18px; height: 18px; accent-color: var(--cb-green); }
+        .share-actions { display: flex; gap: 10px; }
+        .share-actions .btn { flex: 1; }
+        .share-actions .btn-primary { flex: 2; }
+        .share-actions .btn-secondary { background: var(--ot-secondary); box-shadow: none; }
+        .cb-circles-link { display: inline-flex; align-items: center; text-decoration: none; color: var(--cb-green-ink); }
         .share-popup { text-align: center; }
         .share-popup h3 { font-size: 16px; font-weight: 600; line-height: 1.4; }
         .share-popup .app-icons { display: flex; justify-content: center; gap: 18px; flex-wrap: wrap; margin: 4px 0; }
@@ -203,7 +232,7 @@
 
         /* ── Phones: one-handed sheets for the stage pickers ── */
         @media (max-width: 767px) {
-            .box-selection-prompt, .move-prompt { top: auto; bottom: 0; left: 0; transform: none; width: 100%; max-width: none; border-radius: 20px 20px 0 0; padding: 18px 20px calc(14px + env(safe-area-inset-bottom)); }
+            .box-selection-prompt, .move-prompt, .share-sheet { top: auto; bottom: 0; left: 0; transform: none; width: 100%; max-width: none; border-radius: 20px 20px 0 0; padding: 18px 20px calc(14px + env(safe-area-inset-bottom)); }
             .auth-section.auth-logged-out:not(.auth-expanded) #auth-form { display: none !important; }
             .auth-section.auth-logged-out:not(.auth-expanded) #auth-collapsed { display: flex !important; }
             .auth-section.auth-expanded #auth-collapsed { display: none !important; }
@@ -406,6 +435,8 @@
                     <a href="view-progress" class="btn btn-view-map"><svg class="ic"><use href="#i-map"/></svg><span data-i18n="site_text.s_7e06a4c7c4de">View Map</span></a>
                 </div>
                 <div class="util-row">
+                    <a class="text-btn cb-circles-link" id="cb-circles-link" href="/follow-circles.html" hidden data-i18n="conversation_box.circles_link">Your Circles</a>
+                    <span class="util-sep" id="cb-circles-sep" aria-hidden="true" hidden></span>
                     <button class="text-btn btn-how-it-works" onclick="showOnboarding()" data-i18n="conversation_box.how_it_works">How it works</button>
                     <span class="util-sep" aria-hidden="true"></span>
                     <button class="text-btn danger btn-reset" onclick="showResetPrompt()"><span class="tc" data-i18n="common.reset">RESET</span></button>
@@ -454,6 +485,31 @@
                 <button type="button" class="option" onclick="selectOption('open')"><span class="color-circle yellow"></span><span class="option-label" data-i18n="conversation_box.move_open">Open to learning</span><svg class="ic chev flip"><use href="#i-chev"/></svg></button>
                 <button type="button" class="option" onclick="selectOption('trusted')"><span class="color-circle lightgreen"></span><span class="option-label" data-i18n="conversation_box.move_trusted">Trusted Christ</span><svg class="ic chev flip"><use href="#i-chev"/></svg></button>
                 <button type="button" class="option" onclick="selectOption('existing')"><span class="color-circle darkgreen"></span><span class="option-label" data-i18n="conversation_box.move_existing">Existing believer</span><svg class="ic chev flip"><use href="#i-chev"/></svg></button>
+            </div>
+        </div>
+        <div class="share-sheet" id="share-sheet" role="dialog" aria-modal="true" aria-labelledby="share-sheet-title">
+            <div class="dialog-head">
+                <div>
+                    <div class="dialog-title" id="share-sheet-title"></div>
+                    <div class="dialog-sub" data-i18n="conversation_box.share_step_sub">Share this step with your Circle?</div>
+                </div>
+                <button class="prompt-close" onclick="closeShareSheet()" aria-label="Close" data-i18n-aria-label="conversation_box.close" data-i18n-title="conversation_box.close" title="Close"><svg class="ic"><use href="#i-close"/></svg></button>
+            </div>
+            <div class="share-circles" id="share-circles"></div>
+            <div class="share-options" role="radiogroup" aria-labelledby="share-sheet-title">
+                <label class="share-opt"><input type="radio" name="share-mode" value="step" onchange="syncShareMode()"><span><b data-i18n="conversation_box.share_mode_step">Just the step</b><small data-i18n="conversation_box.share_mode_step_hint">Your Circle sees the stage, never the name.</small></span></label>
+                <label class="share-opt"><input type="radio" name="share-mode" value="prayer" onchange="syncShareMode()"><span><b data-i18n="conversation_box.share_mode_prayer">Ask them to pray</b><small data-i18n="conversation_box.share_mode_prayer_hint">Shared as initials, with one line.</small></span></label>
+                <div class="share-prayer" id="share-prayer" hidden>
+                    <input type="text" id="share-initials" maxlength="12" autocomplete="off" aria-label="Initials" data-i18n-aria-label="conversation_box.share_initials_label">
+                    <input type="text" id="share-prayer-line" maxlength="280" autocomplete="off" placeholder="What should we pray for?" data-i18n-placeholder="conversation_box.share_prayer_placeholder" aria-label="What should we pray for?" data-i18n-aria-label="conversation_box.share_prayer_placeholder">
+                </div>
+                <label class="share-opt"><input type="radio" name="share-mode" value="private" onchange="syncShareMode()"><span><b data-i18n="conversation_box.share_mode_private">Keep it private</b><small data-i18n="conversation_box.share_mode_private_hint">Only you see this step.</small></span></label>
+            </div>
+            <p class="share-safety" id="share-safety" hidden data-i18n="conversation_box.share_safety_hint">Where following Jesus is dangerous, keep steps private unless your Circle is safe.</p>
+            <label class="share-always" id="share-always-row"><input type="checkbox" id="share-always"><span data-i18n="conversation_box.share_always">Always do this for steps. Don't ask.</span></label>
+            <div class="share-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeShareSheet()" data-i18n="conversation_box.share_not_now">Not now</button>
+                <button type="button" class="btn btn-primary" id="share-send" onclick="sendShare()" data-i18n="conversation_box.share_send">Share</button>
             </div>
         </div>
         <div class="remove-prompt" id="remove-prompt" role="alertdialog" aria-modal="true">
@@ -1297,6 +1353,7 @@ function saveConversations() {
                     if (box === 'spiritual') {
                         submitEvent(pendingNewName, 'spiritual');
                     }
+                    recordStep(pendingNewName, null, box, null);
                     
                     addHapticFeedback(document.getElementById('new-person-name')); 
                     pendingNewName = null; 
@@ -1324,6 +1381,7 @@ function saveConversations() {
             if (toBox === 'spiritual' || toBox === 'discovery') {
                 submitEvent(name, toBox);
             }
+            if (STAGES.indexOf(toBox) > STAGES.indexOf(fromBox)) recordStep(name, fromBox, toBox, null);
         }
 
         function moveWithPrompt(name, fromBox, toBox) { 
@@ -1365,6 +1423,7 @@ function saveConversations() {
                     if (option === 'trusted') {
                         submitGreenLightEvent(currentName);
                     }
+                    recordStep(currentName, null, currentToBox, option);
                     
                     addHapticFeedback(document.getElementById('new-person-name')); 
                     pendingNewName = null;
@@ -1385,6 +1444,7 @@ function saveConversations() {
                         if (option === 'trusted') {
                             submitGreenLightEvent(currentName);
                         }
+                        recordStep(currentName, currentFromBox, currentToBox, option);
                     }
                 }
                 
@@ -1633,6 +1693,153 @@ function saveConversations() {
             if (target) setTimeout(() => target.focus({ preventScroll: true }), 0);
         }
 
+        // ── Steps and Circles ─────────────────────────────────────────────────
+        // Every new person and every forward move is logged on this device
+        // (stages and time only, never the name) for the weekly huddle. If you
+        // belong to a Circle, you can share the step there: the Circle sees the
+        // stage, never the name. Prayer requests use initials only.
+        const STEP_LOG_KEY = 'cb-steps';
+        const SHARE_PREF_KEY = 'cb-share-pref';
+        let _myCircles = null;          // [{ id, name }] once loaded for this account
+        let _myCirclesFor = null;
+        let _pendingShare = null;
+
+        function readJSON(key, fallback) { try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; } }
+
+        function recordStep(name, from, to, response) {
+            const log = readJSON(STEP_LOG_KEY, []);
+            log.push({ from: from || null, to, response: response || null, at: new Date().toISOString() });
+            try { localStorage.setItem(STEP_LOG_KEY, JSON.stringify(log.slice(-400))); } catch {}
+            offerShare({ name, from: from || null, to, response: response || null });
+        }
+
+        async function loadMyCircles() {
+            const user = getCurrentUser();
+            if (!user || !window.supabase) return [];
+            if (_myCirclesFor === user.id && _myCircles) return _myCircles;
+            try {
+                // share_conversations only exists once Circle sharing is live.
+                const m = await window.supabase.from('follow_circle_members').select('circle_id,share_conversations').eq('user_id', user.id);
+                if (m.error || !(m.data || []).length) { _myCircles = []; _myCirclesFor = user.id; return _myCircles; }
+                const c = await window.supabase.from('follow_circles').select('id,name').in('id', m.data.map(x => x.circle_id));
+                _myCircles = c.error ? [] : (c.data || []).map(x => ({ id: x.id, name: x.name }));
+                _myCirclesFor = user.id;
+            } catch { _myCircles = []; }
+            renderCirclesLink();
+            return _myCircles;
+        }
+
+        function renderCirclesLink() {
+            const link = document.getElementById('cb-circles-link');
+            const sep = document.getElementById('cb-circles-sep');
+            const circles = _myCircles || [];
+            link.hidden = sep.hidden = !circles.length;
+            if (!circles.length) return;
+            link.href = circles.length === 1
+                ? '/follow-circles.html?circle=' + encodeURIComponent(circles[0].id) + '&tab=conversations'
+                : '/follow-circles.html';
+        }
+
+        function cbInitials(name) {
+            const raw = window.obeyGeo && window.obeyGeo.initials ? window.obeyGeo.initials(name) : String(name || '').trim().split(/\s+/).map(w => Array.from(w)[0].toUpperCase() + '.').join(' ');
+            return raw.split(' ').filter(Boolean).slice(0, 3).join(' ');
+        }
+        const INITIALS_RE = /^[^\s\d.]{1,2}\.?( [^\s\d.]{1,2}\.?){0,2}$/u;
+
+        async function offerShare(step) {
+            const circles = await loadMyCircles();
+            if (!circles.length) return;
+            const pref = readJSON(SHARE_PREF_KEY, null);
+            if (pref && pref.always) {
+                if (pref.mode === 'step') {
+                    const ids = (pref.circles || []).filter(id => circles.some(c => c.id === id));
+                    if (ids.length) shareStep(step, ids, null);
+                }
+                return;
+            }
+            _pendingShare = step;
+            const title = window.t(step.from ? 'conversation_box.share_step_title_moved' : 'conversation_box.share_step_title_added', { name: step.name, stage: stageLabel(step.to) });
+            document.getElementById('share-sheet-title').textContent = title;
+            const list = document.getElementById('share-circles');
+            list.innerHTML = '';
+            const chosen = (pref && pref.circles) || [];
+            circles.forEach((c, i) => {
+                const label = document.createElement('label');
+                label.className = 'share-circle';
+                const cb = document.createElement('input');
+                cb.type = 'checkbox'; cb.value = c.id;
+                cb.checked = chosen.length ? chosen.includes(c.id) : i === 0;
+                const span = document.createElement('span'); span.textContent = c.name;
+                label.append(cb, span); list.appendChild(label);
+            });
+            list.classList.toggle('single', circles.length === 1);
+            document.getElementById('share-initials').value = cbInitials(step.name);
+            document.getElementById('share-prayer-line').value = '';
+            const mode = SAFETY_MODE ? 'private' : 'step';
+            document.querySelectorAll('input[name="share-mode"]').forEach(r => { r.checked = r.value === mode; });
+            document.getElementById('share-safety').hidden = !SAFETY_MODE;
+            document.getElementById('share-always').checked = false;
+            syncShareMode();
+            openDialog('share-sheet', '#share-send');
+        }
+
+        function syncShareMode() {
+            const mode = document.querySelector('input[name="share-mode"]:checked')?.value;
+            document.getElementById('share-prayer').hidden = mode !== 'prayer';
+            document.getElementById('share-always-row').hidden = mode === 'prayer';
+            document.getElementById('share-circles').hidden = mode === 'private';
+        }
+
+        function closeShareSheet() {
+            document.getElementById('share-sheet').style.display = 'none';
+            _pendingShare = null;
+        }
+
+        async function sendShare() {
+            const step = _pendingShare;
+            if (!step) return closeShareSheet();
+            const mode = document.querySelector('input[name="share-mode"]:checked')?.value || 'private';
+            const ids = [...document.querySelectorAll('#share-circles input:checked')].map(x => x.value);
+            if (mode !== 'private' && !ids.length) return showNotification(window.t('conversation_box.share_choose_circle'));
+            let prayer = null;
+            if (mode === 'prayer') {
+                const initials = document.getElementById('share-initials').value.trim().replace(/\s+/g, ' ');
+                const line = document.getElementById('share-prayer-line').value.trim();
+                if (!INITIALS_RE.test(initials)) return showNotification(window.t('conversation_box.share_initials_invalid'));
+                if (!line) { document.getElementById('share-prayer-line').focus(); return; }
+                prayer = { initials, line: line.slice(0, 280) };
+            }
+            if (document.getElementById('share-always').checked && mode !== 'prayer') {
+                try { localStorage.setItem(SHARE_PREF_KEY, JSON.stringify({ always: true, mode, circles: ids })); } catch {}
+            } else if (mode !== 'private') {
+                try { localStorage.setItem(SHARE_PREF_KEY, JSON.stringify({ always: false, mode: 'step', circles: ids })); } catch {}
+            }
+            closeShareSheet();
+            if (mode !== 'private') shareStep(step, ids, prayer);
+        }
+
+        async function shareStep(step, ids, prayer) {
+            const user = getCurrentUser();
+            if (!user || !window.supabase) return;
+            const rows = ids.map(circle_id => ({ circle_id, user_id: user.id, from_stage: step.from, to_stage: step.to, response: step.to === 'discovery' ? step.response : null }));
+            try {
+                const r = await window.supabase.from('follow_circle_steps').insert(rows);
+                if (r.error) throw r.error;
+                if (prayer) {
+                    const p = await window.supabase.from('follow_circle_posts').insert(ids.map(circle_id => ({
+                        circle_id, author_id: user.id, kind: 'prayer', prayer_initials: prayer.initials, prayer_stage: step.to, body: prayer.line })));
+                    if (p.error) throw p.error;
+                }
+                const names = (_myCircles || []).filter(c => ids.includes(c.id));
+                showNotification(names.length === 1
+                    ? window.t('conversation_box.share_sent', { circle: names[0].name })
+                    : window.t('conversation_box.share_sent_many', { count: names.length }));
+            } catch (err) {
+                console.warn('[circle share]', err && err.message);
+                showNotification(window.t('conversation_box.share_failed'));
+            }
+        }
+
         // ── Onboarding ────────────────────────────────────────────────────────
         // High-risk country (guessed offline from the time zone, see geo.js):
         // onboarding gains a 4th "protect the people you list" step, and people
@@ -1816,7 +2023,8 @@ function saveConversations() {
         document.addEventListener('keydown', (e) => {
             if (e.key !== 'Escape') return;
             const open = id => { const el = document.getElementById(id); return el && (el.style.display === 'flex' || el.classList.contains('visible')); };
-            if (open('person-details-overlay')) closePersonDetails();
+            if (open('share-sheet')) closeShareSheet();
+            else if (open('person-details-overlay')) closePersonDetails();
             else if (open('move-prompt')) closeMovePrompt();
             else if (open('box-selection-prompt')) closeBoxSelection();
             else if (open('remove-prompt')) confirmRemove(false);
@@ -1881,6 +2089,7 @@ function saveConversations() {
                 status.style.display    = 'flex';
                 text.textContent        = window.t('auth.signed_in_as', { email: user.email });
 
+                loadMyCircles();
                 // Signed in (or switched account): merge that account's copy in.
                 if (appInitialized && user.id !== _reconciledUserId) {
                     reconcileWithCloud(user);
@@ -1892,6 +2101,7 @@ function saveConversations() {
                 status.style.display    = 'none';
                 text.textContent        = window.t('auth.not_signed_in');
 
+                _myCircles = null; _myCirclesFor = null; renderCirclesLink();
                 // Signed out: show the device copy (the website wipes it on sign-out;
                 // the iOS app keeps it). Signing back in merges again.
                 _reconciledUserId = null;

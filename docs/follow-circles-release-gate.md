@@ -10,6 +10,13 @@
 - **Circle email notifications are not yet sending.** The Resend worker is deployed as `follow-circle-notifications`, but it requires `CIRCLE_NOTIFY_CRON_SECRET`, and the GitHub delivery schedule remains disabled pending secret configuration and an end-to-end delivery test.
 - Keep private SOS answers private by default. Never automatically publish someone's personal Say, Obey, Share responses.
 
+## Pending: Conversation Box × Circles and church view
+
+- Migration `supabase/migrations/20261123090000_follow_circle_conversations.sql` is **not applied anywhere yet**. It is additive.
+- Contract tests `scripts/circles-conversations-tests.sql` and the browser E2E `scripts/e2e/circle-conversations.e2e.mjs` pass on isolated PostgreSQL. Both run in the Follow Daily Circles workflow.
+- Apply to a test project or branch first, then production after a backup. Run security advisors. The site hides the new parts until the migration is live.
+- Details and the privacy model: `docs/circle-conversations/README.md`.
+
 ## Previous release checklist (historical planning document)
 
 ## Features committed
