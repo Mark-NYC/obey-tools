@@ -124,7 +124,7 @@ test('Reading page preserves drafts, horizontal day navigation, and resume posit
  const html=read('daily-sos.html')
  assert.match(html,/if\(!\$\('sos-panel'\)\.hidden\)save\(true\);const e=entry\(\)/)
  assert.match(html,/function move\(n\)\{clearTimeout\(draftTimer\);if\(!\$\('sos-panel'\)\.hidden\)save\(true\)/)
- assert.match(html,/<nav id="days" class="days" aria-label="Reading days"><\/nav>/)
+ assert.match(html,/<nav id="days" class="days" aria-label="Swipe left or right to choose a reading day"><\/nav>/)
  assert.match(html,/overflow-x:auto/)
  assert.match(html,/const activeDay=\$\('days'\)\.children\[i\]/)
  assert.match(html,/state\.day=hasLinkedDay\?linkedDay-1:resumeDay\(snapshot\)/)
