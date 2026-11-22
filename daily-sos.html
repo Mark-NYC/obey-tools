@@ -258,8 +258,7 @@ body{padding:0;background:#f8f8f8}
 <a href="/follow-daily/"><svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> Follow Daily</a><a href="/daily-sos.html" aria-current="page"><svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> Following Jesus’ Way</a><a href="/commands-of-christ.html"><svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4L19 6"/></svg> Commands of Christ</a><a href="/4-questions.html"><svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg> 4 Questions</a></nav><div class="brand"><span>OBEY.TOOLS</span><h1>FOLLOWING JESUS’ WAY</h1><p>ABIDE IN JESUS · SAY, OBEY, SHARE</p></div>
 <nav id="days" class="days" aria-label="Swipe left or right to choose a reading day"></nav>
 <main class="content">
-<div class="row"><h2 class="daytitle" id="daytitle">Day 1</h2><span class="pill" id="phase">IDENTIFY</span></div>
-<p class="section-note" id="phase-detail"></p>
+<div class="row"><h2 class="daytitle" id="daytitle">Day 1</h2></div>
 <p class="summary" id="title"></p>
 <div class="tasks" aria-label="Today's three activities">
 <button class="task" id="open-reading" type="button"><span class="circle" id="read-check" aria-hidden="true"></span><span><strong>READ</strong><small id="passage"></small></span><span class="chevron" aria-hidden="true">›</span></button>
@@ -276,7 +275,7 @@ body{padding:0;background:#f8f8f8}
 </section>
 <section class="panel" id="insight-panel" hidden tabindex="-1" aria-label="Daily disciple-making insight">
 <h2>Today’s Insight</h2><div class="sub" id="insight-reference"></div>
-<p class="insight-intro">Notice what this passage reveals about Jesus. Some moments reveal His identity, some shape His disciples, and some show patterns we can follow.</p>
+<p class="insight-intro">What is this passage revealing? Pay attention to who Jesus is, how faith grows, and patterns disciples can follow. Not every passage does all three.</p>
 <div id="insight-cards" class="insight-cards" aria-live="polite"></div>
 <div class="insight-apply"><span class="insight-apply-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/><path d="M4 12h11"/></svg></span><div><h3 class="insight-label">Consider &amp; Respond</h3><p id="insight-action"></p></div></div>
 <button id="mark-insight" class="primary" type="button">Mark Insight as read</button>
@@ -507,8 +506,7 @@ function renderInsight(r){
 }
 function render(){
  const i=state.day,r=readings[i],e=entry(),previous=i>0?entry(i-1):null;
- $('topday').textContent='Day '+(i+1);$('daytitle').textContent='Day '+(i+1);$('phase').textContent=r[3];
- $('phase-detail').textContent=({IDENTIFY:'Jesus calls and identifies disciples.',EQUIP:'Jesus teaches and forms his disciples.',INVEST:'Jesus gives his disciples real responsibility.',ENTRUST:'Jesus entrusts his mission to his disciples.'})[r[3]];
+ $('topday').textContent='Day '+(i+1);$('daytitle').textContent='Day '+(i+1);
  $('title').textContent=r[0];$('passage').textContent=r[1];$('reading-title').textContent=r[0];
  $('discovery').textContent=r[4];renderInsight(r);
  const book=r[1].split(' ')[0];
@@ -574,10 +572,10 @@ function move(n){clearTimeout(draftTimer);if(!$('sos-panel').hidden)save(true);s
 
 $('open-reading').addEventListener('click',()=>changePanel('reading'));
 $('open-insight').addEventListener('click',()=>changePanel('insight'));
-$('mark-insight').addEventListener('click',()=>{const e=entry();e.insight=true;state.entries[state.day]=e;if(persist()){render();changePanel('insight')}});
+$('mark-insight').addEventListener('click',()=>{const e=entry();e.insight=true;state.entries[state.day]=e;if(persist()){render();changePanel('sos')}});
 $('open-sos').addEventListener('click',()=>changePanel('sos'));
 $('start').addEventListener('click',()=>changePanel(!$('sos-panel').hidden?'reading':!$('insight-panel').hidden?'sos':'insight'));
-$('mark-read').addEventListener('click',()=>{if(!$('sos-panel').hidden)save(true);const e=entry();e.read=true;state.entries[state.day]=e;if(persist()){render();changePanel('sos')}});
+$('mark-read').addEventListener('click',()=>{if(!$('sos-panel').hidden)save(true);const e=entry();e.read=true;state.entries[state.day]=e;if(persist()){render();changePanel('insight')}});
 $('save').addEventListener('click',()=>save());
 let draftTimer;
 for(const key of ['say','obey','share']){
