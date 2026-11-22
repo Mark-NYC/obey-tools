@@ -22,7 +22,8 @@ async function send(email:string,subject:string,message:string,link:string,idemp
 }
 async function recipient(userId:string,circleId:string,kind:"reply"|"mention"|"digest"){
  const {data:member,error}=await db.from("follow_circle_members").select("email_replies,email_mentions,email_digest").eq("circle_id",circleId).eq("user_id",userId).maybeSingle();
- if(error||!member||!member["email_"+(kind==="digest"?"digest":kind)])return null;
+ const pref=kind==="reply"?"email_replies":kind==="mention"?"email_mentions":"email_digest";
+ if(error||!member||!member[pref])return null;
  const {data:circle}=await db.from("follow_circles").select("id,name,closed_at").eq("id",circleId).maybeSingle();
  if(!circle||circle.closed_at)return null;
  const {data:{user}}=await db.auth.admin.getUserById(userId);
