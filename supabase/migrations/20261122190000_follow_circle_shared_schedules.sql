@@ -68,13 +68,13 @@ grant execute on function public.follow_circle_set_primary(uuid) to authenticate
 -- A NULL primary preserves this explicit preference without changing memberships.
 create function public.follow_circle_set_independent()
 returns void language plpgsql security definer set search_path=''
-as $
+as $$
 begin
  if auth.uid() is null then raise exception 'Sign in required';end if;
  insert into public.follow_circle_primary(user_id,circle_id,chosen_at)
  values(auth.uid(),null,now())
  on conflict(user_id) do update set circle_id=null,chosen_at=excluded.chosen_at;
-end;$;
+end;$$;
 revoke all on function public.follow_circle_set_independent() from public,anon;
 grant execute on function public.follow_circle_set_independent() to authenticated;
 
