@@ -55,23 +55,23 @@ begin
 end;$$;
 -- The user can choose independent study without leaving existing Circles.
 select public.follow_circle_set_independent();
-do $
+do $$
 begin
  if exists(select 1 from public.follow_circle_schedule() where is_primary)
  then raise exception 'FAIL: independent preference did not clear primary';end if;
  if (select count(*) from public.follow_circle_schedule())<>1
  then raise exception 'FAIL: independent preference removed Circle membership';end if;
-end;$;
+end;$$;
 -- Joining another Circle must respect the explicit independent choice.
 set request.jwt.claim.sub='11111111-1111-4111-8111-111111111111';
 select public.follow_circle_new_invite(current_setting('test.second_circle')::uuid) as additional_token \gset
 set request.jwt.claim.sub='33333333-3333-4333-8333-333333333333';
 select public.follow_circle_join(:'additional_token','Charlie');
-do $
+do $$
 begin
  if exists(select 1 from public.follow_circle_schedule() where is_primary)
  then raise exception 'FAIL: joining while independent changed primary';end if;
-end;$;
+end;$$;
 select public.follow_circle_set_primary(current_setting('test.new_circle')::uuid);
 -- Date advances in the Circle timezone, independent of individual progress.
 reset role;
@@ -91,22 +91,22 @@ update public.follow_circles set start_day=365,
 where id=current_setting('test.new_circle')::uuid;
 set role authenticated;
 set request.jwt.claim.sub='33333333-3333-4333-8333-333333333333';
-do $
+do $$
 begin
  if not exists(select 1 from public.follow_circle_schedule()
    where circle_id=current_setting('test.new_circle')::uuid and day_no=365 and finished)
  then raise exception 'FAIL: study completion at Day 365';end if;
-end;$;
+end;$$;
 -- Anonymous visitors cannot call membership-based schedule APIs.
 reset role;
 set role anon;
-do $
+do $$
 begin
  begin
   perform public.follow_circle_schedule();
   raise exception 'FAIL: anonymous schedule access';
  exception when insufficient_privilege then null;
  end;
-end;$;
+end;$$;
 reset role;
 select 'SHARED CIRCLE SCHEDULE CONTRACTS PASSED' as result;
