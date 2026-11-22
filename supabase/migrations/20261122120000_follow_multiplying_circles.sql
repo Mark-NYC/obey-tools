@@ -24,8 +24,11 @@ create table public.follow_circle_members(
 );
 create index follow_circle_members_user_idx on public.follow_circle_members(user_id,circle_id);
 create table public.follow_circle_invites(
- circle_id uuid primary key references public.follow_circles(id) on delete cascade,
+ id uuid primary key default gen_random_uuid(),
+ circle_id uuid not null references public.follow_circles(id) on delete cascade,
  token_hash text not null unique,
+ created_by uuid not null references auth.users(id) on delete cascade,
+ revoked_at timestamptz,
  created_at timestamptz not null default now()
 );
 create table public.follow_circle_posts(
@@ -68,12 +71,12 @@ create function circles_private.is_member(p_circle uuid,p_user uuid)
 returns boolean language sql stable security definer set search_path=''
 as $$select exists(select 1 from public.follow_circle_members m
  join public.follow_circles c on c.id=m.circle_id
- where m.circle_id=p_circle and m.user_id=p_user and c.closed_at is null)$$;
+ where m.circle_id=p_circle and m.user_id=p_user and p_user=auth.uid() and c.closed_at is null)$;
 create function circles_private.is_steward(p_circle uuid,p_user uuid)
 returns boolean language sql stable security definer set search_path=''
 as $$select exists(select 1 from public.follow_circle_members m
  join public.follow_circles c on c.id=m.circle_id
- where m.circle_id=p_circle and m.user_id=p_user and m.role='steward' and c.closed_at is null)$$;
+ where m.circle_id=p_circle and m.user_id=p_user and p_user=auth.uid() and m.role='steward' and c.closed_at is null)$;
 revoke all on function circles_private.is_member(uuid,uuid) from public;
 revoke all on function circles_private.is_steward(uuid,uuid) from public;
 grant execute on function circles_private.is_member(uuid,uuid) to authenticated;
@@ -132,7 +135,7 @@ begin
  insert into public.follow_circles(name,owner_id) values(btrim(p_name),v_user) returning id into v_id;
  insert into public.follow_circle_members(circle_id,user_id,display_name,role) values(v_id,v_user,btrim(p_display_name),'steward');
  v_token:=replace(gen_random_uuid()::text,'-','')||replace(gen_random_uuid()::text,'-','');
- insert into public.follow_circle_invites(circle_id,token_hash) values(v_id,md5(v_token));
+ insert into public.follow_circle_invites(circle_id,token_hash,created_by) values(v_id,md5(v_token),v_user);
  return jsonb_build_object('circle_id',v_id,'token',v_token);
 end;$$;
 create function public.follow_circle_join(p_token text,p_display_name text)
@@ -143,7 +146,7 @@ begin
  if v_user is null then raise exception 'Sign in required';end if;
  if char_length(coalesce(p_token,''))<>64 or char_length(btrim(coalesce(p_display_name,''))) not between 1 and 60 then raise exception 'Invalid invitation';end if;
  select i.circle_id into v_id from public.follow_circle_invites i join public.follow_circles c on c.id=i.circle_id
- where i.token_hash=md5(p_token) and c.closed_at is null;
+ where i.token_hash=md5(p_token) and i.revoked_at is null and c.closed_at is null;
  if v_id is null then raise exception 'Invalid or expired invitation';end if;
  insert into public.follow_circle_members(circle_id,user_id,display_name)
  values(v_id,v_user,btrim(p_display_name)) on conflict(circle_id,user_id) do nothing;
@@ -153,16 +156,23 @@ end;$$;
 create function public.follow_circle_invite_preview(p_token text)
 returns jsonb language sql stable security definer set search_path=''
 as $$select jsonb_build_object('circle_name',c.name,'circle_id',c.id) from public.follow_circle_invites i join public.follow_circles c on c.id=i.circle_id
- where length(p_token)=64 and i.token_hash=md5(p_token) and c.closed_at is null limit 1$$;
-create function public.follow_circle_rotate_invite(p_circle uuid)
+ where length(p_token)=64 and i.token_hash=md5(p_token) and i.revoked_at is null and c.closed_at is null limit 1$;
+create function public.follow_circle_new_invite(p_circle uuid)
 returns text language plpgsql security definer set search_path=''
 as $$
 declare v_token text;
 begin
- if auth.uid() is null or not circles_private.is_steward(p_circle,auth.uid()) then raise exception 'Not permitted';end if;
+ if auth.uid() is null or not circles_private.is_member(p_circle,auth.uid()) then raise exception 'Not permitted';end if;
  v_token:=replace(gen_random_uuid()::text,'-','')||replace(gen_random_uuid()::text,'-','');
- update public.follow_circle_invites set token_hash=md5(v_token),created_at=now() where circle_id=p_circle;
+ insert into public.follow_circle_invites(circle_id,token_hash,created_by) values(p_circle,md5(v_token),auth.uid());
  return v_token;
+end;$$;
+create function public.follow_circle_revoke_invites(p_circle uuid)
+returns void language plpgsql security definer set search_path=''
+as $$
+begin
+ if not circles_private.is_steward(p_circle,auth.uid()) then raise exception 'Not permitted';end if;
+ update public.follow_circle_invites set revoked_at=now() where circle_id=p_circle and revoked_at is null;
 end;$$;
 create function public.follow_circle_leave(p_circle uuid)
 returns void language plpgsql security definer set search_path=''
@@ -191,7 +201,7 @@ returns void language plpgsql security definer set search_path=''
 as $$
 begin
  if not circles_private.is_steward(p_circle,auth.uid()) then raise exception 'Not permitted';end if;
- if not circles_private.is_member(p_circle,p_user) then raise exception 'Recipient must be a member';end if;
+ if not exists(select 1 from public.follow_circle_members where circle_id=p_circle and user_id=p_user) then raise exception 'Recipient must be a member';end if;
  update public.follow_circle_members set role='member' where circle_id=p_circle and user_id=auth.uid();
  update public.follow_circle_members set role='steward' where circle_id=p_circle and user_id=p_user;
  update public.follow_circles set owner_id=p_user where id=p_circle;
@@ -218,6 +228,6 @@ begin
  from public.follow_circle_members m where m.circle_id=p_circle and m.progress_visible=true;
 end;$$;
 -- Public access revoked for privileged functions, including preview unless anonymous preview explicitly permitted.
-revoke all on function public.follow_circle_create(text,text),public.follow_circle_join(text,text),public.follow_circle_invite_preview(text),public.follow_circle_rotate_invite(uuid),public.follow_circle_leave(uuid),public.follow_circle_remove(uuid,uuid),public.follow_circle_transfer(uuid,uuid),public.follow_circle_progress(uuid) from public;
-grant execute on function public.follow_circle_create(text,text),public.follow_circle_join(text,text),public.follow_circle_rotate_invite(uuid),public.follow_circle_leave(uuid),public.follow_circle_remove(uuid,uuid),public.follow_circle_transfer(uuid,uuid),public.follow_circle_progress(uuid) to authenticated;
+revoke all on function public.follow_circle_create(text,text),public.follow_circle_join(text,text),public.follow_circle_invite_preview(text),public.follow_circle_new_invite(uuid),public.follow_circle_revoke_invites(uuid),public.follow_circle_leave(uuid),public.follow_circle_remove(uuid,uuid),public.follow_circle_transfer(uuid,uuid),public.follow_circle_progress(uuid) from public;
+grant execute on function public.follow_circle_create(text,text),public.follow_circle_join(text,text),public.follow_circle_new_invite(uuid),public.follow_circle_revoke_invites(uuid),public.follow_circle_leave(uuid),public.follow_circle_remove(uuid,uuid),public.follow_circle_transfer(uuid,uuid),public.follow_circle_progress(uuid) to authenticated;
 grant execute on function public.follow_circle_invite_preview(text) to anon,authenticated;
