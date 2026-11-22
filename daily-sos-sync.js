@@ -8,7 +8,7 @@ if(adapter&&$('sos-sync')){
  const OWNER_KEY='obeytools:daily-sos:sync-owner:v1';
  const META_KEY='obeytools:daily-sos:revisions:v1';
  const BUCKET_PREFIX='obeytools:daily-sos:bucket:v1:';
- const fields=['read','say','obey','share','check'];
+ const fields=['read','insight','say','obey','share','check'];
  const stateEl=$('sos-sync-state'),loginForm=$('sos-sync-login'),loggedIn=$('sos-sync-logged-in');
  const setStatus=text=>{stateEl.textContent=text};
  const parse=(value,fallback)=>{try{return value?JSON.parse(value):fallback}catch{return fallback}};
