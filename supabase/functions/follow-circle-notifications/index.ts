@@ -32,14 +32,18 @@ async function recipient(userId:string,circleId:string,kind:"reply"|"mention"|"d
 }
 async function immediate(){
  let sent=0,failed=0,skipped=0;
+ // Reclaim stalled work after worker interruption. Resend idempotency prevents duplicates.
+ await db.from("follow_circle_email_outbox").update({status:"pending"}).eq("status","sending").lt("retry_at",new Date().toISOString());
  const {data:queue,error}=await db.from("follow_circle_email_outbox").select("id,user_id,circle_id,post_id,kind,attempts").eq("status","pending").lte("retry_at",new Date().toISOString()).order("created_at").limit(60);
  if(error)throw error;
  for(const item of queue||[]){
-  const {data:claimed}=await db.from("follow_circle_email_outbox").update({status:"sending"}).eq("id",item.id).eq("status","pending").select("id").maybeSingle();
+  const {data:claimed}=await db.from("follow_circle_email_outbox").update({status:"sending",retry_at:new Date(Date.now()+15*60000).toISOString()}).eq("id",item.id).eq("status","pending").select("id").maybeSingle();
   if(!claimed)continue;
   try{
    const r=await recipient(item.user_id,item.circle_id,item.kind);
-   if(!r){skipped++;await db.from("follow_circle_email_outbox").update({status:"sent",sent_at:new Date().toISOString()}).eq("id",item.id);continue}
+   const {data:post}=await db.from("follow_circle_posts").select("author_id").eq("id",item.post_id).maybeSingle();
+   const {data:blocked}=post?await db.from("follow_circle_blocks").select("user_id").eq("user_id",item.user_id).eq("blocked_user_id",post.author_id).maybeSingle():{data:null};
+   if(!r||!post||blocked){skipped++;await db.from("follow_circle_email_outbox").update({status:"sent",sent_at:new Date().toISOString()}).eq("id",item.id);continue}
    const message=item.kind==="reply"?"Someone replied to your reflection in "+r.circleName+".":"Someone mentioned you in "+r.circleName+".";
    await send(r.email,item.kind==="reply"?"A reply in your Follow Daily Circle":"You were mentioned in Follow Daily",message,appUrl+encodeURIComponent(item.circle_id),"circle-"+item.id);
    const done=await db.from("follow_circle_email_outbox").update({status:"sent",sent_at:new Date().toISOString(),last_error:null}).eq("id",item.id);
