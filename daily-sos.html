@@ -305,6 +305,11 @@ body{padding:0;background:#f8f8f8}
 <section id="following-together" aria-label="Following Together">
 <div class="following-heading"><h2>Following Together</h2><a id="following-manage" href="/follow-circles.html" hidden>Manage Circles</a></div>
 <p id="following-context">Loading your Circles…</p>
+<div id="following-finished-actions" class="following-finished-actions" hidden>
+<p>The Circle has completed Day 365. Its conversations remain available. You can review earlier readings, continue independently, or start another Circle.</p>
+<button id="following-independent" type="button" class="following-small">Continue independently</button>
+<a href="/follow-circles.html" class="following-small following-action-link">Start or choose a Circle</a>
+</div>
 <p class="following-subtitle">Reflections about this day's Scripture from friends in your Circles. Your personal SOS stays private.</p>
 <div id="following-posts" aria-live="polite"></div>
 <div class="following-controls">
@@ -853,6 +858,7 @@ window.sosCircleBridge={
   window.sosPrimarySchedule=next;
   render();
  },
+ soloDay:()=>resumeDay(state)+1,
  day:()=>state.day+1,
  goToDay:(requested)=>{
   const index=Number(requested)-1;
