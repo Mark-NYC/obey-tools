@@ -34,12 +34,17 @@ a{color:#007a57}button:focus-visible,a:focus-visible,textarea:focus-visible,inpu
 @media(max-width:350px){.brand h1{font-size:47px}.content{padding:14px}.day{flex-basis:74px}}
 
 /* Daily SOS plan menu */
-.menu-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.18);z-index:30}
-.menu-pop{position:fixed;top:78px;right:max(16px,calc((100vw - 480px)/2 + 16px));z-index:31;width:min(290px,calc(100vw - 32px));padding:8px;background:rgba(249,250,251,.98);border:1px solid #dedfe2;border-radius:18px;box-shadow:0 15px 55px #0002}
-.menu-pop button{width:100%;display:flex;gap:13px;align-items:center;padding:13px 12px;background:transparent;border:0;border-radius:10px;text-align:left;font-size:16px;color:#1c1c1e}
-.menu-pop button:hover,.menu-pop button:focus-visible{background:#e9eaec}.menu-pop .danger{color:#c43c3c}
-.menu-pop .menu-ico{width:24px;font-size:19px;text-align:center;flex-shrink:0}
+.menu-backdrop{position:fixed;inset:0;background:rgba(10,24,17,.12);z-index:30}
+.menu-pop{position:fixed;top:76px;right:18px;z-index:31;width:min(320px,calc(100vw - 36px));padding:8px;background:rgba(249,252,250,.87);-webkit-backdrop-filter:blur(24px) saturate(145%);backdrop-filter:blur(24px) saturate(145%);border:1px solid rgba(255,255,255,.8);border-radius:24px;box-shadow:0 16px 50px rgba(0,0,0,.18)}
+.menu-pop button{width:100%;min-height:58px;display:flex;gap:16px;align-items:center;padding:13px 16px;background:transparent;border:0;border-radius:12px;text-align:left;font-size:18px;font-weight:500;color:#171b19}
+.menu-pop button:hover,.menu-pop button:focus-visible{background:rgba(255,255,255,.65)}
+.menu-pop button:focus-visible{outline:2px solid #008956;outline-offset:-2px}
+.menu-pop .danger{color:#c84040}
+.menu-pop .menu-ico{width:29px;font-size:24px;text-align:center;flex-shrink:0;color:inherit;line-height:1}
 .menu-pop button[disabled]{opacity:.45;cursor:not-allowed}
+@media(min-width:1100px){.menu-pop{right:max(24px,calc((100vw - 1370px)/2 + 16px));top:80px}}
+@media(prefers-reduced-transparency:reduce){.menu-pop{background:#f7faf8}}
+
 .dialog-overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);display:grid;place-items:center;z-index:40;padding:18px}
 .dialog-card{background:#fff;border-radius:17px;max-width:420px;width:100%;padding:22px;max-height:calc(100dvh - 36px);overflow:auto;box-shadow:0 15px 45px #0003}
 .dialog-card h2{margin:0 0 10px;font-size:24px}.dialog-card p{font-size:14px;color:#54545b}.dialog-card label{display:block;font-size:14px;font-weight:700;margin:15px 0 6px}.dialog-card select{width:100%;border:1px solid #bdbdc3;border-radius:10px;padding:12px;background:#fff;font:inherit}
@@ -295,11 +300,11 @@ body{padding:0;background:#f8f8f8}
 <div class="desktop-side-card"><h2>The daily flow</h2><div class="desktop-flow"><b>1</b><div><strong>Read</strong><small>One primary passage. Parallel accounts optional.</small></div></div><div class="desktop-flow"><b>2</b><div><strong>SOS</strong><small>Say · Obey · Share. Save a draft anytime.</small></div></div></div>
 <div class="desktop-side-card"><h2>Grow at your pace</h2><p>Save just one answer and finish the rest later. Sign in to keep drafts across devices.</p><button type="button" class="secondary" id="desktop-plan-info">View plan info</button></div></aside></div><div id="menu-backdrop" class="menu-backdrop" hidden></div>
 <div id="plan-menu" class="menu-pop" role="menu" aria-label="Following Jesus’ Way options" hidden>
-<button type="button" role="menuitem" data-action="share"><span class="menu-ico">↗</span>Share</button>
-<button type="button" role="menuitem" data-action="settings"><span class="menu-ico">⚙</span>Settings</button>
-<button type="button" role="menuitem" data-action="info"><span class="menu-ico">ⓘ</span>Plan Info</button>
-<button type="button" role="menuitem" data-action="catchup"><span class="menu-ico">»</span>Catch Me Up</button>
-<button type="button" role="menuitem" data-action="stop" class="danger"><span class="menu-ico">⊖</span><span id="stop-label">Pause Reading Plan</span></button>
+<button type="button" role="menuitem" data-action="share"><span class="menu-ico" aria-hidden="true">↥</span>Share</button>
+<button type="button" role="menuitem" data-action="settings"><span class="menu-ico" aria-hidden="true">⚙</span>Settings</button>
+<button type="button" role="menuitem" data-action="info"><span class="menu-ico" aria-hidden="true">ⓘ</span>Plan Info</button>
+<button type="button" role="menuitem" data-action="catchup"><span class="menu-ico" aria-hidden="true">⏩</span>Catch Me Up</button>
+<button type="button" role="menuitem" data-action="stop" class="danger"><span class="menu-ico" aria-hidden="true">⊖</span><span id="stop-label">Stop This Plan</span></button>
 </div>
 <div id="dialog-overlay" class="dialog-overlay" hidden>
 <div class="dialog-card" role="dialog" aria-modal="true" aria-labelledby="dialog-title">
