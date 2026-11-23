@@ -40,6 +40,10 @@ assert.equal(get(12,25).join('; '),'John 21:15-25; Revelation 22; Job 42; Malach
 const html=fs.readFileSync('navigators-bible-plan.html','utf8');
 assert.ok(html.includes('/navigators-readings.js'),'page loads reading data');
 assert.ok(html.includes("reading(month,day).forEach"),'cards use original data');
-assert.ok(html.includes('bible-api.com/'),'Scripture is shown in page');
+assert.ok(html.includes('loadPassage(scripture,ref,requestId)'),'Scripture is shown inline without click');
+assert.ok(!html.includes('id="month"'),'no month dropdown');
+assert.ok(!html.includes('id="day-select"'),'no day dropdown');
+assert.ok(html.includes('id="journey-dialog"'),'journey view exists');
+assert.ok(html.includes('navigators-community.js'),'account and Circle module exists');
 assert.ok(!html.includes("Reading '+(i+1)+' in official chart"),'no placeholders');
 console.log('OK: 12 months, 300 days, 1,200 references, key transitions, and in-page reader.');
