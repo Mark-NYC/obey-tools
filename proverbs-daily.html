@@ -2,10 +2,10 @@
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#ffffff">
-<meta name="description" content="Read one chapter of Proverbs each day, matching the day of the month. Read, reflect, obey, and share.">
+<meta name="description" content="Read one chapter of Proverbs each day, matching the day of the month. Read, obey, and share.">
 <link rel="canonical" href="https://obey.tools/proverbs-daily.html">
 <link rel="icon" href="/assets/images/favicons/favicon.ico">
-<link rel="stylesheet" href="/fonts.css"><link rel="stylesheet" href="/buttons.css">
+<link rel="stylesheet" href="/fonts.css"><link rel="stylesheet" href="/buttons.css"><link rel="stylesheet" href="/proverbs-circles.css">
 <title>Proverbs for Today | Follow Daily | OBEY.TOOLS</title>
 <style>
 :root{--ink:#1c1c1e;--muted:#6b6b72;--line:#e7e7ea;--soft:#f4f4f5;--green:#00a468;--green-ink:#00744a;--green-soft:#e6f5ee;--col:680px;--sans:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-serif}
@@ -23,21 +23,21 @@
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 </style></head>
 <body><div class="shell">
-<header class="top"><a class="round" href="/follow-daily/" aria-label="Back to Follow Daily"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></a><a href="/follow-daily/" class="wordmark">FOLLOW DAILY</a><a class="round" href="/" aria-label="OBEY.TOOLS home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V21h-6v-7H9v7H3z"/></svg></a></header>
+<header class="top"><a class="round" href="/follow-daily/" aria-label="Back to Follow Daily"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></a><a href="/follow-daily/" class="wordmark">FOLLOW DAILY</a><button class="round" id="menu" type="button" aria-label="Study options" aria-expanded="false" aria-haspopup="true"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg></button></header>
 <nav class="days" id="days" aria-label="Choose Proverbs chapter by day of month"></nav>
-<div class="col"><div class="head"><div class="meta"><span id="date-label"></span><button type="button" class="linkish" id="today-button" hidden>Go to today</button></div><h1 id="chapter-title">Proverbs for Today</h1><p id="chapter-reference">One chapter for each day of the month.</p><div class="intro">The date chooses your chapter. Read it, live it, and come back tomorrow.</div></div></div>
-<div class="tracker"><div class="tasks"><button class="task" type="button" data-step="reading"><span class="dot" id="read-dot"></span>Read</button><button class="task" type="button" data-step="insight"><span class="dot" id="insight-dot"></span>Reflect</button><button class="task" type="button" data-step="respond"><span class="dot" id="respond-dot"></span>SOS</button></div></div>
+<div class="col"><div class="head"><div class="meta"><span id="date-label"></span><button type="button" class="linkish" id="today-button" hidden>Go to today</button></div><h1 id="chapter-title">Proverbs for Today</h1><p id="chapter-reference">One chapter for each day of the month.</p><div class="intro">The date chooses your chapter. Read it, live it, and come back tomorrow.</div><div id="proverbs-circle-indicator" class="circle-indicator" hidden></div></div></div>
+<div class="tracker"><div class="tasks"><button class="task" type="button" data-step="reading"><span class="dot" id="read-dot"></span>Read</button><button class="task" type="button" data-step="respond"><span class="dot" id="respond-dot"></span>SOS</button></div></div>
 <main class="col">
 <section class="step" id="reading" tabindex="-1" aria-label="Scripture reading"><div class="scripture" id="scripture" aria-live="polite"><p>Loading Proverbs…</p></div><p class="source">World English Bible (WEB), public domain · <a href="https://ebible.org/web/" target="_blank" rel="noopener noreferrer">eBible.org</a></p><button type="button" class="primary" id="read-button" disabled>Done reading · Continue</button></section>
-<section class="step" id="insight" tabindex="-1"><h2>Reflect</h2><p class="sub">Which verse stands out? What does this chapter teach you about living wisely?</p><label class="field" for="insight-text">One thing I’m learning<span>Choose something specific from the chapter.</span><textarea id="insight-text" placeholder="A verse or insight from Proverbs…"></textarea></label><button type="button" class="primary" id="insight-button">Continue to SOS</button></section>
+
 <section class="step" id="respond" tabindex="-1"><h2>Respond</h2><p class="sub">Say · Obey · Share <span style="font-size:13px">· Private to this device</span></p><label class="field" for="say">Say<span>What is God saying to you?</span><textarea id="say" placeholder="What stood out?"></textarea></label><label class="field" for="obey">Obey<span>What is one practical step you will take today?</span><textarea id="obey" placeholder="Today I will…"></textarea></label><label class="field" for="share">Share<span>Who could benefit from this wisdom?</span><input id="share" placeholder="A person or group"></label><button type="button" class="primary" id="finish-button">Finish today</button><p class="notice" id="saved" role="status" hidden>Saved for today. Come back tomorrow for the next chapter.</p><p class="helper">Your responses are saved on this device. This study does not change your progress in Following Jesus’ Way.</p></section>
-<footer class="foot"><a href="/follow-daily/">All Follow Daily studies</a> · OBEY.TOOLS</footer>
-</main></div>
+<section class="step" id="proverbs-circles" aria-labelledby="proverbs-circles-heading"><div class="following-heading"><h2 id="proverbs-circles-heading">Following together</h2><a href="/follow-circles.html">Manage Circles</a></div><p class="sub" id="proverbs-circle-status">Sign in to share what you are learning with your Circles.</p><div id="proverbs-circle-controls" hidden><label class="field" for="proverbs-circle-target">Share with Circle<select id="proverbs-circle-target"></select></label><label class="field" for="proverbs-circle-body">What stood out?<textarea id="proverbs-circle-body" maxlength="3000" rows="3" placeholder="A verse, an insight, or something you are putting into practice…"></textarea></label><button class="primary" type="button" id="proverbs-circle-share">Share with Circle</button></div><p class="notice" id="proverbs-circle-notice" role="status"></p><div id="proverbs-circle-posts"></div></section><footer class="foot"><a href="/follow-daily/">All Follow Daily studies</a> · OBEY.TOOLS</footer>
+</main></div><div id="menu-backdrop" class="menu-backdrop" hidden></div><div id="plan-menu" class="menu-pop" role="menu" aria-label="Study options" hidden><button type="button" data-action="today" role="menuitem">Go to today</button><button type="button" data-action="circles" role="menuitem">Circles</button><button type="button" data-action="share" role="menuitem">Share this study</button><button type="button" data-action="about" role="menuitem">About this study</button><button type="button" data-action="reset" role="menuitem" class="danger">Reset this month’s progress</button></div><div id="info-dialog" class="info-dialog" hidden role="dialog" aria-modal="true" aria-labelledby="info-title"><div class="info-card"><h2 id="info-title">Proverbs for Today</h2><p>Read the chapter of Proverbs matching the day of the month. On the first, begin again with Proverbs 1. Read, obey, and share. Your SOS notes stay private unless you intentionally post something in a Circle.</p><button type="button" class="primary" id="close-info">Close</button></div></div>
 <script>
 (function(){
 'use strict';
 const $=id=>document.getElementById(id);
-const fields=['insight-text','say','obey','share'];
+const fields=['say','obey','share'];
 const key='obey-proverbs-v1:';
 const today=new Date();let selected=today.getDate();let activeDate=null;let loading=0;
 const pad=n=>String(n).padStart(2,'0');
@@ -62,13 +62,13 @@ item.append(b,small);item.addEventListener('click',()=>select(i));rail.append(it
 }
 const active=rail.children[selected-1];if(active){const left=active.offsetLeft+active.offsetWidth/2-rail.clientWidth/2;rail.scrollLeft=Math.max(0,left)}
 }
-function setDots(data){$('read-dot').textContent=data.read?'✓':'';$('read-dot').classList.toggle('filled',!!data.read);$('insight-dot').textContent=data.insightDone?'✓':'';$('insight-dot').classList.toggle('filled',!!data.insightDone);$('respond-dot').textContent=data.finished?'✓':'';$('respond-dot').classList.toggle('filled',!!data.finished);$('read-button').textContent=data.read?'Read again · Continue':'Done reading · Continue';$('finish-button').textContent=data.finished?'Finished · Save changes':'Finish today';$('finish-button').classList.toggle('finished',!!data.finished);$('saved').hidden=!data.finished}
+function setDots(data){$('read-dot').textContent=data.read?'✓':'';$('read-dot').classList.toggle('filled',!!data.read);$('respond-dot').textContent=data.finished?'✓':'';$('respond-dot').classList.toggle('filled',!!data.finished);$('read-button').textContent=data.read?'Read again · Continue':'Done reading · Continue';$('finish-button').textContent=data.finished?'Finished · Save changes':'Finish today';$('finish-button').classList.toggle('finished',!!data.finished);$('saved').hidden=!data.finished}
 function select(day){
 if(!validDay(day))return;save();selected=day;activeDate=storageKey(day);
 $('date-label').textContent=day===today.getDate()?'Today · '+dateTitle(day):dateTitle(day);
 $('chapter-title').textContent='Proverbs '+day;$('chapter-reference').textContent='Chapter '+day+' of 31';
 $('today-button').hidden=day===today.getDate();
-const data=record(day);fields.forEach(id=>$(id).value=data[id]||'');setDots(data);drawRail();loadChapter(day);
+const data=record(day);fields.forEach(id=>$(id).value=data[id]||'');setDots(data);drawRail();loadChapter(day);document.dispatchEvent(new CustomEvent('proverbs:chapter',{detail:{chapter:day}}));
 }
 async function loadChapter(day){
 const serial=++loading;const target=$('scripture');target.replaceChildren();const status=document.createElement('p');status.textContent='Loading Proverbs '+day+'…';target.append(status);$('read-button').disabled=true;
@@ -86,9 +86,24 @@ function goto(id){$(id).scrollIntoView({behavior:window.matchMedia('(prefers-red
 $('today-button').addEventListener('click',()=>select(today.getDate()));
 document.querySelectorAll('[data-step]').forEach(button=>button.addEventListener('click',()=>goto(button.dataset.step)));
 fields.forEach(id=>$(id).addEventListener('input',save));
-$('read-button').addEventListener('click',()=>{const data=record(selected);data.read=true;try{localStorage.setItem(storageKey(selected),JSON.stringify(data))}catch{}setDots(data);drawRail();goto('insight')});
-$('insight-button').addEventListener('click',()=>{save();const data=record(selected);data.insightDone=true;try{localStorage.setItem(storageKey(selected),JSON.stringify(data))}catch{}setDots(data);goto('respond')});
+$('read-button').addEventListener('click',()=>{const data=record(selected);data.read=true;try{localStorage.setItem(storageKey(selected),JSON.stringify(data))}catch{}setDots(data);drawRail();goto('respond')});
+
 $('finish-button').addEventListener('click',()=>{save();const data=record(selected);data.finished=true;try{localStorage.setItem(storageKey(selected),JSON.stringify(data))}catch{}setDots(data);drawRail();$('saved').hidden=false});
+window.proverbsBridge={chapter:()=>selected};
+$('menu').addEventListener('click',()=>{const open=$('plan-menu').hidden;$('plan-menu').hidden=!open;$('menu-backdrop').hidden=!open;$('menu').setAttribute('aria-expanded',String(open));if(open)$('plan-menu').querySelector('button')?.focus()});
+function closeMenu(){$('plan-menu').hidden=true;$('menu-backdrop').hidden=true;$('menu').setAttribute('aria-expanded','false')}
+$('menu-backdrop').addEventListener('click',closeMenu);
+document.addEventListener('keydown',event=>{if(event.key==='Escape'){closeMenu();$('info-dialog').hidden=true}});
+$('plan-menu').addEventListener('click',async event=>{
+ const action=event.target.closest('[data-action]')?.dataset.action;if(!action)return;closeMenu();
+ if(action==='today')select(today.getDate());
+ if(action==='circles')location.href='/follow-circles.html';
+ if(action==='about'){$('info-dialog').hidden=false;$('close-info').focus()}
+ if(action==='share'){const url='https://obey.tools/proverbs-daily.html';try{if(navigator.share)await navigator.share({title:'Proverbs for Today',url});else if(navigator.clipboard){await navigator.clipboard.writeText(url);alert('Study link copied.')}else prompt('Copy this study link:',url)}catch{}}
+ if(action==='reset'&&confirm('Reset this month’s Proverbs progress and private notes?')){for(let i=1;i<=31;i++)localStorage.removeItem(storageKey(i));select(selected)}
+});
+$('close-info').addEventListener('click',()=>{$('info-dialog').hidden=true;$('menu').focus()});
+$('info-dialog').addEventListener('click',event=>{if(event.target===$('info-dialog'))$('info-dialog').hidden=true});
 select(today.getDate());
 })();
-</script></body></html>
+</script><script type="module" src="/proverbs-circles.js"></script></body></html>
