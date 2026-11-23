@@ -66,14 +66,14 @@
 
 /* Compact embedded ESV player. All controls inside the iframe belong to Crossway. */
 .scripture-audio{display:flex;flex-wrap:wrap;align-items:center;gap:9px;border-bottom:1px solid var(--line);padding:4px 0 13px;margin:0 0 10px}
-.audio-main{display:inline-flex;gap:7px;align-items:center;min-height:43px;border:0;border-radius:999px;padding:9px 16px;font-weight:750;font-size:13px;background:var(--ink);color:#fff}
-.audio-main:hover{background:#000}.audio-main svg{flex:none}.audio-main[aria-pressed=true]{background:var(--green);color:#fff}
+.audio-main{display:inline-flex;gap:7px;align-items:center;min-height:43px;font-size:13px;border-radius:var(--ot-radius-pill)}
+.audio-main svg{flex:none}.audio-main[aria-pressed=true]{background:var(--ot-primary-press)}
 .audio-status{font-size:12px;line-height:1.45;color:var(--muted);margin:2px 0 0;flex:1 1 250px}
-.audio-passage{align-self:flex-start;border:1px solid var(--line);background:white;color:#00744a;border-radius:999px;padding:7px 13px;font-size:13px;font-weight:750;margin:12px 0 0}
-.audio-passage:hover,.audio-passage[aria-pressed=true]{background:var(--green-soft);border-color:#b3e1ca}
-.esv-player{flex:1 0 100%;padding:10px 0 3px}
+.audio-passage{align-self:flex-start;min-height:38px;padding:10px 14px;font-size:13px;margin:12px 0 0;border-radius:var(--ot-radius)}
+.audio-passage:hover,.audio-passage[aria-pressed=true]{background:var(--ot-secondary-press)}
+.esv-player{flex:1 0 100%;padding:10px 0 3px}.passage-group>.esv-player{width:100%;margin:12px 0 0;padding:11px 0;border-top:1px solid var(--line)}
 .esv-player-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px;font-size:13px}
-.esv-close{border:0;background:var(--soft);border-radius:999px;min-height:34px;padding:5px 13px;color:var(--ink);font-size:12px;font-weight:700}
+.esv-close{min-height:34px;padding:9px 13px;font-size:12px}
 #esv-audio-frame{display:block;width:100%;height:110px;max-width:100%;border:0;border-radius:12px;background:#f5f5f5}
 .esv-credit{font-size:11px;color:var(--muted);margin:7px 2px 0}
 @media(max-width:520px){.audio-status{flex-basis:100%}}
@@ -90,10 +90,10 @@
 </section>
 <nav class="study-tracker" aria-label="Reading steps"><button type="button" id="go-read">Read <span id="read-progress">0/4</span></button><button type="button" id="go-sos">SOS <span id="sos-progress"></span></button></nav><section class="reading" id="reading-panel" aria-labelledby="reading-section-title"><h2 id="reading-section-title">Read</h2><p class="sub">Four readings from the original Navigators plan.</p>
 <div class="scripture-audio" role="group" aria-label="Listen to today's Bible readings in the ESV">
- <button type="button" id="audio-all" class="audio-main" aria-controls="esv-audio-frame" aria-pressed="false"><svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true" fill="currentColor"><path d="m8 5 11 7-11 7z"/></svg><span>Listen to all four</span></button>
- <p id="audio-status" class="audio-status" aria-live="polite">Audio: ESV, narrated by a real person. Scripture text below: WEB. Select a passage or all four to load the player.</p>
+ <button type="button" id="audio-all" class="ot-btn ot-btn--primary audio-main" aria-controls="esv-audio-frame" aria-pressed="false"><svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true" fill="currentColor"><path d="m8 5 11 7-11 7z"/></svg><span>Listen to all four</span></button>
+ <p id="audio-status" class="audio-status" aria-live="polite">ESV audio · WEB Scripture text</p>
  <div class="esv-player" id="esv-player" hidden>
-  <div class="esv-player-top"><strong id="esv-player-title">ESV audio</strong><button type="button" id="audio-close" class="esv-close" aria-label="Close audio player">Close</button></div>
+  <div class="esv-player-top"><strong id="esv-player-title">ESV audio</strong><button type="button" id="audio-close" class="ot-btn ot-btn--secondary esv-close" aria-label="Close audio player">Close</button></div>
   <iframe id="esv-audio-frame" title="Crossway ESV Bible audio player" loading="lazy" allow="autoplay" referrerpolicy="strict-origin-when-cross-origin"></iframe>
   <p class="esv-credit">Audio provided by <a href="https://www.esv.org/resources/audio-player/" target="_blank" rel="noopener noreferrer">Crossway's ESV Audio Player</a>.</p>
  </div>
@@ -221,7 +221,7 @@ function render(){
   const check=document.createElement('input');check.type='checkbox';check.checked=!!e.marks[i];check.setAttribute('aria-label','Completed '+ref);
   const markText=document.createElement('span');markText.textContent='Read';
   mark.append(check,markText);header.append(heading,track,mark);
-  const listen=document.createElement('button');listen.type='button';listen.className='audio-passage';listen.dataset.audioIndex=String(i);listen.setAttribute('aria-label','Listen to '+ref);listen.textContent='Listen';
+  const listen=document.createElement('button');listen.type='button';listen.className='ot-btn ot-btn--secondary audio-passage';listen.dataset.audioIndex=String(i);listen.setAttribute('aria-label','Listen to '+ref+' in ESV');listen.textContent='Listen';
   const scripture=document.createElement('div');scripture.className='passage-text';scripture.setAttribute('aria-label',ref+' Scripture');
   const source=document.createElement('p');source.className='passage-attribution';source.textContent='World English Bible (WEB), public domain';
   section.append(header,listen,scripture,source);list.append(section);

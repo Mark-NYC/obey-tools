@@ -14,6 +14,7 @@
   const close=$('audio-close'),status=$('audio-status');
   if(!passages||!all||!panel||!iframe||!close||!status)return;
 
+  const home=panel.parentElement;
   let activeKey='';
   function normalize(reference){
     // ESV uses Psalm (singular) and Song of Solomon as the book titles.
@@ -38,13 +39,14 @@
       const index=Number(button.dataset.audioIndex);
       const selected=activeKey==='single-'+index;
       button.setAttribute('aria-pressed',String(selected));
-      button.textContent=selected?'ESV audio open':'Listen (ESV)';
+      button.textContent=selected?'Close audio':'Listen';
     }
   }
   function clearAudio(message){
     // Removing src stops any audio currently playing inside the embedded frame.
     iframe.removeAttribute('src');
     panel.hidden=true;
+    if(panel.parentElement!==home)home.append(panel);
     activeKey='';
     buttons();
     if(message)status.textContent=message;
@@ -61,11 +63,19 @@
       return;
     }
     activeKey=key;
-    // Replacing src unloads any prior selection instead of overlapping audio.
+    // Keep one official player. Place it inside the passage that was tapped.
+    // 'Listen to all four' returns it to the normal reading header.
+    const group=key.startsWith('single-')?passages.querySelectorAll('.passage-group')[Number(key.slice(7))]:null;
+    if(group){
+      const scripture=group.querySelector('.passage-text');
+      if(scripture)group.insertBefore(panel,scripture);
+      else group.append(panel);
+    }else if(panel.parentElement!==home){home.append(panel)}
+    // Set src only after placing the iframe, to avoid redundant reloads.
     iframe.src=url;
     panel.hidden=false;
     title.textContent=label+' · ESV audio';
-    status.textContent='ESV audio (Crossway) · WEB text below. Tap play inside the embedded player.';
+    status.textContent='ESV audio · WEB Scripture text';
     buttons();
     panel.scrollIntoView({block:'nearest',behavior:'smooth'});
   }
@@ -83,7 +93,7 @@
   });
   close.addEventListener('click',()=>clearAudio('ESV audio closed.'));
   window.addEventListener('navigators:day-changed',()=>clearAudio('Ready to listen to today’s ESV readings.'));
-  window.addEventListener('navigators:rendered',()=>clearAudio('Choose a reading to listen to ESV narration.'));
+  window.addEventListener('navigators:rendered',()=>clearAudio('ESV audio · WEB Scripture text'));
   window.addEventListener('pagehide',()=>clearAudio());
   buttons();
 })();
