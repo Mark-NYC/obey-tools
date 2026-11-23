@@ -29,6 +29,45 @@ if(!state.items||typeof state.items!=='object')state.items={};
 let month=Number.isInteger(state.month)&&state.month>=1&&state.month<=12?state.month:1;
 let day=Number.isInteger(state.day)&&state.day>=1&&state.day<=25?state.day:1;
 const tracks=['Gospel','Acts & Epistles','Wisdom','Old Testament'];
+
+const raw=window.NAVIGATORS_READING_RAW;
+if(!Array.isArray(raw)||raw.length!==12)throw new Error('The Navigators schedule is incomplete.');
+const readingSchedule=raw.map((block,m)=>{
+ const lines=block.trim().split('\n'),headers=lines.shift().split('|');
+ if(headers.length!==4||lines.length!==25)throw new Error('Invalid Navigators schedule for month '+(m+1));
+ return lines.map((line,d)=>{
+  const cells=line.split('|');
+  if(cells.length!==4||cells.some(v=>!v.trim()))throw new Error('Invalid Navigators reading '+(m+1)+'/'+(d+1));
+  return cells.map((value,i)=>{
+   const ref=value.trim();
+   return /^\d+\s+[A-Za-z]/.test(ref)||/^[A-Za-z]/.test(ref)?ref:headers[i]+' '+ref;
+  });
+ });
+});
+function reading(m,d){return readingSchedule[m-1][d-1]}
+function chapterMarkup(target,verses){
+ target.replaceChildren();let paragraph;
+ verses.forEach((verse,index)=>{
+  if(index%6===0){paragraph=document.createElement('p');target.append(paragraph)}
+  const num=document.createElement('sup');num.textContent=verse.verse;
+  const span=document.createElement('span');span.append(num,document.createTextNode((verse.text||'').trim()+' '));paragraph.append(span)
+ });
+}
+async function openPassage(button,panel,reference){
+ const open=panel.hidden;panel.hidden=!open;button.textContent=open?'Hide Scripture':'Read Scripture';
+ button.setAttribute('aria-expanded',String(open));if(!open||panel.dataset.loaded==='true')return;
+ panel.textContent='Loading '+reference+'…';
+ try{
+  const response=await fetch('https://bible-api.com/'+encodeURIComponent(reference)+'?translation=web');
+  if(!response.ok)throw new Error('HTTP '+response.status);
+  const result=await response.json();if(!Array.isArray(result.verses)||!result.verses.length)throw new Error('No verses returned');
+  chapterMarkup(panel,result.verses);panel.dataset.loaded='true';
+ }catch{
+  panel.replaceChildren();const fallback=document.createElement('p');fallback.className='fallback';fallback.textContent='Scripture could not load here. ';
+  const link=document.createElement('a');link.href='https://www.biblegateway.com/passage/?search='+encodeURIComponent(reference)+'&version=WEB';link.target='_blank';link.rel='noopener noreferrer';link.textContent='Read '+reference+' in your Bible';fallback.append(link);panel.append(fallback);
+ }
+}
+
 const id=(m,d)=>m+'-'+d;
 function entry(m=month,d=day){const k=id(m,d);return state.items[k]||(state.items[k]={marks:[false,false,false,false],say:'',obey:'',share:''})}
 function save(){state.month=month;state.day=day;try{localStorage.setItem(KEY,JSON.stringify(state))}catch{$('save-status').textContent='Storage is unavailable. Your answers may not persist.'}}
