@@ -27,7 +27,7 @@ function accountUI(){
  const email=document.createElement('input');email.type='email';email.required=true;email.placeholder='Email';email.autocomplete='email';email.setAttribute('aria-label','Account email');
  const password=document.createElement('input');password.type='password';password.required=true;password.placeholder='Password';password.autocomplete='current-password';password.setAttribute('aria-label','Account password');
  const button=document.createElement('button');button.type='submit';button.textContent='Sign in to sync';
- const hint=document.createElement('p');hint.textContent='Use an existing OBEY.TOOLS account. You can read without signing in.';
+ const hint=document.createElement('p');hint.textContent='Use your OBEY.TOOLS account. You can read without signing in.';const create=document.createElement('a');create.href='/';create.textContent='Create an account';hint.append(document.createTextNode(' · '),create);
  form.append(email,password,button,hint);container.append(form);
  form.addEventListener('submit',async event=>{event.preventDefault();button.disabled=true;status('Signing in…');try{const {error}=await supabase.auth.signInWithPassword({email:email.value.trim(),password:password.value});if(error)throw error;password.value=''}catch(error){status('Sign in failed. Check your email and password.')}finally{button.disabled=false}});
 }
@@ -43,7 +43,7 @@ function mergeByRevision(remote){
   const [m,d]=key.split('-').map(Number),reading_day=(m-1)*25+d;
   if(!Number.isInteger(reading_day)||reading_day<1||reading_day>300)continue;
   const row=(remote||[]).find(x=>x.reading_day===reading_day);
-  if(!row||Number(payload?.updatedAt)||0>Number(row.revision_ms)||0)changes.push({user_id:account.id,reading_day,payload,revision_ms:Number(payload?.updatedAt)||Date.now()});
+  if(!row||(Number(payload?.updatedAt)||0)>(Number(row.revision_ms)||0))changes.push({user_id:account.id,reading_day,payload,revision_ms:Number(payload?.updatedAt)||Date.now()});
  }
  bridge.apply(next);localStorage.setItem(stateKey,JSON.stringify(next));bucket();
  return changes;
