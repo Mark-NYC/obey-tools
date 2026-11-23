@@ -7,6 +7,11 @@ const bridge=()=>window.sosCircleBridge;
 const PAGE=20;
 let user=null,circles=[],expanded=false,filter='',offset=0,requestId=0,loading=false;
 let initialScheduleApplied=false;
+// Which reading is on screen. null: your daily reading (primary Circle or own
+// pace). A Circle id or 'own': viewing that instead, without changing the daily
+// reading. Carried in the URL (?circle= or ?pace=own) so links and reloads keep it.
+const startParams=new URLSearchParams(location.search);
+let viewing=startParams.get('circle')||(startParams.get('pace')==='own'?'own':null);
 const element=(tag,text,cls)=>{
  const el=document.createElement(tag);
  if(text!==undefined)el.textContent=text;
@@ -48,7 +53,7 @@ function markSeen(ids){
  try{localStorage.setItem(SEEN_KEY,JSON.stringify([...seen].slice(-600)))}catch{}
 }
 const firstVisit=!localStorage.getItem(SEEN_KEY);
-const myName=()=>circles.find(c=>c.is_primary)?.display_name||user?.user_metadata?.full_name||user?.email||'';
+const myName=()=>primaryCircle()?.display_name||user?.user_metadata?.full_name||user?.email||'';
 const circleLabel=id=>circles.find(c=>c.circle_id===id)?.circle_name||'Circle';
 const allowedIds=()=>circles.map(c=>c.circle_id);
 // Sharing is always available, but becomes the natural next step once the
@@ -58,21 +63,73 @@ function updateShareEmphasis(){
  b.classList.toggle('following-featured',done);
  $('following-share-label').textContent=done?'Today is complete. Share what stood out with your Circle?':'Share a reflection on this passage';
 }
+const primaryCircle=()=>circles.find(c=>c.is_primary)||null;
+const viewingOwn=()=>viewing==='own'||(!viewing&&!primaryCircle());
+const viewedCircle=()=>viewingOwn()?null:(viewing?circles.find(c=>c.circle_id===viewing):primaryCircle())||null;
+const isDailyView=()=>!viewing||(viewing==='own'&&!primaryCircle())||viewing===primaryCircle()?.circle_id;
+const hasDayParam=()=>new URLSearchParams(location.search).has('day');
+const dayText=c=>c.finished?'Finished Day 365':'Day '+c.day_no;
+// Show the chosen reading: that Circle's calendar decides "today", or your own pace.
+function applyView(jump){
+ const c=viewedCircle();
+ bridge()?.setSchedule?.(c);
+ if(!jump||hasDayParam())return;
+ const target=c?Number(c.day_no):(viewing==='own'?bridge()?.soloDay?.():null);
+ if(Number.isInteger(target)&&target>=1&&target<=365&&bridge()?.day?.()!==target)bridge()?.goToDay?.(target);
+}
+function setView(next,{jump=true}={}){
+ viewing=next;
+ if(isDailyView())viewing=null;
+ const url=new URL(location.href);
+ url.searchParams.delete('circle');url.searchParams.delete('pace');if(jump)url.searchParams.delete('day');
+ if(viewing==='own')url.searchParams.set('pace','own');else if(viewing)url.searchParams.set('circle',viewing);
+ history.replaceState(null,'',url.pathname+url.search+url.hash);
+ applyView(jump);setContext();updateTargetOptions();
+}
+function closeSwitcher(focus){
+ const menu=$('reading-switch-menu');if(!menu||menu.hidden)return;
+ menu.hidden=true;$('reading-switch-btn').setAttribute('aria-expanded','false');
+ if(focus)$('reading-switch-btn').focus();
+}
+function switchItem(name,meta,tag,checked,onPick){
+ const b=element('button',undefined,'rs-item');b.type='button';b.setAttribute('role','menuitemradio');b.setAttribute('aria-checked',String(checked));
+ const main=element('span',undefined,'rs-main');main.append(element('span',name,'rs-name'),element('span',meta,'rs-meta'));
+ b.append(main);if(tag)b.append(element('span',tag,'rs-tag'));
+ b.addEventListener('click',()=>{closeSwitcher(true);onPick()});
+ return b;
+}
+function renderSwitcher(){
+ const box=$('reading-switch');if(!box)return;
+ box.hidden=!user||!circles.length;
+ const ctx=$('reading-context');
+ if(box.hidden){ctx.hidden=true;return}
+ const c=viewedCircle(),primary=primaryCircle();
+ $('reading-switch-label').textContent=c?'Reading with':'Reading at';
+ $('reading-switch-name').textContent=c?c.circle_name:'your own pace';
+ const menu=$('reading-switch-menu');menu.replaceChildren();
+ for(const circle of circles)menu.append(switchItem(circle.circle_name,dayText(circle),circle.is_primary?'Your daily reading':'',c?.circle_id===circle.circle_id,()=>setView(circle.circle_id)));
+ menu.append(element('div',undefined,'rs-sep'));
+ menu.append(switchItem('My own pace','Day '+(bridge()?.soloDay?.()||1),primary?'':'Your daily reading',!c,()=>setView('own')));
+ menu.append(element('span','Viewing another reading doesn’t change your daily reading.','rs-foot'));
+ // Viewing something other than the daily reading: say so, offer the way back.
+ ctx.hidden=isDailyView();
+ if(!ctx.hidden){
+  const daily=primary?primary.circle_name:'your own pace';
+  $('reading-context-text').textContent=c
+   ?'You’re viewing '+c.circle_name+(/s$/i.test(c.circle_name)?'’':'’s')+' reading. Your daily reading is '+daily+'.'
+   :'You’re viewing your own pace. Your daily reading is '+daily+'.';
+  $('reading-make-primary').textContent=c?'Make '+c.circle_name+' my daily reading':'Make my own pace my daily reading';
+ }
+}
 function setContext(){
- const primary=circles.find(c=>c.is_primary);
+ const primary=viewedCircle();
  const names=circles.map(c=>c.circle_name);
  $('following-context').textContent=names.length
   ?'Reflections on this passage from '+(names.length<=2?names.join(' and '):names.slice(0,2).join(', ')+' and '+(names.length-2)+' more')
   :'';
  $('following-context').hidden=!names.length;
- // Top of the page answers "which day am I reading, and with whom?"
- const top=$('reading-context');
- if(top){
-  top.hidden=!user||!circles.length;
-  top.textContent=primary
-   ?(primary.finished?primary.circle_name+' finished the 365-day reading':'Reading with '+primary.circle_name+' · their Day '+primary.day_no)
-   :'Reading at your own pace';
- }
+ // Top of the page answers "which reading is this, and with whom?"
+ renderSwitcher();
  $('following-manage').hidden=!user;
  const me=root.querySelector('.following-avatar-me');if(me)me.textContent=(String(myName()).trim()[0]||'').toUpperCase();
  $('following-finished-actions').hidden=!primary?.finished;
@@ -294,6 +351,7 @@ function updateTargetOptions(){
  for(const c of circles){
   const label=element('label',undefined,'following-target');
   const checkbox=element('input');checkbox.type='checkbox';checkbox.value=c.circle_id;
+  checkbox.checked=!!viewing&&viewing===c.circle_id; // sharing while viewing a Circle starts with that Circle
   label.append(checkbox,element('span',c.circle_name));
   root.append(label);
  }
@@ -302,13 +360,12 @@ function updateTargetOptions(){
  for(const c of circles){const opt=element('option',c.circle_name);opt.value=c.circle_id;select.append(opt)}
  filter='';select.value='';
 }
+let circlesLoaded=false;
 function applyPrimarySchedule(){
- const primary=circles.find(c=>c.is_primary);
- if(!primary||new URLSearchParams(location.search).has('day'))return;
- const current=Number(primary.day_no);
- if(Number.isInteger(current)&&current>=1&&current<=365&&bridge()?.day?.()!==current){
-  bridge().goToDay(current);
- }
+ // Sync can finish before your Circles load; wait for them so the jump isn't lost.
+ if(!circlesLoaded)return;
+ if(!viewing&&!primaryCircle()){bridge()?.setSchedule?.(null);return}
+ applyView(true);
  initialScheduleApplied=true;
 }
 async function reloadAccount(){
@@ -320,9 +377,10 @@ async function reloadAccount(){
   if(user){
    const {data,error}=await supabase.rpc('follow_circle_schedule');
    if(error)throw error;
-   circles=data||[];
-   bridge()?.setSchedule?.(circles.find(c=>c.is_primary)||null);
-   if(!initialScheduleApplied)applyPrimarySchedule();
+   circles=data||[];circlesLoaded=true;
+   if(viewing&&viewing!=='own'&&!circles.some(c=>c.circle_id===viewing))viewing=null; // not one of your reading Circles
+   if(isDailyView())viewing=null;
+   if(!initialScheduleApplied)applyPrimarySchedule();else applyView(false);
   }
   setContext();updateTargetOptions();updateFriends();await fetchPosts(true);
  }catch(e){
@@ -336,7 +394,7 @@ if(root){
   try{
    const {error}=await supabase.rpc('follow_circle_set_independent');
    if(error)throw error;
-   initialScheduleApplied=true;
+   initialScheduleApplied=true;viewing=null;
    await reloadAccount();
    const target=bridge()?.soloDay?.();
    if(target)bridge()?.goToDay?.(target);
@@ -383,10 +441,31 @@ if(root){
  window.addEventListener('sos:sync-applied',()=>{
   // Sync may restore a personal cursor; the shared primary schedule wins only
   // when loading the daily view, never when someone manually explores history.
-  if(!new URLSearchParams(location.search).has('day')){
-   applyPrimarySchedule();
-  }
+  if(!hasDayParam())applyPrimarySchedule();
   updateShareEmphasis();
+ });
+ $('reading-switch-btn').addEventListener('click',()=>{
+  const menu=$('reading-switch-menu'),open=menu.hidden;
+  if(!open)return closeSwitcher(false);
+  renderSwitcher();menu.hidden=false;$('reading-switch-btn').setAttribute('aria-expanded','true');
+  (menu.querySelector('[aria-checked=true]')||menu.querySelector('.rs-item'))?.focus();
+ });
+ $('reading-switch-menu').addEventListener('keydown',e=>{
+  const items=[...$('reading-switch-menu').querySelectorAll('.rs-item')],i=items.indexOf(document.activeElement);
+  if(e.key==='Escape'){e.preventDefault();closeSwitcher(true)}
+  else if(e.key==='ArrowDown'){e.preventDefault();items[(i+1)%items.length]?.focus()}
+  else if(e.key==='ArrowUp'){e.preventDefault();items[(i-1+items.length)%items.length]?.focus()}
+ });
+ document.addEventListener('click',e=>{if(!$('reading-switch').contains(e.target))closeSwitcher(false)});
+ $('reading-back').addEventListener('click',()=>{setView(null);$('reading-switch-btn').focus()});
+ $('reading-make-primary').addEventListener('click',async()=>{
+  const b=$('reading-make-primary'),c=viewedCircle();b.disabled=true;
+  try{
+   const {error}=c?await supabase.rpc('follow_circle_set_primary',{p_circle:c.circle_id}):await supabase.rpc('follow_circle_set_independent');
+   if(error)throw error;
+   viewing=null;await reloadAccount();setView(null,{jump:false});
+   message(c?c.circle_name+' is now your daily reading. Follow Daily opens on its day.':'Your daily reading now follows your own pace. You’re still in your Circles.');
+  }catch(err){message(err.message,true)}finally{b.disabled=false}
  });
  supabase.auth.onAuthStateChange(()=>queueMicrotask(reloadAccount));
  reloadAccount();

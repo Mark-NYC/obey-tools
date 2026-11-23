@@ -1,7 +1,7 @@
 import {supabase} from './supabase.js';
 const $=id=>document.getElementById(id);
 const params=new URLSearchParams(location.search);
-let user=null,memberships=[],selected=null,activeTab='feed',offset=0,memberOffset=0,cbReady=false,churchNames=new Map();
+let user=null,memberships=[],selected=null,activeTab='feed',offset=0,memberOffset=0,cbReady=false,actReady=false,churchNames=new Map();
 const PAGE=20,mentions=new Map();
 let searchTimer=null;
 const val=id=>$(id).value.trim();
@@ -30,32 +30,66 @@ async function loadAuth(){
 async function detectConversations(){
  const r=await supabase.from('follow_circle_members').select('share_conversations').eq('user_id',user.id).limit(1);
  cbReady=!r.error;
+ // Circle activities (FOLLOW DAILY / Conversations) need the 20261124 migration.
+ const a=await supabase.from('follow_circles').select('uses_reading').limit(1);
+ actReady=cbReady&&!a.error;
  document.querySelectorAll('[data-tab="conversations"]').forEach(b=>b.hidden=!cbReady);
+}
+// What a Circle does together. Before the activities migration every Circle does both.
+const usesReading=m=>m?.circle?.uses_reading!==false;
+const usesConversations=m=>cbReady&&m?.circle?.uses_conversations!==false;
+const CHEV='<svg class="ico chev" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>';
+function purposeText(m){
+ const parts=[];
+ if(usesReading(m))parts.push('FOLLOW DAILY · '+(m.schedule?.finished?'Finished Day 365':'Day '+(m.schedule?.day_no||1)));
+ if(usesConversations(m))parts.push('Conversations');
+ return parts.join('  ·  ');
 }
 async function loadCircles(){
  const memberCols='circle_id,user_id,display_name,role,progress_visible,email_replies,email_mentions,email_digest'+(cbReady?',share_conversations':'');
  const {data,error}=await supabase.from('follow_circle_members').select(memberCols).eq('user_id',user.id);
  if(error)throw error;
  const ids=(data||[]).map(x=>x.circle_id);let circles=[];
- if(ids.length){const r=await supabase.from('follow_circles').select('id,name,owner_id,created_at'+(cbReady?',church_id':'')).in('id',ids);if(r.error)throw r.error;circles=r.data||[]}
+ if(ids.length){const r=await supabase.from('follow_circles').select('id,name,owner_id,created_at'+(cbReady?',church_id':'')+(actReady?',uses_reading,uses_conversations':'')).in('id',ids);if(r.error)throw r.error;circles=r.data||[]}
  churchNames=new Map();
  const churchIds=[...new Set(circles.map(c=>c.church_id).filter(Boolean))];
  if(churchIds.length){const r=await supabase.from('follow_churches').select('id,name').in('id',churchIds);if(!r.error)churchNames=new Map((r.data||[]).map(c=>[c.id,c.name]))}
  const schedules=await invoke('follow_circle_schedule',{});
  const byId=new Map((schedules||[]).map(x=>[x.circle_id,x]));
  memberships=(data||[]).map(m=>({...m,circle:circles.find(c=>c.id===m.circle_id),schedule:byId.get(m.circle_id)})).filter(m=>m.circle);
+ // Your daily-reading Circle first, then the rest in the order you joined.
+ memberships.sort((a,b)=>(b.schedule?.is_primary?1:0)-(a.schedule?.is_primary?1:0));
  renderCircleList();
+}
+// "My daily reading": one line answering whose reading Follow Daily opens on.
+function renderDailyReading(){
+ const box=$('daily-reading'),readers=memberships.filter(usesReading);
+ box.hidden=!readers.length;if(box.hidden)return;
+ const primary=readers.find(m=>m.schedule?.is_primary);
+ $('daily-reading-name').textContent=primary?primary.circle.name:'Your own pace';
+ $('daily-reading-meta').textContent=primary
+  ?(primary.schedule?.finished?'Finished Day 365':'Day '+primary.schedule.day_no+' today')
+  :'Change it from the reading page';
+ box.href='/daily-sos.html';
 }
 function renderCircleList(){
  const root=$('circle-list');root.replaceChildren();
  $('empty-circles').hidden=memberships.length>0;
+ renderDailyReading();
  for(const m of memberships){
   const card=el('button',undefined,'circle-card');card.type='button';
   const text=el('span',undefined,'circle-text');
-  text.append(el('strong',m.circle.name),el('small','Day '+(m.schedule?.day_no||1)+(m.schedule?.finished?' · Finished':'')+(m.role==='steward'?' · Steward':'')));
+  const head=el('span',undefined,'circle-head');head.append(el('strong',m.circle.name));
+  if(m.role==='steward')head.append(el('span','Steward','role-tag'));
+  text.append(head,el('small',purposeText(m)));
+  const extras=el('span',undefined,'circle-extras');
+  if(m.schedule?.is_primary)extras.append(el('span','Your daily reading','badge'));
+  const church=churchNames.get(m.circle.church_id);
+  if(church)extras.append(el('span',church,'church-tag'));
+  if(extras.childElementCount)text.append(extras);
   card.append(avatar(m.circle.name,'avatar circle-mark'),text);
-  if(m.schedule?.is_primary)text.append(el('span','Your daily reading','badge'));
-  card.insertAdjacentHTML('beforeend','<svg class="ico chev" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>');
+  card.insertAdjacentHTML('beforeend',CHEV);
+  card.setAttribute('aria-label',[m.circle.name,purposeText(m),m.schedule?.is_primary?'your daily reading':'',church?'connected to '+church:'',m.role==='steward'?'you are the steward':''].filter(Boolean).join(', '));
   card.addEventListener('click',()=>showCircle(m.circle_id));root.append(card)
  }
 }
@@ -91,9 +125,23 @@ function showInvitation(token){
 async function showCircle(id,tab){
  const m=memberships.find(x=>x.circle_id===id);if(!m)return status('Not a member of that Circle',true);
  selected=m;mentions.clear();renderMentions();$('overview').hidden=true;$('invite-preview').hidden=true;$('circle-view').hidden=false;
- $('circle-name').textContent=m.circle.name;$('circle-subtitle').textContent='Reading Day '+(m.schedule?.day_no||1)+' of 365 together'+(m.schedule?.finished?' · Finished':'')+' · New day at midnight, '+String(m.schedule?.time_zone||'UTC').replaceAll('_',' ');
+ const reading=usesReading(m),conv=usesConversations(m);
+ $('circle-name').textContent=m.circle.name;
+ $('circle-subtitle').textContent=reading
+  ?(m.schedule?.finished?'Finished the 365-day reading together. Earlier readings stay open.':'Reading Day '+(m.schedule?.day_no||1)+' of 365 together · New day at midnight, '+String(m.schedule?.time_zone||'UTC').replaceAll('_',' '))
+  :'Helping each other reach friends with the Conversation Box';
+ // Purpose and church, small and quiet: the Circle's identity, not a dashboard.
+ const tags=$('circle-tags');tags.replaceChildren();
+ if(reading)tags.append(el('span','FOLLOW DAILY','purpose-tag'));
+ if(conv)tags.append(el('span','Conversations','purpose-tag'));
+ const church=churchNames.get(m.circle.church_id);if(church)tags.append(el('span',church,'church-tag'));
+ // Move between Circles without going back to the list.
+ const sw=$('circle-switch');sw.replaceChildren(el('option','Switch Circle'));sw.firstChild.value='';
+ for(const x of memberships)if(x.circle_id!==id){const o=el('option',x.circle.name);o.value=x.circle_id;sw.append(o)}
+ sw.value='';$('circle-switch-wrap').hidden=memberships.length<2;
+ $('reading-choice').hidden=!reading;$('circle-today-link').hidden=!reading;$('circle-box-link').hidden=reading||!conv;
  $('composer').open=false;document.querySelectorAll('.avatar.me').forEach(a=>a.textContent=(String(m.display_name||'').trim()[0]||'').toUpperCase());
- $('circle-today-link').href='/daily-sos.html?day='+(m.schedule?.day_no||1);
+ $('circle-today-link').href=m.schedule?.is_primary?'/daily-sos.html':'/daily-sos.html?circle='+encodeURIComponent(id);
  const primary=memberships.find(x=>x.schedule?.is_primary);
  $('primary-context').textContent=m.schedule?.is_primary?'Your daily reading follows this Circle. Follow Daily opens on its current day.':primary?'Your daily reading follows '+primary.circle.name+'. You can still talk with this Circle about any passage.':'You’re reading at your own pace. You can still talk with this Circle about any passage.';
  $('primary-context').parentElement.classList.toggle('is-primary',!!m.schedule?.is_primary);
@@ -103,7 +151,8 @@ async function showCircle(id,tab){
  $('share-conversations').checked=!!m.share_conversations;$('share-conversations').closest('label').hidden=!cbReady;
  $('email-replies').checked=m.email_replies;$('email-mentions').checked=m.email_mentions;$('email-digest').checked=m.email_digest;
  history.replaceState(null,'','/follow-circles.html?circle='+encodeURIComponent(id));
- renderTargets();await setTab(cbReady&&tab==='conversations'?'conversations':'feed');
+ $('tabs-conversations').hidden=!conv;
+ renderTargets();await setTab(conv&&(tab==='conversations'||!reading)?'conversations':'feed');
 }
 async function setTab(tab){
  activeTab=tab;
@@ -113,7 +162,7 @@ async function setTab(tab){
  if(tab==='feed')await loadFeed(true);
  if(tab==='conversations')await loadConversations();
  if(tab==='members'){await loadMembers(true);if(selected.role==='steward')await loadReports();}
- if(tab==='about'){renderAbout();renderChurchSetting();$('steward-controls').hidden=selected.role!=='steward';if(selected.role==='steward')await renderTransferMembers();}
+ if(tab==='about'){renderAbout();renderChurchSetting();renderActivities();$('steward-controls').hidden=selected.role!=='steward';if(selected.role==='steward')await renderTransferMembers();}
 }
 function renderMentions(){
  const root=$('mention-selected');root.replaceChildren();
@@ -453,12 +502,40 @@ $('new-circle').addEventListener('click',()=>{
  const current=memberships.find(x=>x.schedule?.is_primary)?.schedule?.day_no||personalReadingDay();
  $('create-start-current').value=String(current);
  $('create-start-current').textContent='My current day (Day '+current+')';
- $('create-dialog').hidden=false;
+ $('create-activities').hidden=!actReady;$('create-reading').checked=true;$('create-conversations').checked=cbReady;
+ $('create-conversations').closest('label').hidden=!cbReady;syncCreateFields();
+ $('create-dialog').hidden=false;$('create-name').focus();
 });
 $('cancel-create').addEventListener('click',()=>{$('create-dialog').hidden=true});
+function renderActivities(){
+ const box=$('activities-setting');box.hidden=!actReady;if(!actReady)return;
+ const steward=selected.role==='steward';
+ $('act-reading').checked=usesReading(selected);$('act-conversations').checked=usesConversations(selected);
+ for(const id of ['act-reading','act-conversations'])$(id).disabled=!steward;
+ $('activities-save').hidden=!steward;
+ $('activities-hint').textContent=steward?'Turning something off hides it. Nothing already shared is deleted.':'Only the steward can change what this Circle does.';
+}
+$('activities-form').addEventListener('submit',async e=>{
+ e.preventDefault();
+ const reading=$('act-reading').checked,conv=$('act-conversations').checked;
+ if(!reading&&!conv)return status('Choose at least one thing to do together.',true);
+ if(usesReading(selected)&&!reading&&!confirm('Turn off FOLLOW DAILY for this Circle? Anyone reading with it moves to their next reading Circle or their own pace. Earlier reflections stay.'))return;
+ const b=$('activities-save');b.disabled=true;
+ try{
+  await invoke('follow_circle_set_activities',{p_circle:selected.circle_id,p_reading:reading,p_conversations:conv});
+  const id=selected.circle_id;await loadCircles();await showCircle(id);await setTab('about');status('Saved. This Circle now does '+(reading&&conv?'FOLLOW DAILY and Conversations':reading?'FOLLOW DAILY':'Conversations')+'.');
+ }catch(err){status(err.message,true)}finally{b.disabled=false}
+});
+function syncCreateFields(){$('create-reading-fields').hidden=!$('create-reading').checked}
+$('create-reading').addEventListener('change',syncCreateFields);
+$('circle-switch').addEventListener('change',()=>{const id=$('circle-switch').value;if(id)showCircle(id,activeTab==='conversations'?'conversations':undefined)});
 $('create-form').addEventListener('submit',async e=>{
  e.preventDefault();const b=e.submitter;b.disabled=true;
- try{const result=await invoke('follow_circle_create_scheduled',{p_name:val('create-name'),p_display_name:val('create-display'),p_start_day:Number(val('create-start')),p_time_zone:val('create-timezone')});$('create-dialog').hidden=true;await loadCircles();await showCircle(result.circle_id);showInvitation(result.token)}
+ const reading=$('create-reading').checked,conv=$('create-conversations').checked;
+ if(actReady&&!reading&&!conv){b.disabled=false;return status('Choose at least one thing to do together.',true)}
+ try{const result=actReady
+  ?await invoke('follow_circle_create_with',{p_name:val('create-name'),p_display_name:val('create-display'),p_reading:reading,p_conversations:conv,p_start_day:Number(val('create-start')),p_time_zone:val('create-timezone')})
+  :await invoke('follow_circle_create_scheduled',{p_name:val('create-name'),p_display_name:val('create-display'),p_start_day:Number(val('create-start')),p_time_zone:val('create-timezone')});$('create-dialog').hidden=true;await loadCircles();await showCircle(result.circle_id);showInvitation(result.token)}
  catch(err){status(err.message,true)}finally{b.disabled=false}
 });
 $('join-form').addEventListener('submit',async e=>{

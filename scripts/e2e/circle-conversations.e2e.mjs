@@ -28,7 +28,7 @@ const sql = async (s) => { const r = await psql(s); if (r.error) throw new Error
 
 for (const f of ['scripts/circles-test-bootstrap.sql', 'supabase/migrations/20261122120000_follow_multiplying_circles.sql',
   'supabase/migrations/20261122190000_follow_circle_shared_schedules.sql', 'supabase/migrations/20261123090000_follow_circle_conversations.sql',
-  'scripts/e2e/fixtures.sql']) await sql(fs.readFileSync(path.join(ROOT, f), 'utf8'));
+  'supabase/migrations/20261124090000_follow_circle_activities.sql', 'scripts/e2e/fixtures.sql']) await sql(fs.readFileSync(path.join(ROOT, f), 'utf8'));
 
 const log = [];
 const server = await serve(ROOT, PORT, log);

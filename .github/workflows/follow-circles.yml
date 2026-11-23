@@ -13,6 +13,7 @@ on:
       - 'church.*'
       - 'conversation-box.html'
       - 'scripts/test-circle-conversations.mjs'
+      - 'scripts/test-circles-unified.mjs'
       - 'scripts/e2e/**'
   push:
     paths:
@@ -26,6 +27,7 @@ on:
       - 'church.*'
       - 'conversation-box.html'
       - 'scripts/test-circle-conversations.mjs'
+      - 'scripts/test-circles-unified.mjs'
       - 'scripts/e2e/**'
 jobs:
   static-contracts:
@@ -41,6 +43,7 @@ jobs:
       - run: node scripts/test-following-together.mjs
       - run: node --check church.js
       - run: node scripts/test-circle-conversations.mjs
+      - run: node scripts/test-circles-unified.mjs
   database-contracts:
     runs-on: ubuntu-latest
     services:
@@ -78,6 +81,10 @@ jobs:
         run: psql -v ON_ERROR_STOP=1 -f supabase/migrations/20261123090000_follow_circle_conversations.sql
       - name: Exercise Conversation Box sharing and church contracts
         run: psql -v ON_ERROR_STOP=1 -f scripts/circles-conversations-tests.sql
+      - name: Apply Circle activities migration
+        run: psql -v ON_ERROR_STOP=1 -f supabase/migrations/20261124090000_follow_circle_activities.sql
+      - name: Exercise Circle activities and daily-reading contracts
+        run: psql -v ON_ERROR_STOP=1 -f scripts/circles-activities-tests.sql
   browser-e2e:
     # Real pages, real migrations and RLS, through a test-only SQL bridge.
     runs-on: ubuntu-latest
@@ -107,6 +114,10 @@ jobs:
           node-version: '22'
       - run: npm i --no-save playwright@1.63.0 && npx playwright install --with-deps chromium
       - run: node scripts/e2e/circle-conversations.e2e.mjs e2e-shots
+      - name: Unified Circles E2E on a second empty database
+        run: |
+          psql -v ON_ERROR_STOP=1 -c "create database circles_unified"
+          PGDATABASE=circles_unified node scripts/e2e/circles-unified.e2e.mjs e2e-shots/unified
       - uses: actions/upload-artifact@v4
         if: always()
         with:

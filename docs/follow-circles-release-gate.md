@@ -10,12 +10,17 @@
 - **Circle email notifications are not yet sending.** The Resend worker is deployed as `follow-circle-notifications`, but it requires `CIRCLE_NOTIFY_CRON_SECRET`, and the GitHub delivery schedule remains disabled pending secret configuration and an end-to-end delivery test.
 - Keep private SOS answers private by default. Never automatically publish someone's personal Say, Obey, Share responses.
 
-## Pending: Conversation Box × Circles and church view
+## Live: Conversation Box × Circles and church view
 
-- Migration `supabase/migrations/20261123090000_follow_circle_conversations.sql` is **not applied anywhere yet**. It is additive.
-- Contract tests `scripts/circles-conversations-tests.sql` and the browser E2E `scripts/e2e/circle-conversations.e2e.mjs` pass on isolated PostgreSQL. Both run in the Follow Daily Circles workflow.
-- Apply to a test project or branch first, then production after a backup. Run security advisors. The site hides the new parts until the migration is live.
+- `supabase/migrations/20261123090000_follow_circle_conversations.sql` is applied in production, after the restricted `circle_conversations_prebackup` snapshot (reported on PR #300). Live check, November 22, 2026: `follow_circle_cb_summary` and `follow_church_invite_preview` exist and return "permission denied" to anonymous callers.
 - Details and the privacy model: `docs/circle-conversations/README.md`.
+
+## Pending: Circle activities and the daily-reading switcher
+
+- `supabase/migrations/20261124090000_follow_circle_activities.sql` is **not applied anywhere yet**. It is additive, and existing Circles keep both activities.
+- `scripts/circles-activities-tests.sql`, `scripts/e2e/circles-unified.e2e.mjs` and `scripts/test-circles-unified.mjs` pass on isolated PostgreSQL and run in the Follow Daily Circles workflow.
+- Apply to a test project first, then production after a backup. Run security advisors. Until then the site detects the missing columns and keeps today's behavior.
+- Details: `docs/circles-unified/README.md`.
 
 ## Previous release checklist (historical planning document)
 
