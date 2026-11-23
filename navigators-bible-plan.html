@@ -94,15 +94,17 @@ async function loadPassage(panel,reference,requestId){
 let readingRequest=0;
 const id=(m,d)=>m+'-'+d;
 function entry(m=month,d=day){const k=id(m,d);return state.items[k]||(state.items[k]={marks:[false,false,false,false],say:'',obey:'',share:''})}
-function save(){state.month=month;state.day=day;try{localStorage.setItem(KEY,JSON.stringify(state))}catch{$('save-status').textContent='Storage is unavailable. Your answers may not persist.'}}
+function save(){state.month=month;state.day=day;try{localStorage.setItem(KEY,JSON.stringify(state));window.dispatchEvent(new Event('navigators:saved'))}catch{$('save-status').textContent='Storage is unavailable. Your answers may not persist.'}}
 function totals(){let done=0;for(let m=1;m<=12;m++)for(let d=1;d<=25;d++){let e=state.items[id(m,d)];if(e&&Array.isArray(e.marks))done+=e.marks.slice(0,4).filter(Boolean).length}return done}
-function navigate(m,d){month=m;day=d;save();render()}
+function navigate(m,d){month=m;day=d;save();render();window.dispatchEvent(new Event('navigators:day-changed'))}
 $('prev-month').addEventListener('click',()=>navigate(month===1?12:month-1,1));
 $('next-month').addEventListener('click',()=>navigate(month===12?1:month+1,1));
 function updateProgress(){
  const e=entry();const n=e.marks.filter(Boolean).length;
  $('reading-status').textContent=n===4?'All four readings complete.':n+' of 4 readings complete for this day.';
- const done=totals();$('progress').textContent=done+' of 1,200 readings completed';$('meter').setAttribute('aria-valuenow',done);$('bar').style.width=(100*done/1200)+'%';
+ $('read-progress').textContent=n+'/4';$('sos-progress').textContent=e.finished?'✓':'';
+ const done=totals();$('progress').textContent=done+' of 1,200 readings completed';$('meter').setAttribute('aria-valuenow',done);$('bar').style.width=(100*done/1200)+'%';$('journey-ring').setAttribute('stroke-dashoffset',String(94.25*(1-done/1200)));
+ $('finish').textContent=e.finished?'Finished · Save changes':'Finish today';
  for(const [i,button] of [...$('days').children].entries()){const item=entry(month,i+1);button.classList.toggle('done',item.marks.every(Boolean))}
 }
 function render(){
@@ -125,20 +127,26 @@ function render(){
   const scripture=document.createElement('div');scripture.className='passage-text';scripture.setAttribute('aria-label',ref+' Scripture');
   const source=document.createElement('p');source.className='passage-attribution';source.textContent='World English Bible (WEB), public domain';
   section.append(header,scripture,source);list.append(section);
-  check.addEventListener('change',()=>{e.marks[i]=check.checked;save();updateProgress()});
+  check.addEventListener('change',()=>{e.marks[i]=check.checked;e.updatedAt=Date.now();save();updateProgress()});
   loadPassage(scripture,ref,requestId);
  });
  for(const field of ['say','obey','share'])$(field).value=e[field]||'';
  updateProgress();
  $('next').textContent=month===12&&day===25?'Back to Month 1':'Next reading';
 }
-for(const field of ['say','obey','share'])$(field).addEventListener('input',()=>{entry()[field]=$(field).value;save();$('save-status').textContent='Saved on this device.'});
+for(const field of ['say','obey','share'])$(field).addEventListener('input',()=>{entry()[field]=$(field).value;entry().updatedAt=Date.now();save();$('save-status').textContent='Saved on this device.'});
 $('next').addEventListener('click',()=>navigate(day<25?month:month===12?1:month+1,day<25?day+1:1));
+$('go-read').addEventListener('click',()=>document.getElementById('reading-panel').scrollIntoView());
+$('go-sos').addEventListener('click',()=>document.getElementById('sos-panel').scrollIntoView());
+$('finish').addEventListener('click',()=>{entry().finished=true;entry().updatedAt=Date.now();save();updateProgress();$('save-status').textContent='Finished today.'});
+function journey(){const box=$('journey-months');box.replaceChildren();for(let m=1;m<=12;m++){let count=0;for(let d=1;d<=25;d++){const e=state.items[id(m,d)];count+=e?.marks?.filter(Boolean).length||0}const row=document.createElement('button');row.type='button';row.className='journey-month';row.textContent='Month '+m+' · '+count+'/100 readings';row.addEventListener('click',()=>{$('journey-dialog').close();navigate(m,1)});box.append(row)}$('journey-count').textContent=totals()+' of 1,200 passages completed';$('journey-dialog').showModal()}
+$('journey-open').addEventListener('click',journey);$('journey-close').addEventListener('click',()=>$('journey-dialog').close());
+window.navigatorsAdapter={read:()=>JSON.parse(JSON.stringify(state)),apply:incoming=>{if(!incoming?.items)return;state=incoming;month=Math.max(1,Math.min(12,Number(state.month)||1));day=Math.max(1,Math.min(25,Number(state.day)||1));render()},day:()=>({month,day})};
 const closeMenu=()=>{$('menu').hidden=true;$('backdrop').hidden=true;$('options').setAttribute('aria-expanded','false')};
 $('options').addEventListener('click',()=>{const open=$('menu').hidden;$('menu').hidden=!open;$('backdrop').hidden=!open;$('options').setAttribute('aria-expanded',String(open))});
 $('backdrop').addEventListener('click',closeMenu);$('open-chart').addEventListener('click',closeMenu);
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMenu()});
-$('menu').addEventListener('click',async event=>{const action=event.target.closest('[data-action]')?.dataset.action;if(!action)return;closeMenu();if(action==='resume'){$('reading-title').scrollIntoView({block:'start'})}if(action==='reset'&&confirm('Clear all Navigators progress and SOS notes on this device?')){state={items:{}};month=day=1;save();render()}if(action==='share'){const url='https://obey.tools/navigators-bible-plan.html';try{if(navigator.share)await navigator.share({title:'Navigators Bible Reading Plan',url});else if(navigator.clipboard){await navigator.clipboard.writeText(url);alert('Link copied.')}else prompt('Copy the link:',url)}catch{}}});
+$('menu').addEventListener('click',async event=>{const action=event.target.closest('[data-action]')?.dataset.action;if(!action)return;closeMenu();if(action==='resume'){$('reading-title').scrollIntoView({block:'start'})}if(action==='journey')journey();if(action==='circles')location.href='/follow-circles.html';if(action==='progress')$('progress-sync').scrollIntoView()if(action==='reset'&&confirm('Clear all Navigators progress and SOS notes on this device?')){state={items:{}};month=day=1;save();render()}if(action==='share'){const url='https://obey.tools/navigators-bible-plan.html';try{if(navigator.share)await navigator.share({title:'Navigators Bible Reading Plan',url});else if(navigator.clipboard){await navigator.clipboard.writeText(url);alert('Link copied.')}else prompt('Copy the link:',url)}catch{}}});
 render();
 })();
 </script><script type="module" src="/navigators-community.js"></script></body></html>
