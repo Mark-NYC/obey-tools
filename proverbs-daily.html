@@ -43,7 +43,7 @@ const today=new Date();let selected=today.getDate();let activeDate=null;let load
 const pad=n=>String(n).padStart(2,'0');
 const dateKey=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
 const daysInMonth=new Date(today.getFullYear(),today.getMonth()+1,0).getDate();
-const storageKey=day=>key+dateKey(new Date(today.getFullYear(),today.getMonth(),day));
+const storageKey=day=>key+today.getFullYear()+'-'+pad(today.getMonth()+1)+'-chapter-'+pad(day);
 const validDay=day=>day>=1&&day<=31;
 function record(day){try{return JSON.parse(localStorage.getItem(storageKey(day))||'{}')}catch{return {}}}
 function save(){if(!activeDate)return;const data=record(selected);fields.forEach(id=>data[id]=$(id).value);try{localStorage.setItem(storageKey(selected),JSON.stringify(data))}catch{}}
