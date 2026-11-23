@@ -21,7 +21,7 @@ function switchOwner(target){
 }
 function accountUI(){
  const container=$('sync-account');container.replaceChildren();
- if(account){const p=document.createElement('p');p.textContent='Signed in: '+(account.email||'OBEY.TOOLS account');container.append(p);$('sync-now').hidden=false;return}
+ if(account){const p=document.createElement('p');p.textContent='Signed in: '+(account.email||'OBEY.TOOLS account');const signout=document.createElement('button');signout.type='button';signout.className='secondary';signout.textContent='Sign out';signout.addEventListener('click',async()=>{await sync();const {error}=await supabase.auth.signOut();if(error)status('Could not sign out. Try again.');});container.append(p,signout);$('sync-now').hidden=false;return}
  $('sync-now').hidden=true;
  const form=document.createElement('form');form.className='account-form';
  const email=document.createElement('input');email.type='email';email.required=true;email.placeholder='Email';email.autocomplete='email';email.setAttribute('aria-label','Account email');
