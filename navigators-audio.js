@@ -1,22 +1,14 @@
-/*
- * Navigators Bible Plan audio.
- * Chapter MP3s: eBible.org WEB (FCBH New Testament; Henson Genesis, Psalms, Proverbs).
- * Partial-chapter readings: browser speech synthesis reads the assigned verses only.
- * Other books use device speech until a verified chapter recording is available.
- * The player never changes progress/checkmarks and stops on navigation.
- */
+/* Navigators audio: human-recorded WEB chapters only, never synthesized speech. An assigned verse range plays its full containing chapter because chapter recordings have no verified verse timestamps. */
 (() => {
  'use strict';
  const $ = id => document.getElementById(id);
  const root = $('passages'),playAll=$('audio-all'),pauseButton=$('audio-pause'),stopButton=$('audio-stop');
  const speedControl=$('audio-speed'),status=$('audio-status');
  if (!root || !playAll || !window.NAVIGATORS_READING_RAW) return;
- const supportsTTS=typeof window.speechSynthesis!=='undefined'&&typeof window.SpeechSynthesisUtterance!=='undefined';
  const audio = new Audio();
  audio.preload='none';
  audio.setAttribute('playsinline','');
- let generation=0,items=[],index=0,activeGroup=-1,mode='',paused=false,busy=false;
- let speechChunks=[],speechIndex=0;
+ let generation=0,items=[],index=0,activeGroup=-1,paused=false,busy=false;
  const sayStatus=message=>{status.textContent=message};
  const nt=[
   ['Matthew','Matthew'],['Mark','Mark'],['Luke','Luke'],['John','John'],['Acts','Acts'],
@@ -60,12 +52,12 @@
  }
  function tasksFor(ref,group){
   const parsed=splitReference(ref);
-  if(!parsed)return [{kind:'tts',reference:ref,group}];
-  if(parsed.partial)return [{kind:'tts',reference:ref,group}];
+  if(!parsed)return [];
   const tasks=[];
   for(let chapter=parsed.first;chapter<=parsed.last;chapter++){
-   const chapterRef=parsed.book+' '+chapter,mp3=filename(parsed.book,chapter);
-   tasks.push(mp3?{kind:'mp3',reference:chapterRef,source:mp3,group}:{kind:'tts',reference:chapterRef,group});
+   const mp3=filename(parsed.book,chapter);
+   if(!mp3)return [];
+   tasks.push({kind:'mp3',reference:parsed.book+' '+chapter,assigned:ref,partial:parsed.partial,source:mp3,group});
   }
   return tasks;
  }
@@ -85,55 +77,9 @@
   }
  }
  function stop(message){
-  ++generation;busy=false;paused=false;mode='';items=[];speechChunks=[];speechIndex=0;index=0;activeGroup=-1;
+  ++generation;busy=false;paused=false;items=[];index=0;activeGroup=-1;
   audio.pause();audio.removeAttribute('src');audio.load();
-  if(supportsTTS)window.speechSynthesis.cancel();
   draw();if(message)sayStatus(message);
- }
- function speakChunks(parts,session){
-  if(session!==generation)return;
-  if(speechIndex>=parts.length){next(session);return}
-  if(paused)return;
-  const utterance=new SpeechSynthesisUtterance(parts[speechIndex++]);
-  utterance.rate=Number(speedControl.value)||1;
-  utterance.lang='en-US';
-  utterance.onend=()=>{if(session===generation&&!paused)speakChunks(parts,session)};
-  utterance.onerror=e=>{
-   if(session!==generation)return;
-   if(e.error==='interrupted'||e.error==='canceled')return;
-   stop('Device narration could not play this passage. Try again or read the text above.');
-  };
-  window.speechSynthesis.speak(utterance);
- }
- function chunksForVerses(verses){
-  const chunks=[];let chunk='';
-  for(const verse of verses){
-   const part=(verse.text||'').replace(/\s+/g,' ').trim();
-   if(!part)continue;
-   if(chunk&&chunk.length+part.length>650){chunks.push(chunk);chunk=''}
-   chunk+=(chunk?' ':'')+part;
-  }
-  if(chunk)chunks.push(chunk);
-  return chunks;
- }
- async function speakReference(ref,session){
-  mode='tts';
-  if(!supportsTTS){stop('Audio narration is unavailable in this browser. You can still read all four passages above.');return}
-  sayStatus('Loading exact Scripture for '+ref+'…');
-  try{
-   const response=await fetch('https://bible-api.com/'+encodeURIComponent(ref)+'?translation=web');
-   if(!response.ok)throw Error('Scripture unavailable');
-   const payload=await response.json();
-   if(session!==generation)return;
-   if(!payload.verses?.length)throw Error('No verses');
-   speechChunks=chunksForVerses(payload.verses);
-   speechIndex=0;
-   if(!speechChunks.length)throw Error('Empty reading');
-   sayStatus('Device narration · '+ref+(items.length>1?' · continues automatically':''));
-   speakChunks(speechChunks,session);
-  }catch{
-   if(session===generation)stop('Could not load audio for '+ref+'. Check your connection and try again.');
-  }
  }
  function next(session){
   if(session!==generation)return;
@@ -145,18 +91,12 @@
   if(index>=items.length){stop('Finished listening to the selected readings.');return}
   const item=items[index];
   activeGroup=item.group;paused=false;busy=true;draw();
-  if(item.kind==='tts'){speakReference(item.reference,session);return}
-  mode='mp3';
   audio.pause();
   audio.src=item.source;
   audio.playbackRate=Number(speedControl.value)||1;
-  sayStatus('Recorded WEB audio · '+item.reference+(items.length>1?' · continues automatically':'')+' (full chapter)');
+  sayStatus('Human-narrated WEB · '+item.reference+(item.partial?' (full chapter; assigned: '+item.assigned+')':'')+(items.length>1?' · continues automatically':''));
   audio.onended=()=>next(session);
-  audio.onerror=()=>{
-   if(session!==generation)return;
-   sayStatus('Recording unavailable. Switching to device narration for '+item.reference+'…');
-   speakReference(item.reference,session);
-  };
+  audio.onerror=()=>{if(session===generation)stop('The recording could not load. Try again when connected. No synthetic voice will play.');};
   audio.play().catch(()=>{
    if(session===generation)stop('Playback was blocked by your browser. Tap Listen to try again.');
   });
@@ -164,7 +104,7 @@
  function begin(refs){
   stop();
   items=refs.flatMap(({reference,group})=>tasksFor(reference,group));
-  if(!items.length){sayStatus('No readings found for this day.');return}
+  if(!items.length){sayStatus('Human-recorded audio is unavailable for this selection. The Scripture text remains available above.');return}
   busy=true;const session=generation;index=0;playItem(session);
  }
  playAll.addEventListener('click',()=>{
@@ -183,27 +123,23 @@
  function pause(){
   if(!busy||paused)return;
   paused=true;
-  if(mode==='mp3')audio.pause();
-  else if(mode==='tts'&&supportsTTS)window.speechSynthesis.pause();
+  audio.pause();
   draw();sayStatus('Paused · '+(items[index]?.reference||'Scripture'));
  }
  function resume(){
   if(!paused)return;
   paused=false;
-  if(mode==='mp3')audio.play().catch(()=>stop('Tap Listen to resume audio.'));
-  else if(mode==='tts'&&supportsTTS){window.speechSynthesis.resume();if(!window.speechSynthesis.speaking)speakChunks(speechChunks,generation)}
+  audio.play().catch(()=>stop('Tap Listen to resume audio.'));
   draw();sayStatus('Playing · '+(items[index]?.reference||'Scripture'));
  }
  pauseButton.addEventListener('click',()=>{if(paused)resume();else pause()});
  stopButton.addEventListener('click',()=>stop('Audio stopped.'));
  speedControl.addEventListener('change',()=>{
   audio.playbackRate=Number(speedControl.value)||1;
-  // Speech rate is applied to the next sentence, without cutting off the current one.
-  sayStatus((busy||paused?'Speed '+speedControl.selectedOptions[0].textContent+' · applies immediately to recordings and to the next spoken segment.':'Ready to listen · speed '+speedControl.selectedOptions[0].textContent));
+  sayStatus((busy||paused?'Playback speed: '+speedControl.selectedOptions[0].textContent:'Ready to listen · speed '+speedControl.selectedOptions[0].textContent));
  });
  window.addEventListener('navigators:day-changed',()=>stop('Ready to listen to this day’s four readings.'));
  window.addEventListener('navigators:rendered',()=>{if(busy||paused)stop('Reading changed. Tap Listen to play.');else draw()});
  window.addEventListener('pagehide',()=>stop());
- document.addEventListener('visibilitychange',()=>{if(document.hidden&&mode==='tts'&&busy&&!paused)pause()});
  draw();
 })();
