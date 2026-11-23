@@ -1221,9 +1221,9 @@ window.NAVIGATORS_AUDIO_MANIFEST = {
     "https://ebible.org/eng-web/audio/52_First_Thessalonians/01%201115%20First%20Thessalonians-Chapter%20Five.mp3"
   ],
   "2 Thessalonians": [
-    "https://ebible.org/eng-web/audio/53_Second_Thessalonians/01%20%201118%20Second%20Thessalonians-Chapter%20Three.mp3",
     "https://ebible.org/eng-web/audio/53_Second_Thessalonians/01%201116%20Second%20Thessalonians-Chapter%20One.mp3",
-    "https://ebible.org/eng-web/audio/53_Second_Thessalonians/01%201117%20Second%20Thessalonians-Chapter%20Two.mp3"
+    "https://ebible.org/eng-web/audio/53_Second_Thessalonians/01%201117%20Second%20Thessalonians-Chapter%20Two.mp3",
+    "https://ebible.org/eng-web/audio/53_Second_Thessalonians/01%20%201118%20Second%20Thessalonians-Chapter%20Three.mp3"
   ],
   "1 Timothy": [
     "https://ebible.org/eng-web/audio/54_First_Timothy/01%201119%20First%20Timothy-Chapter%20One.mp3",
