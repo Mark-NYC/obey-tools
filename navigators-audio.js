@@ -176,7 +176,7 @@
   if(!button)return;
   const group=Number(button.dataset.audioIndex),refs=references();
   if(group>=refs.length)return;
-  if((busy||paused)&&activeGroup===group&&items.length&&items.every(x=>x.group===group)){
+  if((busy||paused)&&activeGroup===group){
    if(paused)resume();else pause();
   }else begin([{reference:refs[group],group}]);
  });
