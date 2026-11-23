@@ -36,6 +36,8 @@
   return 'One Hundred'+(n%100?' '+numberWords(n%100):'');
  }
  function filename(book,chapter){
+  const verified=window.NAVIGATORS_AUDIO_MANIFEST?.[book]?.[chapter-1];
+  if(typeof verified==='string'&&verified.startsWith('https://ebible.org/eng-web/audio/'))return verified;
   const found=nt.find(x=>x[0]===book);
   if(found){
    const number=String(nt.indexOf(found)+1).padStart(2,'0');
