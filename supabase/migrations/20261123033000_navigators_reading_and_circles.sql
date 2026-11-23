@@ -45,7 +45,7 @@ create policy "Navigators Circle members share" on public.navigators_circle_post
   and exists(select 1 from public.follow_circle_members m where m.circle_id=navigators_circle_posts.circle_id and m.user_id=auth.uid())
   and (parent_id is null or exists(
    select 1 from public.navigators_circle_posts p
-   where p.id=parent_id and p.circle_id=navigators_circle_posts.circle_id and p.reading_day=navigators_circle_posts.reading_day))
+   where p.id=navigators_circle_posts.parent_id and p.circle_id=navigators_circle_posts.circle_id and p.reading_day=navigators_circle_posts.reading_day))
  );
 
 -- Reactions stay within Navigators posts and respect the existing Circle membership.
