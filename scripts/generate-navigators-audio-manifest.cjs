@@ -57,7 +57,7 @@ function safeURL(raw,parent){
      links.push(full.href);
     }
     const unique=[...new Set(links)];
-    const chapterSequence=url=>{const file=decodeURIComponent(url.split('/').at(-1));const prefix=file.match(/^[\\d_\\s]+/)?.[0]||'';return Number(prefix.match(/\\d+/g)?.at(-1)||0)};
+    const chapterSequence=url=>{const file=decodeURIComponent(url.split('/').at(-1));const prefix=file.match(/^[\d_\s]+/)?.[0]||'';return Number(prefix.match(/\d+/g)?.at(-1)||0)};
     unique.sort((a,b)=>chapterSequence(a)-chapterSequence(b)||a.localeCompare(b));
     // eBible gave Isaiah 16 and 17 the same source sequence number (0695).
     // Put those two files in the correct Scripture chapter order.
