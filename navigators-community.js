@@ -35,7 +35,7 @@ function mergeByRevision(remote){
  const next=copy(bridge.read()),changes=[];
  next.items ||= {};
  for(const row of remote||[]){
-  if(row.reading_day===301){if((Number(row.revision_ms)||0)>=(Number(next.cursorUpdatedAt)||0)){next.month=row.payload.month;next.day=row.payload.day;next.cursorUpdatedAt=Number(row.revision_ms)||0}continue}
+  if(row.reading_day===301){const payload=row.payload||{};const remoteStart=Number(payload.startUpdatedAt)||0;if(typeof payload.startedOn==='string'&&(!next.startedOn||remoteStart>(Number(next.startUpdatedAt)||0)||(remoteStart===(Number(next.startUpdatedAt)||0)&&(Number(next.startUpdatedAt)||0)===0))){next.startedOn=payload.startedOn;next.startUpdatedAt=remoteStart}if((Number(row.revision_ms)||0)>=(Number(next.cursorUpdatedAt)||0)){next.month=payload.month;next.day=payload.day;next.cursorUpdatedAt=Number(row.revision_ms)||0}continue}
   const m=Math.floor((row.reading_day-1)/25)+1,d=(row.reading_day-1)%25+1,k=m+'-'+d;
   const local=next.items[k],r=Number(row.revision_ms)||0,l=Number(local?.updatedAt)||0;
   if(!local||r>=l)next.items[k]=copy(row.payload);
@@ -47,7 +47,7 @@ function mergeByRevision(remote){
   if(!row||(Number(payload?.updatedAt)||0)>(Number(row.revision_ms)||0))changes.push({user_id:account.id,reading_day,payload,revision_ms:Number(payload?.updatedAt)||Date.now()});
  }
  const cursorRow=(remote||[]).find(x=>x.reading_day===301);
- if(!cursorRow||(Number(next.cursorUpdatedAt)||0)>(Number(cursorRow.revision_ms)||0))changes.push({user_id:account.id,reading_day:301,payload:{month:next.month||1,day:next.day||1},revision_ms:Number(next.cursorUpdatedAt)||Date.now()});
+ if(!cursorRow||Math.max(Number(next.cursorUpdatedAt)||0,Number(next.startUpdatedAt)||0)>(Number(cursorRow.revision_ms)||0))changes.push({user_id:account.id,reading_day:301,payload:{month:next.month||1,day:next.day||1,startedOn:next.startedOn,startUpdatedAt:Number(next.startUpdatedAt)||0},revision_ms:Math.max(Number(next.cursorUpdatedAt)||0,Number(next.startUpdatedAt)||0,Date.now())});
  bridge.apply(next);localStorage.setItem(stateKey,JSON.stringify(next));bucket();
  return changes;
 }
