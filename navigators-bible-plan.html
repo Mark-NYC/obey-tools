@@ -158,11 +158,35 @@ function updateProgress(){
  for(const button of $('days').querySelectorAll('button[data-month]')){const item=entry(Number(button.dataset.month),Number(button.dataset.day));button.classList.toggle('done',item.marks.every(Boolean))}
 }
 function render(){
- $('month-label').textContent='Month '+month+' of 12';$('reading-title').textContent='Month '+month+' · Day '+day;
- const e=entry();const rail=$('days');rail.replaceChildren();
- for(let d=1;d<=25;d++){const b=document.createElement('button');b.type='button';b.className='day';const item=entry(month,d);if(item.marks.every(Boolean))b.classList.add('done');if(d===day)b.setAttribute('aria-current','true');b.setAttribute('aria-label','Reading day '+d);b.textContent=d;if(item.marks.every(Boolean)){const tick=document.createElement('span');tick.className='tick';tick.textContent='✓';b.append(tick)}b.addEventListener('click',()=>navigate(month,d));rail.append(b)}
- const active=rail.children[day-1];if(active)rail.scrollLeft=Math.max(0,active.offsetLeft-rail.clientWidth/2+active.offsetWidth/2);
-
+ slots=planSlots();
+ const active=selectedSlot(),today=todaySlot();
+ $('reading-title').textContent='Day '+active.number;
+ $('day-label').textContent='Day '+active.number+' of 300';
+ $('reading-date').textContent=dateLabel(active.date);
+ $('month-context').textContent='Navigators Month '+month+' of 12 · 25 reading days + catch-up days';
+ $('go-today').hidden=!today||(today.month===month&&(today.reading?today.day:25)===day);
+ const e=entry(),rail=$('days');rail.replaceChildren();
+ for(const slot of slots){
+  if(slot.day===1){const marker=document.createElement('span');marker.className='month-marker';marker.textContent='Month '+slot.month;rail.append(marker)}
+  const button=document.createElement(slot.reading?'button':'span');
+  button.className='day'+(slot.reading?'':' catchup-day')+(slot.date===localToday()?' today':'');
+  if(slot.reading){
+   button.type='button';button.dataset.month=slot.month;button.dataset.day=slot.day;
+   button.setAttribute('aria-label','Day '+slot.number+', '+dateLabel(slot.date)+', Month '+slot.month);
+   if(slot.month===month&&slot.day===day)button.setAttribute('aria-current','step');
+   const record=entry(slot.month,slot.day);
+   if(record.marks.every(Boolean)){button.classList.add('done');const tick=document.createElement('span');tick.className='tick';tick.textContent='✓';button.append(tick)}
+   button.addEventListener('click',()=>navigate(slot.month,slot.day));
+  }else{
+   button.setAttribute('aria-label',dateLabel(slot.date)+', catch-up day');
+   button.title='Catch-up day · No assigned readings';
+  }
+  const number=document.createElement('b');number.textContent=slot.reading?slot.number:'Rest';
+  const date=document.createElement('small');date.textContent=dateLabel(slot.date);
+  button.prepend(number);button.append(date);rail.append(button);
+ }
+ const selectedButton=rail.querySelector('button[aria-current="step"]');
+ if(selectedButton)rail.scrollLeft=Math.max(0,selectedButton.offsetLeft-rail.clientWidth/2+selectedButton.offsetWidth/2);
  const list=$('passages');list.replaceChildren();
  const requestId=++readingRequest;
  reading(month,day).forEach((ref,i)=>{
