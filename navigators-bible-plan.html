@@ -63,6 +63,19 @@
 #start-date-dialog label{display:block;font-size:14px;font-weight:700;margin:14px 0 5px}
 #start-date-dialog input{width:100%;min-height:48px;border:1px solid var(--line);border-radius:12px;padding:8px 12px;font:inherit}
 .start-date-actions{display:flex;align-items:center;gap:10px;margin-top:15px}.start-date-actions button{min-height:46px;padding:10px 16px;border-radius:999px;border:0;background:var(--soft);font-weight:700}.start-date-actions .primary{flex:1;margin:0;background:var(--ink);color:white}
+
+/* Accessible unobtrusive audio controls aligned with Follow Daily. */
+.scripture-audio{display:flex;flex-wrap:wrap;align-items:center;gap:8px;border-bottom:1px solid var(--line);padding:4px 0 13px;margin:0 0 10px}
+.scripture-audio button{min-height:43px;border-radius:999px;padding:9px 16px;font-weight:750;font-size:13px}
+.audio-main{display:inline-flex;gap:7px;align-items:center;border:0;background:var(--ink);color:#fff}
+.audio-main:hover{background:#000}.audio-main svg{flex:none}.audio-secondary{border:1px solid var(--line);background:var(--soft);color:var(--ink)}
+.audio-speed-label{display:inline-flex;align-items:center;gap:6px;margin-left:auto;font-size:12px;color:var(--muted);font-weight:700}
+.audio-speed-label select{border:1px solid var(--line);border-radius:10px;background:white;font:inherit;font-size:13px;color:var(--ink);padding:7px;min-height:40px}
+.audio-status{font-size:12px;line-height:1.45;color:var(--muted);margin:2px 0 0;width:100%}
+.audio-passage{align-self:flex-start;border:1px solid var(--line);background:white;color:#00744a;border-radius:999px;padding:7px 13px;font-size:13px;font-weight:750;margin:12px 0 0}
+.audio-passage:hover{background:var(--green-soft)}
+.audio-passage[aria-pressed=true]{background:var(--green-soft);border-color:#b3e1ca}
+@media(max-width:520px){.audio-speed-label{margin-left:0}.scripture-audio{gap:7px}}
 </style></head><body>
 <header class="top"><a class="back" href="/follow-daily/" aria-label="Back to Follow Daily"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></a><a class="wordmark" href="/follow-daily/">NAVIGATORS BIBLE PLAN</a><button class="options" id="options" aria-label="Plan options" aria-expanded="false" aria-haspopup="true"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg></button></header>
 <nav class="day-rail days" id="days" aria-label="Swipe horizontally through dated Navigators reading days"></nav>
@@ -74,7 +87,14 @@
  <p class="reading-context" id="month-context">Month 1 · 25 readings, then catch-up days</p>
  <div class="progress-meter" role="progressbar" aria-label="Bible reading plan progress" aria-valuemin="0" aria-valuemax="1200" aria-valuenow="0" id="meter"><span id="bar"></span></div>
 </section>
-<nav class="study-tracker" aria-label="Reading steps"><button type="button" id="go-read">Read <span id="read-progress">0/4</span></button><button type="button" id="go-sos">SOS <span id="sos-progress"></span></button></nav><section class="reading" id="reading-panel" aria-labelledby="reading-section-title"><h2 id="reading-section-title">Read</h2><p class="sub">Four readings from the original Navigators plan.</p><div class="passages" id="passages"></div><p class="status" id="reading-status" role="status"></p><button id="next" class="primary" type="button">Next reading</button></section>
+<nav class="study-tracker" aria-label="Reading steps"><button type="button" id="go-read">Read <span id="read-progress">0/4</span></button><button type="button" id="go-sos">SOS <span id="sos-progress"></span></button></nav><section class="reading" id="reading-panel" aria-labelledby="reading-section-title"><h2 id="reading-section-title">Read</h2><p class="sub">Four readings from the original Navigators plan.</p>
+<div class="scripture-audio" role="group" aria-label="Listen to today's Bible readings">
+ <button type="button" id="audio-all" class="audio-main" aria-label="Play all four readings"><svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true" fill="currentColor"><path d="m8 5 11 7-11 7z"/></svg><span>Listen to all four</span></button>
+ <button type="button" id="audio-pause" class="audio-secondary" hidden>Pause</button>
+ <button type="button" id="audio-stop" class="audio-secondary" hidden>Stop</button>
+ <label class="audio-speed-label" for="audio-speed">Speed <select id="audio-speed" aria-label="Audio playback speed"><option value="0.8">0.8×</option><option value="1" selected>1×</option><option value="1.25">1.25×</option><option value="1.5">1.5×</option><option value="2">2×</option></select></label>
+ <p id="audio-status" class="audio-status" aria-live="polite">Listen to the readings. Full chapters use recorded audio when available; exact verse selections use device narration.</p>
+</div><div class="passages" id="passages"></div><p class="status" id="reading-status" role="status"></p><button id="next" class="primary" type="button">Next reading</button></section>
 <section class="step" id="sos-panel" aria-labelledby="sos-title"><h2 id="sos-title">SOS</h2><p>Say · Obey · Share. Your answers stay private unless you choose to post in a Circle.</p><label for="say">Say<textarea id="say" placeholder="What is God saying to me?"></textarea></label><label for="obey">Obey<textarea id="obey" placeholder="What will I do?"></textarea></label><label for="share">Share<textarea id="share" placeholder="Who will I tell?"></textarea></label><button type="button" class="primary" id="finish">Finish today</button><p class="status" id="save-status" aria-live="polite">Responses save automatically on this device.</p></section>
 <section class="step" id="following-together"><div class="section-heading"><h2>Following together</h2><a href="/follow-circles.html">Circles</a></div><p id="circle-status">Sign in to share with your Circles.</p><div id="circle-controls" hidden><label for="circle-target">Circle</label><select id="circle-target"></select><textarea id="circle-message" rows="3" maxlength="3000" aria-label="Share with Circle" placeholder="What stood out? What are you putting into practice?"></textarea><button class="primary" id="circle-share" type="button">Share with Circle</button></div><p class="status" id="circle-notice" role="status"></p><div id="circle-posts"></div></section><section class="step" id="progress-sync"><h2>Your progress</h2><p id="sync-state">Saved on this device.</p><button type="button" id="sync-now" class="secondary" hidden>Sync now</button><p id="sync-account"></p></section><section class="official" id="official"><h2>Original reading schedule</h2><p>The original Navigators chart is available for reference. The four readings are displayed in full above.</p><a class="pdf-link" href="https://www.navigators.org/wp-content/uploads/2021/12/navigators-bible-reading-plan.pdf" target="_blank" rel="noopener noreferrer">Open the official full-size reading plan</a><p class="source">© 2005 The Navigators. Adapted from the Discipleship Journal Bible Reading Plan. Reproduced by reference for non-commercial use; all copyrights remain with The Navigators. <a href="https://www.navigators.org/resource/discipleship-journal-bible-reading-plan/" target="_blank" rel="noopener noreferrer">About the plan</a>.</p></section>
 <footer class="foot"><a href="/follow-daily/">All Follow Daily studies</a> · OBEY.TOOLS</footer>
@@ -198,13 +218,15 @@ function render(){
   const check=document.createElement('input');check.type='checkbox';check.checked=!!e.marks[i];check.setAttribute('aria-label','Completed '+ref);
   const markText=document.createElement('span');markText.textContent='Read';
   mark.append(check,markText);header.append(heading,track,mark);
+  const listen=document.createElement('button');listen.type='button';listen.className='audio-passage';listen.dataset.audioIndex=String(i);listen.setAttribute('aria-label','Listen to '+ref);listen.textContent='Listen';
   const scripture=document.createElement('div');scripture.className='passage-text';scripture.setAttribute('aria-label',ref+' Scripture');
   const source=document.createElement('p');source.className='passage-attribution';source.textContent='World English Bible (WEB), public domain';
-  section.append(header,scripture,source);list.append(section);
+  section.append(header,listen,scripture,source);list.append(section);
   check.addEventListener('change',()=>{e.marks[i]=check.checked;e.updatedAt=Date.now();save();updateProgress()});
   loadPassage(scripture,ref,requestId);
  });
  for(const field of ['say','obey','share'])$(field).value=e[field]||'';
+ window.dispatchEvent(new CustomEvent('navigators:rendered',{detail:{month,day}}));
  updateProgress();
  $('next').textContent=month===12&&day===25?'Back to Month 1':'Next reading';
 }
@@ -226,4 +248,4 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMenu()});
 $('menu').addEventListener('click',async event=>{const action=event.target.closest('[data-action]')?.dataset.action;if(!action)return;closeMenu();if(action==='resume'){$('reading-title').scrollIntoView({block:'start'})}if(action==='catchup'){let target=null;for(let m=1;m<=12&&!target;m++)for(let d=1;d<=25;d++){const e=state.items[id(m,d)];if(!e||!e.marks?.every(Boolean)||!e.finished){target=[m,d];break}}if(target)navigate(...target);else journey()}if(action==='journey')journey();if(action==='circles')location.href='/follow-circles.html';if(action==='progress')$('progress-sync').scrollIntoView();if(action==='today')goToday();if(action==='start-date'){$('start-date-input').value=state.startedOn;$('start-date-dialog').showModal()};if(action==='restart')navigate(1,1);if(action==='share'){const url='https://obey.tools/navigators-bible-plan.html';try{if(navigator.share)await navigator.share({title:'Navigators Bible Reading Plan',url});else if(navigator.clipboard){await navigator.clipboard.writeText(url);alert('Link copied.')}else prompt('Copy the link:',url)}catch{}}});
 render();
 })();
-</script><script type="module" src="/navigators-community.js"></script></body></html>
+</script><script src="/navigators-audio-manifest.js"></script><script defer src="/navigators-audio.js"></script><script type="module" src="/navigators-community.js"></script></body></html>
