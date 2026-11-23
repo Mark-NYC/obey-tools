@@ -35,4 +35,20 @@ assert.equal(tasksFor('2 Kings 24-25',0).length,2);
 assert.ok(tasksFor('2 Kings 24-25',0).every(x=>x.kind==='tts'),'Unverified source gets safe fallback');
 context.window.NAVIGATORS_AUDIO_MANIFEST={'2 Kings':['https://ebible.org/eng-web/audio/12_Second_Kings/verified.mp3']};
 assert.equal(filename('2 Kings',1),'https://ebible.org/eng-web/audio/12_Second_Kings/verified.mp3','Verified manifest overrides fallback');
+
+// Manifest was built from the original eBible directory listings. Check
+// coverage and the handful of source filenames with irregular numbering.
+const manifestSource=fs.readFileSync('navigators-audio-manifest.js','utf8');
+const manifestWindow={};vm.runInNewContext(manifestSource,{window:manifestWindow});
+const mapping=manifestWindow.NAVIGATORS_AUDIO_MANIFEST;
+assert.equal(Object.keys(mapping).length,66,'narration covers all 66 books');
+assert.equal(Object.values(mapping).reduce((total,chapters)=>total+chapters.length,0),1189,'all 1189 chapters indexed');
+assert.match(decodeURIComponent(mapping['Isaiah'][15]),/Chapter Sixteen\.mp3$/);
+assert.match(decodeURIComponent(mapping['Isaiah'][16]),/Chapter Seventeen\.mp3$/);
+assert.match(decodeURIComponent(mapping['2 Thessalonians'][0]),/Chapter One\.mp3$/);
+assert.match(decodeURIComponent(mapping['2 Thessalonians'][1]),/Chapter Two\.mp3$/);
+assert.match(decodeURIComponent(mapping['2 Thessalonians'][2]),/Chapter Three\.mp3$/);
+for(const chapters of Object.values(mapping)){
+ for(const url of chapters)assert.match(url,/^https:\/\/ebible\.org\/eng-web\/audio\/.*\.mp3$/);
+}
 console.log('OK: audio controls, exact references, WEB MP3 URLs, graceful fallback, and navigation cleanup.');
