@@ -2,7 +2,7 @@
 -- Run only after reviewing the production backup and existing Follow Circle membership schema.
 create table if not exists public.navigators_reading_progress (
  user_id uuid not null references auth.users(id) on delete cascade,
- reading_day integer not null check (reading_day between 1 and 300),
+ reading_day integer not null check (reading_day between 1 and 301), -- 301 holds last-viewed cursor
  payload jsonb not null default '{}'::jsonb,
  revision_ms bigint not null default 0,
  primary key (user_id,reading_day)
