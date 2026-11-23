@@ -47,3 +47,26 @@ create policy "Navigators Circle members share" on public.navigators_circle_post
    select 1 from public.navigators_circle_posts p
    where p.id=parent_id and p.circle_id=navigators_circle_posts.circle_id and p.reading_day=navigators_circle_posts.reading_day))
  );
+
+-- Reactions stay within Navigators posts and respect the existing Circle membership.
+create table if not exists public.navigators_circle_reactions (
+ post_id uuid not null references public.navigators_circle_posts(id) on delete cascade,
+ user_id uuid not null references auth.users(id) on delete cascade,
+ created_at timestamptz not null default now(),
+ primary key (post_id,user_id)
+);
+alter table public.navigators_circle_reactions enable row level security;
+revoke all on public.navigators_circle_reactions from anon;
+grant select,insert,delete on public.navigators_circle_reactions to authenticated;
+drop policy if exists "Navigators members see reactions" on public.navigators_circle_reactions;
+create policy "Navigators members see reactions" on public.navigators_circle_reactions for select to authenticated using (
+ exists (select 1 from public.navigators_circle_posts p join public.follow_circle_members m on m.circle_id=p.circle_id
+ where p.id=navigators_circle_reactions.post_id and m.user_id=auth.uid())
+);
+drop policy if exists "Navigators members react" on public.navigators_circle_reactions;
+create policy "Navigators members react" on public.navigators_circle_reactions for insert to authenticated with check (
+ user_id=auth.uid() and exists (select 1 from public.navigators_circle_posts p join public.follow_circle_members m on m.circle_id=p.circle_id
+ where p.id=navigators_circle_reactions.post_id and m.user_id=auth.uid())
+);
+drop policy if exists "Navigators members remove own reactions" on public.navigators_circle_reactions;
+create policy "Navigators members remove own reactions" on public.navigators_circle_reactions for delete to authenticated using (user_id=auth.uid());
