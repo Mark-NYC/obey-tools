@@ -32,25 +32,75 @@
 .reading,.step{scroll-margin-top:76px}.section-heading{display:flex;align-items:baseline;justify-content:space-between;gap:12px}.section-heading h2{margin:0}.section-heading a{font-size:14px;font-weight:700}#circle-target{display:block;width:100%;min-height:44px;border:1px solid var(--line);border-radius:10px;margin:8px 0 13px;padding:9px}#circle-message{display:block;width:100%;border:1px solid var(--line);border-radius:10px;padding:13px;resize:vertical}#circle-posts article{border-top:1px solid var(--line);padding:14px 0}#circle-posts article p{white-space:pre-wrap;margin:6px 0}
 #journey-dialog{border:0;border-radius:20px;padding:22px;width:min(440px,calc(100% - 24px));max-height:85dvh;box-shadow:0 12px 40px #0003}#journey-dialog::backdrop{background:#0005}#journey-dialog h2{margin:0 0 9px}.journey-month{width:100%;text-align:left;border:0;border-bottom:1px solid var(--line);background:white;padding:12px;font-size:14px}.journey-month:hover{background:var(--soft)}
 @media(max-width:520px){.head h1{font-size:43px}}
-.account-form{display:grid;gap:10px;max-width:440px}.account-form input{width:100%;min-height:46px;border:1px solid #d1d1d6;border-radius:12px;padding:11px 13px}.account-form button{background:var(--ink);color:white;border:0;border-radius:999px;min-height:46px;font-weight:700}.account-form p{font-size:13px;color:var(--muted)}.circle-reply{padding-left:14px!important;border-left:2px solid var(--green)!important;margin:7px 0}.circle-reply textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px}.circle-reply form button{border:0;background:var(--ink);color:white;border-radius:10px;padding:8px 14px;margin:5px 0}.circle-reply small{font-size:12px;color:var(--muted)}.following-section{scroll-margin-top:80px}.primary:disabled{opacity:.45;cursor:not-allowed}.primary:disabled:hover{background:var(--ink)}</style></head><body>
-<header class="top"><a class="back" href="/follow-daily/" aria-label="Back to Follow Daily"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></a><a class="wordmark" href="/follow-daily/">FOLLOW DAILY</a><button class="options" id="options" aria-label="Plan options" aria-expanded="false" aria-haspopup="true"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg></button></header>
+.account-form{display:grid;gap:10px;max-width:440px}.account-form input{width:100%;min-height:46px;border:1px solid #d1d1d6;border-radius:12px;padding:11px 13px}.account-form button{background:var(--ink);color:white;border:0;border-radius:999px;min-height:46px;font-weight:700}.account-form p{font-size:13px;color:var(--muted)}.circle-reply{padding-left:14px!important;border-left:2px solid var(--green)!important;margin:7px 0}.circle-reply textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px}.circle-reply form button{border:0;background:var(--ink);color:white;border-radius:10px;padding:8px 14px;margin:5px 0}.circle-reply small{font-size:12px;color:var(--muted)}.following-section{scroll-margin-top:80px}.primary:disabled{opacity:.45;cursor:not-allowed}.primary:disabled:hover{background:var(--ink)}
+/* Same reading-first hierarchy and centered continuous rail as Daily SOS. */
+.top{grid-template-columns:44px minmax(0,1fr) 44px}.wordmark{font-size:clamp(20px,3.3vw,27px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.days{--day-card-width:58px;display:flex;gap:6px;position:relative;width:100%;max-width:680px;margin:0 auto;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;scroll-behavior:auto;padding:8px max(20px,calc((100% - var(--day-card-width))/2)) 10px}
+.days::-webkit-scrollbar{display:none}
+.days .day{position:relative;flex:0 0 var(--day-card-width);height:64px;border:0;border-radius:14px;background:transparent;padding:8px 2px 6px;text-align:center;color:var(--ink)}
+.days .day b{display:block;font-size:20px;line-height:1.15;font-weight:700;font-variant-numeric:tabular-nums}
+.days .day small{display:block;font-size:11px;line-height:1.3;color:var(--muted);margin-top:4px;white-space:nowrap}
+.days .day:hover{background:var(--soft)}.days .day.done{background:var(--green-soft)}
+.days .day.today b,.days .day.today small{color:#00744a;font-weight:700}
+.days .day.today::after{content:"";position:absolute;left:50%;bottom:3px;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:var(--green)}
+.days .day[aria-current=step]{background:var(--ink);color:#fff}
+.days .day[aria-current=step] small,.days .day[aria-current=step] b{color:#fff}
+.days .day .tick{position:absolute;top:2px;right:3px;font-size:11px;color:#00744a;line-height:1}
+.days .day[aria-current=step] .tick{color:#7fe0b4}
+.days .catchup-day{opacity:.65;cursor:default}
+.days .catchup-day b{font-size:14px;margin-top:5px}
+.days .month-marker{display:flex;align-items:center;justify-content:center;flex:0 0 76px;height:64px;font-size:12px;color:var(--muted);border-left:1px solid var(--line);padding:0 10px;white-space:nowrap;font-weight:750;text-align:center}
+.day-head{padding-top:14px}.day-head .day-meta{display:flex;gap:10px;align-items:center;flex-wrap:wrap;color:var(--muted);font-size:14px;font-weight:650}.day-head .journey-button{margin-left:auto}
+.day-head .daytitle{font-size:30px;font-weight:800;font-family:var(--sans);letter-spacing:-.02em;line-height:1.15;margin:4px 0 3px}
+.day-head .reading-meta{font-size:15px;font-weight:650;color:var(--ink);margin:0}
+.day-head .reading-context{font-size:13px;color:var(--muted);margin:4px 0 12px}.day-head .progress-meter{margin:0 0 5px;height:4px}
+.linkish{border:0;background:transparent;padding:6px 0;color:#00744a;font-size:14px;font-weight:650;text-decoration:underline;text-underline-offset:3px}
+.reading{padding-top:18px}
+#start-date-dialog{border:0;border-radius:20px;padding:24px;width:min(440px,calc(100% - 28px));box-shadow:0 12px 40px #0003}
+#start-date-dialog::backdrop{background:#0005}
+#start-date-dialog h2{margin:0 0 9px;font-size:23px}
+#start-date-dialog p{font-size:14px;color:var(--muted)}
+#start-date-dialog label{display:block;font-size:14px;font-weight:700;margin:14px 0 5px}
+#start-date-dialog input{width:100%;min-height:48px;border:1px solid var(--line);border-radius:12px;padding:8px 12px;font:inherit}
+.start-date-actions{display:flex;align-items:center;gap:10px;margin-top:15px}.start-date-actions button{min-height:46px;padding:10px 16px;border-radius:999px;border:0;background:var(--soft);font-weight:700}.start-date-actions .primary{flex:1;margin:0;background:var(--ink);color:white}
+</style></head><body>
+<header class="top"><a class="back" href="/follow-daily/" aria-label="Back to Follow Daily"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></a><a class="wordmark" href="/follow-daily/">NAVIGATORS BIBLE PLAN</a><button class="options" id="options" aria-label="Plan options" aria-expanded="false" aria-haspopup="true"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg></button></header>
+<nav class="day-rail days" id="days" aria-label="Swipe horizontally through dated Navigators reading days"></nav>
 <main class="col">
-<section class="head"><span class="eyebrow">Read the whole Bible</span><h1>THE NAVIGATORS BIBLE READING PLAN</h1><p>Four readings each day. Twenty-five reading days per month. Twelve months through the whole Bible.</p><button type="button" id="journey-open" class="journey-button"><svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="15" fill="none" stroke="#e7e7ea" stroke-width="3"/><circle id="journey-ring" cx="18" cy="18" r="15" fill="none" stroke="#00a468" stroke-width="3" stroke-dasharray="94.25" stroke-dashoffset="94.25" transform="rotate(-90 18 18)"/></svg><span class="progress" id="progress" role="status">0 of 1,200 readings completed</span></button><div class="progress-meter" role="progressbar" aria-label="Bible reading plan progress" aria-valuemin="0" aria-valuemax="1200" aria-valuenow="0" id="meter"><span id="bar"></span></div><p class="instructions">Start any time. The remaining days each month are yours for catching up or going deeper. Mark the four passages as you read them.</p></section>
-<nav class="month-nav" aria-label="Choose reading month"><button type="button" id="prev-month" aria-label="Previous month">‹</button><strong id="month-label">Month 1 of 12</strong><button type="button" id="next-month" aria-label="Next month">›</button></nav>
-<nav class="day-rail" id="days" aria-label="Choose one of the 25 readings in this month"></nav>
-<nav class="study-tracker" aria-label="Reading steps"><button type="button" id="go-read">Read <span id="read-progress">0/4</span></button><button type="button" id="go-sos">SOS <span id="sos-progress"></span></button></nav><section class="reading" id="reading-panel" aria-labelledby="reading-title"><h2 id="reading-title">Month 1 · Day 1</h2><p class="sub">Read each passage below, or in your Bible, and mark it complete.</p><div class="passages" id="passages"></div><p class="status" id="reading-status" role="status"></p><button id="next" class="primary" type="button">Next reading</button></section>
+<section class="head day-head">
+ <div class="day-meta"><span id="day-label">Day 1 of 300</span><button id="go-today" class="linkish" type="button" hidden>Go to today</button>
+ <button type="button" id="journey-open" class="journey-button" aria-label="View your journey"><svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="15" fill="none" stroke="#e7e7ea" stroke-width="3"/><circle id="journey-ring" cx="18" cy="18" r="15" fill="none" stroke="#00a468" stroke-width="3" stroke-dasharray="94.25" stroke-dashoffset="94.25" transform="rotate(-90 18 18)"/></svg><span class="progress" id="progress" role="status">0 of 1,200</span></button></div>
+ <h1 id="reading-title" class="daytitle">Day 1</h1><p class="reading-meta" id="reading-date"></p>
+ <p class="reading-context" id="month-context">Month 1 · 25 readings, then catch-up days</p>
+ <div class="progress-meter" role="progressbar" aria-label="Bible reading plan progress" aria-valuemin="0" aria-valuemax="1200" aria-valuenow="0" id="meter"><span id="bar"></span></div>
+</section>
+<nav class="study-tracker" aria-label="Reading steps"><button type="button" id="go-read">Read <span id="read-progress">0/4</span></button><button type="button" id="go-sos">SOS <span id="sos-progress"></span></button></nav><section class="reading" id="reading-panel" aria-labelledby="reading-section-title"><h2 id="reading-section-title">Read</h2><p class="sub">Four readings from the original Navigators plan.</p><div class="passages" id="passages"></div><p class="status" id="reading-status" role="status"></p><button id="next" class="primary" type="button">Next reading</button></section>
 <section class="step" id="sos-panel" aria-labelledby="sos-title"><h2 id="sos-title">SOS</h2><p>Say · Obey · Share. Your answers stay private unless you choose to post in a Circle.</p><label for="say">Say<textarea id="say" placeholder="What is God saying to me?"></textarea></label><label for="obey">Obey<textarea id="obey" placeholder="What will I do?"></textarea></label><label for="share">Share<textarea id="share" placeholder="Who will I tell?"></textarea></label><button type="button" class="primary" id="finish">Finish today</button><p class="status" id="save-status" aria-live="polite">Responses save automatically on this device.</p></section>
 <section class="step" id="following-together"><div class="section-heading"><h2>Following together</h2><a href="/follow-circles.html">Circles</a></div><p id="circle-status">Sign in to share with your Circles.</p><div id="circle-controls" hidden><label for="circle-target">Circle</label><select id="circle-target"></select><textarea id="circle-message" rows="3" maxlength="3000" aria-label="Share with Circle" placeholder="What stood out? What are you putting into practice?"></textarea><button class="primary" id="circle-share" type="button">Share with Circle</button></div><p class="status" id="circle-notice" role="status"></p><div id="circle-posts"></div></section><section class="step" id="progress-sync"><h2>Your progress</h2><p id="sync-state">Saved on this device.</p><button type="button" id="sync-now" class="secondary" hidden>Sync now</button><p id="sync-account"></p></section><section class="official" id="official"><h2>Original reading schedule</h2><p>The original Navigators chart is available for reference. The four readings are displayed in full above.</p><a class="pdf-link" href="https://www.navigators.org/wp-content/uploads/2021/12/navigators-bible-reading-plan.pdf" target="_blank" rel="noopener noreferrer">Open the official full-size reading plan</a><p class="source">© 2005 The Navigators. Adapted from the Discipleship Journal Bible Reading Plan. Reproduced by reference for non-commercial use; all copyrights remain with The Navigators. <a href="https://www.navigators.org/resource/discipleship-journal-bible-reading-plan/" target="_blank" rel="noopener noreferrer">About the plan</a>.</p></section>
 <footer class="foot"><a href="/follow-daily/">All Follow Daily studies</a> · OBEY.TOOLS</footer>
 </main>
-<div class="menu-backdrop" id="backdrop" hidden></div><div class="menu" id="menu" role="menu" aria-label="Plan options" hidden><button type="button" role="menuitem" data-action="resume">Continue my reading</button><button type="button" role="menuitem" data-action="catchup">Catch me up</button><button type="button" role="menuitem" data-action="journey">Your journey</button><button type="button" role="menuitem" data-action="circles">Circles</button><button type="button" role="menuitem" data-action="progress">Your progress</button><a href="#official" role="menuitem" id="open-chart">Official reading chart</a><a href="https://www.navigators.org/resource/discipleship-journal-bible-reading-plan/" target="_blank" rel="noopener noreferrer" role="menuitem">About the Navigators plan</a><button type="button" role="menuitem" data-action="share">Share this plan</button><button type="button" role="menuitem" data-action="restart">Start again at Month 1</button></div>
-<dialog id="journey-dialog" aria-labelledby="journey-title"><h2 id="journey-title">Your journey</h2><p id="journey-count"></p><div id="journey-months"></div><button id="journey-close" class="primary" type="button">Close</button></dialog><script src="/navigators-readings.js"></script><script>
+<div class="menu-backdrop" id="backdrop" hidden></div><div class="menu" id="menu" role="menu" aria-label="Plan options" hidden><button type="button" role="menuitem" data-action="resume">Continue my reading</button><button type="button" role="menuitem" data-action="catchup">Catch me up</button><button type="button" role="menuitem" data-action="today">Go to today</button><button type="button" role="menuitem" data-action="start-date">Change start date</button><button type="button" role="menuitem" data-action="journey">Your journey</button><button type="button" role="menuitem" data-action="circles">Circles</button><button type="button" role="menuitem" data-action="progress">Your progress</button><a href="#official" role="menuitem" id="open-chart">Official reading chart</a><a href="https://www.navigators.org/resource/discipleship-journal-bible-reading-plan/" target="_blank" rel="noopener noreferrer" role="menuitem">About the Navigators plan</a><button type="button" role="menuitem" data-action="share">Share this plan</button><button type="button" role="menuitem" data-action="restart">Back to Day 1</button></div>
+<dialog id="start-date-dialog" aria-labelledby="start-date-title"><form method="dialog" id="start-date-form"><h2 id="start-date-title">Your reading start date</h2><p>Dates on the day rail follow the day you started this plan. Changing the start date won’t erase completed readings or SOS answers.</p><label for="start-date-input">Started on</label><input type="date" id="start-date-input" required><div class="start-date-actions"><button type="button" id="start-date-cancel">Cancel</button><button type="submit" id="start-date-save" class="primary">Save date</button></div></form></dialog><dialog id="journey-dialog" aria-labelledby="journey-title"><h2 id="journey-title">Your journey</h2><p id="journey-count"></p><div id="journey-months"></div><button id="journey-close" class="primary" type="button">Close</button></dialog><script src="/navigators-readings.js"></script><script>
 (function(){
 'use strict';const $=id=>document.getElementById(id),KEY='obey-navigators-reading-v1';
 let state;try{state=JSON.parse(localStorage.getItem(KEY)||'{}')}catch{state={}};if(!state||typeof state!=='object')state={};
 if(!state.items||typeof state.items!=='object')state.items={};
 let month=Number.isInteger(state.month)&&state.month>=1&&state.month<=12?state.month:1;
 let day=Number.isInteger(state.day)&&state.day>=1&&state.day<=25?state.day:1;
+
+const localToday=()=>{const n=new Date();return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0')};
+const validISO=s=>/^\d{4}-\d{2}-\d{2}$/.test(s||'')&&!Number.isNaN(Date.parse(s+'T00:00:00Z'))&&new Date(s+'T00:00:00Z').toISOString().slice(0,10)===s;
+if(!validISO(state.startedOn)){state.startedOn=localToday();state.startUpdatedAt=0;try{localStorage.setItem(KEY,JSON.stringify(state))}catch{}}
+const utcDate=iso=>new Date(iso+'T00:00:00Z');
+const isoUTC=d=>d.toISOString().slice(0,10);
+const shiftMonth=(iso,offset)=>{const base=utcDate(iso),y=base.getUTCFullYear(),m=base.getUTCMonth(),anchor=base.getUTCDate();const first=new Date(Date.UTC(y,m+offset,1)),last=new Date(Date.UTC(first.getUTCFullYear(),first.getUTCMonth()+1,0)).getUTCDate();return isoUTC(new Date(Date.UTC(first.getUTCFullYear(),first.getUTCMonth(),Math.min(anchor,last))))};
+const dateLabel=iso=>new Intl.DateTimeFormat('en-US',{timeZone:'UTC',month:'short',day:'numeric'}).format(utcDate(iso));
+let slots=[];
+function planSlots(){const list=[];for(let m=1;m<=12;m++){const start=utcDate(shiftMonth(state.startedOn,m-1));const end=utcDate(shiftMonth(state.startedOn,m));const length=Math.round((end-start)/86400000);if(length<25)throw Error('Invalid Navigators month length');for(let d=0;d<length;d++){const date=new Date(start.getTime()+d*86400000);list.push({month:m,day:d+1,date:isoUTC(date),reading:d<25,number:d<25?(m-1)*25+d+1:null})}}return list}
+function selectedSlot(){return slots.find(x=>x.month===month&&x.day===day&&x.reading)}
+function todaySlot(){return slots.find(x=>x.date===localToday())}
+function goToday(){const now=todaySlot();if(!now)return;const current=now.reading?now:slots.findLast(x=>x.month===now.month&&x.reading&&x.date<now.date);if(current)navigate(current.month,current.day)}
+
 const tracks=['Gospel','Acts & Epistles','Wisdom','Old Testament'];
 
 const raw=window.NAVIGATORS_READING_RAW;
@@ -97,22 +147,46 @@ function entry(m=month,d=day){const k=id(m,d);return state.items[k]||(state.item
 function save(){state.month=month;state.day=day;try{localStorage.setItem(KEY,JSON.stringify(state));window.dispatchEvent(new Event('navigators:saved'))}catch{$('save-status').textContent='Storage is unavailable. Your answers may not persist.'}}
 function totals(){let done=0;for(let m=1;m<=12;m++)for(let d=1;d<=25;d++){let e=state.items[id(m,d)];if(e&&Array.isArray(e.marks))done+=e.marks.slice(0,4).filter(Boolean).length}return done}
 function navigate(m,d){month=m;day=d;state.cursorUpdatedAt=Date.now();save();render();window.dispatchEvent(new Event('navigators:day-changed'))}
-$('prev-month').addEventListener('click',()=>navigate(month===1?12:month-1,1));
-$('next-month').addEventListener('click',()=>navigate(month===12?1:month+1,1));
+
+
 function updateProgress(){
- const e=entry();const n=e.marks.filter(Boolean).length;
+ const e=entry(),n=e.marks.filter(Boolean).length;
  $('reading-status').textContent=n===4?'All four readings complete.':n+' of 4 readings complete for this day.';
  $('read-progress').textContent=n+'/4';$('sos-progress').textContent=e.finished?'✓':'';
- const done=totals();$('progress').textContent=done+' of 1,200 readings completed';$('meter').setAttribute('aria-valuenow',done);$('bar').style.width=(100*done/1200)+'%';$('journey-ring').setAttribute('stroke-dashoffset',String(94.25*(1-done/1200)));
+ const done=totals();$('progress').textContent=done+' of 1,200';$('meter').setAttribute('aria-valuenow',done);$('bar').style.width=(100*done/1200)+'%';$('journey-ring').setAttribute('stroke-dashoffset',String(94.25*(1-done/1200)));
  $('finish').textContent=e.finished?'Finished · Save changes':'Finish today';$('finish').disabled=!e.marks.every(Boolean)||!['say','obey','share'].every(field=>String(e[field]||'').trim());
- for(const [i,button] of [...$('days').children].entries()){const item=entry(month,i+1);button.classList.toggle('done',item.marks.every(Boolean))}
+ for(const button of $('days').querySelectorAll('button[data-month]')){const item=state.items[id(Number(button.dataset.month),Number(button.dataset.day))];button.classList.toggle('done',!!item?.marks?.every(Boolean))}
 }
 function render(){
- $('month-label').textContent='Month '+month+' of 12';$('reading-title').textContent='Month '+month+' · Day '+day;
- const e=entry();const rail=$('days');rail.replaceChildren();
- for(let d=1;d<=25;d++){const b=document.createElement('button');b.type='button';b.className='day';const item=entry(month,d);if(item.marks.every(Boolean))b.classList.add('done');if(d===day)b.setAttribute('aria-current','true');b.setAttribute('aria-label','Reading day '+d);b.textContent=d;if(item.marks.every(Boolean)){const tick=document.createElement('span');tick.className='tick';tick.textContent='✓';b.append(tick)}b.addEventListener('click',()=>navigate(month,d));rail.append(b)}
- const active=rail.children[day-1];if(active)rail.scrollLeft=Math.max(0,active.offsetLeft-rail.clientWidth/2+active.offsetWidth/2);
-
+ slots=planSlots();
+ const active=selectedSlot(),today=todaySlot();
+ $('reading-title').textContent='Day '+active.number;
+ $('day-label').textContent='Day '+active.number+' of 300';
+ $('reading-date').textContent=dateLabel(active.date)+' · '+utcDate(active.date).getUTCFullYear();
+ $('month-context').textContent='Navigators Month '+month+' of 12 · 25 reading days + catch-up days';
+ $('go-today').hidden=!today||(today.month===month&&(today.reading?today.day:25)===day);
+ const e=entry(),rail=$('days');rail.replaceChildren();
+ for(const slot of slots){
+  if(slot.day===1){const marker=document.createElement('span');marker.className='month-marker';marker.textContent='Month '+slot.month;rail.append(marker)}
+  const button=document.createElement(slot.reading?'button':'span');
+  button.className='day'+(slot.reading?'':' catchup-day')+(slot.date===localToday()?' today':'');
+  if(slot.reading){
+   button.type='button';button.dataset.month=slot.month;button.dataset.day=slot.day;
+   button.setAttribute('aria-label','Day '+slot.number+', '+dateLabel(slot.date)+', Month '+slot.month);
+   if(slot.month===month&&slot.day===day)button.setAttribute('aria-current','step');
+   const record=state.items[id(slot.month,slot.day)];
+   if(record?.marks?.every(Boolean)){button.classList.add('done');const tick=document.createElement('span');tick.className='tick';tick.textContent='✓';button.append(tick)}
+   button.addEventListener('click',()=>navigate(slot.month,slot.day));
+  }else{
+   button.setAttribute('aria-label',dateLabel(slot.date)+', catch-up day');
+   button.title='Catch-up day · No assigned readings';
+  }
+  const number=document.createElement('b');number.textContent=slot.reading?slot.number:'Rest';
+  const date=document.createElement('small');date.textContent=dateLabel(slot.date);
+  button.prepend(number);button.append(date);rail.append(button);
+ }
+ const selectedButton=rail.querySelector('button[aria-current="step"]');
+ if(selectedButton)rail.scrollLeft=Math.max(0,selectedButton.offsetLeft-rail.clientWidth/2+selectedButton.offsetWidth/2);
  const list=$('passages');list.replaceChildren();
  const requestId=++readingRequest;
  reading(month,day).forEach((ref,i)=>{
@@ -136,17 +210,20 @@ function render(){
 }
 for(const field of ['say','obey','share'])$(field).addEventListener('input',()=>{entry()[field]=$(field).value;entry().updatedAt=Date.now();save();updateProgress();$('save-status').textContent='Saved on this device.'});
 $('next').addEventListener('click',()=>navigate(day<25?month:month===12?1:month+1,day<25?day+1:1));
+$('go-today').addEventListener('click',goToday);
+$('start-date-cancel').addEventListener('click',()=>$('start-date-dialog').close());
+$('start-date-form').addEventListener('submit',event=>{event.preventDefault();const newDate=$('start-date-input').value;if(!validISO(newDate))return;if(state.startedOn!==newDate){state.startedOn=newDate;state.startUpdatedAt=Date.now();state.cursorUpdatedAt=Date.now();save();render()}$('start-date-dialog').close()});
 $('go-read').addEventListener('click',()=>document.getElementById('reading-panel').scrollIntoView());
 $('go-sos').addEventListener('click',()=>document.getElementById('sos-panel').scrollIntoView());
 $('finish').addEventListener('click',()=>{entry().finished=true;entry().updatedAt=Date.now();save();updateProgress();$('save-status').textContent='Finished today.'});
 function journey(){const box=$('journey-months');box.replaceChildren();for(let m=1;m<=12;m++){let count=0;for(let d=1;d<=25;d++){const e=state.items[id(m,d)];count+=e?.marks?.filter(Boolean).length||0}const row=document.createElement('button');row.type='button';row.className='journey-month';row.textContent='Month '+m+' · '+count+'/100 readings';row.addEventListener('click',()=>{$('journey-dialog').close();navigate(m,1)});box.append(row)}$('journey-count').textContent=totals()+' of 1,200 passages completed';$('journey-dialog').showModal()}
 $('journey-open').addEventListener('click',journey);$('journey-close').addEventListener('click',()=>$('journey-dialog').close());
-window.navigatorsAdapter={read:()=>JSON.parse(JSON.stringify(state)),apply:incoming=>{if(!incoming?.items)return;state=incoming;month=Math.max(1,Math.min(12,Number(state.month)||1));day=Math.max(1,Math.min(25,Number(state.day)||1));render()},day:()=>({month,day})};
+window.navigatorsAdapter={read:()=>JSON.parse(JSON.stringify(state)),apply:incoming=>{if(!incoming?.items)return;state=incoming;if(!validISO(state.startedOn))state.startedOn=localToday();month=Math.max(1,Math.min(12,Number(state.month)||1));day=Math.max(1,Math.min(25,Number(state.day)||1));render()},day:()=>({month,day})};
 const closeMenu=()=>{$('menu').hidden=true;$('backdrop').hidden=true;$('options').setAttribute('aria-expanded','false')};
 $('options').addEventListener('click',()=>{const open=$('menu').hidden;$('menu').hidden=!open;$('backdrop').hidden=!open;$('options').setAttribute('aria-expanded',String(open))});
 $('backdrop').addEventListener('click',closeMenu);$('open-chart').addEventListener('click',closeMenu);
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMenu()});
-$('menu').addEventListener('click',async event=>{const action=event.target.closest('[data-action]')?.dataset.action;if(!action)return;closeMenu();if(action==='resume'){$('reading-title').scrollIntoView({block:'start'})}if(action==='catchup'){let target=null;for(let m=1;m<=12&&!target;m++)for(let d=1;d<=25;d++){const e=state.items[id(m,d)];if(!e||!e.marks?.every(Boolean)||!e.finished){target=[m,d];break}}if(target)navigate(...target);else journey()}if(action==='journey')journey();if(action==='circles')location.href='/follow-circles.html';if(action==='progress')$('progress-sync').scrollIntoView();if(action==='restart')navigate(1,1);if(action==='share'){const url='https://obey.tools/navigators-bible-plan.html';try{if(navigator.share)await navigator.share({title:'Navigators Bible Reading Plan',url});else if(navigator.clipboard){await navigator.clipboard.writeText(url);alert('Link copied.')}else prompt('Copy the link:',url)}catch{}}});
+$('menu').addEventListener('click',async event=>{const action=event.target.closest('[data-action]')?.dataset.action;if(!action)return;closeMenu();if(action==='resume'){$('reading-title').scrollIntoView({block:'start'})}if(action==='catchup'){let target=null;for(let m=1;m<=12&&!target;m++)for(let d=1;d<=25;d++){const e=state.items[id(m,d)];if(!e||!e.marks?.every(Boolean)||!e.finished){target=[m,d];break}}if(target)navigate(...target);else journey()}if(action==='journey')journey();if(action==='circles')location.href='/follow-circles.html';if(action==='progress')$('progress-sync').scrollIntoView();if(action==='today')goToday();if(action==='start-date'){$('start-date-input').value=state.startedOn;$('start-date-dialog').showModal()};if(action==='restart')navigate(1,1);if(action==='share'){const url='https://obey.tools/navigators-bible-plan.html';try{if(navigator.share)await navigator.share({title:'Navigators Bible Reading Plan',url});else if(navigator.clipboard){await navigator.clipboard.writeText(url);alert('Link copied.')}else prompt('Copy the link:',url)}catch{}}});
 render();
 })();
 </script><script type="module" src="/navigators-community.js"></script></body></html>

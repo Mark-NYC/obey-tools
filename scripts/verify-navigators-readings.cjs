@@ -46,4 +46,31 @@ assert.ok(!html.includes('id="day-select"'),'no day dropdown');
 assert.ok(html.includes('id="journey-dialog"'),'journey view exists');
 assert.ok(html.includes('navigators-community.js'),'account and Circle module exists');
 assert.ok(!html.includes("Reading '+(i+1)+' in official chart"),'no placeholders');
+
+// The UI has one continuous dated rail, with 25 readings plus catch-up days in each plan month.
+assert.ok(html.includes('class="day-rail days" id="days"'),'continuous reading rail exists');
+assert.ok(!html.includes('id="prev-month"')&&!html.includes('id="next-month"'),'no separate month navigation');
+assert.ok(html.includes('id="start-date-input"'),'start date can be changed');
+assert.ok(html.includes('id="go-today"'),'date-aware Go to today control exists');
+const pageScript=html.split('<script>')[1].split('</script>')[0];
+new vm.Script(pageScript,{filename:'navigators-page.js'});
+const dateStart=pageScript.indexOf('const localToday='),dateEnd=pageScript.indexOf('const tracks=',dateStart);
+assert.ok(dateStart>=0&&dateEnd>dateStart,'testable date algorithm exists');
+const dateLogic=pageScript.slice(dateStart,dateEnd);
+for(const start of ['2026-11-22','2026-01-31','2028-02-29']){
+ const sandbox={state:{startedOn:start,items:{}},KEY:'test',month:1,day:1,localStorage:{setItem(){}},navigate(){}};
+ const slots=vm.runInNewContext(dateLogic+'\nplanSlots()',sandbox);
+ assert.equal(slots.filter(x=>x.reading).length,300);
+ assert.equal(slots.length,365,'a one-year plan');
+ assert.equal(slots[0].date,start,'plan starts on chosen date');
+ assert.equal(slots.at(-1).number,null,'last day is catch-up');
+ for(let m=1;m<=12;m++){
+  const subset=slots.filter(x=>x.month===m);
+  assert.equal(subset.filter(x=>x.reading).length,25,'25 readings for month '+m);
+  assert.ok(subset.length>=28&&subset.length<=31,'calendar month length');
+  assert.equal(subset[0].number,1+(m-1)*25,'global day numbering');
+  assert.ok(subset.slice(25).every(x=>!x.reading),'end-of-month catch-up days');
+ }
+ assert.ok(slots.every((x,i)=>i===0||x.date>slots[i-1].date),'dates never repeat or reverse');
+}
 console.log('OK: 12 months, 300 days, 1,200 references, key transitions, and in-page reader.');
