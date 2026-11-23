@@ -89,8 +89,8 @@ let month=Number.isInteger(state.month)&&state.month>=1&&state.month<=12?state.m
 let day=Number.isInteger(state.day)&&state.day>=1&&state.day<=25?state.day:1;
 
 const localToday=()=>{const n=new Date();return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0')};
-const validISO=s=>/^\d{4}-\d{2}-\d{2}$/.test(s||'')&&!Number.isNaN(Date.parse(s+'T00:00:00Z'));
-if(!validISO(state.startedOn)){state.startedOn=localToday();state.startUpdatedAt=Date.now();try{localStorage.setItem(KEY,JSON.stringify(state))}catch{}}
+const validISO=s=>/^\d{4}-\d{2}-\d{2}$/.test(s||'')&&!Number.isNaN(Date.parse(s+'T00:00:00Z'))&&new Date(s+'T00:00:00Z').toISOString().slice(0,10)===s;
+if(!validISO(state.startedOn)){state.startedOn=localToday();state.startUpdatedAt=0;try{localStorage.setItem(KEY,JSON.stringify(state))}catch{}}
 const utcDate=iso=>new Date(iso+'T00:00:00Z');
 const isoUTC=d=>d.toISOString().slice(0,10);
 const shiftMonth=(iso,offset)=>{const base=utcDate(iso),y=base.getUTCFullYear(),m=base.getUTCMonth(),anchor=base.getUTCDate();const first=new Date(Date.UTC(y,m+offset,1)),last=new Date(Date.UTC(first.getUTCFullYear(),first.getUTCMonth()+1,0)).getUTCDate();return isoUTC(new Date(Date.UTC(first.getUTCFullYear(),first.getUTCMonth(),Math.min(anchor,last))))};
@@ -155,14 +155,14 @@ function updateProgress(){
  $('read-progress').textContent=n+'/4';$('sos-progress').textContent=e.finished?'✓':'';
  const done=totals();$('progress').textContent=done+' of 1,200';$('meter').setAttribute('aria-valuenow',done);$('bar').style.width=(100*done/1200)+'%';$('journey-ring').setAttribute('stroke-dashoffset',String(94.25*(1-done/1200)));
  $('finish').textContent=e.finished?'Finished · Save changes':'Finish today';$('finish').disabled=!e.marks.every(Boolean)||!['say','obey','share'].every(field=>String(e[field]||'').trim());
- for(const button of $('days').querySelectorAll('button[data-month]')){const item=entry(Number(button.dataset.month),Number(button.dataset.day));button.classList.toggle('done',item.marks.every(Boolean))}
+ for(const button of $('days').querySelectorAll('button[data-month]')){const item=state.items[id(Number(button.dataset.month),Number(button.dataset.day))];button.classList.toggle('done',!!item?.marks?.every(Boolean))}
 }
 function render(){
  slots=planSlots();
  const active=selectedSlot(),today=todaySlot();
  $('reading-title').textContent='Day '+active.number;
  $('day-label').textContent='Day '+active.number+' of 300';
- $('reading-date').textContent=dateLabel(active.date);
+ $('reading-date').textContent=dateLabel(active.date)+' · '+utcDate(active.date).getUTCFullYear();
  $('month-context').textContent='Navigators Month '+month+' of 12 · 25 reading days + catch-up days';
  $('go-today').hidden=!today||(today.month===month&&(today.reading?today.day:25)===day);
  const e=entry(),rail=$('days');rail.replaceChildren();
@@ -174,8 +174,8 @@ function render(){
    button.type='button';button.dataset.month=slot.month;button.dataset.day=slot.day;
    button.setAttribute('aria-label','Day '+slot.number+', '+dateLabel(slot.date)+', Month '+slot.month);
    if(slot.month===month&&slot.day===day)button.setAttribute('aria-current','step');
-   const record=entry(slot.month,slot.day);
-   if(record.marks.every(Boolean)){button.classList.add('done');const tick=document.createElement('span');tick.className='tick';tick.textContent='✓';button.append(tick)}
+   const record=state.items[id(slot.month,slot.day)];
+   if(record?.marks?.every(Boolean)){button.classList.add('done');const tick=document.createElement('span');tick.className='tick';tick.textContent='✓';button.append(tick)}
    button.addEventListener('click',()=>navigate(slot.month,slot.day));
   }else{
    button.setAttribute('aria-label',dateLabel(slot.date)+', catch-up day');
