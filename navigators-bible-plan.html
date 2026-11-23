@@ -48,7 +48,7 @@
 .days .day .tick{position:absolute;top:2px;right:3px;font-size:11px;color:#00744a;line-height:1}
 .days .day[aria-current=step] .tick{color:#7fe0b4}
 .days .catchup-day{opacity:.65;cursor:default}
-.days .catchup-day b{font-size:14px;margin-top:5px}
+.days .catchup-day b{font-size:11px;margin-top:7px;white-space:nowrap}
 .days .month-marker{display:flex;align-items:center;justify-content:center;flex:0 0 76px;height:64px;font-size:12px;color:var(--muted);border-left:1px solid var(--line);padding:0 10px;white-space:nowrap;font-weight:750;text-align:center}
 .day-head{padding-top:14px}.day-head .day-meta{display:flex;gap:10px;align-items:center;flex-wrap:wrap;color:var(--muted);font-size:14px;font-weight:650}.day-head .journey-button{margin-left:auto}
 .day-head .daytitle{font-size:30px;font-weight:800;font-family:var(--sans);letter-spacing:-.02em;line-height:1.15;margin:4px 0 3px}
@@ -201,7 +201,7 @@ function render(){
    button.setAttribute('aria-label',dateLabel(slot.date)+', catch-up day');
    button.title='Catch-up day · No assigned readings';
   }
-  const number=document.createElement('b');number.textContent=slot.reading?slot.number:'Rest';
+  const number=document.createElement('b');number.textContent=slot.reading?slot.number:'Catch up';
   const date=document.createElement('small');date.textContent=dateLabel(slot.date);
   button.prepend(number);button.append(date);rail.append(button);
  }
