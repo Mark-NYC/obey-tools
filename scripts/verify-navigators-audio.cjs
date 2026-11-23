@@ -8,6 +8,13 @@ new vm.Script(audio,{filename:'navigators-audio.js'});
 assert.ok(html.includes('id="audio-all"'),'Listen to all readings');
 assert.ok(html.includes('id="esv-audio-frame"'),'ESV embed is present');
 assert.ok(html.includes('id="audio-close"'),'Explicitly stop embedded audio');
+
+assert.ok(html.includes('class="ot-btn ot-btn--primary audio-main"'),'Top player uses the existing primary button');
+assert.ok(html.includes('class="ot-btn ot-btn--secondary esv-close"'),'Close uses the shared secondary button');
+assert.ok(html.includes("listen.className='ot-btn ot-btn--secondary audio-passage'"),'Listen uses the shared secondary button');
+assert.ok(audio.includes('group.insertBefore(panel,scripture)'),'Audio is placed before Scripture inside the selected passage');
+assert.ok(audio.includes('home.append(panel)'),'All-readings player returns to its original location');
+
 assert.ok(html.includes('data.audioIndex=String(i)'),'Individual listening buttons');
 assert.ok(html.includes('Audio: ESV'),'Audio translation labeled ESV');
 assert.ok(html.includes('World English Bible (WEB), public domain'),'Displayed text remains WEB');
