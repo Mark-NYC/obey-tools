@@ -87,6 +87,20 @@ let state;try{state=JSON.parse(localStorage.getItem(KEY)||'{}')}catch{state={}};
 if(!state.items||typeof state.items!=='object')state.items={};
 let month=Number.isInteger(state.month)&&state.month>=1&&state.month<=12?state.month:1;
 let day=Number.isInteger(state.day)&&state.day>=1&&state.day<=25?state.day:1;
+
+const localToday=()=>{const n=new Date();return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0')};
+const validISO=s=>/^\d{4}-\d{2}-\d{2}$/.test(s||'')&&!Number.isNaN(Date.parse(s+'T00:00:00Z'));
+if(!validISO(state.startedOn)){state.startedOn=localToday();state.startUpdatedAt=Date.now();try{localStorage.setItem(KEY,JSON.stringify(state))}catch{}}
+const utcDate=iso=>new Date(iso+'T00:00:00Z');
+const isoUTC=d=>d.toISOString().slice(0,10);
+const shiftMonth=(iso,offset)=>{const base=utcDate(iso),y=base.getUTCFullYear(),m=base.getUTCMonth(),anchor=base.getUTCDate();const first=new Date(Date.UTC(y,m+offset,1)),last=new Date(Date.UTC(first.getUTCFullYear(),first.getUTCMonth()+1,0)).getUTCDate();return isoUTC(new Date(Date.UTC(first.getUTCFullYear(),first.getUTCMonth(),Math.min(anchor,last))))};
+const dateLabel=iso=>new Intl.DateTimeFormat('en-US',{timeZone:'UTC',month:'short',day:'numeric'}).format(utcDate(iso));
+let slots=[];
+function planSlots(){const list=[];for(let m=1;m<=12;m++){const start=utcDate(shiftMonth(state.startedOn,m-1));const end=utcDate(shiftMonth(state.startedOn,m));const length=Math.round((end-start)/86400000);if(length<25)throw Error('Invalid Navigators month length');for(let d=0;d<length;d++){const date=new Date(start.getTime()+d*86400000);list.push({month:m,day:d+1,date:isoUTC(date),reading:d<25,number:d<25?(m-1)*25+d+1:null})}}return list}
+function selectedSlot(){return slots.find(x=>x.month===month&&x.day===day&&x.reading)}
+function todaySlot(){return slots.find(x=>x.date===localToday())}
+function goToday(){const now=todaySlot();if(!now)return;const current=now.reading?now:slots.findLast(x=>x.month===now.month&&x.reading&&x.date<now.date);if(current)navigate(current.month,current.day)}
+
 const tracks=['Gospel','Acts & Epistles','Wisdom','Old Testament'];
 
 const raw=window.NAVIGATORS_READING_RAW;
