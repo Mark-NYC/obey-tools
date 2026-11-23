@@ -14,16 +14,18 @@ assert.ok(html.includes('navigators-audio-manifest.js'),'Manifest loaded');
 assert.ok(html.indexOf('navigators-audio-manifest.js')<html.indexOf('navigators-audio.js'),'Manifest before player');
 assert.ok(html.includes("window.dispatchEvent(new CustomEvent('navigators:rendered'"),'Player receives page render');
 assert.ok(audio.includes("window.addEventListener('navigators:day-changed'"),'Player stops at day changes');
-assert.ok(audio.includes("fetch('https://bible-api.com/'"),'Exact verse WEB text fallback');
+assert.ok(!/speechSynthesis|SpeechSynthesisUtterance|kind:'tts'|speakReference/.test(audio),'no robotic speech');
+assert.ok(html.includes('Human-recorded audio only.'),'UI explains the audio choice');
 const start=audio.indexOf(' const nt='),end=audio.indexOf(' function references(){',start);
 assert.ok(start>=0&&end>start);
 const context={window:{NAVIGATORS_AUDIO_MANIFEST:{}}};
 const parse=new vm.Script(audio.slice(start,end)+'\n({filename,splitReference,tasksFor})');
 const {filename,splitReference,tasksFor}=parse.runInNewContext(context);
-assert.equal(splitReference('Matthew 1:1-17').partial,true,'partial-chapter is precise TTS');
+assert.equal(splitReference('Matthew 1:1-17').partial,true,'passage range is recognized');
 assert.equal(splitReference('Genesis 1-2').last,2,'chapter range');
-assert.equal(tasksFor('Matthew 1:1-17',0)[0].kind,'tts');
-assert.equal(tasksFor('Psalms 119:1-8',0)[0].kind,'tts');
+assert.equal(tasksFor('Matthew 1:1-17',0)[0].kind,'mp3','partial readings use human audio');
+assert.equal(tasksFor('Matthew 1:1-17',0)[0].reference,'Matthew 1','plays the full recorded chapter');
+assert.equal(tasksFor('Psalms 119:1-8',0)[0].kind,'mp3');
 assert.equal(tasksFor('Genesis 1-2',0).length,2);
 assert.equal(tasksFor('Genesis 1-2',0)[0].kind,'mp3');
 assert.equal(filename('Genesis',1),'https://ebible.org/eng-web/audio/01_Genesis/01_01_Genesis_Chapter_One.mp3');
@@ -32,7 +34,7 @@ assert.equal(filename('Proverbs',31),'https://ebible.org/eng-web/audio/20_Prover
 assert.equal(filename('Matthew',1),'https://ebible.org/eng-web/mp3/01_01_Matthew.mp3');
 assert.equal(filename('Revelation',22),'https://ebible.org/eng-web/mp3/27_22_Revelation.mp3');
 assert.equal(tasksFor('2 Kings 24-25',0).length,2);
-assert.ok(tasksFor('2 Kings 24-25',0).every(x=>x.kind==='tts'),'Unverified source gets safe fallback');
+assert.ok(tasksFor('2 Kings 24-25',0).every(x=>x.kind==='mp3'),'recorded chapter audio for whole-book ranges');
 context.window.NAVIGATORS_AUDIO_MANIFEST={'2 Kings':['https://ebible.org/eng-web/audio/12_Second_Kings/verified.mp3']};
 assert.equal(filename('2 Kings',1),'https://ebible.org/eng-web/audio/12_Second_Kings/verified.mp3','Verified manifest overrides fallback');
 
@@ -51,4 +53,4 @@ assert.match(decodeURIComponent(mapping['2 Thessalonians'][2]),/Chapter Three\.m
 for(const chapters of Object.values(mapping)){
  for(const url of chapters)assert.match(url,/^https:\/\/ebible\.org\/eng-web\/audio\/.*\.mp3$/);
 }
-console.log('OK: audio controls, exact references, WEB MP3 URLs, graceful fallback, and navigation cleanup.');
+console.log('OK: audio controls, exact references, WEB MP3 URLs, human narration, and navigation cleanup.');
