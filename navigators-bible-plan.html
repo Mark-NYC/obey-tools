@@ -150,12 +150,12 @@ function navigate(m,d){month=m;day=d;state.cursorUpdatedAt=Date.now();save();ren
 $('prev-month').addEventListener('click',()=>navigate(month===1?12:month-1,1));
 $('next-month').addEventListener('click',()=>navigate(month===12?1:month+1,1));
 function updateProgress(){
- const e=entry();const n=e.marks.filter(Boolean).length;
+ const e=entry(),n=e.marks.filter(Boolean).length;
  $('reading-status').textContent=n===4?'All four readings complete.':n+' of 4 readings complete for this day.';
  $('read-progress').textContent=n+'/4';$('sos-progress').textContent=e.finished?'✓':'';
- const done=totals();$('progress').textContent=done+' of 1,200 readings completed';$('meter').setAttribute('aria-valuenow',done);$('bar').style.width=(100*done/1200)+'%';$('journey-ring').setAttribute('stroke-dashoffset',String(94.25*(1-done/1200)));
+ const done=totals();$('progress').textContent=done+' of 1,200';$('meter').setAttribute('aria-valuenow',done);$('bar').style.width=(100*done/1200)+'%';$('journey-ring').setAttribute('stroke-dashoffset',String(94.25*(1-done/1200)));
  $('finish').textContent=e.finished?'Finished · Save changes':'Finish today';$('finish').disabled=!e.marks.every(Boolean)||!['say','obey','share'].every(field=>String(e[field]||'').trim());
- for(const [i,button] of [...$('days').children].entries()){const item=entry(month,i+1);button.classList.toggle('done',item.marks.every(Boolean))}
+ for(const button of $('days').querySelectorAll('button[data-month]')){const item=entry(Number(button.dataset.month),Number(button.dataset.day));button.classList.toggle('done',item.marks.every(Boolean))}
 }
 function render(){
  $('month-label').textContent='Month '+month+' of 12';$('reading-title').textContent='Month '+month+' · Day '+day;
