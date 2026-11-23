@@ -147,8 +147,8 @@ function entry(m=month,d=day){const k=id(m,d);return state.items[k]||(state.item
 function save(){state.month=month;state.day=day;try{localStorage.setItem(KEY,JSON.stringify(state));window.dispatchEvent(new Event('navigators:saved'))}catch{$('save-status').textContent='Storage is unavailable. Your answers may not persist.'}}
 function totals(){let done=0;for(let m=1;m<=12;m++)for(let d=1;d<=25;d++){let e=state.items[id(m,d)];if(e&&Array.isArray(e.marks))done+=e.marks.slice(0,4).filter(Boolean).length}return done}
 function navigate(m,d){month=m;day=d;state.cursorUpdatedAt=Date.now();save();render();window.dispatchEvent(new Event('navigators:day-changed'))}
-$('prev-month').addEventListener('click',()=>navigate(month===1?12:month-1,1));
-$('next-month').addEventListener('click',()=>navigate(month===12?1:month+1,1));
+
+
 function updateProgress(){
  const e=entry(),n=e.marks.filter(Boolean).length;
  $('reading-status').textContent=n===4?'All four readings complete.':n+' of 4 readings complete for this day.';
